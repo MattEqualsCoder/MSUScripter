@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="MSUScripter.UI.MsuBasicInfoPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MSUScripter.UI"
+             xmlns:models="clr-namespace:MSUScripter.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.DataContext>
+        <models:MsuInformationViewModel></models:MsuInformationViewModel>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <ResourceDictionary Source="Generic.xaml" />
+    </UserControl.Resources>
+    <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
+        
+        <GroupBox Header="Basic Details">
+            <StackPanel Orientation="Vertical">
+                <local:LabeledControl Text="Pack Name: ">
+                    <TextBox 
+                        Name="PackNameTextBox"
+                        Text="{Binding Path=PackName}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Pack Creator: ">
+                    <TextBox 
+                        Name="PackCreatorTextBox"
+                        Text="{Binding Path=PackCreator}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Pack Version: ">
+                    <TextBox 
+                        Name="PackVersionTextBox"
+                        Text="{Binding Path=PackVersion}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Default Artist: ">
+                    <TextBox 
+                        Name="ArtistTextBox"
+                        Text="{Binding Path=Artist}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Default Album: ">
+                    <TextBox 
+                        Name="AlbumTextBox"
+                        Text="{Binding Path=Album}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Default Url: ">
+                    <TextBox 
+                        Name="UrlTextBox"
+                        Text="{Binding Path=Url}"
+                    ></TextBox>
+                </local:LabeledControl>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0">
+            <StackPanel Orientation="Vertical">
+                <local:LabeledControl Text="Pack Name: ">
+                    <TextBox 
+                        Name="OutputPrefixTextBox"
+                        Text="{Binding Path=OutputPrefix}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Pack Creator: ">
+                    <TextBox 
+                        Name="NormalizationTextBox"
+                        Text="{Binding Path=Normalization}"
+                    ></TextBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Pack Version: ">
+                    <TextBox 
+                        Name="Dither"
+                        Text="{Binding Path=Dither}"
+                    ></TextBox>
+                </local:LabeledControl>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</UserControl>

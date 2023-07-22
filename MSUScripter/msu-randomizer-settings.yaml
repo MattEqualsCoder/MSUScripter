@@ -1,0 +1,9 @@
+UserOptionsFilePath: "%LocalAppData%\\MSUScripter\\msu-user-settings.yml"
+MsuTypeFilePath: "%LocalAppData%\\MSUScripter\\Configs"
+ContinuousReshuffleSeconds: 60
+MsuWindowDisplayRandomButton: true
+MsuWindowDisplayShuffleButton: true
+MsuWindowDisplayContinuousButton: true
+MsuWindowDisplayOptionsButton: true
+MsuWindowDisplaySelectButton: false
+ForcedMsuType: 

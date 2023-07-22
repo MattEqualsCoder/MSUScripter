@@ -1,0 +1,4 @@
+[submodule "ConfigRepo"]
+	path = ConfigRepo
+	url = https://github.com/MattEqualsCoder/ALttPMSUShuffler.git
+	branch = release
