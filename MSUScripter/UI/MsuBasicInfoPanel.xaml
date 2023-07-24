@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MSUScripter.UI"
              xmlns:models="clr-namespace:MSUScripter.ViewModels"
+             xmlns:tools1="clr-namespace:MSUScripter.UI.Tools"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.DataContext>
@@ -70,7 +71,7 @@
                     <ComboBox 
                         Name="Dither"
                         SelectedItem="{Binding Dither, Converter={StaticResource BoolStringConverter}}"
-                        ItemsSource="{x:Static local:BoolComboBoxItemsSource.ItemsSource}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
                     ></ComboBox>
                 </local:LabeledControl>
             </StackPanel>

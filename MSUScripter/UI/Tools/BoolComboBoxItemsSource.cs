@@ -1,4 +1,4 @@
-﻿namespace MSUScripter.UI;
+﻿namespace MSUScripter.UI.Tools;
 
 public static class BoolComboBoxItemsSource
 {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.UI.Tools;
 
 namespace MSUScripter.UI;
 

@@ -11,15 +11,15 @@ namespace MSUScripter
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
-        private IServiceProvider _serviceProvider;
-        private ProjectService _projectService;
-        private MsuProject _msuProject = new();
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ProjectService _projectService;
+        private MsuProject? _msuProject;
         private NewPanel? _newPanel;
         private EditPanel? _editPanel;
         
-        public MainWindow(ProjectService projectService, NewPanel newPanel, IServiceProvider serviceProvider)
+        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider)
         {
             _projectService = projectService;
             _serviceProvider = serviceProvider;
@@ -39,6 +39,7 @@ namespace MSUScripter
             _newPanel = _serviceProvider.GetRequiredService<NewPanel>();
             MainPanel.Children.Add(_newPanel);
             _newPanel.OnProjectSelected += OnProjectSelected;
+            _msuProject = null;
             UpdateTitle(null);
         }
 
@@ -70,6 +71,7 @@ namespace MSUScripter
                 _newPanel.OnProjectSelected -= OnProjectSelected;    
             }
 
+            _msuProject = project;
             _newPanel = null;
             MainPanel.Children.Clear();
             _editPanel = _serviceProvider.GetRequiredService<EditPanel>();
@@ -86,23 +88,28 @@ namespace MSUScripter
         private void SaveMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (_editPanel == null) return;
-            var project = _editPanel.UpdateProjectData();
-            _projectService.SaveMsuProject(project);
-            UpdateTitle(project);
+            _msuProject = _editPanel.UpdateProjectData();
+            _projectService.SaveMsuProject(_msuProject);
+            UpdateTitle(_msuProject);
         }
 
         private void ExportYamlMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (_editPanel == null) return;
-            var project = _editPanel.UpdateProjectData();
-            _projectService.ExportMsuRandomizerYaml(project);
+            _msuProject = _editPanel.UpdateProjectData();
+            _projectService.ExportMsuRandomizerYaml(_msuProject);
         }
 
         private void ExportMsuPcmJsonMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (_editPanel == null) return;
-            var project = _editPanel.UpdateProjectData();
-            _projectService.ExportMsuPcmTracksJson(project);
+            _msuProject = _editPanel.UpdateProjectData();
+            _projectService.ExportMsuPcmTracksJson(_msuProject);
+        }
+
+        private void SettingsMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

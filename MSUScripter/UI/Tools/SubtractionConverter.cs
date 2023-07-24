@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Data;
 
-namespace MSUScripter.UI;
+namespace MSUScripter.UI.Tools;
 
 public class SubtractionConverter : IValueConverter
 {

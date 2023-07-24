@@ -7,6 +7,7 @@ using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.UI.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.UI;
@@ -135,22 +136,22 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     }
     
     public void DecimalTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
-        UIHelpers.DecimalTextBox_OnPreviewTextInput(s, e);
+        Helpers.DecimalTextBox_OnPreviewTextInput(s, e);
 
     public void DecimalTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
-        UIHelpers.DecimalTextBox_OnPaste(s, e);
+        Helpers.DecimalTextBox_OnPaste(s, e);
 
     private void DecimalTextBox_OnLostFocus(object s, RoutedEventArgs e) =>
-        UIHelpers.DecimalTextBox_OnLostFocus(s, e);
+        Helpers.DecimalTextBox_OnLostFocus(s, e);
     
     public void IntTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
-        UIHelpers.IntTextBox_OnPreviewTextInput(s, e);
+        Helpers.IntTextBox_OnPreviewTextInput(s, e);
 
     public void IntTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
-        UIHelpers.IntTextBox_OnPaste(s, e);
+        Helpers.IntTextBox_OnPaste(s, e);
 
     private void IntTextBox_OnLostFocus(object s, RoutedEventArgs e) =>
-        UIHelpers.IntTextBox_OnLostFocus(s, e);
+        Helpers.IntTextBox_OnLostFocus(s, e);
 
     private void AddSubChannelButton_OnClick(object sender, RoutedEventArgs e)
     {

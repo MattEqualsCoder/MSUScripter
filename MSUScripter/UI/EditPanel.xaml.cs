@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.UI.Tools;
 
 namespace MSUScripter.UI;
 

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MSUScripter.UI;
+namespace MSUScripter.UI.Tools;
 
 [ValueConversion(typeof(bool?), typeof(string))]
 public sealed class BoolToStringConverter : IValueConverter

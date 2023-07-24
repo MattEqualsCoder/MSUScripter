@@ -30,6 +30,11 @@
                     Click="SaveMenuItem_OnClick"
                 ></MenuItem>
                 <MenuItem 
+                    Header="S_ettings" 
+                    Name="SettingsMenuItem"
+                    Click="SettingsMenuItem_OnClick"
+                ></MenuItem>
+                <MenuItem 
                     Header="Export _YAML"
                     Name="ExportYamlMenuItem"
                     Click="ExportYamlMenuItem_OnClick"

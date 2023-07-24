@@ -26,7 +26,7 @@
                     <TextBlock 
                         Name="HeaderText"
                         Grid.Column="0"
-                        Text="BasicDetails"
+                        Text="Basic Details"
                     ></TextBlock>
                     <Button 
                         Name="RemoveButton"

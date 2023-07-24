@@ -1,7 +1,8 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:MSUScripter.UI">
+    xmlns:local="clr-namespace:MSUScripter.UI"
+    xmlns:tools1="clr-namespace:MSUScripter.UI.Tools">
 
         <Style x:Key="TopBottomPanel"
              TargetType="Border">
@@ -54,8 +55,8 @@
                         Value="0,0,0,3" />
         </Style>
         
-        <local:BoolToVisibilityConverter x:Key="BoolVisibilityConverter" />
-        <local:BoolToStringConverter x:Key="BoolStringConverter"/>
-        <local:SubtractionConverter x:Key="SubtractionConverter"/>
+        <tools1:BoolToVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <tools1:BoolToStringConverter x:Key="BoolStringConverter"/>
+        <tools1:SubtractionConverter x:Key="SubtractionConverter"/>
 
 </ResourceDictionary>

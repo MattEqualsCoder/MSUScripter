@@ -6,9 +6,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace MSUScripter.UI;
+namespace MSUScripter.UI.Tools;
 
-public class UIHelpers
+public abstract class Helpers
 {
     public static void DecimalTextBox_OnPreviewTextInput(object sender, TextCompositionEventArgs e)
     {
