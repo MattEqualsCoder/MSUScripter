@@ -8,7 +8,7 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.DataContext>
-        <models:MsuInformationViewModel></models:MsuInformationViewModel>
+        <models:MsuBasicInfoViewModel></models:MsuBasicInfoViewModel>
     </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary Source="Generic.xaml" />
@@ -20,60 +20,58 @@
                 <local:LabeledControl Text="Pack Name: ">
                     <TextBox 
                         Name="PackNameTextBox"
-                        Text="{Binding Path=PackName}"
+                        Text="{Binding Path=PackName, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
                 <local:LabeledControl Text="Pack Creator: ">
                     <TextBox 
                         Name="PackCreatorTextBox"
-                        Text="{Binding Path=PackCreator}"
+                        Text="{Binding Path=PackCreator, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
                 <local:LabeledControl Text="Pack Version: ">
                     <TextBox 
                         Name="PackVersionTextBox"
-                        Text="{Binding Path=PackVersion}"
+                        Text="{Binding Path=PackVersion, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
                 <local:LabeledControl Text="Default Artist: ">
                     <TextBox 
                         Name="ArtistTextBox"
-                        Text="{Binding Path=Artist}"
+                        Text="{Binding Path=Artist, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
                 <local:LabeledControl Text="Default Album: ">
                     <TextBox 
                         Name="AlbumTextBox"
-                        Text="{Binding Path=Album}"
+                        Text="{Binding Path=Album, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
                 <local:LabeledControl Text="Default Url: ">
                     <TextBox 
                         Name="UrlTextBox"
-                        Text="{Binding Path=Url}"
+                        Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0">
             <StackPanel Orientation="Vertical">
-                <local:LabeledControl Text="Pack Name: ">
-                    <TextBox 
-                        Name="OutputPrefixTextBox"
-                        Text="{Binding Path=OutputPrefix}"
-                    ></TextBox>
-                </local:LabeledControl>
-                <local:LabeledControl Text="Pack Creator: ">
+                <local:LabeledControl Text="Normalization: ">
                     <TextBox 
                         Name="NormalizationTextBox"
-                        Text="{Binding Path=Normalization}"
+                        Text="{Binding Path=Normalization, Mode=TwoWay}"
+                        PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="DecimalTextBox_OnPaste"
+                        LostFocus="DecimalTextBox_OnLostFocus"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Pack Version: ">
-                    <TextBox 
+                <local:LabeledControl Text="Dither: ">
+                    <ComboBox 
                         Name="Dither"
-                        Text="{Binding Path=Dither}"
-                    ></TextBox>
+                        SelectedItem="{Binding Dither, Converter={StaticResource BoolStringConverter}}"
+                        ItemsSource="{x:Static local:BoolComboBoxItemsSource.ItemsSource}"
+                    ></ComboBox>
                 </local:LabeledControl>
             </StackPanel>
         </GroupBox>

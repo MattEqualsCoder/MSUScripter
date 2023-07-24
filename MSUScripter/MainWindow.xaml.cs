@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
+using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.UI;
 
 namespace MSUScripter
 {
@@ -23,51 +18,78 @@ namespace MSUScripter
     /// </summary>
     public partial class MainWindow : Window
     {
-        private IMsuTypeService _msuTypeService;
-        private MsuType _msuType;
-        private int _trackOffset = 1;
+        private IServiceProvider _serviceProvider;
+        private ProjectService _projectService;
+        private MsuProject _msuProject = new();
+        private NewPanel? _newPanel;
+        private EditPanel? _editPanel;
         
-        public MainWindow(IMsuTypeService msuTypeService)
+        public MainWindow(ProjectService projectService, NewPanel newPanel, IServiceProvider serviceProvider)
         {
-            _msuTypeService = msuTypeService;
-            _msuType = _msuTypeService.MsuTypes.First();
+            _projectService = projectService;
+            _serviceProvider = serviceProvider;
             InitializeComponent();
-            PopulateMsuTypeComboBox();
+            DisplayNewPanel();
         }
 
-        private void PopulateMsuTypeComboBox()
+        private void DisplayNewPanel()
         {
-            MsuTypeComboBox.ItemsSource = _msuTypeService.MsuTypes.Select(x => x.DisplayName);
-            MsuTypeComboBox.SelectedItem = _msuType.DisplayName;
+            if (_newPanel?.OnProjectSelected != null)
+            {
+                _newPanel.OnProjectSelected -= OnProjectSelected;    
+            }
+
+            _editPanel = null;
+            MainPanel.Children.Clear();
+            _newPanel = _serviceProvider.GetRequiredService<NewPanel>();
+            MainPanel.Children.Add(_newPanel);
+            _newPanel.OnProjectSelected += OnProjectSelected;
+        }
+
+        private void OnProjectSelected(object? sender, EventArgs e)
+        {
+            if (_newPanel?.Project == null) return;
+            DisplayEditPanel(_newPanel.Project);
+        }
+
+        private void DisplayEditPanel(MsuProject project)
+        {
+            if (_newPanel?.OnProjectSelected != null)
+            {
+                _newPanel.OnProjectSelected -= OnProjectSelected;    
+            }
+
+            _newPanel = null;
+            MainPanel.Children.Clear();
+            _editPanel = _serviceProvider.GetRequiredService<EditPanel>();
+            _editPanel.SetProject(project);
+            MainPanel.Children.Add(_editPanel);
         }
 
         private void NewMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            DisplayNewPanel();
         }
 
-        private void MsuTypeComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SaveMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            _msuType = _msuTypeService.GetMsuType(MsuTypeComboBox.SelectedItem as string) ??
-                       _msuTypeService.MsuTypes.First();
-            PopulatePageComboBox();
+            if (_editPanel == null) return;
+            var project = _editPanel.UpdateProjectData();
+            _projectService.SaveMsuProject(project);
         }
 
-        private void PopulatePageComboBox()
+        private void ExportYamlMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            int currentPage = PageComboBox.SelectedIndex;
-            
-            var pages = new List<string>() { "MSU Details" };
-            
-            foreach (var track in _msuType.Tracks.OrderBy(x => x.Number))
-            {
-                pages.Add($"Track #{track.Number} - {track.Name}");
-            }
+            if (_editPanel == null) return;
+            var project = _editPanel.UpdateProjectData();
+            _projectService.ExportMsuRandomizerYaml(project);
+        }
 
-            _trackOffset = _msuType.Tracks.Select(x => x.Number).Min() - 1;
-
-            PageComboBox.ItemsSource = pages;
-            PageComboBox.SelectedIndex = Math.Clamp(currentPage, 0, pages.Count - 1);
+        private void ExportMsuPcmJsonMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_editPanel == null) return;
+            var project = _editPanel.UpdateProjectData();
+            _projectService.ExportMsuPcmTracksJson(project);
         }
     }
 }

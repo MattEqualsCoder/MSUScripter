@@ -1,0 +1,234 @@
+﻿<UserControl x:Class="MSUScripter.UI.MsuSongMsuPcmInfoPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MSUScripter.UI"
+             xmlns:models="clr-namespace:MSUScripter.ViewModels"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.DataContext>
+        <models:MsuSongMsuPcmInfoViewModel></models:MsuSongMsuPcmInfoViewModel>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <ResourceDictionary Source="Generic.xaml" />
+    </UserControl.Resources>
+    <Grid>
+        <GroupBox Margin="0 5 0 0" Name="MainGroupBox">
+            <GroupBox.Header>
+                <Grid Width="{Binding ActualWidth, ElementName=MainGroupBox,
+                      Converter={StaticResource SubtractionConverter}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock 
+                        Name="HeaderText"
+                        Grid.Column="0"
+                        Text="MsuPcm++ Details"
+                    ></TextBlock>
+                    <Button 
+                        Name="RemoveButton"
+                        Grid.Column="1" 
+                        Content="-"
+                        Padding="5 0"
+                        Click="RemoveButton_OnClick"
+                    ></Button>
+                </Grid>
+            </GroupBox.Header>
+            <StackPanel Orientation="Vertical">
+                <local:LabeledControl Text="Loop: ">
+                    <TextBox 
+                        Name="LoopTextBox"
+                        Padding="0 4 0 0"
+                        Text="{Binding Path=Loop, Mode=TwoWay}"
+                        PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="IntTextBox_OnPaste"
+                        LostFocus="IntTextBox_OnLostFocus"
+                    ></TextBox>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Trim: ">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <TextBox 
+                            Grid.Column="1"
+                            Name="TrimStartTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=TrimStart, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <TextBox 
+                            Grid.Column="3"
+                            Name="TrimEndTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=TrimEnd, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                    </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Fade: ">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">In:</TextBlock>
+                        <TextBox 
+                            Grid.Column="1"
+                            Name="FadeInTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=FadeIn, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">Out:</TextBlock>
+                        <TextBox 
+                            Grid.Column="3"
+                            Name="FadeOutTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=FadeOut, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                        <TextBlock Grid.Column="4" Margin="15 5 5 0">Cross:</TextBlock>
+                        <TextBox 
+                            Grid.Column="5"
+                            Name="CrossFadeTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=CrossFade, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                    </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Padding: ">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <TextBox 
+                            Grid.Column="1"
+                            Name="PadStartTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=PadStart, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <TextBox 
+                            Grid.Column="3"
+                            Name="PadEndTextBox"
+                            Padding="0 4 0 0"
+                            Text="{Binding Path=PadEnd, Mode=TwoWay}"
+                            PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                            DataObject.Pasting="IntTextBox_OnPaste"
+                            LostFocus="IntTextBox_OnLostFocus"
+                        ></TextBox>
+                    </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Tempo: ">
+                    <TextBox 
+                        Name="TempoTextBox"
+                        Padding="0 4 0 0"
+                        Text="{Binding Path=Tempo, Mode=TwoWay}"
+                        PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="DecimalTextBox_OnPaste"
+                        LostFocus="DecimalTextBox_OnLostFocus"
+                    ></TextBox>
+                </local:LabeledControl>
+                
+                
+                <local:LabeledControl Text="Normalization: ">
+                    <TextBox 
+                        Name="NormalizationTextBox"
+                        Padding="0 4 0 0"
+                        Text="{Binding Path=Normalization, Mode=TwoWay}"
+                        PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="DecimalTextBox_OnPaste"
+                        LostFocus="DecimalTextBox_OnLostFocus"
+                    ></TextBox>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="File: ">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox 
+                            Name="FileTextBox"
+                            Padding="0 4 0 0"
+                            IsReadOnly="True"
+                            IsEnabled="False"
+                            Text="{Binding Path=File, Mode=TwoWay}"
+                        ></TextBox>
+                        <Button 
+                            Name="FileButton"
+                            Margin="5 0 0 0 "
+                            Padding="8 0"
+                            Grid.Column="1" 
+                            Click="FileButton_OnClick"
+                            Content="Browse..." />
+                    </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Sub Tracks: " x:Name="SubTrackLabeledControl">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True"></StackPanel>
+                        <Button
+                            Name="AddSubTrackButton"
+                            Content="Add Sub Track"
+                            HorizontalAlignment="Center"
+                            Margin="0 5"
+                            Padding="8 5"
+                            Click="AddSubTrackButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Sub Channels: " x:Name="SubChannelLabeledControl">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Name="SubChannelStackPanel"  Grid.IsSharedSizeScope="True"></StackPanel>
+                        <Button
+                            Name="AddSubChannelButton"
+                            Content="Add Sub Channel"
+                            HorizontalAlignment="Center"
+                            Margin="0 5"
+                            Padding="8 5"
+                            Click="AddSubChannelButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </local:LabeledControl>
+                
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</UserControl>

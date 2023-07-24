@@ -14,29 +14,19 @@
                 <Setter Property="Padding"
                         Value="11" />
         </Style>
-        <Style x:Key="BottomPanel"
+    <Style x:Key="BottomPanel"
                TargetType="Border">
-                <Setter Property="BorderBrush"
+        <Setter Property="BorderBrush"
                         Value="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" />
-                <Setter Property="BorderThickness"
+        <Setter Property="BorderThickness"
                         Value="0,1,0,0" />
-                <Setter Property="Background"
+        <Setter Property="Background"
                         Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" />
-                <Setter Property="Padding"
+        <Setter Property="Padding"
                         Value="11" />
-        </Style>
-        
-        <Style TargetType="TextBox">
-                <Setter Property="Padding"
-                        Value="3" />
-        </Style>
-        
-        <Style TargetType="Button">
-                <Setter Property="Padding"
-                        Value="5,2,5,2" />
-        </Style>
-        
-        <Style TargetType="local:LabeledControl">
+    </Style>
+
+    <Style TargetType="local:LabeledControl">
                 <Setter Property="Template">
                         <Setter.Value>
                                 <ControlTemplate TargetType="local:LabeledControl">
@@ -64,6 +54,8 @@
                         Value="0,0,0,3" />
         </Style>
         
-        <local:BoolToVisibilityConverter x:Key="VisibilityConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolVisibilityConverter" />
+        <local:BoolToStringConverter x:Key="BoolStringConverter"/>
+        <local:SubtractionConverter x:Key="SubtractionConverter"/>
 
 </ResourceDictionary>

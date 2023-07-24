@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuInformationViewModel : INotifyPropertyChanged
+public class MsuBasicInfoViewModel : INotifyPropertyChanged
 {
     private string _msuType = "";
     public string MsuType
@@ -60,13 +60,6 @@ public class MsuInformationViewModel : INotifyPropertyChanged
     {
         get => _url;
         set => SetField(ref _url, value);
-    }
-
-    private string _outputPrefix = "";
-    public string OutputPrefix
-    {
-        get => _outputPrefix;
-        set => SetField(ref _outputPrefix, value);
     }
 
     private double _normalization;

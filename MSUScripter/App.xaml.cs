@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -13,6 +14,8 @@ using MSURandomizerLibrary.Models;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.UI;
+using MSUScripter.ViewModels;
 using Newtonsoft.Json;
 using NJsonSchema;
 using NJsonSchema.CodeGeneration.CSharp;
@@ -29,7 +32,9 @@ namespace MSUScripter
         
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-
+            Resources.MergedDictionaries.Clear();
+            Resources.MergedDictionaries.Add(new ResourceDictionary() { Source = new Uri(@"\UI\Themes\DarkTheme.xaml", UriKind.Relative)});
+            
             _host = Host.CreateDefaultBuilder(e.Args)
                 .ConfigureLogging(logging =>
                 {
@@ -45,7 +50,9 @@ namespace MSUScripter
                     services.AddMsuRandomizerServices();
                     services.AddSingleton<SettingsService>();
                     services.AddSingleton<MainWindow>();
-                    services.AddSingleton<ConverterService>();
+                    services.AddSingleton<ProjectService>();
+                    services.AddTransient<NewPanel>();
+                    services.AddTransient<EditPanel>();
                 })
                 .Start();
             
