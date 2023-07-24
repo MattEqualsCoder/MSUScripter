@@ -56,8 +56,9 @@ public class ConverterService
         return updated;
     }
 
-    public static MsuSongMsuPcmInfo ConvertMsuPcmTrackInfo(Track_base trackBase, string rootPath)
+    public static ICollection<MsuSongMsuPcmInfo> ConvertMsuPcmTrackInfo(Track_base trackBase, string rootPath)
     {
+        var outputList = new List<MsuSongMsuPcmInfo>();
         var output = new MsuSongMsuPcmInfo();
         
         var propertiesA = typeof(Track_base).GetProperties().Where(x => x.CanWrite).ToDictionary(x => x.Name.ToLower().Replace("_", ""), x => x);
@@ -79,21 +80,43 @@ public class ConverterService
         
         if (trackBase is Track track)
         {
-            if (track.Sub_channels != null)
-                output.SubChannels = track.Sub_channels.Select(x => ConvertMsuPcmTrackInfo(x, rootPath)).ToList();
-            if (track.Sub_tracks != null)
-                output.SubTracks = track.Sub_tracks.Select(x => ConvertMsuPcmTrackInfo(x, rootPath)).ToList();
+            if (track.Sub_channels?.Any() == true)
+                output.SubChannels = track.Sub_channels.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
+            if (track.Sub_tracks?.Any() == true)
+                output.SubTracks = track.Sub_tracks.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
+
+            if (track.Options?.Any() == true)
+            {
+                foreach (var option in track.Options.OrderBy(x => x.Option != track.Use_option))
+                {
+                    option.Copy(track);
+                    var optionInfo = ConvertMsuPcmTrackInfo(option, rootPath).First();
+                    outputList.Add(optionInfo);
+                }
+            }
         }
-        else if (trackBase is Sub_track { Sub_channels: not null } subTrack)
+        else if (trackBase is Track_option trackOptions)
         {
-            output.SubChannels = subTrack.Sub_channels.Select(x => ConvertMsuPcmTrackInfo(x, rootPath)).ToList();
+            if (trackOptions.Sub_channels?.Any() == true)
+                output.SubChannels = trackOptions.Sub_channels.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
+            if (trackOptions.Sub_tracks?.Any() == true)
+                output.SubTracks = trackOptions.Sub_tracks.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
         }
-        else if (trackBase is Sub_channel { Sub_tracks: not null } subChannel)
+        else if (trackBase is Sub_track subTrack && subTrack.Sub_channels?.Any() == true)
         {
-            output.SubTracks = subChannel.Sub_tracks.Select(x => ConvertMsuPcmTrackInfo(x, rootPath)).ToList();
+            output.SubChannels = subTrack.Sub_channels.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
+        }
+        else if (trackBase is Sub_channel subChannel && subChannel.Sub_tracks?.Any() == true)
+        {
+            output.SubTracks = subChannel.Sub_tracks.Select(x => ConvertMsuPcmTrackInfo(x, rootPath).First()).ToList();
+        }
+
+        if (!outputList.Any())
+        {
+            outputList.Add(output);
         }
         
-        return output;
+        return outputList;
     }
     
     public static Track_base ConvertMsuPcmTrackInfo(MsuSongMsuPcmInfo trackBase, bool isSubTrack, bool isSubChannel)

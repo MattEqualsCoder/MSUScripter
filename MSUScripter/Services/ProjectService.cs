@@ -161,22 +161,48 @@ public class ProjectService
         var msuDirectory = msuFileInfo.DirectoryName!;
         var msuName = msuFileInfo.Name.Replace(msuFileInfo.Extension, "");
 
-        foreach (var track in msuPcmData.Tracks)
+        foreach (var track in msuPcmData.Tracks.GroupBy(x => x.Track_number))
         {
-            var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == track.Track_number);
+            var trackNumber = track.First().Track_number;
+            var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
             if (projectTrack == null) continue;
+
+            var msuPcmInfo = track.SelectMany(x => ConverterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
+            var songs = projectTrack.Songs.OrderBy(x => x.IsAlt).ToList();
             
-            var trackPath = string.IsNullOrEmpty(track.Output)
-                ? Path.Combine(msuDirectory, $"{msuName}-{track.Track_number}.pcm")
-                : ConverterService.GetAbsolutePath(msuPcmWorkingDirectory, track.Output);
-            var song = projectTrack.Songs.FirstOrDefault(x => x.OutputPath == trackPath) ?? new MsuSongInfo()
+            for (var i = 0; i < msuPcmInfo.Count; i++)
             {
-                TrackNumber = track.Track_number,
-                TrackName = track.Title,
-                OutputPath = trackPath,
-                IsAlt = trackPath != Path.Combine(msuDirectory, $"{msuName}-{track.Track_number}.pcm")
-            };
-            song.MsuPcmInfo = ConverterService.ConvertMsuPcmTrackInfo(track, msuPcmWorkingDirectory);
+                var trackPath = "";
+                
+                if (!string.IsNullOrEmpty(msuPcmInfo[i].Output))
+                {
+                    trackPath = ConverterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
+                }
+                else if (i == 0)
+                {
+                    trackPath = Path.Combine(msuDirectory, $"{msuName}-{trackNumber}.pcm");
+                }
+                else
+                {
+                    trackPath = Path.Combine(msuDirectory, $"{msuName}-{trackNumber}_alt{i}.pcm");
+                }
+
+                if (i < songs.Count)
+                {
+                    songs[i].MsuPcmInfo = msuPcmInfo[i];
+                }
+                else
+                {
+                    projectTrack.Songs.Add(new MsuSongInfo()
+                    {
+                        TrackNumber = trackNumber,
+                        TrackName = projectTrack.TrackName,
+                        OutputPath = trackPath,
+                        IsAlt = i != 0,
+                        MsuPcmInfo = msuPcmInfo[i]
+                    });
+                }
+            }
         }
     }
 

@@ -5,6 +5,8 @@
 //----------------------
 
 
+using System.Linq;
+
 namespace MSUScripter.Configs
 {
     #pragma warning disable // Disable all warnings
@@ -12,7 +14,7 @@ namespace MSUScripter.Configs
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
     public partial class Track : Track_base
     {
-        [Newtonsoft.Json.JsonProperty("track_number", Required = Newtonsoft.Json.Required.Always)]
+        [Newtonsoft.Json.JsonProperty("track_number", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int Track_number { get; set; }
 
         [Newtonsoft.Json.JsonProperty("title", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -32,7 +34,9 @@ namespace MSUScripter.Configs
         [System.ComponentModel.DataAnnotations.MinLength(1)]
         public System.Collections.Generic.ICollection<Sub_track> Sub_tracks { get; set; }
 
-
+        [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.MinLength(1)]
+        public System.Collections.Generic.ICollection<Track_option>? Options { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
@@ -45,7 +49,9 @@ namespace MSUScripter.Configs
         [System.ComponentModel.DataAnnotations.MinLength(1)]
         public System.Collections.Generic.ICollection<Sub_channel> Sub_channels { get; set; }
 
-
+        [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.MinLength(1)]
+        public System.Collections.Generic.ICollection<Sub_track_option>? Options { get; set; }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
@@ -57,6 +63,10 @@ namespace MSUScripter.Configs
         [Newtonsoft.Json.JsonProperty("sub_tracks", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         [System.ComponentModel.DataAnnotations.MinLength(1)]
         public System.Collections.Generic.ICollection<Sub_track> Sub_tracks { get; set; }
+        
+        [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [System.ComponentModel.DataAnnotations.MinLength(1)]
+        public System.Collections.Generic.ICollection<Sub_channel_option>? Options { get; set; }
 
 
     }
@@ -145,12 +155,6 @@ namespace MSUScripter.Configs
         [Newtonsoft.Json.JsonProperty("use_option", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public int? Use_option { get; set; }
 
-        [Newtonsoft.Json.JsonProperty("options", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
-        [System.ComponentModel.DataAnnotations.MinLength(1)]
-        public System.Collections.Generic.ICollection<Options> Options { get; set; }
-
-
-
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
 
         [Newtonsoft.Json.JsonExtensionData]
@@ -159,7 +163,6 @@ namespace MSUScripter.Configs
             get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
             set { _additionalProperties = value; }
         }
-
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
@@ -167,8 +170,90 @@ namespace MSUScripter.Configs
     {
         [Newtonsoft.Json.JsonProperty("option", Required = Newtonsoft.Json.Required.Always)]
         public int? Option { get; set; }
+        
+        public void Copy(Track other)
+        {
+            if (!string.IsNullOrEmpty(other.Title))
+            {
+                Title = other.Title;
+            }
+            
+            if (other.Track_number != null)
+            {
+                Track_number = other.Track_number;
+            }
+            
+            if (!string.IsNullOrEmpty(other.File))
+            {
+                File = other.File;
+            }
 
+            if (other.Loop != null)
+            {
+                Loop = other.Loop;
+            }
 
+            if (other.Trim_start != null)
+            {
+                Trim_start = other.Trim_start;
+            }
+            
+            if (other.Trim_end != null)
+            {
+                Trim_end = other.Trim_end;
+            }
+            
+            if (other.Fade_in != null)
+            {
+                Fade_in = other.Fade_in;
+            }
+            
+            if (other.Fade_out != null)
+            {
+                Fade_out = other.Fade_out;
+            }
+            
+            if (other.Cross_fade != null)
+            {
+                Cross_fade = other.Cross_fade;
+            }
+            
+            if (other.Pad_start != null)
+            {
+                Pad_start = other.Pad_start;
+            }
+            
+            if (other.Pad_end != null)
+            {
+                Pad_end = other.Pad_end;
+            }
+            
+            if (other.Tempo != null)
+            {
+                Tempo = other.Tempo;
+            }
+            
+            if (other.Normalization != null)
+            {
+                Normalization = other.Normalization;
+            }
+            
+            if (other.Compression != null)
+            {
+                Compression = other.Compression;
+            }
+
+            if (other.Sub_tracks?.Any() == true)
+            {
+                Sub_tracks = other.Sub_tracks;
+            }
+            
+            if (other.Sub_channels?.Any() == true)
+            {
+                Sub_channels = other.Sub_channels;
+            }
+            
+        }
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
@@ -275,22 +360,6 @@ namespace MSUScripter.Configs
         [System.ComponentModel.DataAnnotations.MinLength(1)]
         public System.Collections.Generic.ICollection<Track> Tracks { get; set; } = new System.Collections.ObjectModel.Collection<Track>();
 
-
-
-        private System.Collections.Generic.IDictionary<string, object> _additionalProperties;
-
-        [Newtonsoft.Json.JsonExtensionData]
-        public System.Collections.Generic.IDictionary<string, object> AdditionalProperties
-        {
-            get { return _additionalProperties ?? (_additionalProperties = new System.Collections.Generic.Dictionary<string, object>()); }
-            set { _additionalProperties = value; }
-        }
-
-    }
-
-    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "10.9.0.0 (Newtonsoft.Json v9.0.0.0)")]
-    public partial class Options
-    {
 
 
         private System.Collections.Generic.IDictionary<string, object> _additionalProperties;

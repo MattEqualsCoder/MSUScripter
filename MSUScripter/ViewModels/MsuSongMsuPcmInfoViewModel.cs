@@ -90,6 +90,13 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         get => _file;
         set => SetField(ref _file, value);
     }
+    
+    private string? _output;
+    public string? Output
+    {
+        get => _output;
+        set => SetField(ref _output, value);
+    }
 
     private List<MsuSongMsuPcmInfoViewModel> _subTracks = new List<MsuSongMsuPcmInfoViewModel>();
     public List<MsuSongMsuPcmInfoViewModel> SubTracks

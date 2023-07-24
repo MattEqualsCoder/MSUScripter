@@ -15,6 +15,7 @@ public class MsuSongMsuPcmInfo
     public double? Tempo { get; set; }
     public double? Normalization { get; set; }
     public bool? Compression { get; set; }
+    public string? Output { get; set; }
     public string? File { get; set; }
     
     public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();

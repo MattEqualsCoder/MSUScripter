@@ -3,7 +3,7 @@
 #define public Dependency_NoExampleSetup
 #include "CodeDependencies.iss"
 
-#define MyAppName "MSU Randomizer"
+#define MyAppName "MSU Scripter"
 #define MyAppPublisher "MattEqualsCoder"
 #define MyAppURL "https://github.com/MattEqualsCoder"
 #define MyAppExeName "MSUScripter.exe"
@@ -24,7 +24,7 @@ DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=MSURandomizer_{#MyAppVersion}
+OutputBaseFilename=MSUScripter_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
