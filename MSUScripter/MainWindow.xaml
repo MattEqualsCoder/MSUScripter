@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MSUScripter.UI"
-        Style="{DynamicResource CustomWindowStyle}"
+        Style="{DynamicResource MainWindowStyle}"
         mc:Ignorable="d"
-        Title="MainWindow" MinHeight="600" MinWidth="800" Height="600" Width="800">
+        Title="MSU Scripter" MinHeight="600" MinWidth="800" Height="600" Width="800">
     <Window.Resources>
         <ResourceDictionary Source="UI/Generic.xaml" />
     </Window.Resources>

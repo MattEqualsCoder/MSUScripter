@@ -6,6 +6,8 @@
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <Version>1.0.0-beta.1</Version>
+        <PackageIcon>MSUScripterIcon.ico</PackageIcon>
+        <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -26,6 +28,11 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="MSUScripterIcon.ico" />
+      <Resource Include="MSUScripterIcon.ico" />
     </ItemGroup>
 
 </Project>
