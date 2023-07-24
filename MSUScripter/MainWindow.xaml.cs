@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using MSURandomizerLibrary.Configs;
-using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.UI;
@@ -44,12 +39,28 @@ namespace MSUScripter
             _newPanel = _serviceProvider.GetRequiredService<NewPanel>();
             MainPanel.Children.Add(_newPanel);
             _newPanel.OnProjectSelected += OnProjectSelected;
+            UpdateTitle(null);
         }
 
         private void OnProjectSelected(object? sender, EventArgs e)
         {
             if (_newPanel?.Project == null) return;
-            DisplayEditPanel(_newPanel.Project);
+            var project = _newPanel.Project;
+            DisplayEditPanel(project);
+        }
+
+        private void UpdateTitle(MsuProject? project)
+        {
+            if (project == null)
+            {
+                Title = "MSU Scripter";
+            }
+            else
+            {
+                Title = string.IsNullOrEmpty(project.BasicInfo.PackName)
+                    ? $"MSU Scripter - {new FileInfo(project.ProjectFilePath).Name}"
+                    : $"MSU Scripter - {project.BasicInfo.PackName}";
+            }
         }
 
         private void DisplayEditPanel(MsuProject project)
@@ -64,6 +75,7 @@ namespace MSUScripter
             _editPanel = _serviceProvider.GetRequiredService<EditPanel>();
             _editPanel.SetProject(project);
             MainPanel.Children.Add(_editPanel);
+            UpdateTitle(project);
         }
 
         private void NewMenuItem_Click(object sender, RoutedEventArgs e)
@@ -76,6 +88,7 @@ namespace MSUScripter
             if (_editPanel == null) return;
             var project = _editPanel.UpdateProjectData();
             _projectService.SaveMsuProject(project);
+            UpdateTitle(project);
         }
 
         private void ExportYamlMenuItem_OnClick(object sender, RoutedEventArgs e)
