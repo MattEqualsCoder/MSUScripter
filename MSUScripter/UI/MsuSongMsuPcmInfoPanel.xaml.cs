@@ -205,4 +205,23 @@ public partial class MsuSongMsuPcmInfoPanel
         if (_parentSongPanel == null) return;
         _parentSongPanel.GeneratePcmFile(true);
     }
+
+    private void PlaySongButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_parentSongPanel?.MsuSongInfo.OutputPath == null)
+            return;
+        AudioService.Instance.PlaySong(_parentSongPanel.MsuSongInfo.OutputPath, false);
+    }
+
+    private void TestLoopButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_parentSongPanel?.MsuSongInfo.OutputPath == null)
+            return;
+        AudioService.Instance.PlaySong(_parentSongPanel.MsuSongInfo.OutputPath, true);
+    }
+
+    private void StopSongButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        AudioService.Instance.StopSong();
+    }
 }

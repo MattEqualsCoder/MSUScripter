@@ -232,6 +232,30 @@
                     <Separator Margin="0 5"></Separator>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button
+                            Name="PlaySongButton"
+                            Content="Play Song"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="PlaySongButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="TestLoopButton"
+                            Content="Test Loop"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="TestLoopButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="StopSongButton"
+                            Content="Stop Playing"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="StopSongButton_OnClick"
+                        ></Button>
+                        <Button
                             Name="GenerateAsMainPcmFileButton"
                             Content="Generate as primary .pcm file"
                             HorizontalAlignment="Center"

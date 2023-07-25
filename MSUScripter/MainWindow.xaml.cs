@@ -22,7 +22,7 @@ namespace MSUScripter
         private NewPanel? _newPanel;
         private EditPanel? _editPanel;
         
-        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider, SettingsService settingsService, MsuPcmService msuPcmService)
+        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider, SettingsService settingsService, MsuPcmService msuPcmService, AudioService audioService)
         {
             _projectService = projectService;
             _serviceProvider = serviceProvider;
