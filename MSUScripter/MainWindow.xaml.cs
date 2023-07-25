@@ -123,6 +123,7 @@ namespace MSUScripter
         {
             if (_editPanel == null) return;
             _msuProject = _editPanel.UpdateProjectData();
+            _msuPcmService.ExportMsuPcmTracksJson(_msuProject);
             var msuPcmWindow = new MsuPcmGenerationWindow(_msuProject,
                 _msuProject.Tracks.SelectMany(x => x.Songs).ToList());
             msuPcmWindow.ShowDialog();

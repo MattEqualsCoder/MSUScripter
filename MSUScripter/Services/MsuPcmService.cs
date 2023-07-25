@@ -32,26 +32,30 @@ public class MsuPcmService
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
     {
-        var jsonPath = ExportMsuPcmTracksJson(project, song);
+        var msu = new FileInfo(project.MsuPath);
+        var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
+        ExportMsuPcmTracksJson(project, song);
 
         var msuPath = new FileInfo(project.MsuPath).DirectoryName;
         var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
         
-        if (jsonPath == null)
+        if (!File.Exists(jsonPath))
         {
-            message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ tracks json path";
+            message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
             return true;
         }
 
         if (!ValidateMsuPcmInfo(song.MsuPcmInfo, out message, out var numFiles))
         {
             message = $"Track #{song.TrackNumber} - {relativePath} - {message!.ReplaceLineEndings("")}";
+            File.Delete(jsonPath);
             return false;
         }
 
         if (numFiles == 0)
         {
             message = $"Track #{song.TrackNumber} - {relativePath} - No input files specified";
+            File.Delete(jsonPath);
             return false;
         }
 
@@ -60,13 +64,16 @@ public class MsuPcmService
             if (!ValidatePcm(song.OutputPath, out message))
             {
                 message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
+                File.Delete(jsonPath);
                 return false;
             }
             message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
+            File.Delete(jsonPath);
             return true;
         }
         
         message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
+        File.Delete(jsonPath);
         return false;
     }
 
@@ -177,9 +184,14 @@ public class MsuPcmService
     
     public string? ExportMsuPcmTracksJson(MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null)
     {
-        if (string.IsNullOrEmpty(project.MsuPcmTracksJsonPath) && string.IsNullOrEmpty(exportPath)) return null;
-        
         var msu = new FileInfo(project.MsuPath);
+        
+        if (string.IsNullOrEmpty(exportPath))
+        {
+            exportPath = msu.FullName.Replace(msu.Name + msu.Extension, "tracks-2.json");
+        }
+        
+        
         var output = new MsuPcmPlusPlusConfig()
         {
             Game = project.BasicInfo.Game,
@@ -211,7 +223,6 @@ public class MsuPcmService
 
         output.Tracks = tracks;
         var json = JsonConvert.SerializeObject(output);
-        exportPath ??= project.MsuPcmTracksJsonPath!.Replace(".json", "-2.json");
         File.WriteAllText(exportPath, json);
         return exportPath;
     }

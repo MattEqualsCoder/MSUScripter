@@ -52,7 +52,7 @@
                                 Content="Browse..." />
                         </Grid>
                     </local:LabeledControl>
-                    <local:LabeledControl Text="MsuPcm++ Json File (Optional): ">
+                    <local:LabeledControl Text="Import MsuPcm++ Json File (Optional): ">
                         <Grid Margin="0 0 0 0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />

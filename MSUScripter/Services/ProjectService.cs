@@ -8,7 +8,6 @@ using MSUScripter.Configs;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
@@ -64,7 +63,6 @@ public class ProjectService
             MsuType = msuType,
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
-            MsuPcmTracksJsonPath = msuPcmTracksJsonPath
         };
 
         project.BasicInfo.MsuType = project.MsuType.DisplayName;
@@ -174,7 +172,7 @@ public class ProjectService
             
             for (var i = 0; i < msuPcmInfo.Count; i++)
             {
-                var trackPath = "";
+                string trackPath;
                 
                 if (!string.IsNullOrEmpty(msuPcmInfo[i].Output))
                 {

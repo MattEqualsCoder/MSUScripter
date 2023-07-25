@@ -8,7 +8,6 @@ public class MsuProject
 {
     public string ProjectFilePath { get; set; } = "";
     public string MsuPath { get; set; } = "";
-    public string? MsuPcmTracksJsonPath { get; set; }
     public string MsuTypeName { get; set; } = "";
     [YamlIgnore]
     public MsuType MsuType { get; set; } = null!;
