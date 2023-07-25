@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:MSUScripter.UI"
              xmlns:models="clr-namespace:MSUScripter.ViewModels"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="400" d:DesignWidth="600">
     <UserControl.DataContext>
         <models:MsuSongMsuPcmInfoViewModel></models:MsuSongMsuPcmInfoViewModel>
     </UserControl.DataContext>
@@ -228,6 +228,27 @@
                     </StackPanel>
                 </local:LabeledControl>
                 
+                <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel" Visibility="Collapsed">
+                    <Separator Margin="0 5"></Separator>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button
+                            Name="GenerateAsMainPcmFileButton"
+                            Content="Generate as primary .pcm file"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="GenerateAsMainPcmFileButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="GeneratePcmFileButton"
+                            Content="Generate .pcm file"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="GeneratePcmFileButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </GroupBox>
     </Grid>

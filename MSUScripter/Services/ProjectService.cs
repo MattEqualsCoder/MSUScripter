@@ -17,12 +17,14 @@ public class ProjectService
     private IMsuTypeService _msuTypeService;
     private IMsuLookupService _msuLookupService;
     private IMsuDetailsService _msuDetailsService;
+    private MsuPcmService _msuPcmService;
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
         _msuDetailsService = msuDetailsService;
+        _msuPcmService = msuPcmService;
     }
     
     public void SaveMsuProject(MsuProject project)
@@ -204,40 +206,6 @@ public class ProjectService
                 }
             }
         }
-    }
-
-    public void ExportMsuPcmTracksJson(MsuProject project)
-    {
-        if (string.IsNullOrEmpty(project.MsuPcmTracksJsonPath)) return;
-        
-        var msu = new FileInfo(project.MsuPath);
-        var output = new MsuPcmPlusPlusConfig()
-        {
-            Game = project.BasicInfo.Game,
-            Pack = project.BasicInfo.PackName,
-            Artist = project.BasicInfo.Artist,
-            Url = string.IsNullOrEmpty(project.BasicInfo.Url) ? null : new Uri(project.BasicInfo.Url),
-            Output_prefix = msu.FullName.Replace(msu.Extension, ""),
-            Normalization = project.BasicInfo.Normalization,
-            Dither = project.BasicInfo.Dither,
-            Verbosity = 0,
-            Keep_temps = false,
-            First_track = project.Tracks.Min(x => x.TrackNumber),
-            Last_track = project.Tracks.Max(x => x.TrackNumber)
-        };
-        var tracks = new List<Track>();
-        foreach (var song in project.Tracks.SelectMany(x => x.Songs))
-        {
-            if (ConverterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
-            track.Output = song.OutputPath;
-            track.Track_number = song.TrackNumber;
-            track.Title = song.TrackName;
-            tracks.Add(track);
-        }
-
-        output.Tracks = tracks;
-        var json = JsonConvert.SerializeObject(output);
-        File.WriteAllText(project.MsuPcmTracksJsonPath.Replace(".json", "-2.json"), json);
     }
 
     public void ExportMsuRandomizerYaml(MsuProject project)

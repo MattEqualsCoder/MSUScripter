@@ -2,5 +2,5 @@
 
 public class Settings
 {
-    public bool EnableMsuPcmPlusPlusFields { get; set; } = true;
+    public string? MsuPcmPath { get; set; }
 }

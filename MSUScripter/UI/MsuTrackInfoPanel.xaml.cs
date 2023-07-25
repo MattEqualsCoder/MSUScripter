@@ -47,7 +47,7 @@ public partial class MsuTrackInfoPanel
             }
         }
 
-        var newPanel = new MsuSongInfoPanel(this, songInfo.IsAlt);
+        var newPanel = new MsuSongInfoPanel(this, songInfo.IsAlt, _project);
         ConverterService.ConvertViewModel(songInfo, newPanel.MsuSongInfo);
         newPanel.ApplyMsuSongMsuPcmInfo(songInfo.MsuPcmInfo);
         SongStackPanel.Children.Add(newPanel);

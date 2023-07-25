@@ -49,6 +49,7 @@ namespace MSUScripter
                 {
                     services.AddMsuRandomizerServices();
                     services.AddSingleton<SettingsService>();
+                    services.AddSingleton<MsuPcmService>();
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<ProjectService>();
                     services.AddTransient<NewPanel>();

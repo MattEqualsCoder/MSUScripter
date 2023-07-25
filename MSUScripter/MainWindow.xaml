@@ -40,9 +40,14 @@
                     Click="ExportYamlMenuItem_OnClick"
                 ></MenuItem>
                 <MenuItem 
-                    Header="Export MsuPcm++ Json"
+                    Header="Export MsuPcm++ _Json"
                     Name="ExportMsuPcmJsonMenuItem"
                     Click="ExportMsuPcmJsonMenuItem_OnClick"
+                ></MenuItem>
+                <MenuItem 
+                    Header="Create _MSU"
+                    Name="CreateMsuMenuItem"
+                    Click="CreateMsuMenuItem_OnClick"
                 ></MenuItem>
             </Menu>
         </Border>

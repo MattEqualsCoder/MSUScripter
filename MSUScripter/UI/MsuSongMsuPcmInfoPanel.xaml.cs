@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MSUScripter.Configs;
@@ -12,12 +11,13 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.UI;
 
-public partial class MsuSongMsuPcmInfoPanel : UserControl
+public partial class MsuSongMsuPcmInfoPanel
 {
-    private bool _isSubTrack = false;
-    private bool _isSubChannel = false;
-    private MsuSongMsuPcmInfoPanel? _parent;
-    
+    private readonly bool _isSubTrack;
+    private readonly bool _isSubChannel;
+    private readonly MsuSongMsuPcmInfoPanel? _parent;
+    private MsuSongInfoPanel? _parentSongPanel;
+
     public MsuSongMsuPcmInfoPanel() : this(false, false, null)
     {
     }
@@ -117,6 +117,12 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
     }
 
+    public void ShowMsuPcmButtons(MsuSongInfoPanel parentSongPanel)
+    {
+        _parentSongPanel = parentSongPanel;
+        MsuPcmButtonsStackPanel.Visibility = Visibility.Visible;
+    }
+
     public MsuSongMsuPcmInfo GetData()
     {
         var data = new MsuSongMsuPcmInfo();
@@ -186,5 +192,17 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         if (dialog.ShowDialog() != CommonFileDialogResult.Ok || string.IsNullOrEmpty(dialog.FileName) || !File.Exists(dialog.FileName)) return;
 
         MsuSongMsuPcmInfo.File = dialog.FileName;
+    }
+
+    private void GeneratePcmFileButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_parentSongPanel == null) return;
+        _parentSongPanel.GeneratePcmFile(false);
+    }
+
+    private void GenerateAsMainPcmFileButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_parentSongPanel == null) return;
+        _parentSongPanel.GeneratePcmFile(true);
     }
 }

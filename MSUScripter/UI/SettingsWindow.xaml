@@ -4,9 +4,57 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:MSUScripter.UI"
+        Style="{DynamicResource MainWindowStyle}"
+        xmlns:models="clr-namespace:MSUScripter.ViewModels"
         mc:Ignorable="d"
-        Title="SettingsWindow" Height="450" Width="800">
-    <Grid>
+        Title="Settings - MSU Scripter" Height="300" Width="400">
+    <Window.Resources>
+        <ResourceDictionary Source="Generic.xaml" />
+    </Window.Resources>
+    <Window.DataContext>
+        <models:SettingsViewModel></models:SettingsViewModel>
+    </Window.DataContext>
+    <DockPanel>
         
-    </Grid>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="0" HorizontalAlignment="Right">
+            <Button
+                Name="SaveButton"
+                Margin="5 5"
+                Padding="8 5"
+                Content="Save Settings"
+                Click="SaveButton_OnClick"
+            ></Button>
+            <Button
+                Name="CancelButton"
+                Margin="5 5"
+                Padding="8 5"
+                Content="Cancel"
+                Click="CancelButton_OnClick"
+            ></Button>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
+            <local:LabeledControl Text="MsuPcm++ Path: ">
+                <Grid Margin="0 0 0 0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox
+                        IsReadOnly="True"
+                        IsEnabled="False"
+                        Grid.Column="0"
+                        Name="MsuPcmPathTextBox"
+                        Text="{Binding MsuPcmPath}"
+                    ></TextBox>
+                    <Button 
+                        Name="MsuPcmPathButton"
+                        Margin="5 0 0 0 "
+                        Padding="8 0"
+                        Grid.Column="1" 
+                        Click="MsuPcmPathButton_OnClick"
+                        Content="Browse..." />
+                </Grid>
+            </local:LabeledControl>
+        </StackPanel>
+    </DockPanel>
 </Window>

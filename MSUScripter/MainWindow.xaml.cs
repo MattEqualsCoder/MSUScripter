@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
@@ -15,14 +16,18 @@ namespace MSUScripter
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ProjectService _projectService;
+        private readonly SettingsService _settingsService;
+        private readonly MsuPcmService _msuPcmService;
         private MsuProject? _msuProject;
         private NewPanel? _newPanel;
         private EditPanel? _editPanel;
         
-        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider)
+        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider, SettingsService settingsService, MsuPcmService msuPcmService)
         {
             _projectService = projectService;
             _serviceProvider = serviceProvider;
+            _settingsService = settingsService;
+            _msuPcmService = msuPcmService;
             InitializeComponent();
             DisplayNewPanel();
         }
@@ -59,8 +64,8 @@ namespace MSUScripter
             else
             {
                 Title = string.IsNullOrEmpty(project.BasicInfo.PackName)
-                    ? $"MSU Scripter - {new FileInfo(project.ProjectFilePath).Name}"
-                    : $"MSU Scripter - {project.BasicInfo.PackName}";
+                    ? $"{new FileInfo(project.ProjectFilePath).Name} - MSU Scripter"
+                    : $"{project.BasicInfo.PackName} - MSU Scripter";
             }
         }
 
@@ -104,12 +109,23 @@ namespace MSUScripter
         {
             if (_editPanel == null) return;
             _msuProject = _editPanel.UpdateProjectData();
-            _projectService.ExportMsuPcmTracksJson(_msuProject);
+            _msuPcmService.ExportMsuPcmTracksJson(_msuProject);
         }
 
         private void SettingsMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            var settingsViewModel = new SettingsWindow();
+            if (settingsViewModel.ShowDialog() != true) return;
+            _settingsService.SaveSettings();
+        }
+
+        private void CreateMsuMenuItem_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (_editPanel == null) return;
+            _msuProject = _editPanel.UpdateProjectData();
+            var msuPcmWindow = new MsuPcmGenerationWindow(_msuProject,
+                _msuProject.Tracks.SelectMany(x => x.Songs).ToList());
+            msuPcmWindow.ShowDialog();
         }
     }
 }
