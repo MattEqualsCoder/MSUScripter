@@ -135,9 +135,19 @@ public class MsuPcmService
 
     public bool RunMsuPcm(string trackJson, out string error)
     {
-        var command = SettingsService.Settings.MsuPcmPath + " \"" + trackJson + "\"";
-        ProcessStartInfo procStartInfo = new ProcessStartInfo("cmd", "/c " + command);
-
+        if (string.IsNullOrEmpty(SettingsService.Settings.MsuPcmPath) ||
+            !File.Exists(SettingsService.Settings.MsuPcmPath))
+        {
+            error = "MsuPcm++ path not specified or is invalid";
+            return false;
+        }
+        
+        var msuPcmFile = new FileInfo(SettingsService.Settings.MsuPcmPath);
+        var command = msuPcmFile.Name + " \"" + trackJson + "\"";
+        
+        var procStartInfo = new ProcessStartInfo("cmd", "/c " + command);
+        
+        procStartInfo.WorkingDirectory = msuPcmFile.DirectoryName;
         procStartInfo.RedirectStandardOutput = true;
         procStartInfo.RedirectStandardError = true;
         procStartInfo.UseShellExecute = false;
