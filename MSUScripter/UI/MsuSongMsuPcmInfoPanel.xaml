@@ -46,7 +46,7 @@
             </GroupBox.Header>
             <StackPanel Orientation="Vertical">
                 
-                <local:LabeledControl Text="File: ">
+                <local:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" HintVisibility="Visible">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -69,7 +69,7 @@
                     </Grid>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Normalization: ">
+                <local:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" HintVisibility="Visible">
                     <TextBox 
                         Name="NormalizationTextBox"
                         Padding="0 4 0 0"
@@ -80,7 +80,7 @@
                     ></TextBox>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Trim: ">
+                <local:LabeledControl Text="Trim:" Hint="Trim the start and/or end of the current track at the specified sample" HintVisibility="Visible">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -111,7 +111,7 @@
                     </Grid>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Loop: ">
+                <local:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" HintVisibility="Visible">
                     <TextBox 
                         Name="LoopTextBox"
                         Padding="0 4 0 0"
@@ -122,7 +122,7 @@
                     ></TextBox>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Fade: ">
+                <local:LabeledControl Text="Fade:" Hint="Apply a fade in or out effect to the current track lasting a specified number of samples. The cross fade will apply from the end of the current track to its loop point lasting a specified number of samples" HintVisibility="Visible">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -165,7 +165,7 @@
                     </Grid>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Padding: ">
+                <local:LabeledControl Text="Padding:" Hint="Pad the beginning and/or ending of the current track with a specified number of silent samples" HintVisibility="Visible">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -196,7 +196,7 @@
                     </Grid>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Tempo: ">
+                <local:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" HintVisibility="Visible">
                     <TextBox 
                         Name="TempoTextBox"
                         Padding="0 4 0 0"
@@ -207,7 +207,7 @@
                     ></TextBox>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Sub Tracks: " x:Name="SubTrackLabeledControl">
+                <local:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" HintVisibility="Visible">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True"></StackPanel>
                         <Button
@@ -221,7 +221,7 @@
                     </StackPanel>
                 </local:LabeledControl>
                 
-                <local:LabeledControl Text="Sub Channels: " x:Name="SubChannelLabeledControl">
+                <local:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl"  Hint="Files which will be mixed together to form the input to the parent track" HintVisibility="Visible">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubChannelStackPanel"  Grid.IsSharedSizeScope="True"></StackPanel>
                         <Button

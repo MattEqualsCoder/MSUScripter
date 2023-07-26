@@ -25,13 +25,13 @@
                     <TextBlock TextWrapping="Wrap" Margin="0 0 0 5">
                         If you are importing a previously created MsuPcm++ tracks Json file, you will also need to select the folder in which you previously ran MsuPcm++ from so the MSU Scripter will know where to find the files. If not provided, it will use the tracks.json file directory. 
                     </TextBlock>
-                    <local:LabeledControl Text="MSU Type: ">
+                    <local:LabeledControl Text="MSU Type:">
                         <ComboBox 
                             Name="MsuTypeComboBox"
                             Margin="0 3 0 0">
                         </ComboBox>
                     </local:LabeledControl>
-                    <local:LabeledControl Text="MSU Path: ">
+                    <local:LabeledControl Text="MSU Path:">
                         <Grid Margin="0 0 0 0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -52,7 +52,7 @@
                                 Content="Browse..." />
                         </Grid>
                     </local:LabeledControl>
-                    <local:LabeledControl Text="Import MsuPcm++ Json File (Optional): ">
+                    <local:LabeledControl Text="Import MsuPcm++ Json File (Optional):">
                         <Grid Margin="0 0 0 0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
@@ -73,7 +73,7 @@
                                 Content="Browse..." />
                         </Grid>
                     </local:LabeledControl>
-                    <local:LabeledControl Text="MsuPcm++ Working Directory (Optional): ">
+                    <local:LabeledControl Text="MsuPcm++ Working Directory (Optional):">
                         <Grid Margin="0 0 0 0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />

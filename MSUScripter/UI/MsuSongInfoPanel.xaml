@@ -44,35 +44,35 @@
                 </Grid>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical">
-                <local:LabeledControl Text="Song Name: ">
+                <local:LabeledControl Text="Song Name:" Hint="The name of the song" HintVisibility="Visible">
                     <TextBox 
                         Name="SongNameTextBox"
                         Padding="0 4 0 0"
                         Text="{Binding Path=SongName, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Artist: ">
+                <local:LabeledControl Text="Artist:" Hint="The name of the artist(s) who created the song" HintVisibility="Visible">
                     <TextBox 
                         Name="ArtistTextBox"
                         Padding="0 4 0 0"
                         Text="{Binding Path=Artist, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Album: ">
+                <local:LabeledControl Text="Album:" Hint="The name of the album that the song is fromt" HintVisibility="Visible">
                     <TextBox 
                         Name="AlbumTextBox"
                         Padding="0 4 0 0"
                         Text="{Binding Path=Album, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Url: ">
+                <local:LabeledControl Text="Url:" Hint="The original url for users to find the songs" HintVisibility="Visible">
                     <TextBox 
                         Name="UrlTextBox"
                         Padding="0 4 0 0"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Output: ">
+                <local:LabeledControl Text="PCM File:" Hint="The path of the PCM file" HintVisibility="Visible">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />

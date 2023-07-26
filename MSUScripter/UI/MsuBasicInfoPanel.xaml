@@ -19,43 +19,43 @@
         
         <GroupBox Header="Basic Details">
             <StackPanel Orientation="Vertical">
-                <local:LabeledControl Text="Pack Name: ">
+                <local:LabeledControl Text="Pack Name:" Hint="A friendly display name of the MSU pack" HintVisibility="Visible">
                     <TextBox 
                         Name="PackNameTextBox"
                         Text="{Binding Path=PackName, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Pack Creator: ">
+                <local:LabeledControl Text="Pack Creator:" Hint="Who created the MSU pack" HintVisibility="Visible" >
                     <TextBox 
                         Name="PackCreatorTextBox"
                         Text="{Binding Path=PackCreator, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Pack Version: ">
+                <local:LabeledControl Text="Pack Version:" Hint="The current version number of the MSU pack" HintVisibility="Visible" >
                     <TextBox 
                         Name="PackVersionTextBox"
                         Text="{Binding Path=PackVersion, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Default Artist: ">
+                <local:LabeledControl Text="Default Artist:" Hint="The default artist to be applied to songs if one is not specified for a song" HintVisibility="Visible">
                     <TextBox 
                         Name="ArtistTextBox"
                         Text="{Binding Path=Artist, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Default Album: ">
+                <local:LabeledControl Text="Default Album:" Hint="The default album to be applied to songs if one is not specified for a song" HintVisibility="Visible">
                     <TextBox 
                         Name="AlbumTextBox"
                         Text="{Binding Path=Album, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Default Url: ">
+                <local:LabeledControl Text="Default Url:" Hint="The default url for users to find the songs if one is not specified for a song" HintVisibility="Visible">
                     <TextBox 
                         Name="UrlTextBox"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Enable MsuPcm: ">
+                <local:LabeledControl Text="Enable MsuPcm:" Hint="If this is a project for modifying the MsuPcm++ data" HintVisibility="Visible">
                     <ComboBox 
                         Name="IsMsuPcmProjectComboBox"
                         SelectedItem="{Binding IsMsuPcmProject, Converter={StaticResource BoolStringConverter}}"
@@ -67,7 +67,7 @@
         </GroupBox>
         <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" Visibility="{Binding IsMsuPcmProject, Converter={StaticResource BoolVisibilityConverter}}">
             <StackPanel Orientation="Vertical">
-                <local:LabeledControl Text="Normalization: ">
+                <local:LabeledControl Text="Normalization:" Hint="The default RMS normalization level, in dBFS, to be applied to the entire pack" HintVisibility="Visible">
                     <TextBox 
                         Name="NormalizationTextBox"
                         Text="{Binding Path=Normalization, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
@@ -76,7 +76,7 @@
                         LostFocus="DecimalTextBox_OnLostFocus"
                     ></TextBox>
                 </local:LabeledControl>
-                <local:LabeledControl Text="Dither: ">
+                <local:LabeledControl Text="Dither:" Hint="Whether or not to apply audio dither to the final output" HintVisibility="Visible">
                     <ComboBox 
                         Name="Dither"
                         SelectedItem="{Binding Dither, Converter={StaticResource NullableBoolStringConverter}}"
