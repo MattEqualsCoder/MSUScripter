@@ -32,49 +32,63 @@ public class MsuPcmService
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
     {
-        var msu = new FileInfo(project.MsuPath);
-        var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
-        ExportMsuPcmTracksJson(project, song, jsonPath);
-
-        var msuPath = new FileInfo(project.MsuPath).DirectoryName;
-        var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
-        
-        if (!File.Exists(jsonPath))
+        try
         {
-            message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
-            return true;
-        }
+            var msu = new FileInfo(project.MsuPath);
+            var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
+            ExportMsuPcmTracksJson(project, song, jsonPath);
 
-        if (!ValidateMsuPcmInfo(song.MsuPcmInfo, out message, out var numFiles))
-        {
-            message = $"Track #{song.TrackNumber} - {relativePath} - {message!.ReplaceLineEndings("")}";
-            File.Delete(jsonPath);
-            return false;
-        }
-
-        if (numFiles == 0)
-        {
-            message = $"Track #{song.TrackNumber} - {relativePath} - No input files specified";
-            File.Delete(jsonPath);
-            return false;
-        }
-
-        if (RunMsuPcm(jsonPath, out message))
-        {
-            if (!ValidatePcm(song.OutputPath, out message))
+            if (string.IsNullOrEmpty(song.OutputPath))
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
+                message = $"Track #{song.TrackNumber} - Missing out output PCM path";
+            }
+
+            var msuPath = new FileInfo(project.MsuPath).DirectoryName;
+            var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
+        
+            if (!File.Exists(jsonPath))
+            {
+                message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
+                return true;
+            }
+
+            if (!ValidateMsuPcmInfo(song.MsuPcmInfo, out message, out var numFiles))
+            {
+                message = $"Track #{song.TrackNumber} - {relativePath} - {message!.ReplaceLineEndings("")}";
                 File.Delete(jsonPath);
                 return false;
             }
-            message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
-            File.Delete(jsonPath);
-            return true;
-        }
+
+            if (numFiles == 0)
+            {
+                message = $"Track #{song.TrackNumber} - {relativePath} - No input files specified";
+                File.Delete(jsonPath);
+                return false;
+            }
+
+            if (RunMsuPcm(jsonPath, out message))
+            {
+                if (!ValidatePcm(song.OutputPath, out message))
+                {
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
+                    File.Delete(jsonPath);
+                    return false;
+                }
+                message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
+                File.Delete(jsonPath);
+                return true;
+            }
         
-        message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
-        File.Delete(jsonPath);
-        return false;
+            message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
+            File.Delete(jsonPath);
+            return false;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error creating PCM file for Track #{TrackNum} - {SongPath}", song.TrackNumber, song.OutputPath);
+            message = $"Track #{song.TrackNumber} - {song.OutputPath} - Unknown error";
+            return false;
+        }
     }
 
     public bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)
