@@ -39,14 +39,38 @@
                 </Grid>
             </GroupBox.Header>
             <StackPanel Orientation="Vertical">
-                <local:LabeledControl Text="Loop: ">
+                
+                <local:LabeledControl Text="File: ">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox 
+                            Name="FileTextBox"
+                            Padding="0 4 0 0"
+                            IsReadOnly="True"
+                            IsEnabled="False"
+                            Text="{Binding Path=File, Mode=TwoWay}"
+                        ></TextBox>
+                        <Button 
+                            Name="FileButton"
+                            Margin="5 0 0 0 "
+                            Padding="8 0"
+                            Grid.Column="1" 
+                            Click="FileButton_OnClick"
+                            Content="Browse..." />
+                    </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Normalization: ">
                     <TextBox 
-                        Name="LoopTextBox"
+                        Name="NormalizationTextBox"
                         Padding="0 4 0 0"
-                        Text="{Binding Path=Loop, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
-                        PreviewTextInput="IntTextBox_OnPreviewTextInput"
-                        DataObject.Pasting="IntTextBox_OnPaste"
-                        LostFocus="IntTextBox_OnLostFocus"
+                        Text="{Binding Path=Normalization, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
+                        PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="DecimalTextBox_OnPaste"
+                        LostFocus="DecimalTextBox_OnLostFocus"
                     ></TextBox>
                 </local:LabeledControl>
                 
@@ -79,6 +103,17 @@
                             LostFocus="IntTextBox_OnLostFocus"
                         ></TextBox>
                     </Grid>
+                </local:LabeledControl>
+                
+                <local:LabeledControl Text="Loop: ">
+                    <TextBox 
+                        Name="LoopTextBox"
+                        Padding="0 4 0 0"
+                        Text="{Binding Path=Loop, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
+                        PreviewTextInput="IntTextBox_OnPreviewTextInput"
+                        DataObject.Pasting="IntTextBox_OnPaste"
+                        LostFocus="IntTextBox_OnLostFocus"
+                    ></TextBox>
                 </local:LabeledControl>
                 
                 <local:LabeledControl Text="Fade: ">
@@ -164,41 +199,6 @@
                         DataObject.Pasting="DecimalTextBox_OnPaste"
                         LostFocus="DecimalTextBox_OnLostFocus"
                     ></TextBox>
-                </local:LabeledControl>
-                
-                
-                <local:LabeledControl Text="Normalization: ">
-                    <TextBox 
-                        Name="NormalizationTextBox"
-                        Padding="0 4 0 0"
-                        Text="{Binding Path=Normalization, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
-                        PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
-                        DataObject.Pasting="DecimalTextBox_OnPaste"
-                        LostFocus="DecimalTextBox_OnLostFocus"
-                    ></TextBox>
-                </local:LabeledControl>
-                
-                <local:LabeledControl Text="File: ">
-                    <Grid Margin="0 0 0 0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox 
-                            Name="FileTextBox"
-                            Padding="0 4 0 0"
-                            IsReadOnly="True"
-                            IsEnabled="False"
-                            Text="{Binding Path=File, Mode=TwoWay}"
-                        ></TextBox>
-                        <Button 
-                            Name="FileButton"
-                            Margin="5 0 0 0 "
-                            Padding="8 0"
-                            Grid.Column="1" 
-                            Click="FileButton_OnClick"
-                            Content="Browse..." />
-                    </Grid>
                 </local:LabeledControl>
                 
                 <local:LabeledControl Text="Sub Tracks: " x:Name="SubTrackLabeledControl">
