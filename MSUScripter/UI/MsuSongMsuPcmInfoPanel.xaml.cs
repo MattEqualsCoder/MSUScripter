@@ -173,11 +173,17 @@ public partial class MsuSongMsuPcmInfoPanel
     {
         if (_isSubChannel && _parent != null)
         {
-            _parent.RemoveSubChannel(this);
+            var result = MessageBox.Show("Are you sure you want to remove this Sub Channel?", "Warning", MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (result == MessageBoxResult.Yes)
+                _parent.RemoveSubChannel(this);
         }
         else if (_isSubTrack && _parent != null)
         {
-            _parent.RemoveSubTrack(this);
+            var result = MessageBox.Show("Are you sure you want to remove this Sub Track?", "Warning", MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+            if (result == MessageBoxResult.Yes)
+                _parent.RemoveSubTrack(this);
         }
     }
 

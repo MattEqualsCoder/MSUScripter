@@ -43,6 +43,7 @@ public partial class MsuSongInfoPanel : UserControl
     public void SetCanDelete(bool canDelete)
     {
         RemoveButton.IsEnabled = canDelete;
+        RemoveButton.Opacity = canDelete ? 1 : 0.25;
     }
 
     public void GeneratePcmFile(bool asPrimary)
@@ -93,9 +94,10 @@ public partial class MsuSongInfoPanel : UserControl
 
     private void RemoveButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (_parent != null)
-        {
+        if (_parent == null) return;
+        var result = MessageBox.Show("Are you sure you want to remove this song?", "Warning", MessageBoxButton.YesNo,
+            MessageBoxImage.Warning);
+        if (result == MessageBoxResult.Yes)
             _parent.RemoveSong(this);
-        }
     }
 }
