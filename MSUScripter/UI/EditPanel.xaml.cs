@@ -76,7 +76,7 @@ public partial class EditPanel : UserControl
             
         var pages = new List<string>() { "MSU Details" };
             
-        foreach (var track in  _project.Tracks)
+        foreach (var track in  _project.Tracks.OrderBy(x => x.TrackNumber))
         {
             pages.Add($"Track #{track.TrackNumber} - {track.TrackName}");
         }

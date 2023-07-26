@@ -29,7 +29,7 @@ public partial class NewPanel : UserControl
 
     public void PopulateMsuTypeComboBox()
     {
-        MsuTypeComboBox.ItemsSource = _msuTypeService.MsuTypes.OrderBy(x => x.DisplayName).Select(x => x.DisplayName);
+        MsuTypeComboBox.ItemsSource = _msuTypeService.MsuTypes.Where(x => x.Selectable).OrderBy(x => x.DisplayName).Select(x => x.DisplayName);
     }
     
     private void MsuPcmJsonPathButton_OnClick(object sender, RoutedEventArgs e)
@@ -98,6 +98,20 @@ public partial class NewPanel : UserControl
         
         Project = _projectService.NewMsuProject(projectPath, msuType, MsuPathTextBox.Text,
             MsuPcmJsonPathTextBox.Text, MsuPcmWorkingDirectoryTextBox.Text);
+
+        if (Project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType() && _msuTypeService.GetSMZ3MsuType() != null)
+        {
+            var result = MessageBox.Show(Window.GetWindow(this)!,
+                "This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?",
+                "Swap Tracks?", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                _projectService.ConvertProjectMsuType(Project, _msuTypeService.GetSMZ3MsuType()!, true);
+                _projectService.SaveMsuProject(Project);
+            }
+        }
+        
         OnProjectSelected?.Invoke(this, EventArgs.Empty);
     }
 

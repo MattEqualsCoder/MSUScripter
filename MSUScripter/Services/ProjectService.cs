@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
@@ -13,17 +14,19 @@ namespace MSUScripter.Services;
 
 public class ProjectService
 {
-    private IMsuTypeService _msuTypeService;
-    private IMsuLookupService _msuLookupService;
-    private IMsuDetailsService _msuDetailsService;
+    private readonly IMsuTypeService _msuTypeService;
+    private readonly IMsuLookupService _msuLookupService;
+    private readonly IMsuDetailsService _msuDetailsService;
     private MsuPcmService _msuPcmService;
+    private readonly ILogger<ProjectService> _logger;
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService, ILogger<ProjectService> logger)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
         _msuDetailsService = msuDetailsService;
         _msuPcmService = msuPcmService;
+        _logger = logger;
     }
     
     public void SaveMsuProject(MsuProject project)
@@ -65,7 +68,7 @@ public class ProjectService
             MsuPath = msuPath,
         };
 
-        project.BasicInfo.MsuType = project.MsuType.DisplayName;
+        project.BasicInfo.MsuType = project.MsuType.Name;
         project.BasicInfo.Game = project.MsuType.Name;
         
         foreach (var track in project.MsuType.Tracks.OrderBy(x => x.Number))
@@ -99,6 +102,11 @@ public class ProjectService
         if (msu == null)
             return;
 
+        if (msu.MsuType != project.MsuType && msu.MsuType != null)
+        {
+            ConvertProjectMsuType(project, msu.MsuType);
+        }
+
         project.BasicInfo.PackName = msu.Name;
         project.BasicInfo.PackCreator = msu.Creator;
         project.BasicInfo.PackVersion = msu.Version;
@@ -120,6 +128,7 @@ public class ProjectService
 
         foreach (var track in msu.Tracks)
         {
+            if (track.IsCopied) continue;
             var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == track.Number);
             if (projectTrack == null) continue;
             var song = projectTrack.Songs.FirstOrDefault(x => x.OutputPath == track.Path);
@@ -139,6 +148,91 @@ public class ProjectService
                 projectTrack.Songs.Add(song);
             }
         }
+    }
+
+    public void ConvertProjectMsuType(MsuProject project, MsuType newMsuType, bool swapPcmFiles = false)
+    {
+        if (!project.MsuType.IsCompatibleWith(newMsuType) && project.MsuType != newMsuType)
+            return;
+
+        var oldType = project.MsuType;
+        project.MsuType = newMsuType;
+        project.MsuTypeName = newMsuType.Name;
+
+        var conversion = project.MsuType.Conversions[oldType];
+        
+        var msu = new FileInfo(project.MsuPath);
+        var basePath = msu.FullName.Replace(msu.Extension, "");
+        var baseName = msu.Name.Replace(msu.Extension, "");
+
+        HashSet<string> swappedFiles = new HashSet<string>();
+        var newTracks = new List<MsuTrackInfo>();
+        foreach (var oldTrack in project.Tracks)
+        {
+            
+            var newTrackNumber = conversion(oldTrack.TrackNumber);
+
+            if (oldTrack.TrackNumber == newTrackNumber)
+            {
+                newTracks.Add(oldTrack);
+                continue;
+            }
+            
+            var newMsuTypeTrack = newMsuType.Tracks.FirstOrDefault(x => x.Number == newTrackNumber);
+            if (newMsuTypeTrack == null) continue;
+
+            var newSongs = new List<MsuSongInfo>();
+            foreach (var oldSong in oldTrack.Songs)
+            {
+                var songBaseName = new FileInfo(oldSong.OutputPath).Name;
+                if (!songBaseName.StartsWith($"{baseName}-{oldTrack.TrackNumber}"))
+                    continue;
+                
+                var newSong = new MsuSongInfo()
+                {
+                    TrackNumber = newTrackNumber,
+                    TrackName = newMsuTypeTrack.Name,
+                    SongName = oldSong.SongName,
+                    Artist = oldSong.Artist,
+                    Album = oldSong.Album,
+                    Url = oldSong.Url,
+                    OutputPath = oldSong.OutputPath.Replace($"{basePath}-{oldTrack.TrackNumber}",
+                        $"{basePath}-{newTrackNumber}"),
+                    IsAlt = oldSong.IsAlt,
+                    MsuPcmInfo = oldSong.MsuPcmInfo
+                };
+                
+                newSongs.Add(newSong);
+
+                if (swapPcmFiles && File.Exists(oldSong.OutputPath) && !swappedFiles.Contains(newSong.OutputPath))
+                {
+                    if (File.Exists(newSong.OutputPath))
+                    {
+                        _logger.LogInformation("{New} <=> {Old}", newSong.OutputPath, oldSong.OutputPath);
+                        swappedFiles.Add(newSong.OutputPath);
+                        swappedFiles.Add(oldSong.OutputPath);
+                        File.Move(newSong.OutputPath, newSong.OutputPath + ".tmp");
+                        File.Move(oldSong.OutputPath, oldSong.OutputPath + ".tmp");
+                        File.Move(newSong.OutputPath + ".tmp", oldSong.OutputPath);
+                        File.Move(oldSong.OutputPath + ".tmp", newSong.OutputPath);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("{New} <== {Old}", newSong.OutputPath, oldSong.OutputPath);
+                        File.Move(oldSong.OutputPath, newSong.OutputPath );
+                    }
+                }
+            }
+            
+            newTracks.Add(new MsuTrackInfo()
+            {
+                TrackNumber = newTrackNumber,
+                TrackName = newMsuTypeTrack.Name,
+                Songs = newSongs
+            });
+        }
+
+        project.Tracks = newTracks;
     }
 
     public void ImportMsuPcmTracksJson(MsuProject project, string jsonPath, string? msuPcmWorkingDirectory)

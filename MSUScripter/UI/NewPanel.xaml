@@ -20,10 +20,10 @@
             <GroupBox Header="New Project">
                 <StackPanel Orientation="Vertical">
                     <TextBlock TextWrapping="Wrap" Margin="0 0 0 5">
-                        If you already have created the MSU, select the pre-existing MSU and MsuPcm++ Tracks Json file below. If you're starting a brand new MSU, select where you'd like the MSU and MsuPcm++ Tracks Json file to go.
+                        If you already have created the MSU, select the pre-existing MSU and MsuPcm++ Tracks Json file (if applicable) below. If you're starting a brand new MSU, select where you'd like the MSU file to go.
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap" Margin="0 0 0 5">
-                        If you are importing a previously created MsuPcm++ tracks Json file, you will also need to select the folder in which you previously ran MsuPcm++ from so that relative paths can be converted to absolute paths. If not provided, it will use the tracks.json file directory. 
+                        If you are importing a previously created MsuPcm++ tracks Json file, you will also need to select the folder in which you previously ran MsuPcm++ from so the MSU Scripter will know where to find the files. If not provided, it will use the tracks.json file directory. 
                     </TextBlock>
                     <local:LabeledControl Text="MSU Type: ">
                         <ComboBox 

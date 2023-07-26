@@ -37,7 +37,7 @@ public abstract class Helpers
     {
         if (sender is TextBox textBox && !_decimalRegex.IsMatch(textBox.Text))
         {
-            textBox.Text = "0";
+            textBox.Text = "";
         }
     }
     
@@ -68,7 +68,7 @@ public abstract class Helpers
     {
         if (sender is TextBox textBox && !_intRegex.IsMatch(textBox.Text))
         {
-            textBox.Text = "0";
+            textBox.Text = "";
         }
     }
     

@@ -11,8 +11,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-preview.6.23329.7" />
-      <PackageReference Include="MSURandomizerLibrary" Version="0.9.8-beta.7" />
+      <PackageReference Include="MSURandomizerLibrary" Version="0.9.8-beta.15" />
       <PackageReference Include="NAudio" Version="2.1.0" />
       <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="10.9.0" />
       <PackageReference Include="NReco.Logging.File" Version="1.1.6" />

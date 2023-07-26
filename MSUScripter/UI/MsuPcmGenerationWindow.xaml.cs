@@ -87,7 +87,7 @@ public partial class MsuPcmGenerationWindow : Window
 
         Task.Run(() =>
         {
-            foreach (var song in _songs)
+            foreach (var song in _songs.OrderBy(x => x.TrackNumber).ThenBy(x => x.IsAlt))
             {
                 UpdateCurrent();
 

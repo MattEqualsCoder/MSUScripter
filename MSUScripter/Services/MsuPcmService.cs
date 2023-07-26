@@ -34,7 +34,7 @@ public class MsuPcmService
     {
         var msu = new FileInfo(project.MsuPath);
         var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
-        ExportMsuPcmTracksJson(project, song);
+        ExportMsuPcmTracksJson(project, song, jsonPath);
 
         var msuPath = new FileInfo(project.MsuPath).DirectoryName;
         var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
@@ -188,9 +188,8 @@ public class MsuPcmService
         
         if (string.IsNullOrEmpty(exportPath))
         {
-            exportPath = msu.FullName.Replace(msu.Name + msu.Extension, "tracks-2.json");
+            exportPath = msu.FullName.Replace(msu.Name, "tracks-2.json");
         }
-        
         
         var output = new MsuPcmPlusPlusConfig()
         {
