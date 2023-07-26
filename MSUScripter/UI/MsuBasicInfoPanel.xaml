@@ -6,8 +6,9 @@
              xmlns:local="clr-namespace:MSUScripter.UI"
              xmlns:models="clr-namespace:MSUScripter.ViewModels"
              xmlns:tools1="clr-namespace:MSUScripter.UI.Tools"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="400" d:DesignWidth="400">
     <UserControl.DataContext>
         <models:MsuBasicInfoViewModel></models:MsuBasicInfoViewModel>
     </UserControl.DataContext>
@@ -54,14 +55,22 @@
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </local:LabeledControl>
+                <local:LabeledControl Text="Enable MsuPcm: ">
+                    <ComboBox 
+                        Name="IsMsuPcmProjectComboBox"
+                        SelectedItem="{Binding IsMsuPcmProject, Converter={StaticResource BoolStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        SelectionChanged="IsMsuPcmProjectComboBox_OnSelectionChanged"
+                    ></ComboBox>
+                </local:LabeledControl>
             </StackPanel>
         </GroupBox>
-        <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0">
+        <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" Visibility="{Binding IsMsuPcmProject, Converter={StaticResource BoolVisibilityConverter}}">
             <StackPanel Orientation="Vertical">
                 <local:LabeledControl Text="Normalization: ">
                     <TextBox 
                         Name="NormalizationTextBox"
-                        Text="{Binding Path=Normalization, Mode=TwoWay}"
+                        Text="{Binding Path=Normalization, Mode=TwoWay, TargetNullValue={x:Static system:String.Empty }}"
                         PreviewTextInput="DecimalTextBox_OnPreviewTextInput"
                         DataObject.Pasting="DecimalTextBox_OnPaste"
                         LostFocus="DecimalTextBox_OnLostFocus"
@@ -70,8 +79,8 @@
                 <local:LabeledControl Text="Dither: ">
                     <ComboBox 
                         Name="Dither"
-                        SelectedItem="{Binding Dither, Converter={StaticResource BoolStringConverter}}"
-                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        SelectedItem="{Binding Dither, Converter={StaticResource NullableBoolStringConverter}}"
+                        ItemsSource="{x:Static tools1:NullableBoolComboBoxItemsSource.ItemsSource}"
                     ></ComboBox>
                 </local:LabeledControl>
             </StackPanel>

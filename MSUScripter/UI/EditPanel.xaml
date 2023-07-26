@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Margin="5">
             <Grid.ColumnDefinitions>
@@ -44,6 +45,32 @@
                     <local:MsuSongInfoPanel x:Name="SongInfoPanel"></local:MsuSongInfoPanel>-->
                 </StackPanel>
             </ScrollViewer>
+        </Border>
+        
+        <Border Grid.Row="2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
+                <TextBlock Padding="0 5 5 0" Name="ExportStatusTextBlock"></TextBlock>
+                <Button x:Name="ExportButton"
+                        IsEnabled="{Binding PlayButtonsEnabled}"
+                        Padding="8 5"
+                        Click='ExportButton_OnClick'>_Export</Button>
+                <Button x:Name="ExportMenuButton"
+                        MinWidth="0"
+                        Width="23"
+                        Content="▼"
+                        FontSize="8"
+                        BorderThickness="0,1,1,1"
+                        Margin="0,0,0,0"
+                        Click="ExportMenuButton_OnClick">
+                    <Button.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick"></MenuItem>
+                            <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
+                            <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                </Button>
+            </StackPanel>
         </Border>
         
     </Grid>

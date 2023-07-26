@@ -62,18 +62,25 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _url, value);
     }
 
-    private double _normalization;
-    public double Normalization
+    private double? _normalization;
+    public double? Normalization
     {
         get => _normalization;
         set => SetField(ref _normalization, value);
     }
 
-    private bool _dither;
-    public bool Dither
+    private bool? _dither;
+    public bool? Dither
     {
         get => _dither;
         set => SetField(ref _dither, value);
+    }
+
+    public bool _isMsuPcmProject = true;
+    public bool IsMsuPcmProject
+    {
+        get => _isMsuPcmProject;
+        set => SetField(ref _isMsuPcmProject, value);
     }
 
     

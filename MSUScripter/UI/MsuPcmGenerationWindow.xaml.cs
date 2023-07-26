@@ -72,6 +72,7 @@ public partial class MsuPcmGenerationWindow : Window
         {
             ErrorTextBlock.Text = "No errors!";
         }
+        CloseButton.Content = "Close";
 
         if (_errors > 0)
         {
@@ -106,6 +107,7 @@ public partial class MsuPcmGenerationWindow : Window
 
             UpdateComplete();
             _hasFinished = true;
+            
         }, _cts.Token);
     }
 

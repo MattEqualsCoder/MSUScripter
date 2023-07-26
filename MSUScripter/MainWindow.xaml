@@ -34,21 +34,6 @@
                     Name="SettingsMenuItem"
                     Click="SettingsMenuItem_OnClick"
                 ></MenuItem>
-                <MenuItem 
-                    Header="Export _YAML"
-                    Name="ExportYamlMenuItem"
-                    Click="ExportYamlMenuItem_OnClick"
-                ></MenuItem>
-                <MenuItem 
-                    Header="Export MsuPcm++ _Json"
-                    Name="ExportMsuPcmJsonMenuItem"
-                    Click="ExportMsuPcmJsonMenuItem_OnClick"
-                ></MenuItem>
-                <MenuItem 
-                    Header="Create _MSU"
-                    Name="CreateMsuMenuItem"
-                    Click="CreateMsuMenuItem_OnClick"
-                ></MenuItem>
             </Menu>
         </Border>
         

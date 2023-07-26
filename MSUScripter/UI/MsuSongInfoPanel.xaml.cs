@@ -68,6 +68,11 @@ public partial class MsuSongInfoPanel : UserControl
             MessageBox.Show(Window.GetWindow(this)!, message!, "Success!", MessageBoxButton.OK);
         }
     }
+    
+    public void ToggleMsuPcm(bool enable)
+    {
+        MsuSongMsuPcmInfoPanel.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
+    }
 
 
     private void OutputPathButton_OnClick(object sender, RoutedEventArgs e)

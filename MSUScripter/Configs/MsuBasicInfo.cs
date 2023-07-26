@@ -12,4 +12,5 @@ public class MsuBasicInfo
     public string? Url { get; set; }
     public double? Normalization { get; set; }
     public bool? Dither { get; set; }
+    public bool IsMsuPcmProject { get; set; } = true;
 }

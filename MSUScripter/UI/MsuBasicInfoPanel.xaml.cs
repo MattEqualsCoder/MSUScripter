@@ -8,10 +8,13 @@ namespace MSUScripter.UI;
 
 public partial class MsuBasicInfoPanel : UserControl
 {
-    public MsuBasicInfoPanel()
+    private EditPanel? _parent;
+    
+    public MsuBasicInfoPanel(EditPanel? parent)
     { 
         InitializeComponent();
         DataContext = MsuBasicInfo = new MsuBasicInfoViewModel();
+        _parent = parent;
     }
 
     public MsuBasicInfoViewModel MsuBasicInfo { get; set; }
@@ -26,4 +29,11 @@ public partial class MsuBasicInfoPanel : UserControl
     private void DecimalTextBox_OnLostFocus(object s, RoutedEventArgs e) =>
         Helpers.DecimalTextBox_OnLostFocus(s, e);
 
+    private void IsMsuPcmProjectComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (MsuPcmDetailsGroupBox == null) return;
+        var value = (string)IsMsuPcmProjectComboBox.SelectedValue == "Yes";
+        MsuPcmDetailsGroupBox.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+        _parent?.ToggleMsuPcm(value);
+    }
 }

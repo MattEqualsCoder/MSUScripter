@@ -221,7 +221,7 @@ public class MsuPcmService
         }
 
         output.Tracks = tracks;
-        var json = JsonConvert.SerializeObject(output);
+        var json = JsonConvert.SerializeObject(output, Formatting.Indented);
         File.WriteAllText(exportPath, json);
         return exportPath;
     }

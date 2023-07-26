@@ -57,6 +57,7 @@
         
         <tools1:BoolToVisibilityConverter x:Key="BoolVisibilityConverter" />
         <tools1:BoolToStringConverter x:Key="BoolStringConverter"/>
+        <tools1:NullableBoolToStringConverter x:Key="NullableBoolStringConverter"/>
         <tools1:SubtractionConverter x:Key="SubtractionConverter"/>
 
 </ResourceDictionary>

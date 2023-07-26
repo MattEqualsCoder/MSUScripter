@@ -4,7 +4,7 @@ using System.Windows.Data;
 
 namespace MSUScripter.UI.Tools;
 
-[ValueConversion(typeof(bool?), typeof(string))]
+[ValueConversion(typeof(bool), typeof(string))]
 public sealed class BoolToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

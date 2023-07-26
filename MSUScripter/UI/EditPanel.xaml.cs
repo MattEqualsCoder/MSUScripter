@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using MSUScripter.Configs;
@@ -14,21 +16,38 @@ public partial class EditPanel : UserControl
     private MsuProject _project = null!;
     private Dictionary<int, UserControl> _pages = new();
     private UserControl _currentPage = null!;
+    private bool _enableMsuPcm = true;
     
-    public EditPanel()
+    private readonly ProjectService? _projectService;
+    private readonly MsuPcmService? _msuPcmService;
+
+    public EditPanel() : this(null, null)
     {
+    }
+
+    public EditPanel(ProjectService? projectService, MsuPcmService? msuPcmService)
+    {
+        _projectService = projectService;
+        _msuPcmService = msuPcmService;
         InitializeComponent();
     }
 
     public void SetProject(MsuProject project)
     {
+        ToggleMsuPcm(project.BasicInfo.IsMsuPcmProject);
         _project = project;
         PopulatePageComboBox();
-        var msuBasicInfoPanel = new MsuBasicInfoPanel();
+        var msuBasicInfoPanel = new MsuBasicInfoPanel(this);
         ConverterService.ConvertViewModel(_project.BasicInfo, msuBasicInfoPanel.MsuBasicInfo);
         _currentPage = msuBasicInfoPanel;
         _pages[0] = msuBasicInfoPanel;
         PagePanel.Children.Add(_currentPage);
+    }
+
+    public void ToggleMsuPcm(bool enable)
+    {
+        _enableMsuPcm = enable;
+        ExportMenuButton.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void DisplayPage(int page)
@@ -41,6 +60,10 @@ public partial class EditPanel : UserControl
         {
             previousPage.Visibility = Visibility.Visible;
             _currentPage = previousPage;
+            if (page > 0 && _currentPage is MsuTrackInfoPanel trackPage)
+            {
+                trackPage.ToggleMsuPcm(_enableMsuPcm);
+            }
             return;
         }
 
@@ -49,6 +72,7 @@ public partial class EditPanel : UserControl
         pagePanel.SetTrackInfo(_project, track);
         _pages[page] = pagePanel;
         _currentPage = pagePanel;
+        pagePanel.ToggleMsuPcm(_enableMsuPcm);
         PagePanel.Children.Add(_currentPage);
     }
 
@@ -102,5 +126,77 @@ public partial class EditPanel : UserControl
         var newIndex = PageComboBox.SelectedIndex - 1;
         if (newIndex >= 0)
             PageComboBox.SelectedIndex = newIndex;
+    }
+
+    private void ExportButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_projectService == null) return;
+        _project = UpdateProjectData();
+        _projectService.ExportMsuRandomizerYaml(_project);
+
+        if (!_enableMsuPcm || _msuPcmService == null)
+        {
+            ShowExportComplete();
+            return;
+        }
+        
+        _msuPcmService.ExportMsuPcmTracksJson(_project);
+        var msuPcmWindow = new MsuPcmGenerationWindow(_project,
+            _project.Tracks.SelectMany(x => x.Songs).ToList());
+        msuPcmWindow.ShowDialog();
+        ShowExportComplete();
+    }
+
+    private void ExportMenuButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (ExportMenuButton.ContextMenu == null) return;
+        ExportMenuButton.ContextMenu.DataContext = ExportMenuButton.DataContext;
+        ExportMenuButton.ContextMenu.IsOpen = true;
+    }
+
+    private void ExportButton_Yaml_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_projectService == null) return;
+        _project = UpdateProjectData();
+        _projectService.ExportMsuRandomizerYaml(_project);
+        ShowExportComplete();
+    }
+
+    private void ExportButton_Json_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_msuPcmService == null) return;
+        _project = UpdateProjectData();
+        _msuPcmService.ExportMsuPcmTracksJson(_project);
+        ShowExportComplete();
+    }
+
+    private void ExportButton_Msu_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_msuPcmService == null) return;
+        _project = UpdateProjectData();
+        _msuPcmService.ExportMsuPcmTracksJson(_project);
+        var msuPcmWindow = new MsuPcmGenerationWindow(_project,
+            _project.Tracks.SelectMany(x => x.Songs).ToList());
+        msuPcmWindow.ShowDialog();
+        ShowExportComplete();
+    }
+
+    private void ShowExportComplete()
+    {
+        Task.Run(() =>
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ExportStatusTextBlock.Text = "Complete!";
+            });
+            ;
+            Thread.Sleep(5000);
+
+            Dispatcher.Invoke(() =>
+            {
+                ExportStatusTextBlock.Text = "";
+            });
+        });
+
     }
 }

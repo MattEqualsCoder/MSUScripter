@@ -98,20 +98,6 @@ namespace MSUScripter
             UpdateTitle(_msuProject);
         }
 
-        private void ExportYamlMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (_editPanel == null) return;
-            _msuProject = _editPanel.UpdateProjectData();
-            _projectService.ExportMsuRandomizerYaml(_msuProject);
-        }
-
-        private void ExportMsuPcmJsonMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (_editPanel == null) return;
-            _msuProject = _editPanel.UpdateProjectData();
-            _msuPcmService.ExportMsuPcmTracksJson(_msuProject);
-        }
-
         private void SettingsMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             var settingsViewModel = new SettingsWindow();
@@ -119,14 +105,5 @@ namespace MSUScripter
             _settingsService.SaveSettings();
         }
 
-        private void CreateMsuMenuItem_OnClick(object sender, RoutedEventArgs e)
-        {
-            if (_editPanel == null) return;
-            _msuProject = _editPanel.UpdateProjectData();
-            _msuPcmService.ExportMsuPcmTracksJson(_msuProject);
-            var msuPcmWindow = new MsuPcmGenerationWindow(_msuProject,
-                _msuProject.Tracks.SelectMany(x => x.Songs).ToList());
-            msuPcmWindow.ShowDialog();
-        }
     }
 }

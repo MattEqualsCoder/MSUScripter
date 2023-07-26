@@ -13,6 +13,7 @@ public partial class MsuTrackInfoPanel
     private MsuProject _project = null!;
     private MsuTrackInfo _trackInfo = null!;
     private List<MsuSongInfoPanel> _songPanels = new();
+    private bool _enableMsuPcm = true;
         
     public MsuTrackInfoPanel()
     {
@@ -48,6 +49,7 @@ public partial class MsuTrackInfoPanel
         }
 
         var newPanel = new MsuSongInfoPanel(this, songInfo.IsAlt, _project);
+        newPanel.ToggleMsuPcm(_enableMsuPcm);
         ConverterService.ConvertViewModel(songInfo, newPanel.MsuSongInfo);
         newPanel.ApplyMsuSongMsuPcmInfo(songInfo.MsuPcmInfo);
         SongStackPanel.Children.Add(newPanel);
@@ -87,6 +89,15 @@ public partial class MsuTrackInfoPanel
         }
 
         _trackInfo.Songs = songs;
+    }
+
+    public void ToggleMsuPcm(bool enable)
+    {
+        _enableMsuPcm = enable;
+        foreach (var songPanel in _songPanels)
+        {
+            songPanel.ToggleMsuPcm(enable);
+        }
     }
 
     private void AddSongButton_OnClick(object sender, RoutedEventArgs e)
