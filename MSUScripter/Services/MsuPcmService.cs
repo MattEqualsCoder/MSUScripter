@@ -34,22 +34,23 @@ public class MsuPcmService
     {
         try
         {
+            if (string.IsNullOrEmpty(song.OutputPath))
+            {
+                message = $"Track #{song.TrackNumber} - Missing output PCM path";
+                return false;
+            }
+            
             var msu = new FileInfo(project.MsuPath);
             var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
             ExportMsuPcmTracksJson(project, song, jsonPath);
-
-            if (string.IsNullOrEmpty(song.OutputPath))
-            {
-                message = $"Track #{song.TrackNumber} - Missing out output PCM path";
-            }
-
+            
             var msuPath = new FileInfo(project.MsuPath).DirectoryName;
             var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
         
             if (!File.Exists(jsonPath))
             {
                 message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
-                return true;
+                return false;
             }
 
             if (!ValidateMsuPcmInfo(song.MsuPcmInfo, out message, out var numFiles))
