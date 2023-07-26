@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.UI.Tools;
@@ -20,15 +21,17 @@ public partial class EditPanel : UserControl
     
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
+    private readonly IServiceProvider? _serviceProvider;
 
-    public EditPanel() : this(null, null)
+    public EditPanel() : this(null, null, null)
     {
     }
 
-    public EditPanel(ProjectService? projectService, MsuPcmService? msuPcmService)
+    public EditPanel(ProjectService? projectService, MsuPcmService? msuPcmService, IServiceProvider? serviceProvider)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
+        _serviceProvider = serviceProvider;
         InitializeComponent();
     }
 
@@ -52,8 +55,12 @@ public partial class EditPanel : UserControl
 
     public void DisplayPage(int page)
     {
+        
         if (page < 0 || page >= PageComboBox.Items.Count || _pages.Count() == 0)
             return;
+
+        if (_serviceProvider == null)
+            throw new InvalidOperationException("Unable to dislay track page");
         
         _currentPage.Visibility = Visibility.Collapsed;
         if (_pages.TryGetValue(page, out var previousPage))
@@ -68,7 +75,7 @@ public partial class EditPanel : UserControl
         }
 
         var track = _project.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-1];
-        var pagePanel = new MsuTrackInfoPanel();
+        var pagePanel = _serviceProvider.GetRequiredService<MsuTrackInfoPanel>();
         pagePanel.SetTrackInfo(_project, track);
         _pages[page] = pagePanel;
         _currentPage = pagePanel;

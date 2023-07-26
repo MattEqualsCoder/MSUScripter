@@ -94,6 +94,35 @@
                             Content="Browse..." />
                     </Grid>
                 </local:LabeledControl>
+                <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel">
+                    <Separator Margin="0 5"></Separator>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button
+                            Name="PlaySongButton"
+                            Content="Play Song"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="PlaySongButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="TestLoopButton"
+                            Content="Test Loop"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="TestLoopButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="ImportSongMetadataButton"
+                            Content="Import Audio File Metadata"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="ImportSongMetadataButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </GroupBox>
         <local:MsuSongMsuPcmInfoPanel x:Name="MsuSongMsuPcmInfoPanel"></local:MsuSongMsuPcmInfoPanel>

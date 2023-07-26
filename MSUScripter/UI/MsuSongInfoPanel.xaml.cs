@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MSUScripter.Configs;
 using MSUScripter.Services;
@@ -75,6 +74,19 @@ public partial class MsuSongInfoPanel : UserControl
         MsuSongMsuPcmInfoPanel.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    public void ImportAudioMetadata(string file, bool force = false)
+    {
+        var metadata =  _parent?.GetAudioMetadata(file);
+        if (metadata?.HasData != true) return;
+        if (force || string.IsNullOrEmpty(MsuSongInfo.SongName) || MsuSongInfo.SongName.StartsWith("Track #"))
+            MsuSongInfo.SongName = metadata.SongName;
+        if (force || (string.IsNullOrEmpty(MsuSongInfo.Artist) && !string.IsNullOrEmpty(metadata.Artist)))
+            MsuSongInfo.Artist = metadata.Artist;
+        if (force || (string.IsNullOrEmpty(MsuSongInfo.Album) && !string.IsNullOrEmpty(metadata.Album)))
+            MsuSongInfo.Album = metadata.Album;
+        if (force || (string.IsNullOrEmpty(MsuSongInfo.Url) && !string.IsNullOrEmpty(metadata.Url)))
+            MsuSongInfo.Url = metadata.Url;
+    }
 
     private void OutputPathButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -99,5 +111,33 @@ public partial class MsuSongInfoPanel : UserControl
             MessageBoxImage.Warning);
         if (result == MessageBoxResult.Yes)
             _parent.RemoveSong(this);
+    }
+
+    private void ImportSongMetadataButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new CommonOpenFileDialog()
+        {
+            EnsurePathExists = true,
+            Title = "Select Music File",
+            Filters = { new CommonFileDialogFilter("Audio Files", "*.mp3;*.flac") }
+        };
+        
+        if (dialog.ShowDialog() != CommonFileDialogResult.Ok || string.IsNullOrEmpty(dialog.FileName) || !File.Exists(dialog.FileName)) return;
+
+        ImportAudioMetadata(dialog.FileName, true);
+    }
+    
+    private void PlaySongButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MsuSongInfo.OutputPath == null)
+            return;
+        AudioService.Instance.PlaySong(MsuSongInfo.OutputPath, false);
+    }
+
+    private void TestLoopButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (MsuSongInfo.OutputPath == null)
+            return;
+        AudioService.Instance.PlaySong(MsuSongInfo.OutputPath, true);
     }
 }

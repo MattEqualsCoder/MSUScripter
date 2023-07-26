@@ -17,16 +17,18 @@ public class ProjectService
     private readonly IMsuTypeService _msuTypeService;
     private readonly IMsuLookupService _msuLookupService;
     private readonly IMsuDetailsService _msuDetailsService;
+    private readonly AudioMetadataService _audioMetadataService;
     private MsuPcmService _msuPcmService;
     private readonly ILogger<ProjectService> _logger;
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService, ILogger<ProjectService> logger)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
         _msuDetailsService = msuDetailsService;
         _msuPcmService = msuPcmService;
         _logger = logger;
+        _audioMetadataService = audioMetadataService;
     }
     
     public void SaveMsuProject(MsuProject project)
@@ -281,9 +283,40 @@ public class ProjectService
                     trackPath = Path.Combine(msuDirectory, $"{msuName}-{trackNumber}_alt{i}.pcm");
                 }
 
+                AudioMetadata? metadata = null;
+                var files = msuPcmInfo[i].GetFiles();
+                if (files.Count == 1)
+                {
+                    metadata = _audioMetadataService.GetAudioMetadata(files.First());
+                }
+
                 if (i < songs.Count)
                 {
-                    songs[i].MsuPcmInfo = msuPcmInfo[i];
+                    var song = songs[i];
+                    song.MsuPcmInfo = msuPcmInfo[i];
+
+                    if (metadata?.HasData == true)
+                    {
+                        if (string.IsNullOrEmpty(song.SongName) || song.SongName.StartsWith("Track #"))
+                        {
+                            song.SongName = metadata.SongName;
+                        }
+
+                        if (string.IsNullOrEmpty(song.Artist))
+                        {
+                            song.Artist = metadata.Artist;
+                        }
+                        
+                        if (string.IsNullOrEmpty(song.Album))
+                        {
+                            song.Album = metadata.Album;
+                        }
+                        
+                        if (string.IsNullOrEmpty(song.Url))
+                        {
+                            song.Url = metadata.Url;
+                        }
+                    }
                 }
                 else
                 {
@@ -291,6 +324,10 @@ public class ProjectService
                     {
                         TrackNumber = trackNumber,
                         TrackName = projectTrack.TrackName,
+                        SongName = metadata?.SongName,
+                        Artist = metadata?.Artist,
+                        Album = metadata?.Album,
+                        Url = metadata?.Url,
                         OutputPath = trackPath,
                         IsAlt = i != 0,
                         MsuPcmInfo = msuPcmInfo[i]

@@ -198,6 +198,8 @@ public partial class MsuSongMsuPcmInfoPanel
         if (dialog.ShowDialog() != CommonFileDialogResult.Ok || string.IsNullOrEmpty(dialog.FileName) || !File.Exists(dialog.FileName)) return;
 
         MsuSongMsuPcmInfo.File = dialog.FileName;
+        
+        ImportAudioMetadata(dialog.FileName);
     }
 
     private void GeneratePcmFileButton_OnClick(object sender, RoutedEventArgs e)
@@ -229,5 +231,17 @@ public partial class MsuSongMsuPcmInfoPanel
     private void StopSongButton_OnClick(object sender, RoutedEventArgs e)
     {
         AudioService.Instance.StopSong();
+    }
+
+    private void ImportAudioMetadata(string file)
+    {
+        if (_parent != null)
+        {
+            _parent.ImportAudioMetadata(file);
+        }
+        else if (_parentSongPanel != null)
+        {
+            _parentSongPanel.ImportAudioMetadata(file);
+        }
     }
 }

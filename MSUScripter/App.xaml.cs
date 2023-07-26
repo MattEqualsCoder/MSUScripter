@@ -51,14 +51,17 @@ namespace MSUScripter
                     services.AddSingleton<SettingsService>();
                     services.AddSingleton<MsuPcmService>();
                     services.AddSingleton<AudioService>();
+                    services.AddSingleton<AudioMetadataService>();
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<ProjectService>();
                     services.AddTransient<NewPanel>();
                     services.AddTransient<EditPanel>();
+                    services.AddTransient<MsuTrackInfoPanel>();
                 })
                 .Start();
             
             _host.Services.GetRequiredService<SettingsService>();
+            _host.Services.GetRequiredService<AudioMetadataService>();
             _logger = _host.Services.GetRequiredService<ILogger<App>>();
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             _logger.LogInformation("Starting MSU Scripter {Version}", version.ProductVersion ?? "");

@@ -14,20 +14,12 @@ public class MsuPcmService
 {
     public static MsuPcmService Instance { get; private set; } = null!;
 
-    private ILogger<MsuPcmService> _logger;
+    private readonly ILogger<MsuPcmService> _logger;
 
     public MsuPcmService(ILogger<MsuPcmService> logger)
     {
         _logger = logger;
         Instance = this;
-    }
-
-    public void CreateMsu(MsuProject project)
-    {
-        var jsonPath = ExportMsuPcmTracksJson(project);
-        if (jsonPath == null)
-            return;
-        //RunMsuPcm(jsonPath);
     }
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
@@ -167,34 +159,31 @@ public class MsuPcmService
         var msuPcmFile = new FileInfo(SettingsService.Settings.MsuPcmPath);
         var command = msuPcmFile.Name + " \"" + trackJson + "\"";
         
-        var procStartInfo = new ProcessStartInfo("cmd", "/c " + command);
-        
-        procStartInfo.WorkingDirectory = msuPcmFile.DirectoryName;
-        procStartInfo.RedirectStandardOutput = true;
-        procStartInfo.RedirectStandardError = true;
-        procStartInfo.UseShellExecute = false;
-        procStartInfo.CreateNoWindow = true;
+        var procStartInfo = new ProcessStartInfo("cmd", "/c " + command)
+        {
+            WorkingDirectory = msuPcmFile.DirectoryName,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
         // wrap IDisposable into using (in order to release hProcess) 
-        using(Process process = new Process()) {
-            process.StartInfo = procStartInfo;
-            process.Start();
+        using var process = new Process();
+        process.StartInfo = procStartInfo;
+        process.Start();
 
-            // Add this: wait until process does its work
-            process.WaitForExit();
+        // Add this: wait until process does its work
+        process.WaitForExit();
 
-            // and only then read the result
-            string result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
-            error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
+        // and only then read the result
+        var result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
+        error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
 
-            if (!string.IsNullOrEmpty(error))
-            {
-                _logger.LogError("Error running MsuPcm++: {Error}", error);
-                return false;
-            }
+        if (string.IsNullOrEmpty(error)) return true;
+        _logger.LogError("Error running MsuPcm++: {Error}", error);
+        return false;
 
-            return true;
-        }
     }
     
     public string? ExportMsuPcmTracksJson(MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null)
@@ -203,7 +192,7 @@ public class MsuPcmService
         
         if (string.IsNullOrEmpty(exportPath))
         {
-            exportPath = msu.FullName.Replace(msu.Name, "tracks-2.json");
+            exportPath = msu.FullName.Replace(msu.Extension, "-tracks.json");
         }
         
         var output = new MsuPcmPlusPlusConfig()

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace MSUScripter.Configs;
 
@@ -20,4 +21,19 @@ public class MsuSongMsuPcmInfo
     
     public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();
     public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = new();
+
+    public List<string> GetFiles()
+    {
+        List<string> files = new List<string>();
+
+        if (!string.IsNullOrEmpty(File))
+        {
+            files.Add(File);
+        }
+        
+        files.AddRange(SubTracks.SelectMany(x => x.GetFiles()));
+        files.AddRange(SubChannels.SelectMany(x => x.GetFiles()));
+
+        return files;
+    }
 }

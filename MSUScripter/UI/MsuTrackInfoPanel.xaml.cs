@@ -14,10 +14,16 @@ public partial class MsuTrackInfoPanel
     private MsuTrackInfo _trackInfo = null!;
     private List<MsuSongInfoPanel> _songPanels = new();
     private bool _enableMsuPcm = true;
+    private AudioMetadataService? _audioMetadataService;
         
-    public MsuTrackInfoPanel()
+    public MsuTrackInfoPanel() : this(null)
+    {
+    }
+    
+    public MsuTrackInfoPanel(AudioMetadataService? audioMetadataService)
     {
         InitializeComponent();
+        _audioMetadataService = audioMetadataService;
     }
     
     public void SetTrackInfo(MsuProject project, MsuTrackInfo trackInfo)
@@ -98,6 +104,12 @@ public partial class MsuTrackInfoPanel
         {
             songPanel.ToggleMsuPcm(enable);
         }
+    }
+    
+    public AudioMetadata GetAudioMetadata(string file)
+    {
+        if (_audioMetadataService == null) return new AudioMetadata();
+        return  _audioMetadataService.GetAudioMetadata(file);
     }
 
     private void AddSongButton_OnClick(object sender, RoutedEventArgs e)
