@@ -19,37 +19,37 @@ public class AudioService
 
     public string CurrentPlayingFile { get; private set; } = "";
     
-    public void StopSong()
+    public async Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false)
     {
         if (_waveOutEvent?.PlaybackState == PlaybackState.Playing)
         {
             _waveOutEvent?.Stop();
         }
-    }
-    
-    public bool PlaySong(string path, bool fromEnd)
-    {
-        StopSong();
+
+        if (waitForFile && !string.IsNullOrEmpty(CurrentPlayingFile))
+        {
+            newSongPath = CurrentPlayingFile;
+        }
         
         // If we're replaying the same song, wait until the song is accessible
-        if (CurrentPlayingFile == path)
+        if (CurrentPlayingFile == newSongPath)
         {
             for(var i = 0; i < 30; i++)
             {
                 try
                 {
-                    using var reader = new BinaryReader(new FileStream(path, FileMode.Open));
+                    using var reader = new BinaryReader(new FileStream(newSongPath, FileMode.Open));
                     break;
                 }
                 catch
                 {
-                    Thread.Sleep(200);
+                    await Task.Delay(200);
                 }
             }
                 
             try
             {
-                using var reader = new BinaryReader(new FileStream(path, FileMode.Open));
+                using var reader = new BinaryReader(new FileStream(newSongPath, FileMode.Open));
             }
             catch
             {
@@ -63,24 +63,29 @@ public class AudioService
             var canPlay = false;
             for(var i = 0; i < 30; i++) 
             {
-                Thread.Sleep(200);
+                await Task.Delay(200);
                 if (_waveOutEvent == null)
                 {
                     canPlay = true;
                     break;
                 }
             }
-
-            if (!canPlay)
-            {
-                return false;
-            }
+            
+            return canPlay;
         }
 
+        return true;
+    }
+    
+    public async Task<bool> PlaySongAsync(string path, bool fromEnd)
+    {
+        var canPlay = await StopSongAsync(path);
+
+        if (!canPlay) return false;
+        
         CurrentPlayingFile = path;
         
-
-        Task.Run(() =>
+        _ = Task.Run(() =>
         {
             var initBytes = new byte[8];
             using (var reader = new BinaryReader(new FileStream(path, FileMode.Open)))

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
@@ -17,17 +18,17 @@ namespace MSUScripter
         private readonly IServiceProvider _serviceProvider;
         private readonly ProjectService _projectService;
         private readonly SettingsService _settingsService;
-        private readonly MsuPcmService _msuPcmService;
+        private readonly AudioService _audioService;
         private MsuProject? _msuProject;
         private NewPanel? _newPanel;
         private EditPanel? _editPanel;
         
-        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider, SettingsService settingsService, MsuPcmService msuPcmService, AudioService audioService)
+        public MainWindow(ProjectService projectService, IServiceProvider serviceProvider, SettingsService settingsService, AudioService audioService)
         {
             _projectService = projectService;
             _serviceProvider = serviceProvider;
             _settingsService = settingsService;
-            _msuPcmService = msuPcmService;
+            _audioService = audioService;
             InitializeComponent();
             DisplayNewPanel();
         }
@@ -87,6 +88,7 @@ namespace MSUScripter
 
         private void NewMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            Task.Run(() => _audioService.StopSongAsync());
             CheckUnsavedChanges();
             DisplayNewPanel();
         }
@@ -96,6 +98,7 @@ namespace MSUScripter
             if (_editPanel == null) return;
             _msuProject = _editPanel.UpdateCurrentPageData();
             _projectService.SaveMsuProject(_msuProject);
+            _editPanel?.UpdateStatusBarText("Project Saved");
             UpdateTitle(_msuProject);
         }
 

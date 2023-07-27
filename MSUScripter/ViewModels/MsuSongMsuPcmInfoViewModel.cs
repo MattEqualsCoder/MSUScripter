@@ -107,13 +107,6 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _lastModifiedDate, value);
     }
     
-    public DateTime _lastGeneratedDate;
-    public DateTime LastGeneratedDate
-    {
-        get => _lastGeneratedDate;
-        set => SetField(ref _lastGeneratedDate, value);
-    }
-
     private List<MsuSongMsuPcmInfoViewModel> _subTracks = new List<MsuSongMsuPcmInfoViewModel>();
     public List<MsuSongMsuPcmInfoViewModel> SubTracks
     {
@@ -154,7 +147,7 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        if (propertyName != nameof(LastModifiedDate) && propertyName != nameof(LastGeneratedDate))
+        if (propertyName != nameof(LastModifiedDate))
         {
             LastModifiedDate = DateTime.Now;
         }

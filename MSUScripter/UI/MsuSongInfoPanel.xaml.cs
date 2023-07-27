@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -12,8 +13,8 @@ namespace MSUScripter.UI;
 
 public partial class MsuSongInfoPanel : UserControl
 {
-    private MsuTrackInfoPanel? _parent;
-    private MsuProject _project;
+    private readonly MsuTrackInfoPanel? _parent;
+    private readonly MsuProject _project;
     
     public MsuSongInfoPanel() : this(null, null, new MsuProject())
     {
@@ -50,12 +51,14 @@ public partial class MsuSongInfoPanel : UserControl
         RemoveButton.Opacity = canDelete ? 1 : 0.25;
     }
 
-    public void GeneratePcmFile(bool asPrimary)
+    public bool GeneratePcmFile(bool asPrimary)
     {
+        EditPanel.Instance?.UpdateStatusBarText("Generating PCM");
         this.UpdateControlBindings();
         var song = new MsuSongInfo();
         ConverterService.ConvertViewModel(MsuSongInfo, song);
         song.MsuPcmInfo = MsuSongMsuPcmInfoPanel.GetData();
+        MsuSongInfo.LastGeneratedDate = DateTime.Now;
 
         if (asPrimary)
         {
@@ -66,12 +69,16 @@ public partial class MsuSongInfoPanel : UserControl
         
         if (!MsuPcmService.Instance.CreatePcm(_project, song, out var message))
         {
-            MessageBox.Show(Window.GetWindow(this)!, message!, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Dispatcher.Invoke(() =>
+            {
+                MessageBox.Show(Window.GetWindow(this)!, message!, "MsuPcm++ Error", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                EditPanel.Instance?.UpdateStatusBarText("MsuPcm++ Error");
+            });
+            return false;
         }
-        else
-        {
-            MessageBox.Show(Window.GetWindow(this)!, message!, "Success!", MessageBoxButton.OK);
-        }
+        EditPanel.Instance?.UpdateStatusBarText("PCM Generated");
+        return true;
     }
     
     public void ToggleMsuPcm(bool enable)
@@ -100,13 +107,17 @@ public partial class MsuSongInfoPanel : UserControl
             return true;
         }
 
-        if (_project.BasicInfo.IsMsuPcmProject)
+        if (IsMsuPcmProject)
         {
             return MsuSongMsuPcmInfoPanel.HasChangesSince(time);
         }
 
         return false;
     }
+
+    public bool IsMsuPcmProject => _project.BasicInfo.IsMsuPcmProject;
+
+    public DateTime LastPcmGenerationTime => MsuSongInfo.LastGeneratedDate;
 
     private void OutputPathButton_OnClick(object sender, RoutedEventArgs e)
     {
@@ -149,15 +160,11 @@ public partial class MsuSongInfoPanel : UserControl
     
     private void PlaySongButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (MsuSongInfo.OutputPath == null)
-            return;
-        AudioService.Instance.PlaySong(MsuSongInfo.OutputPath, false);
+        Task.Run(() => MsuSongMsuPcmInfoPanel.PlaySong(false));
     }
 
     private void TestLoopButton_OnClick(object sender, RoutedEventArgs e)
     {
-        if (MsuSongInfo.OutputPath == null)
-            return;
-        AudioService.Instance.PlaySong(MsuSongInfo.OutputPath, true);
+        Task.Run(() => MsuSongMsuPcmInfoPanel.PlaySong(true));
     }
 }

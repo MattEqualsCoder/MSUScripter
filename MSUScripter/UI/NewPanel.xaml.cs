@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
@@ -14,11 +15,13 @@ public partial class NewPanel : UserControl
 {
     private IMsuTypeService _msuTypeService;
     private ProjectService _projectService;
+    private SettingsService _settingsService;
 
-    public NewPanel(IMsuTypeService msuTypeService, ProjectService projectService)
+    public NewPanel(IMsuTypeService msuTypeService, ProjectService projectService, SettingsService settingsService)
     {
         _msuTypeService = msuTypeService;
         _projectService = projectService;
+        _settingsService = settingsService;
         InitializeComponent();
         PopulateMsuTypeComboBox();
     }
@@ -144,5 +147,22 @@ public partial class NewPanel : UserControl
 
         Project = _projectService.LoadMsuProject(dialog.FileName);
         OnProjectSelected?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Hyperlink { Tag: string projectPath }) return;
+        Project = _projectService.LoadMsuProject(projectPath);
+        OnProjectSelected?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void NewPanel_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        RecentProjectsStackPanel.Visibility =
+            SettingsService.Settings.RecentProjects.Any(x => File.Exists(x.ProjectPath))
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        RecentProjectsList.ItemsSource = SettingsService.Settings.RecentProjects.Where(x => File.Exists(x.ProjectPath))
+            .OrderByDescending(x => x.Time).ToList();
     }
 }

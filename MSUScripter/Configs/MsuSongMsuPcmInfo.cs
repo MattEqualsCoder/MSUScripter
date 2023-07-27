@@ -18,7 +18,6 @@ public class MsuSongMsuPcmInfo
     public double? Normalization { get; set; }
     public bool? Compression { get; set; }
     public DateTime LastModifiedDate { get; set; }
-    public DateTime LastGeneratedDate { get; set; }
     public string? Output { get; set; }
     public string? File { get; set; }
     

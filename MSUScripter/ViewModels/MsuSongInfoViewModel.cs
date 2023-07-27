@@ -72,6 +72,13 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _lastModifiedDate, value);
     }
     
+    public DateTime _lastGeneratedDate;
+    public DateTime LastGeneratedDate
+    {
+        get => _lastGeneratedDate;
+        set => SetField(ref _lastGeneratedDate, value);
+    }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -82,7 +89,7 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        if (propertyName != nameof(LastModifiedDate))
+        if (propertyName != nameof(LastModifiedDate) && propertyName != nameof(LastGeneratedDate))
         {
             LastModifiedDate = DateTime.Now;
         }

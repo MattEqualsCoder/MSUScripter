@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +12,9 @@ namespace MSUScripter.UI;
 
 public partial class EditPanel : UserControl
 {
+
+    public static EditPanel? Instance;
+    
     private MsuProject _project = null!;
     private Dictionary<int, UserControl> _pages = new();
     private UserControl _currentPage = null!;
@@ -21,19 +23,27 @@ public partial class EditPanel : UserControl
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
     private readonly IServiceProvider? _serviceProvider;
+    private readonly AudioService? _audioService;
 
-    public EditPanel() : this(null, null, null)
+    public EditPanel() : this(null, null, null, null, null)
     {
     }
 
-    public EditPanel(ProjectService? projectService, MsuPcmService? msuPcmService, IServiceProvider? serviceProvider)
+    public EditPanel(ProjectService? projectService, MsuPcmService? msuPcmService, IServiceProvider? serviceProvider, AudioControl? audioControl, AudioService? audioService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
         _serviceProvider = serviceProvider;
+        _audioService = audioService;
         InitializeComponent();
-    }
+        if (audioControl != null)
+        {
+            AudioStackPanel.Children.Add(audioControl);    
+        }
 
+        Instance = this;
+    }
+    
     public void SetProject(MsuProject project)
     {
         ToggleMsuPcm(project.BasicInfo.IsMsuPcmProject);
@@ -43,6 +53,15 @@ public partial class EditPanel : UserControl
         _currentPage = msuBasicInfoPanel;
         _pages[0] = msuBasicInfoPanel;
         PagePanel.Children.Add(_currentPage);
+
+        if (project.LastSaveTime == DateTime.MinValue)
+        {
+            UpdateStatusBarText("Project Created");
+        }
+        else
+        {
+            UpdateStatusBarText("Project Loaded");
+        }
     }
 
     public void ToggleMsuPcm(bool enable)
@@ -161,15 +180,12 @@ public partial class EditPanel : UserControl
 
         if (!_enableMsuPcm || _msuPcmService == null)
         {
-            ShowExportComplete();
+            UpdateStatusBarText("Export Complete");
             return;
         }
         
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        var msuPcmWindow = new MsuPcmGenerationWindow(_project,
-            _project.Tracks.SelectMany(x => x.Songs).ToList());
-        msuPcmWindow.ShowDialog();
-        ShowExportComplete();
+        Task.Run(DisplayMsuGenerationWindow);
     }
 
     private void ExportMenuButton_OnClick(object sender, RoutedEventArgs e)
@@ -184,7 +200,7 @@ public partial class EditPanel : UserControl
         if (_projectService == null) return;
         _project = UpdateCurrentPageData();
         _projectService.ExportMsuRandomizerYaml(_project);
-        ShowExportComplete();
+        UpdateStatusBarText("YAML File Written");
     }
 
     private void ExportButton_Json_OnClick(object sender, RoutedEventArgs e)
@@ -192,7 +208,7 @@ public partial class EditPanel : UserControl
         if (_msuPcmService == null) return;
         _project = UpdateCurrentPageData();
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        ShowExportComplete();
+        UpdateStatusBarText("Json File Written");
     }
 
     private void ExportButton_Msu_OnClick(object sender, RoutedEventArgs e)
@@ -200,28 +216,41 @@ public partial class EditPanel : UserControl
         if (_msuPcmService == null) return;
         _project = UpdateCurrentPageData();
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        var msuPcmWindow = new MsuPcmGenerationWindow(_project,
-            _project.Tracks.SelectMany(x => x.Songs).ToList());
-        msuPcmWindow.ShowDialog();
-        ShowExportComplete();
+        Task.Run(DisplayMsuGenerationWindow);
     }
 
-    private void ShowExportComplete()
+    private async Task DisplayMsuGenerationWindow()
     {
-        Task.Run(() =>
+        if (_audioService != null)
         {
-            Dispatcher.Invoke(() =>
-            {
-                ExportStatusTextBlock.Text = "Complete!";
-            });
-            ;
-            Thread.Sleep(5000);
+            UpdateStatusBarText("Stopping Song");
+            await _audioService.StopSongAsync(null, true);
+            UpdateStatusBarText("Stopped Song");
+        }
 
-            Dispatcher.Invoke(() =>
-            {
-                ExportStatusTextBlock.Text = "";
-            });
+        Dispatcher.Invoke(() =>
+        {
+            var msuPcmWindow = new MsuPcmGenerationWindow(_project,
+                _project.Tracks.SelectMany(x => x.Songs).ToList());
+            msuPcmWindow.ShowDialog();
+            UpdateStatusBarText("MSU Generated");
         });
+        
+    }
 
+    public void UpdateStatusBarText(string message)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.Invoke(() => UpdateStatusBarText(message));
+            return;
+        }
+        
+        StatusMessage.Text = message;
+    }
+
+    private void EditPanel_OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Instance = null;
     }
 }

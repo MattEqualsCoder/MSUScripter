@@ -4,18 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MSUScripter.UI"
+             xmlns:configs="clr-namespace:MSUScripter.Configs"
              mc:Ignorable="d"
+             Loaded="NewPanel_OnLoaded"
              d:DesignHeight="600" d:DesignWidth="600">
+    <UserControl.DataContext>
+        <configs:Settings />
+    </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary Source="Generic.xaml" />
     </UserControl.Resources>
     <Grid Grid.IsSharedSizeScope="True" Margin="10">
         <StackPanel Orientation="Vertical">
-            <TextBlock TextWrapping="Wrap" Margin="0 5 0 5">
+            <TextBlock TextWrapping="Wrap" Margin="0 5 0 10">
                 Welcome to MSU Scripter! You can use this for creating YAML files for the MSU Randomizer and for creating JSON files for MsuPcm++.
-            </TextBlock>
-            <TextBlock TextWrapping="Wrap" Margin="0 5 0 5">
-                Use the buttons below to either start a new MSU Scripter project or load an old one.
             </TextBlock>
             <GroupBox Header="New Project">
                 <StackPanel Orientation="Vertical">
@@ -107,9 +109,23 @@
             
             <GroupBox Header="Open Project" Margin="0 10 0 0 ">
                 <StackPanel Orientation="Vertical">
-                    <TextBlock TextWrapping="Wrap">
-                        Continue where you left off by opening a previous MSU Scripter project.
-                    </TextBlock>
+                    <StackPanel Margin="5" Orientation="Vertical" Name="RecentProjectsStackPanel" Visibility="Collapsed">
+                        <TextBlock>Recent Projects</TextBlock>
+                        <ItemsControl ItemsSource="{Binding  Path=RecentProjects, Mode=Default}" Name="RecentProjectsList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Margin="0 5 0 0">
+                                        - <Hyperlink Click="Hyperlink_OnClick" Tag="{Binding ProjectPath}">
+                                            <TextBlock Text="{Binding ProjectName}"></TextBlock>
+                                        </Hyperlink> 
+                                        <TextBlock Margin="5 0 0 0" Foreground="{StaticResource ControlDisabledGlythColour}">
+                                            (<TextBlock Text="{Binding ProjectPath}" Foreground="{StaticResource ControlDisabledGlythColour}"></TextBlock>)
+                                        </TextBlock>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                     <Button 
                         Name="OpenButton"
                         HorizontalAlignment="Center"

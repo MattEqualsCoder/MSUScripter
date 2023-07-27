@@ -18,17 +18,17 @@ public class ProjectService
     private readonly IMsuLookupService _msuLookupService;
     private readonly IMsuDetailsService _msuDetailsService;
     private readonly AudioMetadataService _audioMetadataService;
-    private MsuPcmService _msuPcmService;
+    private readonly SettingsService _settingsService;
     private readonly ILogger<ProjectService> _logger;
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, MsuPcmService msuPcmService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
         _msuDetailsService = msuDetailsService;
-        _msuPcmService = msuPcmService;
         _logger = logger;
         _audioMetadataService = audioMetadataService;
+        _settingsService = settingsService;
     }
     
     public void SaveMsuProject(MsuProject project)
@@ -39,6 +39,7 @@ public class ProjectService
             .Build();
         var yaml = serializer.Serialize(project);
         File.WriteAllText(project.ProjectFilePath, yaml);
+        _settingsService.AddRecentProject(project);
     }
 
     public MsuProject? LoadMsuProject(string path)
@@ -56,6 +57,7 @@ public class ProjectService
         var project = deserializer.Deserialize<MsuProject>(yaml);
         project.ProjectFilePath = path;
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
+        _settingsService.AddRecentProject(project);
         return project;
     }
 

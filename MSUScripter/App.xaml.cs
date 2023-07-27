@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,13 +10,8 @@ using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary;
 using MSURandomizerLibrary.Models;
 using MSURandomizerLibrary.Services;
-using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.UI;
-using MSUScripter.ViewModels;
-using Newtonsoft.Json;
-using NJsonSchema;
-using NJsonSchema.CodeGeneration.CSharp;
 
 namespace MSUScripter
 {
@@ -57,11 +50,11 @@ namespace MSUScripter
                     services.AddTransient<NewPanel>();
                     services.AddTransient<EditPanel>();
                     services.AddTransient<MsuTrackInfoPanel>();
+                    services.AddTransient<AudioControl>();
                 })
                 .Start();
             
             _host.Services.GetRequiredService<SettingsService>();
-            _host.Services.GetRequiredService<AudioMetadataService>();
             _logger = _host.Services.GetRequiredService<ILogger<App>>();
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             _logger.LogInformation("Starting MSU Scripter {Version}", version.ProductVersion ?? "");
@@ -118,22 +111,5 @@ namespace MSUScripter
         }
 #endif
 
-        async Task TestSchema()
-        {
-            var schema =
-                await JsonSchema.FromUrlAsync(
-                    @"https://raw.githubusercontent.com/qwertymodo/msupcmplusplus/master/configs/schema#%22");
-            var generator = new CSharpGenerator(schema);
-            var file = generator.GenerateFile();
-            _logger?.LogInformation("Created schema at {File}", file);
-        }
-
-        void TestLoad()
-        {
-            var data = File.ReadAllText(@"D:\Games\SMZ3\SMZ3MSUs\Trials and Secrets\trials_and_secrets.json");
-            var msuData = JsonConvert.DeserializeObject<MsuPcmPlusPlusConfig>(data);
-            File.WriteAllText(@"D:\Games\SMZ3\SMZ3MSUs\Trials and Secrets\trials_and_secrets_out.json",
-                JsonConvert.SerializeObject(msuData));
-        }
     }
 }

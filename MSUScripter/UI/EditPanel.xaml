@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MSUScripter.UI"
+             Unloaded="EditPanel_OnUnloaded"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
@@ -48,29 +49,39 @@
         </Border>
         
         <Border Grid.Row="2">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
-                <TextBlock Padding="0 5 5 0" Name="ExportStatusTextBlock"></TextBlock>
-                <Button x:Name="ExportButton"
-                        IsEnabled="{Binding PlayButtonsEnabled}"
-                        Padding="8 5"
-                        Click='ExportButton_OnClick'>_Export</Button>
-                <Button x:Name="ExportMenuButton"
-                        MinWidth="0"
-                        Width="23"
-                        Content="▼"
-                        FontSize="8"
-                        BorderThickness="0,1,1,1"
-                        Margin="0,0,0,0"
-                        Click="ExportMenuButton_OnClick">
-                    <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick"></MenuItem>
-                            <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
-                            <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" Name="AudioStackPanel"></StackPanel>
+                <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
+                    <TextBlock Padding="0 5 5 0" Name="ExportStatusTextBlock"></TextBlock>
+                    <Button x:Name="ExportButton"
+                            IsEnabled="{Binding PlayButtonsEnabled}"
+                            Padding="8 5"
+                            Click='ExportButton_OnClick'>_Export</Button>
+                    <Button x:Name="ExportMenuButton"
+                            MinWidth="0"
+                            Width="23"
+                            Content="▼"
+                            FontSize="8"
+                            BorderThickness="0,1,1,1"
+                            Margin="0,0,0,0"
+                            Click="ExportMenuButton_OnClick">
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            
         </Border>
         
     </Grid>

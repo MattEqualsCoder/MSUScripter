@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using MSUScripter.Configs;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Settings = MSUScripter.Configs.Settings;
@@ -46,6 +48,25 @@ public class SettingsService
             .Build();
         var yaml = serializer.Serialize(Settings);
         File.WriteAllText(GetSettingsPath(), yaml);
+    }
+
+    public void AddRecentProject(MsuProject project)
+    {
+        var projectFile = new FileInfo(project.ProjectFilePath);
+        var folder = projectFile.Directory?.Name ?? "";
+        var baseName = projectFile.Name.Replace(projectFile.Extension, "");
+        
+        var projects = Settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath).ToList();
+        projects.Add(new RecentProject()
+        {
+            ProjectPath = project.ProjectFilePath,
+            ProjectName = !string.IsNullOrEmpty(project.BasicInfo.PackName)
+                ? project.BasicInfo.PackName
+                : $"{folder}/{baseName}",
+            Time = DateTime.Now
+        });
+        Settings.RecentProjects = projects.OrderByDescending(x => x.Time).Take(5).ToList();
+        SaveSettings();
     }
 
     private string GetSettingsPath()

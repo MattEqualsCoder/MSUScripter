@@ -13,6 +13,7 @@ public class MsuSongInfo
     public string OutputPath { get; set; } = "";
     public bool IsAlt { get; set; }
     public DateTime LastModifiedDate { get; set; }
+    public DateTime LastGeneratedDate { get; set; }
 
     public MsuSongMsuPcmInfo MsuPcmInfo { get; set; } = new();
 }

@@ -8,7 +8,7 @@ namespace MSUScripter.Services;
 /// </summary>
 public class LoopStream : WaveStream
 {
-    WaveStream sourceStream;
+    readonly WaveStream sourceStream;
 
     /// <summary>
     /// Creates a new Loop stream
@@ -29,26 +29,20 @@ public class LoopStream : WaveStream
     /// <summary>
     /// Return source stream's wave format
     /// </summary>
-    public override WaveFormat WaveFormat
-    {
-        get { return sourceStream.WaveFormat; }
-    }
+    public override WaveFormat WaveFormat => sourceStream.WaveFormat;
 
     /// <summary>
     /// LoopStream simply returns
     /// </summary>
-    public override long Length
-    {
-        get { return sourceStream.Length; }
-    }
+    public override long Length => sourceStream.Length;
 
     /// <summary>
     /// LoopStream simply passes on positioning to source stream
     /// </summary>
     public override long Position
     {
-        get { return sourceStream.Position; }
-        set { sourceStream.Position = value; }
+        get => sourceStream.Position;
+        set => sourceStream.Position = value;
     }
 
     public long LoopPosition { get; set; } = 100000;
@@ -76,7 +70,7 @@ public class LoopStream : WaveStream
                 }
                 totalBytesRead += bytesRead;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 break;
             }

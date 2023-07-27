@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace MSUScripter.UI.Tools;
 
@@ -9,6 +11,12 @@ public static class DependencyObjectExtensions
 {
     public static void UpdateControlBindings(this DependencyObject obj)
     {
+        if (!obj.Dispatcher.CheckAccess())
+        {
+            obj.Dispatcher.Invoke(obj.UpdateControlBindings);
+            return;
+        }
+        
         for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
         {
             var child = VisualTreeHelper.GetChild(obj, i);
