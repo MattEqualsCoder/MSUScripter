@@ -4,9 +4,35 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:MSUScripter.UI"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        
+    <Grid VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5 -2 0 0">
+            <Button Padding="5" IsEnabled="False" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+                <StackPanel>
+                    <iconPacks:PackIconMaterial Kind="Stop"
+                                                Name="IconStop"
+                                                Foreground="LightGray"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center" 
+                                                Opacity="50"
+                                                Visibility="Visible" />
+                    <iconPacks:PackIconMaterial Kind="Play"
+                                                Name="IconPlay"
+                                                Foreground="LightGray"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Visibility="Collapsed"/>
+                    <iconPacks:PackIconMaterial Kind="Pause"
+                                                Name="IconPause"
+                                                Foreground="LightGray"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Visibility="Collapsed"/>
+                </StackPanel>
+            </Button>
+            <Slider IsEnabled="False" Width="100" Margin="4 4 0 0" Name="PositionSlider" ValueChanged="PositionSlider_OnValueChanged" Minimum="0" Maximum="100" Interval="5"></Slider>
+        </StackPanel>
     </Grid>
 </UserControl>

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NAudio.Wave;
 
 namespace MSUScripter.Services;
@@ -9,19 +10,64 @@ namespace MSUScripter.Services;
 public class AudioService
 {
     private WaveOutEvent? _waveOutEvent;
+    private LoopStream? _loopStream;
+    private ILogger<AudioService> _logger;
 
     public static AudioService Instance { get; private set; } = null!;
 
-    public AudioService()
+    public AudioService(ILogger<AudioService> logger)
     {
         Instance = this;
+        _logger = logger;
     }
 
     public string CurrentPlayingFile { get; private set; } = "";
+
+    public void Pause()
+    {
+        if (_waveOutEvent == null) return;
+        _waveOutEvent?.Pause();
+        PlayPaused?.Invoke(this, EventArgs.Empty);
+    }
+
+    public void PlayPause()
+    {
+        if (_waveOutEvent == null) return;
+        if (_waveOutEvent.PlaybackState == PlaybackState.Playing)
+        {
+            Pause();
+        }
+        else if (_waveOutEvent.PlaybackState == PlaybackState.Paused)
+        {
+            Play();
+        }
+    }
+
+    public void Play()
+    {
+        if (_waveOutEvent == null) return;
+        _waveOutEvent?.Play();
+        PlayStarted?.Invoke(this, EventArgs.Empty);
+    }
+
+    public double? GetCurrentPosition()
+    {
+        if (_waveOutEvent == null || _loopStream == null) return null;
+        var value = (1.0 * _loopStream.Position) / (1.0 * _loopStream.Length);
+        _logger.LogInformation("{Value} {Value1} {Value2}", value, _loopStream.Position, _loopStream.Length);
+        return value;
+    }
+
+    public void SetPosition(double value)
+    {
+        if (_waveOutEvent == null || _loopStream == null) return;
+        value = Math.Clamp(value, 0.0, 1.0);
+        _loopStream.Position = (long)(_loopStream.Length * value + 8.0);
+    }
     
     public async Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false)
     {
-        if (_waveOutEvent?.PlaybackState == PlaybackState.Playing)
+        if (_waveOutEvent?.PlaybackState == PlaybackState.Playing || _waveOutEvent?.PlaybackState == PlaybackState.Paused)
         {
             _waveOutEvent?.Stop();
         }
@@ -115,19 +161,27 @@ public class AudioService
             {
                 loop.EnableLooping = enableLoop;
                 _waveOutEvent = waveOutEvent;
+                _loopStream = loop;
                 waveOutEvent.Init(loop);
                 loop.Position = startPosition;
                 loop.LoopPosition = loopBytes;
-                waveOutEvent.Play();
+                Play();
+                PlayStarted?.Invoke(this, EventArgs.Empty);
                 Thread.Sleep(200);
-                while (waveOutEvent.PlaybackState == PlaybackState.Playing)
+                while (waveOutEvent.PlaybackState != PlaybackState.Stopped)
                 {
                     Thread.Sleep(200);
                 }
                 _waveOutEvent = null;
+                _loopStream = null;
+                PlayStopped?.Invoke(this, EventArgs.Empty);
             }
         });
 
         return true;
     }
+    
+    public EventHandler? PlayStarted { get; set; }
+    public EventHandler? PlayPaused { get; set; }
+    public EventHandler? PlayStopped { get; set; }
 }
