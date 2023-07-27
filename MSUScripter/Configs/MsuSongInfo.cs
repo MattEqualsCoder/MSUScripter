@@ -1,4 +1,6 @@
-﻿namespace MSUScripter.Configs;
+﻿using System;
+
+namespace MSUScripter.Configs;
 
 public class MsuSongInfo
 {
@@ -10,6 +12,7 @@ public class MsuSongInfo
     public string? Url { get; set; }
     public string OutputPath { get; set; } = "";
     public bool IsAlt { get; set; }
+    public DateTime LastModifiedDate { get; set; }
 
     public MsuSongMsuPcmInfo MsuPcmInfo { get; set; } = new();
 }

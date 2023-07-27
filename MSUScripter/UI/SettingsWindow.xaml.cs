@@ -14,7 +14,7 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         DataContext = Model = new SettingsViewModel();
-        Helpers.ConvertViewModel(SettingsService.Settings, Model);
+        ConverterService.ConvertViewModel(SettingsService.Settings, Model);
     }
 
     public SettingsViewModel Model { get; }
@@ -27,7 +27,7 @@ public partial class SettingsWindow : Window
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         this.UpdateControlBindings();
-        Helpers.ConvertViewModel(Model, SettingsService.Settings);
+        ConverterService.ConvertViewModel(Model, SettingsService.Settings);
         DialogResult = true;
         Close();
     }

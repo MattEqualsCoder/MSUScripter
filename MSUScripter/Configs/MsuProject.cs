@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MSURandomizerLibrary.Configs;
 using YamlDotNet.Serialization;
 
@@ -9,6 +10,7 @@ public class MsuProject
     public string ProjectFilePath { get; set; } = "";
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
+    public DateTime LastSaveTime { get; set; }
     [YamlIgnore]
     public MsuType MsuType { get; set; } = null!;
     public MsuBasicInfo BasicInfo { get; set; } = new();

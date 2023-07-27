@@ -33,6 +33,7 @@ public class ProjectService
     
     public void SaveMsuProject(MsuProject project)
     {
+        project.LastSaveTime = DateTime.Now;
         var serializer = new SerializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -82,6 +83,14 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
         get => _isMsuPcmProject;
         set => SetField(ref _isMsuPcmProject, value);
     }
+    
+    public DateTime _lastModifiedDate;
+    public DateTime LastModifiedDate
+    {
+        
+        get => _lastModifiedDate;
+        set => SetField(ref _lastModifiedDate, value);
+    }
 
     
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -94,6 +103,10 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        if (propertyName != nameof(LastModifiedDate))
+        {
+            LastModifiedDate = DateTime.Now;
+        }
         field = value;
         OnPropertyChanged(propertyName);
         return true;

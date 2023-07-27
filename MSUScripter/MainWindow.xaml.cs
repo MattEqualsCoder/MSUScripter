@@ -1,6 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
@@ -87,13 +87,14 @@ namespace MSUScripter
 
         private void NewMenuItem_Click(object sender, RoutedEventArgs e)
         {
+            CheckUnsavedChanges();
             DisplayNewPanel();
         }
 
         private void SaveMenuItem_OnClick(object sender, RoutedEventArgs e)
         {
             if (_editPanel == null) return;
-            _msuProject = _editPanel.UpdateProjectData();
+            _msuProject = _editPanel.UpdateCurrentPageData();
             _projectService.SaveMsuProject(_msuProject);
             UpdateTitle(_msuProject);
         }
@@ -105,5 +106,22 @@ namespace MSUScripter
             _settingsService.SaveSettings();
         }
 
+        private void MainWindow_OnClosing(object? sender, CancelEventArgs e)
+        {
+            CheckUnsavedChanges();
+        }
+
+        private void CheckUnsavedChanges()
+        {
+            if (_editPanel == null || _msuProject == null) return;
+            _editPanel.UpdateCurrentPageData();
+            if (!_editPanel.HasChangesSince(_msuProject.LastSaveTime)) return;
+            var result = MessageBox.Show("You have unsaved changes. Do you want to save?", "Unsaved Changes",
+                MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                _projectService.SaveMsuProject(_msuProject);
+            }
+        }
     }
 }

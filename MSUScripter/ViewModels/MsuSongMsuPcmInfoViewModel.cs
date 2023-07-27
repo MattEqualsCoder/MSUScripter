@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -98,6 +99,21 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _output, value);
     }
 
+    public DateTime _lastModifiedDate;
+    public DateTime LastModifiedDate
+    {
+        
+        get => _lastModifiedDate;
+        set => SetField(ref _lastModifiedDate, value);
+    }
+    
+    public DateTime _lastGeneratedDate;
+    public DateTime LastGeneratedDate
+    {
+        get => _lastGeneratedDate;
+        set => SetField(ref _lastGeneratedDate, value);
+    }
+
     private List<MsuSongMsuPcmInfoViewModel> _subTracks = new List<MsuSongMsuPcmInfoViewModel>();
     public List<MsuSongMsuPcmInfoViewModel> SubTracks
     {
@@ -138,6 +154,10 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        if (propertyName != nameof(LastModifiedDate) && propertyName != nameof(LastGeneratedDate))
+        {
+            LastModifiedDate = DateTime.Now;
+        }
         field = value;
         OnPropertyChanged(propertyName);
         return true;

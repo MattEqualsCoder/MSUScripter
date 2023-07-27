@@ -72,51 +72,6 @@ public abstract class Helpers
         }
     }
     
-    public static bool ConvertViewModel<A, B>(A input, B output) where B : new()
-    {
-        var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true).ToDictionary(x => x.Name, x => x);
-        var propertiesB = typeof(B).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true).ToDictionary(x => x.Name, x => x);
-        var updated = false;
-
-        if (propertiesA.Count != propertiesB.Count)
-        {
-            throw new InvalidOperationException($"Types {typeof(A).Name} and {typeof(B).Name} are not compatible");
-        }
-
-        foreach (var propA in propertiesA.Values)
-        {
-            if (!propertiesB.TryGetValue(propA.Name, out var propB))
-            {
-                continue;
-            }
-
-            if (propA.PropertyType == typeof(List<A>))
-            {
-                var aValue = propA.GetValue(input) as List<A>;
-                var bValue = new List<B>();
-                if (aValue != null)
-                {
-                    foreach (var aSubItem in aValue)
-                    {
-                        var bSubItem = new B();
-                        ConvertViewModel(aSubItem, bSubItem);
-                        bValue.Add(bSubItem);
-                    }
-                }
-                propB.SetValue(output, bValue);
-            }
-            else
-            {
-                var value = propA.GetValue(input);
-                var originalValue = propA.GetValue(input);
-                updated |= value != originalValue;
-                propB.SetValue(output, value);
-            }
-        }
-
-        return updated;
-    }
-    
     private static readonly Regex _intRegex = new Regex(@"^-?[0-9]+$"); //regex that matches disallowed text
     private static readonly Regex _intCharacters = new Regex("[^0-9]+"); //regex that matches disallowed text
     private static readonly Regex _decimalRegex = new Regex(@"^-?[0-9]+\.?[0-9]*$"); //regex that matches disallowed text

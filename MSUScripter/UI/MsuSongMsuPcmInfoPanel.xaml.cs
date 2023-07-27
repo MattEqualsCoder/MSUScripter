@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -53,6 +54,7 @@ public partial class MsuSongMsuPcmInfoPanel
     public void ApplyMsuSongMsuPcmInfo(MsuSongMsuPcmInfo data)
     {
         ConverterService.ConvertViewModel(data, MsuSongMsuPcmInfo, false);
+        MsuSongMsuPcmInfo.LastModifiedDate = data.LastModifiedDate; 
 
         if (!_isSubChannel && data.SubChannels.Any())
         {
@@ -141,19 +143,41 @@ public partial class MsuSongMsuPcmInfoPanel
         return data;
     }
     
-    public void DecimalTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
+    public bool HasChangesSince(DateTime time)
+    {
+        if (MsuSongMsuPcmInfo.LastModifiedDate > time)
+        {
+            return true;
+        }
+
+        foreach (var subChannel in SubChannelPanels)
+        {
+            if (subChannel.HasChangesSince(time))
+                return true;
+        }
+        
+        foreach (var subTrack in SubTrackPanels)
+        {
+            if (subTrack.HasChangesSince(time))
+                return true;
+        }
+
+        return false;
+    }
+    
+    private void DecimalTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
         Helpers.DecimalTextBox_OnPreviewTextInput(s, e);
 
-    public void DecimalTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
+    private void DecimalTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
         Helpers.DecimalTextBox_OnPaste(s, e);
 
     private void DecimalTextBox_OnLostFocus(object s, RoutedEventArgs e) =>
         Helpers.DecimalTextBox_OnLostFocus(s, e);
     
-    public void IntTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
+    private void IntTextBox_OnPreviewTextInput(object s, TextCompositionEventArgs e) =>
         Helpers.IntTextBox_OnPreviewTextInput(s, e);
 
-    public void IntTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
+    private void IntTextBox_OnPaste(object s, DataObjectPastingEventArgs e) =>
         Helpers.IntTextBox_OnPaste(s, e);
 
     private void IntTextBox_OnLostFocus(object s, RoutedEventArgs e) =>

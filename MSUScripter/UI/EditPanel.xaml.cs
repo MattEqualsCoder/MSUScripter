@@ -8,7 +8,6 @@ using System.Windows.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
 using MSUScripter.Services;
-using MSUScripter.UI.Tools;
 
 namespace MSUScripter.UI;
 
@@ -40,8 +39,7 @@ public partial class EditPanel : UserControl
         ToggleMsuPcm(project.BasicInfo.IsMsuPcmProject);
         _project = project;
         PopulatePageComboBox();
-        var msuBasicInfoPanel = new MsuBasicInfoPanel(this);
-        ConverterService.ConvertViewModel(_project.BasicInfo, msuBasicInfoPanel.MsuBasicInfo);
+        var msuBasicInfoPanel = new MsuBasicInfoPanel(this, _project);
         _currentPage = msuBasicInfoPanel;
         _pages[0] = msuBasicInfoPanel;
         PagePanel.Children.Add(_currentPage);
@@ -55,7 +53,6 @@ public partial class EditPanel : UserControl
 
     public void DisplayPage(int page)
     {
-        
         if (page < 0 || page >= PageComboBox.Items.Count || _pages.Count() == 0)
             return;
 
@@ -63,6 +60,9 @@ public partial class EditPanel : UserControl
             throw new InvalidOperationException("Unable to dislay track page");
         
         _currentPage.Visibility = Visibility.Collapsed;
+
+        UpdateCurrentPageData();
+        
         if (_pages.TryGetValue(page, out var previousPage))
         {
             previousPage.Visibility = Visibility.Visible;
@@ -83,22 +83,40 @@ public partial class EditPanel : UserControl
         PagePanel.Children.Add(_currentPage);
     }
 
-    public MsuProject UpdateProjectData()
+    public MsuProject UpdateCurrentPageData()
+    {
+        if (_currentPage is MsuBasicInfoPanel basicInfoPanel)
+        {
+            basicInfoPanel.UpdateData();
+        }
+        else if (_currentPage is MsuTrackInfoPanel trackInfoPanel)
+        {
+            trackInfoPanel.UpdateData();
+        }
+        return _project;
+    }
+    
+    public bool HasChangesSince(DateTime time)
     {
         foreach (var page in _pages.Values)
         {
-            if (page is MsuBasicInfoPanel basicInfoPanel)
+            if (page is MsuBasicInfoPanel basicPanel)
             {
-                basicInfoPanel.UpdateControlBindings();
-                ConverterService.ConvertViewModel(basicInfoPanel.MsuBasicInfo, _project.BasicInfo);
+                if (basicPanel.HasChangesSince(time))
+                {
+                    return true;
+                }
             }
-            else if (page is MsuTrackInfoPanel trackInfoPanel)
+            else if (page is MsuTrackInfoPanel trackPanel)
             {
-                trackInfoPanel.UpdateData();
+                if (trackPanel.HasChangesSince(time))
+                {
+                    return true;
+                }
             }
         }
 
-        return _project;
+        return false;
     }
     
     private void PopulatePageComboBox()
@@ -138,7 +156,7 @@ public partial class EditPanel : UserControl
     private void ExportButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (_projectService == null) return;
-        _project = UpdateProjectData();
+        _project = UpdateCurrentPageData();
         _projectService.ExportMsuRandomizerYaml(_project);
 
         if (!_enableMsuPcm || _msuPcmService == null)
@@ -164,7 +182,7 @@ public partial class EditPanel : UserControl
     private void ExportButton_Yaml_OnClick(object sender, RoutedEventArgs e)
     {
         if (_projectService == null) return;
-        _project = UpdateProjectData();
+        _project = UpdateCurrentPageData();
         _projectService.ExportMsuRandomizerYaml(_project);
         ShowExportComplete();
     }
@@ -172,7 +190,7 @@ public partial class EditPanel : UserControl
     private void ExportButton_Json_OnClick(object sender, RoutedEventArgs e)
     {
         if (_msuPcmService == null) return;
-        _project = UpdateProjectData();
+        _project = UpdateCurrentPageData();
         _msuPcmService.ExportMsuPcmTracksJson(_project);
         ShowExportComplete();
     }
@@ -180,7 +198,7 @@ public partial class EditPanel : UserControl
     private void ExportButton_Msu_OnClick(object sender, RoutedEventArgs e)
     {
         if (_msuPcmService == null) return;
-        _project = UpdateProjectData();
+        _project = UpdateCurrentPageData();
         _msuPcmService.ExportMsuPcmTracksJson(_project);
         var msuPcmWindow = new MsuPcmGenerationWindow(_project,
             _project.Tracks.SelectMany(x => x.Songs).ToList());

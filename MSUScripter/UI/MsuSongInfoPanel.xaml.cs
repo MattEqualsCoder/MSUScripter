@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -14,19 +15,23 @@ public partial class MsuSongInfoPanel : UserControl
     private MsuTrackInfoPanel? _parent;
     private MsuProject _project;
     
-    public MsuSongInfoPanel() : this(null, false, new MsuProject())
+    public MsuSongInfoPanel() : this(null, null, new MsuProject())
     {
     }
     
-    public MsuSongInfoPanel(MsuTrackInfoPanel? parent, bool isAltTrack, MsuProject project)
+    public MsuSongInfoPanel(MsuTrackInfoPanel? parent, MsuSongInfo? songInfo, MsuProject project)
     {
         _parent = parent;
         _project = project;
         InitializeComponent();
         DataContext = MsuSongInfo = new MsuSongInfoViewModel();
-        if (!isAltTrack)
+        
+        if (songInfo != null)
         {
-            OutputPathButton.IsEnabled = false;
+            if (!songInfo.IsAlt)
+                OutputPathButton.IsEnabled = false;
+            ConverterService.ConvertViewModel(songInfo, MsuSongInfo);
+            MsuSongInfo.LastModifiedDate = songInfo.LastModifiedDate;
         }
 
         MsuSongMsuPcmInfoPanel.ShowMsuPcmButtons(this);
@@ -86,6 +91,21 @@ public partial class MsuSongInfoPanel : UserControl
             MsuSongInfo.Album = metadata.Album;
         if (force || (string.IsNullOrEmpty(MsuSongInfo.Url) && !string.IsNullOrEmpty(metadata.Url)))
             MsuSongInfo.Url = metadata.Url;
+    }
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        if (MsuSongInfo.LastModifiedDate > time)
+        {
+            return true;
+        }
+
+        if (_project.BasicInfo.IsMsuPcmProject)
+        {
+            return MsuSongMsuPcmInfoPanel.HasChangesSince(time);
+        }
+
+        return false;
     }
 
     private void OutputPathButton_OnClick(object sender, RoutedEventArgs e)

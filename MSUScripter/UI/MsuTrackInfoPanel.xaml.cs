@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -54,9 +55,8 @@ public partial class MsuTrackInfoPanel
             }
         }
 
-        var newPanel = new MsuSongInfoPanel(this, songInfo.IsAlt, _project);
+        var newPanel = new MsuSongInfoPanel(this, songInfo, _project);
         newPanel.ToggleMsuPcm(_enableMsuPcm);
-        ConverterService.ConvertViewModel(songInfo, newPanel.MsuSongInfo);
         newPanel.ApplyMsuSongMsuPcmInfo(songInfo.MsuPcmInfo);
         SongStackPanel.Children.Add(newPanel);
         _songPanels.Add(newPanel);
@@ -110,6 +110,19 @@ public partial class MsuTrackInfoPanel
     {
         if (_audioMetadataService == null) return new AudioMetadata();
         return  _audioMetadataService.GetAudioMetadata(file);
+    }
+
+    public bool HasChangesSince(DateTime time)
+    {
+        foreach (var songPanel in _songPanels)
+        {
+            if (songPanel.HasChangesSince(time))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void AddSongButton_OnClick(object sender, RoutedEventArgs e)

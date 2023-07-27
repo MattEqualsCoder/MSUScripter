@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MSUScripter.Configs;
@@ -16,6 +17,8 @@ public class MsuSongMsuPcmInfo
     public double? Tempo { get; set; }
     public double? Normalization { get; set; }
     public bool? Compression { get; set; }
+    public DateTime LastModifiedDate { get; set; }
+    public DateTime LastGeneratedDate { get; set; }
     public string? Output { get; set; }
     public string? File { get; set; }
     

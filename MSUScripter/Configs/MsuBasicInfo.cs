@@ -1,4 +1,6 @@
-﻿namespace MSUScripter.Configs;
+﻿using System;
+
+namespace MSUScripter.Configs;
 
 public class MsuBasicInfo
 {
@@ -13,4 +15,5 @@ public class MsuBasicInfo
     public double? Normalization { get; set; }
     public bool? Dither { get; set; }
     public bool IsMsuPcmProject { get; set; } = true;
+    public DateTime LastModifiedDate { get; set; }
 }
