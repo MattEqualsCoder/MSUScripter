@@ -21,7 +21,10 @@ public class AudioService
     
     public void StopSong()
     {
-        _waveOutEvent?.Stop();
+        if (_waveOutEvent?.PlaybackState == PlaybackState.Playing)
+        {
+            _waveOutEvent?.Stop();
+        }
     }
     
     public bool PlaySong(string path, bool fromEnd)
@@ -97,11 +100,15 @@ public class AudioService
                 startPosition = (long)(endSamples / totalSamples * totalBytes) + 8;
             }
 
+            // Fix bad loops to be at the beginning
+            var enableLoop = loopBytes >= 8 && loopBytes < totalBytes + 8;
+
             using (var fs = File.OpenRead(path))
             using (var rs = new RawSourceWaveStream(fs, new WaveFormat(44100, 2)))
             using (var loop = new LoopStream(rs))
             using (var waveOutEvent = new WaveOutEvent())
             {
+                loop.EnableLooping = enableLoop;
                 _waveOutEvent = waveOutEvent;
                 waveOutEvent.Init(loop);
                 loop.Position = startPosition;

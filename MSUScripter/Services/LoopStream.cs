@@ -1,4 +1,5 @@
-﻿using NAudio.Wave;
+﻿using System;
+using NAudio.Wave;
 
 namespace MSUScripter.Services;
 
@@ -58,18 +59,27 @@ public class LoopStream : WaveStream
 
         while (totalBytesRead < count)
         {
-            int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
-            if (bytesRead == 0)
+            try
             {
-                if (sourceStream.Position == 0 || !EnableLooping)
+                int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                if (bytesRead == 0)
                 {
-                    // something wrong with the source stream
-                    break;
+                    
+                    if (sourceStream.Position == 0 || !EnableLooping)
+                    {
+                        // something wrong with the source stream
+                        break;
+                    }
+                    
+                    // loop
+                    sourceStream.Position = LoopPosition;
                 }
-                // loop
-                sourceStream.Position = LoopPosition;
+                totalBytesRead += bytesRead;
             }
-            totalBytesRead += bytesRead;
+            catch (Exception e)
+            {
+                break;
+            }
         }
         return totalBytesRead;
     }
