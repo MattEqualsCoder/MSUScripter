@@ -221,6 +221,8 @@ public partial class EditPanel : UserControl
 
     private async Task DisplayMsuGenerationWindow()
     {
+        if (MsuPcmService.Instance.IsGeneratingPcm) return;
+        
         if (_audioService != null)
         {
             UpdateStatusBarText("Stopping Song");

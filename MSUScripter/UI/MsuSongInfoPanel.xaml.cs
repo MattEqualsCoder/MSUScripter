@@ -53,6 +53,7 @@ public partial class MsuSongInfoPanel : UserControl
 
     public bool GeneratePcmFile(bool asPrimary)
     {
+        if (MsuPcmService.Instance.IsGeneratingPcm) return false;
         EditPanel.Instance?.UpdateStatusBarText("Generating PCM");
         this.UpdateControlBindings();
         var song = new MsuSongInfo();
