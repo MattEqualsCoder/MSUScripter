@@ -54,7 +54,6 @@ public class AudioService
     {
         if (_waveOutEvent == null || _loopStream == null) return null;
         var value = (1.0 * _loopStream.Position) / (1.0 * _loopStream.Length);
-        _logger.LogInformation("{Value} {Value1} {Value2}", value, _loopStream.Position, _loopStream.Length);
         return value;
     }
 
@@ -63,6 +62,13 @@ public class AudioService
         if (_waveOutEvent == null || _loopStream == null) return;
         value = Math.Clamp(value, 0.0, 1.0);
         _loopStream.Position = (long)(_loopStream.Length * value + 8.0);
+    }
+
+    public void SetVolume(double volume)
+    {
+        if (_waveOutEvent == null || _loopStream == null) return;
+        volume = Math.Clamp(volume, 0.0, 1.0);
+        _waveOutEvent.Volume = (float)volume;
     }
     
     public async Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false)
@@ -161,6 +167,7 @@ public class AudioService
             {
                 loop.EnableLooping = enableLoop;
                 _waveOutEvent = waveOutEvent;
+                _waveOutEvent.Volume = (float)SettingsService.Settings.Volume;
                 _loopStream = loop;
                 waveOutEvent.Init(loop);
                 loop.Position = startPosition;

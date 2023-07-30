@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,13 +9,15 @@ namespace MSUScripter.UI;
 public partial class AudioControl : UserControl
 {
     private AudioService _audioService;
+    private SettingsService _settingsService;
     private System.Timers.Timer _timer;
     private double _prevValue = 0;
     
-    public AudioControl(AudioService audioService)
+    public AudioControl(AudioService audioService, SettingsService settingsService)
     {
         _audioService = audioService;
-        
+        _settingsService = settingsService;
+
         InitializeComponent();
         
         audioService.PlayStarted += PlayStarted;
@@ -97,5 +98,28 @@ public partial class AudioControl : UserControl
         {
             _audioService.SetPosition(PositionSlider.Value / 100.0);
         }
+    }
+
+    private void VolumeSlider_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (Math.Abs(VolumeSlider.Value / 100.0 - SettingsService.Settings.Volume) > 0.1)
+        {
+            SettingsService.Settings.Volume = VolumeSlider.Value / 100;
+            _audioService.SetVolume(SettingsService.Settings.Volume);
+            try
+            {
+                _settingsService.SaveSettings();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+        
+    }
+
+    private void AudioControl_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        VolumeSlider.Value = SettingsService.Settings.Volume * 100;
     }
 }
