@@ -172,7 +172,7 @@ public partial class MsuSongMsuPcmInfoPanel
             return;
         
         // Stop the song if it is currently playing
-        if (_parentSongPanel.IsMsuPcmProject && HasChangesSince(_parentSongPanel.LastPcmGenerationTime))
+        if (_parentSongPanel.IsMsuPcmProject && HasChangesSince(_parentSongPanel.LastPcmGenerationTime) && HasAnyFiles())
         {
             await StopSong();
             if (!_parentSongPanel!.GeneratePcmFile(false))
@@ -181,6 +181,20 @@ public partial class MsuSongMsuPcmInfoPanel
         
         EditPanel.Instance?.UpdateStatusBarText("Playing Song");
         await AudioService.Instance.PlaySongAsync(_parentSongPanel.MsuSongInfo.OutputPath, fromEnd);
+    }
+
+    public bool HasAnyFiles()
+    {
+        if (!string.IsNullOrEmpty(MsuSongMsuPcmInfo.File))
+            return true;
+
+        if (SubChannelPanels.Any(x => x.HasAnyFiles()))
+            return true;
+        
+        if (SubTrackPanels.Any(x => x.HasAnyFiles()))
+            return true;
+
+        return false;
     }
 
     public async Task StopSong()
@@ -254,13 +268,21 @@ public partial class MsuSongMsuPcmInfoPanel
     private void GeneratePcmFileButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (_parentSongPanel == null) return;
-        Task.Run(() => _parentSongPanel.GeneratePcmFile(false));
+        Task.Run(async () =>
+        {
+            await StopSong();
+            return _parentSongPanel.GeneratePcmFile(false);
+        });
     }
 
     private void GenerateAsMainPcmFileButton_OnClick(object sender, RoutedEventArgs e)
     {
         if (_parentSongPanel == null) return;
-        Task.Run(() => _parentSongPanel.GeneratePcmFile(true));
+        Task.Run(async () =>
+        {
+            await StopSong();
+            return _parentSongPanel.GeneratePcmFile(true);
+        });
     }
 
     private void PlaySongButton_OnClick(object sender, RoutedEventArgs e)
@@ -273,11 +295,6 @@ public partial class MsuSongMsuPcmInfoPanel
         Task.Run(() => PlaySong(true));
     }
 
-    private void StopSongButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        Task.Run(StopSong);
-    }
-
     private void ImportAudioMetadata(string file)
     {
         if (_parent != null)
@@ -288,5 +305,10 @@ public partial class MsuSongMsuPcmInfoPanel
         {
             _parentSongPanel.ImportAudioMetadata(file);
         }
+    }
+
+    private void ClearFileButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        MsuSongMsuPcmInfo.File = null;
     }
 }

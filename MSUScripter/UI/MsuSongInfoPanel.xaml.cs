@@ -59,7 +59,6 @@ public partial class MsuSongInfoPanel : UserControl
         var song = new MsuSongInfo();
         ConverterService.ConvertViewModel(MsuSongInfo, song);
         song.MsuPcmInfo = MsuSongMsuPcmInfoPanel.GetData();
-        MsuSongInfo.LastGeneratedDate = DateTime.Now;
 
         if (asPrimary)
         {
@@ -78,6 +77,8 @@ public partial class MsuSongInfoPanel : UserControl
             });
             return false;
         }
+        
+        MsuSongInfo.LastGeneratedDate = DateTime.Now;
         EditPanel.Instance?.UpdateStatusBarText("PCM Generated");
         return true;
     }

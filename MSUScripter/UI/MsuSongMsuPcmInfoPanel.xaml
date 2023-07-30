@@ -51,6 +51,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox 
                             Name="FileTextBox"
@@ -66,6 +67,10 @@
                             Grid.Column="1" 
                             Click="FileButton_OnClick"
                             Content="Browse..." />
+                        <Button Grid.Column="2" x:Name="ClearFileButton"
+                                Margin="5 0 0 0"
+                                Padding="5 0 5 0"
+                                Click="ClearFileButton_OnClick">×</Button>
                     </Grid>
                 </local:LabeledControl>
                 
@@ -253,14 +258,6 @@
                             Margin="5 5"
                             Padding="8 5"
                             Click="TestLoopButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="StopSongButton"
-                            Content="Stop Playing"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            Click="StopSongButton_OnClick"
                         ></Button>
                         <Button
                             Name="GenerateAsMainPcmFileButton"

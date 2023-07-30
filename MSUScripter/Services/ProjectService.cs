@@ -351,10 +351,16 @@ public class ProjectService
         {
             foreach (var projectSong in projectTrack.Songs)
             {
-                tracks.Add(new MSURandomizerLibrary.Configs.Track(projectTrack.TrackName, projectTrack.TrackNumber, 
-                    projectSong.SongName ?? "", projectSong.OutputPath, project.MsuPath, 
-                    null, null, projectSong.Artist, projectSong.Album, projectSong.Url, 
-                    projectSong.IsAlt));
+                tracks.Add(new MSURandomizerLibrary.Configs.Track(
+                    trackName: projectTrack.TrackName,
+                    number: projectTrack.TrackNumber,
+                    songName: projectSong.SongName ?? "",
+                    path: projectSong.OutputPath,
+                    artist: projectSong.Artist,
+                    album: projectSong.Album,
+                    url: projectSong.Url,
+                    isAlt: projectSong.IsAlt
+                ));
             }
         }
 
