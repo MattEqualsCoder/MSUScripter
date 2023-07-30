@@ -19,6 +19,8 @@ public partial class EditPanel : UserControl
     private Dictionary<int, UserControl> _pages = new();
     private UserControl _currentPage = null!;
     private bool _enableMsuPcm = true;
+    private bool _enableAltSwapper = true;
+    private bool _enableSmz3SplitScript = false;
     
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
@@ -47,6 +49,8 @@ public partial class EditPanel : UserControl
     public void SetProject(MsuProject project)
     {
         ToggleMsuPcm(project.BasicInfo.IsMsuPcmProject);
+        ToggleAltSwpper(project.BasicInfo.CreateAltSwapperScript);
+        ToggleSmz3SplitScript(project.BasicInfo.CreateSplitSmz3Script);
         _project = project;
         PopulatePageComboBox();
         var msuBasicInfoPanel = new MsuBasicInfoPanel(this, _project);
@@ -68,6 +72,18 @@ public partial class EditPanel : UserControl
     {
         _enableMsuPcm = enable;
         ExportMenuButton.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
+    }
+    
+    public void ToggleAltSwpper(bool enable)
+    {
+        _enableAltSwapper = enable;
+        ExportButton_Swapper.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
+    }
+    
+    public void ToggleSmz3SplitScript(bool enable)
+    {
+        _enableSmz3SplitScript = enable;
+        ExportButton_Smz3.Visibility = enable ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public void DisplayPage(int page)
@@ -177,6 +193,27 @@ public partial class EditPanel : UserControl
         if (_projectService == null) return;
         _project = UpdateCurrentPageData();
         _projectService.ExportMsuRandomizerYaml(_project);
+        var extraProjects = new List<MsuProject>();
+
+        if (_enableSmz3SplitScript)
+        {
+            extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error).ToList();
+            _projectService.CreateSmz3SplitScript(_project, conversions);
+            foreach (var otherProject in extraProjects)
+            {
+                _projectService.ExportMsuRandomizerYaml(otherProject);
+            }
+        }
+        
+        if (_enableAltSwapper)
+        {
+            _projectService.CreateAltSwapperFile(_project, extraProjects);
+        }
+        
+        foreach (var otherProject in extraProjects)
+        {
+            _projectService.RemoveProjectPcms(otherProject);
+        }
 
         if (!_enableMsuPcm || _msuPcmService == null)
         {
@@ -254,5 +291,37 @@ public partial class EditPanel : UserControl
     private void EditPanel_OnUnloaded(object sender, RoutedEventArgs e)
     {
         Instance = null;
+    }
+
+    private void ExportButton_Swapper_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_projectService == null) return;
+        _project = UpdateCurrentPageData();
+        
+        var extraProjects = new List<MsuProject>();
+
+        if (_enableSmz3SplitScript)
+        {
+            extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error).ToList();
+        }
+        
+        _projectService.CreateAltSwapperFile(_project, extraProjects);
+        
+        foreach (var otherProject in extraProjects)
+        {
+            _projectService.RemoveProjectPcms(otherProject);
+        }
+    }
+
+    private void ExportButton_Smz3_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_projectService == null) return;
+        _project = UpdateCurrentPageData();
+        var extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error);
+        _projectService.CreateSmz3SplitScript(_project, conversions);
+        foreach (var otherProject in extraProjects)
+        {
+            _projectService.RemoveProjectPcms(otherProject);
+        }
     }
 }

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
@@ -57,6 +59,12 @@ public class ProjectService
         var project = deserializer.Deserialize<MsuProject>(yaml);
         project.ProjectFilePath = path;
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
+
+        if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == _msuTypeService.GetSMZ3MsuType())
+        {
+            project.BasicInfo.IsSmz3Project = true;
+        }
+
         _settingsService.AddRecentProject(project);
         return project;
     }
@@ -93,6 +101,12 @@ public class ProjectService
         if (!string.IsNullOrEmpty(msuPcmTracksJsonPath) && File.Exists(msuPcmTracksJsonPath))
         {
             ImportMsuPcmTracksJson(project, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+        }
+        
+        if (msuType == _msuTypeService.GetSMZ3LegacyMSUType() || msuType == _msuTypeService.GetSMZ3MsuType())
+        {
+            project.BasicInfo.IsSmz3Project = true;
+            project.BasicInfo.CreateSplitSmz3Script = true;
         }
 
         SaveMsuProject(project);
@@ -174,7 +188,6 @@ public class ProjectService
         var newTracks = new List<MsuTrackInfo>();
         foreach (var oldTrack in project.Tracks)
         {
-            
             var newTrackNumber = conversion(oldTrack.TrackNumber);
 
             if (oldTrack.TrackNumber == newTrackNumber)
@@ -238,6 +251,145 @@ public class ProjectService
         }
 
         project.Tracks = newTracks;
+    }
+
+    public ICollection<MsuProject> GetSmz3SplitMsuProjects(MsuProject project, out Dictionary<string, string> convertedPaths, out string? error)
+    {
+        var toReturn = new List<MsuProject>();
+        convertedPaths = new Dictionary<string, string>();
+        
+        if (project.MsuType != _msuTypeService.GetSMZ3LegacyMSUType() && project.MsuType != _msuTypeService.GetSMZ3MsuType())
+        {
+            error = "Invalid MSU Type";
+            return toReturn;
+        }
+
+        if (string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) ||
+            string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath))
+        {
+            error = "Missing Metroid or Zelda MSU path";
+            return toReturn;
+        }
+
+        var msuType = _msuTypeService.GetMsuType("Super Metroid") ??
+                      throw new InvalidOperationException("Super Metroid MSU Type not found");
+        toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.MetroidMsuPath, convertedPaths));
+
+        msuType = _msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past") ??
+                  throw new InvalidOperationException("A Link to the Past MSU Type not found");
+        toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.ZeldaMsuPath, convertedPaths));
+
+        error = null;
+        return toReturn;
+    }
+
+    private MsuProject InternalGetSmz3MsuProject(MsuProject project, MsuType msuType, string newMsuPath, Dictionary<string, string> convertedPaths)
+    {
+        var basicInfo = new MsuBasicInfo();
+        ConverterService.ConvertViewModel(project.BasicInfo, basicInfo);
+
+        var conversion = msuType.Conversions[project.MsuType];
+
+        var trackConversions = project.Tracks
+            .Select(x => (x.TrackNumber, conversion(x.TrackNumber)))
+            .Where(x => msuType.ValidTrackNumbers.Contains(x.Item2));
+
+        var newTracks = new List<MsuTrackInfo>();
+
+        var oldMsuFile = new FileInfo(project.MsuPath);
+        var oldMsuBaseName = oldMsuFile.Name.Replace(oldMsuFile.Extension, "");
+        var newMsuFile = new FileInfo(newMsuPath);
+        var newMsuBaseName = newMsuFile.Name.Replace(newMsuFile.Extension, "");
+        var folder = oldMsuFile.DirectoryName ?? "";
+
+        foreach (var trackNumbers in trackConversions)
+        {
+            var oldTrackNumber = trackNumbers.TrackNumber;
+            var newTrackNumber = trackNumbers.Item2;
+            var trackName = msuType.Tracks.First(x => x.Number == newTrackNumber).Name;
+
+            if (project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs.Count > 1)
+            {
+                convertedPaths[Path.Combine(folder, $"{oldMsuBaseName}-{oldTrackNumber}_Original.pcm")] =
+                    Path.Combine(folder, $"{newMsuBaseName}-{newTrackNumber}_Original.pcm");    
+            }
+
+            var newSongs = new List<MsuSongInfo>();
+            foreach (var song in project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs)
+            {
+                var newSong = new MsuSongInfo();
+                ConverterService.ConvertViewModel(song, newSong);
+                newSong.TrackNumber = newTrackNumber;
+                newSong.TrackName = trackName;
+                newSong.OutputPath =
+                    song.OutputPath.Replace($"{oldMsuBaseName}-{oldTrackNumber}", $"{newMsuBaseName}-{newTrackNumber}");
+
+                convertedPaths[song.OutputPath] = newSong.OutputPath;
+
+                if (!File.Exists(newSong.OutputPath) && File.Exists(song.OutputPath))
+                {
+                    NativeMethods.CreateHardLink(newSong.OutputPath, song.OutputPath, IntPtr.Zero);
+                }
+                
+                newSongs.Add(newSong);
+            }
+            
+            newTracks.Add(new MsuTrackInfo()
+            {
+                TrackNumber = newTrackNumber,
+                TrackName = trackName,
+                Songs = newSongs
+            });
+        }
+        
+        return new MsuProject()
+        {
+            MsuPath = newMsuPath,
+            MsuTypeName = msuType.Name,
+            MsuType = msuType,
+            BasicInfo = basicInfo,
+            Tracks = newTracks
+        };
+    }
+
+    public void RemoveProjectPcms(MsuProject project)
+    {
+        foreach (var song in project.Tracks.SelectMany(t => t.Songs))
+        {
+            if (File.Exists(song.OutputPath))
+            {
+                File.Delete(song.OutputPath);
+            }
+        }
+    }
+
+    public void CreateSmz3SplitScript(MsuProject smz3Project, Dictionary<string, string> convertedPaths)
+    {
+        var testTrack = smz3Project.Tracks.First(x => x.TrackNumber > 100 && x.Songs.Any()).TrackNumber;
+        var msu = new FileInfo(smz3Project.MsuPath);
+        var folder = msu.DirectoryName ?? "";
+        var testPath = msu.FullName.Replace(msu.Extension, $"-{testTrack}.pcm");
+
+        var sbIsCombined = new StringBuilder();
+        var sbIsSplit = new StringBuilder();
+        
+        foreach (var conversion in convertedPaths)
+        {
+            var combinedPath = Path.GetRelativePath(folder, conversion.Key);
+            var splitPath = Path.GetRelativePath(folder, conversion.Value);
+
+            sbIsCombined.AppendLine($"\tIF EXIST \"{combinedPath}\" ( RENAME \"{combinedPath}\" \"{splitPath}\" )");
+            sbIsSplit.AppendLine($"\tIF EXIST \"{splitPath}\" ( RENAME \"{splitPath}\" \"{combinedPath}\" )");
+        }
+
+        var sbTotal = new StringBuilder();
+        sbTotal.AppendLine($"IF EXIST \"{testPath}\" (");
+        sbTotal.Append(sbIsCombined);
+        sbTotal.AppendLine(") ELSE (");
+        sbTotal.Append(sbIsSplit);
+        sbTotal.Append(")");
+        
+        File.WriteAllText(Path.Combine(folder, "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat"), sbTotal.ToString());
     }
 
     public void ImportMsuPcmTracksJson(MsuProject project, string jsonPath, string? msuPcmWorkingDirectory)
@@ -381,5 +533,48 @@ public class ProjectService
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
         _msuDetailsService.SaveMsuDetails(msu, yamlPath, out var error);
+    }
+
+    public void CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
+    {
+        if (project.Tracks.All(x => !x.Songs.Any())) return;
+        
+        var msuPath = new FileInfo(project.MsuPath).DirectoryName;
+
+        if (string.IsNullOrEmpty(msuPath)) return;
+
+        var sb = new StringBuilder();
+
+        var trackCombos = project.Tracks.Where(t => t.Songs.Count > 1)
+            .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
+
+        if (otherProjects != null)
+        {
+            foreach (var otherProject in otherProjects)
+            {
+                trackCombos.AddRange(otherProject.Tracks.Where(t => t.Songs.Count > 1)
+                    .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
+            }
+        }
+        
+        foreach (var combo in trackCombos)
+        {
+            var basePath = Path.GetRelativePath(msuPath!, combo.Item1.OutputPath);
+            var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
+                $"-{combo.Item1.TrackNumber}_Original.pcm");
+            var altSongPath = Path.GetRelativePath(msuPath!, combo.Item2.OutputPath);
+
+            sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
+            sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");
+            sb.AppendLine($"\tRENAME \"{baseAltPath}\" \"{basePath}\"");
+            sb.AppendLine($") ELSE IF EXIST \"{altSongPath}\" (");
+            sb.AppendLine($"\tRENAME \"{basePath}\" \"{baseAltPath}\"");
+            sb.AppendLine($"\tRENAME \"{altSongPath}\" \"{basePath}\"");
+            sb.AppendLine($")");
+            sb.AppendLine();
+        }
+
+        var text = sb.ToString();
+        File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
     }
 }

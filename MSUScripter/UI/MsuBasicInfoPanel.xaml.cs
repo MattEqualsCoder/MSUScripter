@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.UI.Tools;
@@ -58,5 +59,53 @@ public partial class MsuBasicInfoPanel : UserControl
         var value = (string)IsMsuPcmProjectComboBox.SelectedValue == "Yes";
         MsuPcmDetailsGroupBox.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
         _parent?.ToggleMsuPcm(value);
+    }
+
+    private void CreateAltSwapperComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var value = (string)CreateAltSwapperComboBox.SelectedValue == "Yes";
+        _parent?.ToggleAltSwpper(value);
+    }
+
+    private void CreateSplitSmz3ScriptComboBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var value = (string)CreateSplitSmz3ScriptComboBox.SelectedValue == "Yes";
+        _parent?.ToggleSmz3SplitScript(value);
+    }
+
+    private void MetroidMsuPathButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new CommonSaveFileDialog()
+        {
+            EnsurePathExists = true,
+            Title = "Select MSU File",
+            DefaultExtension = ".msu",
+            AlwaysAppendDefaultExtension = true,
+            OverwritePrompt = false,
+            Filters = { new CommonFileDialogFilter("MSU Files", "*.msu") }
+        };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            MetroidMsuPathTextBox.Text = dialog.FileName;
+        }
+    }
+
+    private void ZeldaMsuPathButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        using var dialog = new CommonSaveFileDialog()
+        {
+            EnsurePathExists = true,
+            Title = "Select MSU File",
+            DefaultExtension = ".msu",
+            AlwaysAppendDefaultExtension = true,
+            OverwritePrompt = false,
+            Filters = { new CommonFileDialogFilter("MSU Files", "*.msu") }
+        };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            ZeldaMsuPathTextBox.Text = dialog.FileName;
+        }
     }
 }

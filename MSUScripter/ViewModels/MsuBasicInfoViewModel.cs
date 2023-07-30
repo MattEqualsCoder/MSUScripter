@@ -91,7 +91,46 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
         get => _lastModifiedDate;
         set => SetField(ref _lastModifiedDate, value);
     }
-
+    
+    public bool _createAltSwapper = true;
+    public bool CreateAltSwapper
+    {
+        
+        get => _createAltSwapper;
+        set => SetField(ref _createAltSwapper, value);
+    }
+    
+    public bool _createSplitSmz3Script = true;
+    public bool CreateSplitSmz3Script
+    {
+        
+        get => _createSplitSmz3Script;
+        set => SetField(ref _createSplitSmz3Script, value);
+    }
+    
+    public bool _isSmz3Project = true;
+    public bool IsSmz3Project
+    {
+        
+        get => _isSmz3Project;
+        set => SetField(ref _isSmz3Project, value);
+    }
+    
+    public string? _zeldaMsuPath;
+    public string? ZeldaMsuPath
+    {
+        
+        get => _zeldaMsuPath;
+        set => SetField(ref _zeldaMsuPath, value);
+    }
+    
+    public string? _metroidMsuPath;
+    public string? MetroidMsuPath
+    {
+        
+        get => _metroidMsuPath;
+        set => SetField(ref _metroidMsuPath, value);
+    }
     
     public event PropertyChangedEventHandler? PropertyChanged;
 

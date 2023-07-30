@@ -15,5 +15,10 @@ public class MsuBasicInfo
     public double? Normalization { get; set; }
     public bool? Dither { get; set; }
     public bool IsMsuPcmProject { get; set; } = true;
+    public bool CreateAltSwapperScript { get; set; } = true;
+    public bool CreateSplitSmz3Script { get; set; }
+    public string? ZeldaMsuPath { get; set; }
+    public string? MetroidMsuPath { get; set; }
+    public bool IsSmz3Project { get; set; }
     public DateTime LastModifiedDate { get; set; }
 }

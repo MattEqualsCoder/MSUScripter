@@ -63,6 +63,74 @@
                         SelectionChanged="IsMsuPcmProjectComboBox_OnSelectionChanged"
                     ></ComboBox>
                 </local:LabeledControl>
+                <local:LabeledControl Text="Create Alt Swap File:" Hint="Creates a .bat file to swap between base and alt tracks. Only works between the original song and first track." HintVisibility="Visible">
+                    <ComboBox 
+                        Name="CreateAltSwapperComboBox"
+                        SelectedItem="{Binding CreateAltSwapper, Converter={StaticResource BoolStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        SelectionChanged="CreateAltSwapperComboBox_OnSelectionChanged"
+                    ></ComboBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Create SMZ3 Split Script:" 
+                                      Hint="Creates a .bat file to switch between combined SMZ3 and split SM and Z3 MSUs" 
+                                      HintVisibility="Visible"
+                                      Visibility="{Binding IsSmz3Project, Converter={StaticResource BoolVisibilityConverter}}"
+                                      >
+                    <ComboBox 
+                        Name="CreateSplitSmz3ScriptComboBox"
+                        SelectedItem="{Binding CreateSplitSmz3Script, Converter={StaticResource BoolStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        SelectionChanged="CreateSplitSmz3ScriptComboBox_OnSelectionChanged"
+                    ></ComboBox>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Metroid MSU Path:" 
+                                      Visibility="{Binding CreateSplitSmz3Script, Converter={StaticResource BoolVisibilityConverter}}"
+                >
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            IsReadOnly="True"
+                            IsEnabled="False"
+                            Grid.Column="0"
+                            Name="MetroidMsuPathTextBox"
+                            Text="{Binding Path=MetroidMsuPath, Mode=TwoWay}"
+                        ></TextBox>
+                        <Button 
+                            Name="MetroidMsuPathButton"
+                            Margin="5 0 0 0 "
+                            Padding="8 0"
+                            Grid.Column="1" 
+                            Click="MetroidMsuPathButton_OnClick"
+                            Content="Browse..." />
+                    </Grid>
+                </local:LabeledControl>
+                <local:LabeledControl Text="Zelda MSU Path:" 
+                                      Visibility="{Binding CreateSplitSmz3Script, Converter={StaticResource BoolVisibilityConverter}}"
+                >
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            IsReadOnly="True"
+                            IsEnabled="False"
+                            Grid.Column="0"
+                            Name="ZeldaMsuPathTextBox"
+                            Text="{Binding Path=ZeldaMsuPath, Mode=TwoWay}"
+                        ></TextBox>
+                        <Button 
+                            Name="ZeldaMsuPathButton"
+                            Margin="5 0 0 0 "
+                            Padding="8 0"
+                            Grid.Column="1" 
+                            Click="ZeldaMsuPathButton_OnClick"
+                            Content="Browse..." />
+                    </Grid>
+                </local:LabeledControl>
             </StackPanel>
         </GroupBox>
         <GroupBox Header="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" Visibility="{Binding IsMsuPcmProject, Converter={StaticResource BoolVisibilityConverter}}">
