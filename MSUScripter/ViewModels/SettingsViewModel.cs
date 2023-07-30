@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MSUScripter.Configs;
 
 namespace MSUScripter.ViewModels;
 
@@ -12,6 +13,24 @@ public class SettingsViewModel : INotifyPropertyChanged
     {
         get => _msuPcmPath;
         set => SetField(ref _msuPcmPath, value);
+    }
+
+    private ICollection<RecentProject> _recentProjects = new List<RecentProject>();
+
+    public ICollection<RecentProject> RecentProjects
+    {
+        
+        get => _recentProjects;
+        set => SetField(ref _recentProjects, value);
+    }
+
+    public double _volume;
+    
+    public double Volume 
+    {
+        
+        get => _volume;
+        set => SetField(ref _volume, value);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
