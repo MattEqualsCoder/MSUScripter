@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
@@ -22,6 +21,14 @@ public class ProjectService
     private readonly AudioMetadataService _audioMetadataService;
     private readonly SettingsService _settingsService;
     private readonly ILogger<ProjectService> _logger;
+    private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
+        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .Build();
+    private readonly IDeserializer _msuDetailsDeserializer = new DeserializerBuilder()
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .IgnoreUnmatchedProperties()
+        .Build();
     
     public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService)
     {
@@ -326,11 +333,6 @@ public class ProjectService
 
                 convertedPaths[song.OutputPath] = newSong.OutputPath;
 
-                if (!File.Exists(newSong.OutputPath) && File.Exists(song.OutputPath))
-                {
-                    NativeMethods.CreateHardLink(newSong.OutputPath, song.OutputPath, IntPtr.Zero);
-                }
-                
                 newSongs.Add(newSong);
             }
             
@@ -350,17 +352,6 @@ public class ProjectService
             BasicInfo = basicInfo,
             Tracks = newTracks
         };
-    }
-
-    public void RemoveProjectPcms(MsuProject project)
-    {
-        foreach (var song in project.Tracks.SelectMany(t => t.Songs))
-        {
-            if (File.Exists(song.OutputPath))
-            {
-                File.Delete(song.OutputPath);
-            }
-        }
     }
 
     public void CreateSmz3SplitScript(MsuProject smz3Project, Dictionary<string, string> convertedPaths)
@@ -492,6 +483,69 @@ public class ProjectService
         }
     }
 
+    public bool CreateSMZ3SplitRandomizerYaml(MsuProject project, out string? error)
+    {
+        var data = new List<(MsuType?, string?)>()
+        {
+            (_msuTypeService.GetMsuType("Super Metroid"), project.BasicInfo.MetroidMsuPath),
+            (_msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past"), project.BasicInfo.ZeldaMsuPath)
+        };
+
+        var msu = new FileInfo(project.MsuPath);
+        var yamlPath = msu.FullName.Replace(msu.Extension, ".yml");
+        MsuDetails msuDetails;
+        
+        try
+        {
+            var yamlText = File.ReadAllText(yamlPath);
+            msuDetails = _msuDetailsDeserializer.Deserialize<MsuDetails>(yamlText);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not retrieve MSU Details from {YamlPath}", yamlPath);
+            error = $"Could not retrieve MSU Details from {yamlPath}";
+            return false;
+        }
+        
+        foreach (var msuTypeInfo in data)
+        {
+            var msuType = msuTypeInfo.Item1;
+            var msuPath = msuTypeInfo.Item2;
+            
+            if (msuType == null)
+            {
+                error = "Invalid MSU Type";
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(msuPath))
+            {
+                error = $"Invalid MSU path for {msuType.Name}";
+                return false;
+            }
+
+            try
+            {
+                var newMsu = new FileInfo(msuPath);
+                var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
+                var newMsuType = ConverterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
+                var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
+                File.WriteAllText(newYamlPath, outYaml);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unable to convert MSU YAML");
+                error = "Unable to convert MSU YAML";
+                return false;
+            }
+            
+        }
+        
+        error = null;
+        return true;
+        
+    }
+
     public void ExportMsuRandomizerYaml(MsuProject project)
     {
         var msuFile = new FileInfo(project.MsuPath);
@@ -537,7 +591,7 @@ public class ProjectService
 
     public void CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
     {
-        if (project.Tracks.All(x => !x.Songs.Any())) return;
+        if (project.Tracks.All(x => x.Songs.Count <= 1)) return;
         
         var msuPath = new FileInfo(project.MsuPath).DirectoryName;
 
@@ -559,10 +613,10 @@ public class ProjectService
         
         foreach (var combo in trackCombos)
         {
-            var basePath = Path.GetRelativePath(msuPath!, combo.Item1.OutputPath);
+            var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath);
             var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
                 $"-{combo.Item1.TrackNumber}_Original.pcm");
-            var altSongPath = Path.GetRelativePath(msuPath!, combo.Item2.OutputPath);
+            var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath);
 
             sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
             sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");

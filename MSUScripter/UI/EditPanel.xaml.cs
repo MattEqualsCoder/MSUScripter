@@ -198,10 +198,19 @@ public partial class EditPanel : UserControl
         if (_enableSmz3SplitScript)
         {
             extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error).ToList();
-            _projectService.CreateSmz3SplitScript(_project, conversions);
-            foreach (var otherProject in extraProjects)
+            
+            if (!string.IsNullOrEmpty(error))
             {
-                _projectService.ExportMsuRandomizerYaml(otherProject);
+                MessageBox.Show(error, "Error");
+                return;
+            }
+            
+            _projectService.CreateSmz3SplitScript(_project, conversions);
+
+            if (!_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
+            {
+                MessageBox.Show(error, "Error");
+                return;
             }
         }
         
@@ -210,11 +219,6 @@ public partial class EditPanel : UserControl
             _projectService.CreateAltSwapperFile(_project, extraProjects);
         }
         
-        foreach (var otherProject in extraProjects)
-        {
-            _projectService.RemoveProjectPcms(otherProject);
-        }
-
         if (!_enableMsuPcm || _msuPcmService == null)
         {
             UpdateStatusBarText("Export Complete");
@@ -237,6 +241,13 @@ public partial class EditPanel : UserControl
         if (_projectService == null) return;
         _project = UpdateCurrentPageData();
         _projectService.ExportMsuRandomizerYaml(_project);
+        
+        // Try to create the extra SMZ3 YAML files
+        if (_enableSmz3SplitScript && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out var error))
+        {
+            MessageBox.Show(error, "Error");
+        }
+        
         UpdateStatusBarText("YAML File Written");
     }
 
@@ -302,26 +313,26 @@ public partial class EditPanel : UserControl
 
         if (_enableSmz3SplitScript)
         {
-            extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error).ToList();
+            extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var _, out var error).ToList();
+            if (!string.IsNullOrEmpty(error))
+            {
+                MessageBox.Show(error, "Error");
+            }
         }
         
         _projectService.CreateAltSwapperFile(_project, extraProjects);
-        
-        foreach (var otherProject in extraProjects)
-        {
-            _projectService.RemoveProjectPcms(otherProject);
-        }
     }
 
     private void ExportButton_Smz3_OnClick(object sender, RoutedEventArgs e)
     {
         if (_projectService == null) return;
         _project = UpdateCurrentPageData();
-        var extraProjects = _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error);
-        _projectService.CreateSmz3SplitScript(_project, conversions);
-        foreach (var otherProject in extraProjects)
+        _projectService.GetSmz3SplitMsuProjects(_project, out var conversions, out var error);
+        if (!string.IsNullOrEmpty(error))
         {
-            _projectService.RemoveProjectPcms(otherProject);
+            MessageBox.Show(error, "Error");
+            return;
         }
+        _projectService.CreateSmz3SplitScript(_project, conversions);
     }
 }

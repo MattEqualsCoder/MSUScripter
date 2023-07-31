@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -87,6 +88,18 @@ public partial class MsuBasicInfoPanel : UserControl
 
         if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
         {
+            var mainMsuPath = new FileInfo(_project!.MsuPath);
+            var mainMsuFolder = mainMsuPath.DirectoryName;
+            
+            var newMsuPath = new FileInfo(dialog.FileName);
+            var newMsuFolder = newMsuPath.DirectoryName;
+
+            if (mainMsuFolder != newMsuFolder)
+            {
+                MessageBox.Show("The Metroid MSU must be located in the same folder as the SMZ3 MSU", "Error");
+                return;
+            }
+            
             MetroidMsuPathTextBox.Text = dialog.FileName;
         }
     }
@@ -105,6 +118,18 @@ public partial class MsuBasicInfoPanel : UserControl
 
         if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
         {
+            var mainMsuPath = new FileInfo(_project!.MsuPath);
+            var mainMsuFolder = mainMsuPath.DirectoryName;
+            
+            var newMsuPath = new FileInfo(dialog.FileName);
+            var newMsuFolder = newMsuPath.DirectoryName;
+
+            if (mainMsuFolder != newMsuFolder)
+            {
+                MessageBox.Show("The Zelda MSU must be located in the same folder as the SMZ3 MSU", "Error");
+                return;
+            }
+            
             ZeldaMsuPathTextBox.Text = dialog.FileName;
         }
     }

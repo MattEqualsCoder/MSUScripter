@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MSURandomizerLibrary.Configs;
 using MSUScripter.Configs;
+using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
@@ -179,5 +181,94 @@ public class ConverterService
         
         var absolute = Path.Combine(basePath, relativePath);
         return Path.GetFullPath(absolute);
+    }
+
+    public static MsuDetails ConvertMsuDetailsToMsuType(MsuDetails msuDetails, MsuType oldType, MsuType msuType, string oldPath, string newPath)
+    {
+        var newDetails = new MsuDetails()
+        {
+            PackName = msuDetails.PackName,
+            PackAuthor = msuDetails.PackAuthor,
+            PackVersion = msuDetails.PackVersion,
+            Artist = msuDetails.Artist,
+            Album = msuDetails.Album,
+            MsuType = msuType.Name,
+            Url = msuDetails.Url,
+        };
+
+        if (msuDetails.Tracks?.Any() != true)
+        {
+            return newDetails;
+        }
+
+        var conversion = msuType.Conversions[oldType];
+
+        newDetails.Tracks = new Dictionary<string, MsuDetailsTrack>();
+
+        var oldMsu = new FileInfo(oldPath);
+        var oldBase = oldMsu.Name.Replace(oldMsu.Extension, "");
+        var newMsu = new FileInfo(newPath);
+        var newBase = newMsu.Name.Replace(newMsu.Extension, "");
+
+        foreach (var track in msuDetails.Tracks!)
+        {
+            var oldDetails = track.Value;
+            var oldTypeTrack = oldType.Tracks.FirstOrDefault(x =>
+                x.YamlName == track.Key || x.YamlNameSecondary == track.Key ||
+                x.Number == oldDetails.TrackNumber);
+
+            if (oldTypeTrack == null)
+            {
+                continue;
+            }
+            
+            var newTypeTrack =
+                msuType.Tracks.FirstOrDefault(x =>
+                    x.YamlName == track.Key || x.YamlNameSecondary == track.Key || x.Number == conversion(oldTypeTrack.Number));
+
+            if (newTypeTrack == null)
+            {
+                continue;
+            }
+
+            var newTrackDetails = new MsuDetailsTrack()
+            {
+                TrackNumber = newTypeTrack.Number,
+                Name = oldDetails.Name,
+                Artist = oldDetails.Artist,
+                Album = oldDetails.Album,
+                FileLength = oldDetails.FileLength,
+                Hash = oldDetails.Hash,
+                Path = oldDetails.Path?.Replace($"{oldBase}-{oldTypeTrack.Number}", $"{newBase}-{newTypeTrack.Number}"),
+                Url = oldDetails.Url,
+                MsuName = oldDetails.MsuName,
+                MsuAuthor = oldDetails.MsuAuthor
+            };
+
+            if (oldDetails.Alts?.Any() == true)
+            {
+                newTrackDetails.Alts = new List<MsuDetailsTrack>();
+                foreach (var alt in oldDetails.Alts)
+                {
+                    newTrackDetails.Alts.Add(new MsuDetailsTrack()
+                    {
+                        TrackNumber = newTypeTrack.Number,
+                        Name = alt.Name,
+                        Artist = alt.Artist,
+                        Album = alt.Album,
+                        FileLength = alt.FileLength,
+                        Hash = alt.Hash,
+                        Path = alt.Path?.Replace($"{oldBase}-{oldTypeTrack.Number}", $"{newBase}-{newTypeTrack.Number}"),
+                        Url = alt.Url,
+                        MsuName = alt.MsuName,
+                        MsuAuthor = alt.MsuAuthor
+                    });
+                }
+            }
+
+            newDetails.Tracks[newTypeTrack.YamlNameSecondary ?? newTypeTrack.YamlName!] = newTrackDetails;
+        }
+        
+        return newDetails;
     }
 }
