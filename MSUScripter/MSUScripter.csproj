@@ -15,6 +15,7 @@
       <PackageReference Include="ID3" Version="0.6.0" />
       <PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" Version="4.11.0" />
       <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="4.11.0" />
+      <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.0.0" />
       <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-preview.6.23329.7" />
       <PackageReference Include="MSURandomizerLibrary" Version="0.9.8-beta.18" />

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -51,13 +52,36 @@ namespace MSUScripter
                     services.AddTransient<EditPanel>();
                     services.AddTransient<MsuTrackInfoPanel>();
                     services.AddTransient<AudioControl>();
+                    services.AddGitHubReleaseCheckerServices();
                 })
                 .Start();
-            
+
             _host.Services.GetRequiredService<SettingsService>();
             _logger = _host.Services.GetRequiredService<ILogger<App>>();
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             _logger.LogInformation("Starting MSU Scripter {Version}", version.ProductVersion ?? "");
+
+            if (SettingsService.Settings.PromptOnUpdate)
+            {
+                var newerHubRelease = _host.Services.GetRequiredService<IGitHubReleaseCheckerService>()
+                    .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", version.ProductVersion ?? "", SettingsService.Settings.PromptOnPreRelease);
+
+                if (newerHubRelease != null)
+                {
+                    var response = MessageBox.Show("A new version of the MSU Scripter is now available!\n" +
+                                                   "Do you want to open up the GitHub release page for the update?\n" +
+                                                   "\n" +
+                                                   "You can disable this check in the settings window.", "MSU Scripter Update",
+                        MessageBoxButton.YesNo);
+
+                    if (response == MessageBoxResult.Yes)
+                    {
+                        var url = newerHubRelease.Url.Replace("&", "^&");
+                        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                    }
+                }
+            }
+            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
    
             var msuInitializationRequest = new MsuRandomizerInitializationRequest

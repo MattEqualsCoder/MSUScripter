@@ -33,6 +33,25 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _volume, value);
     }
 
+    private bool _promptOnUpdate;
+    
+    public bool PromptOnUpdate
+    {
+        
+        get => _promptOnUpdate;
+        set => SetField(ref _promptOnUpdate, value);
+    }
+    
+    private bool _promptOnPreRelease;
+    
+    public bool PromptOnPreRelease
+    {
+        
+        get => _promptOnPreRelease;
+        set => SetField(ref _promptOnPreRelease, value);
+    }
+    
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

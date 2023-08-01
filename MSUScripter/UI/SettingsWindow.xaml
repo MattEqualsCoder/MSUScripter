@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:MSUScripter.UI"
         Style="{DynamicResource MainWindowStyle}"
         xmlns:models="clr-namespace:MSUScripter.ViewModels"
+        xmlns:tools="clr-namespace:MSUScripter.UI.Tools"
         mc:Ignorable="d"
-        Title="Settings - MSU Scripter" Height="300" Width="400">
+        Title="Settings - MSU Scripter" Height="200" Width="400">
     <Window.Resources>
         <ResourceDictionary Source="Generic.xaml" />
     </Window.Resources>
@@ -33,6 +34,7 @@
             ></Button>
         </StackPanel>
         <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
+            
             <local:LabeledControl Text="MsuPcm++ Path: ">
                 <Grid Margin="0 0 0 0">
                     <Grid.ColumnDefinitions>
@@ -55,6 +57,24 @@
                         Content="Browse..." />
                 </Grid>
             </local:LabeledControl>
+            
+            <local:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." HintVisibility="Visible">
+                <ComboBox 
+                    Name="PromptOnUpdateComboBox"
+                    SelectedItem="{Binding PromptOnUpdate, Converter={StaticResource BoolStringConverter}}"
+                    ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
+                ></ComboBox>
+            </local:LabeledControl>
+            
+            <local:LabeledControl Text="Include Pre-Releases:" Hint="When checking for new updates, alert on pre-release versions in addition to full releases." HintVisibility="Visible">
+                <ComboBox 
+                    Name="PromptOnPreReleaseComboBox"
+                    SelectedItem="{Binding PromptOnPreRelease, Converter={StaticResource BoolStringConverter}}"
+                    ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
+                    IsEnabled="{Binding PromptOnUpdate}"
+                ></ComboBox>
+            </local:LabeledControl>
+            
         </StackPanel>
     </DockPanel>
 </Window>
