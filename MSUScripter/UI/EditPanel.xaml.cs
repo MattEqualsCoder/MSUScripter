@@ -192,6 +192,7 @@ public partial class EditPanel : UserControl
     {
         if (_projectService == null) return;
         _project = UpdateCurrentPageData();
+        _projectService.CreateMsuFiles(_project);
         _projectService.ExportMsuRandomizerYaml(_project);
         var extraProjects = new List<MsuProject>();
 

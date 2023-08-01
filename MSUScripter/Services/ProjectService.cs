@@ -589,6 +589,41 @@ public class ProjectService
         _msuDetailsService.SaveMsuDetails(msu, yamlPath, out var error);
     }
 
+    public bool CreateMsuFiles(MsuProject project)
+    {
+        try
+        {
+            if (!File.Exists(project.MsuPath))
+            {
+                using (File.Create(project.MsuPath))
+                {
+                }
+            }
+
+            if (!string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) && !File.Exists(project.BasicInfo.MetroidMsuPath))
+            {
+                using (File.Create(project.BasicInfo.MetroidMsuPath))
+                {
+                }
+            }
+
+            if (!string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath) && !File.Exists(project.BasicInfo.ZeldaMsuPath))
+            {
+                using (File.Create(project.BasicInfo.ZeldaMsuPath))
+                {
+                }
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to create msu file");
+            return false;
+        }
+        
+    }
+
     public void CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
     {
         if (project.Tracks.All(x => x.Songs.Count <= 1)) return;
