@@ -151,24 +151,38 @@ public class MsuPcmService
 
     public bool RunMsuPcm(string trackJson, out string error)
     {
-        if (string.IsNullOrEmpty(_settings.MsuPcmPath) ||
-            !File.Exists(_settings.MsuPcmPath))
+        IsGeneratingPcm = true;
+        var toReturn = RunMsuPcmInternal("\"" + trackJson + "\"", out _, out error);
+        IsGeneratingPcm = false;
+        return toReturn;
+    }
+
+    public bool ValidateMsuPcmPath(string msuPcmPath, out string error)
+    {
+        var successful = RunMsuPcmInternal("-v", out var result, out error, msuPcmPath);
+        return successful && result.StartsWith("msupcm v");
+    }
+
+    private bool RunMsuPcmInternal(string innerCommand, out string result, out string error, string? msuPcmPath = null)
+    {
+        msuPcmPath ??= _settings.MsuPcmPath;
+        if (string.IsNullOrEmpty(msuPcmPath) ||
+            !File.Exists(msuPcmPath))
         {
+            result = "";
             error = "MsuPcm++ path not specified or is invalid";
             return false;
         }
-
-        IsGeneratingPcm = true;
-
+        
         try
         {
-            var msuPcmFile = new FileInfo(_settings.MsuPcmPath);
-            var command = msuPcmFile.Name + " \"" + trackJson + "\"";
-        
+            var msuPcmFile = new FileInfo(msuPcmPath);
+            
             ProcessStartInfo procStartInfo;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                var command = msuPcmFile.Name + " " + innerCommand;
                 procStartInfo= new ProcessStartInfo("cmd", "/c " + command)
                 {
                     WorkingDirectory = msuPcmFile.DirectoryName,
@@ -182,7 +196,7 @@ public class MsuPcmService
             {
                 procStartInfo= new ProcessStartInfo(msuPcmFile.FullName)
                 {
-                    Arguments = "\"" + trackJson + "\"",
+                    Arguments = innerCommand,
                     WorkingDirectory = msuPcmFile.DirectoryName,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -200,17 +214,16 @@ public class MsuPcmService
             process.WaitForExit();
 
             // and only then read the result
-            var result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
+            result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
             error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
-
-            IsGeneratingPcm = false;
+            
             if (string.IsNullOrEmpty(error)) return true;
             _logger.LogError("Error running MsuPcm++: {Error}", error);
             return false;
         }
         catch (Exception e)
         {
-            IsGeneratingPcm = false;
+            result = "";
             error = "Unknown error running MsuPcm++";
             _logger.LogError(e, "Unknown error running MsuPcm++");
             return false;

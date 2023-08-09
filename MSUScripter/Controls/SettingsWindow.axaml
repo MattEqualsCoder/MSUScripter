@@ -32,11 +32,22 @@
         <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
             
             <controls:LabeledControl Text="MsuPcm++ Path: ">
-                <controls:FileControl
-                    FilePath="{Binding MsuPcmPath, Mode=TwoWay}"
-                    FileInputType="OpenFile"
-                    Filter="All Files:*"
-                ></controls:FileControl>
+                <Grid ColumnDefinitions="*,Auto">
+                    <controls:FileControl
+                        Grid.Column="0"
+                        FilePath="{Binding MsuPcmPath, Mode=TwoWay}"
+                        FileInputType="OpenFile"
+                        Filter="All Files:*"
+                    ></controls:FileControl>
+                    <Button Grid.Column="1"
+                            Name="ValidateMsuPcmButton"
+                            Margin="5 0 0 0"
+                            Click="ValidateMsuPcmButton_OnClick"
+                    >
+                        Validate
+                    </Button>
+                </Grid>
+                
             </controls:LabeledControl>
             
             <controls:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." DisplayHint="True">
