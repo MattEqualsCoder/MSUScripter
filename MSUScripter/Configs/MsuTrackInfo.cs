@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace MSUScripter.Configs;
 
 public class MsuTrackInfo
 {
-    public required int TrackNumber { get; set; }
-    public required string TrackName { get; set; }
-    public ICollection<MsuSongInfo> Songs { get; set; } = new List<MsuSongInfo>();
+    public int TrackNumber { get; set; }
+    public string TrackName { get; set; } = "";
+    public DateTime LastModifiedDate { get; set; }
+    
+    [SkipConvert]
+    public List<MsuSongInfo> Songs { get; set; } = new List<MsuSongInfo>();
 }

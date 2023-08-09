@@ -21,6 +21,8 @@ public class ProjectService
     private readonly AudioMetadataService _audioMetadataService;
     private readonly SettingsService _settingsService;
     private readonly ILogger<ProjectService> _logger;
+    private readonly ConverterService _converterService;
+    
     private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -30,7 +32,7 @@ public class ProjectService
         .IgnoreUnmatchedProperties()
         .Build();
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService, ConverterService converterService)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
@@ -38,6 +40,7 @@ public class ProjectService
         _logger = logger;
         _audioMetadataService = audioMetadataService;
         _settingsService = settingsService;
+        _converterService = converterService;
     }
     
     public void SaveMsuProject(MsuProject project)
@@ -79,7 +82,12 @@ public class ProjectService
     public MsuProject NewMsuProject(string projectPath, string msuTypeName, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
     {
         var msuType = _msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
-        
+
+        return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+    }
+    
+    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
+    {
         var project = new MsuProject()
         {
             ProjectFilePath = projectPath,
@@ -293,7 +301,7 @@ public class ProjectService
     private MsuProject InternalGetSmz3MsuProject(MsuProject project, MsuType msuType, string newMsuPath, Dictionary<string, string> convertedPaths)
     {
         var basicInfo = new MsuBasicInfo();
-        ConverterService.ConvertViewModel(project.BasicInfo, basicInfo);
+        _converterService.ConvertViewModel(project.BasicInfo, basicInfo);
 
         var conversion = msuType.Conversions[project.MsuType];
 
@@ -325,7 +333,7 @@ public class ProjectService
             foreach (var song in project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs)
             {
                 var newSong = new MsuSongInfo();
-                ConverterService.ConvertViewModel(song, newSong);
+                _converterService.ConvertViewModel(song, newSong);
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
@@ -409,7 +417,7 @@ public class ProjectService
             var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
             if (projectTrack == null) continue;
 
-            var msuPcmInfo = track.SelectMany(x => ConverterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
+            var msuPcmInfo = track.SelectMany(x => _converterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
             var songs = projectTrack.Songs.OrderBy(x => x.IsAlt).ToList();
             
             for (var i = 0; i < msuPcmInfo.Count; i++)
@@ -418,7 +426,7 @@ public class ProjectService
                 
                 if (!string.IsNullOrEmpty(msuPcmInfo[i].Output))
                 {
-                    trackPath = ConverterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
+                    trackPath = _converterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
                 }
                 else if (i == 0)
                 {
@@ -528,7 +536,7 @@ public class ProjectService
             {
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
-                var newMsuType = ConverterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
+                var newMsuType = _converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
                 var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
                 File.WriteAllText(newYamlPath, outYaml);
             }

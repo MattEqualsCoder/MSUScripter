@@ -11,8 +11,10 @@ public class MsuProject
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
     public DateTime LastSaveTime { get; set; }
-    [YamlIgnore]
+    [YamlIgnore, SkipConvert]
     public MsuType MsuType { get; set; } = null!;
+    [SkipConvert]
     public MsuBasicInfo BasicInfo { get; set; } = new();
+    [SkipConvert]
     public List<MsuTrackInfo> Tracks { get; set; } = new();
 }

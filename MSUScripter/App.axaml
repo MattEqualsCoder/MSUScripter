@@ -1,0 +1,24 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:tools="clr-namespace:MSUScripter.Tools"
+             x:Class="MSUScripter.App"
+             
+             RequestedThemeVariant="Dark">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+
+             <Application.Resources>
+                 <tools:NullableBoolToStringConverter x:Key="NullableBoolToStringConverter" />
+                 <tools:BoolToStringConverter x:Key="BoolToStringConverter" />
+             </Application.Resources>
+             <Application.Styles>
+                 <!--<StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />-->
+                 <SimpleTheme />
+                 <avalonia:MaterialIconStyles />
+                 <StyleInclude Source="Controls/CardControl.axaml"></StyleInclude>
+                 <StyleInclude Source="Controls/LabeledControl.axaml"></StyleInclude>
+                 <StyleInclude Source="Controls/LinkControl.axaml"></StyleInclude>
+                 <StyleInclude Source="Themes/Themes.axaml"></StyleInclude>
+             </Application.Styles>
+             
+</Application>

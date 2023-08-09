@@ -133,6 +133,11 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
     }
     
     public event PropertyChangedEventHandler? PropertyChanged;
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        return LastModifiedDate > time;
+    }
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {

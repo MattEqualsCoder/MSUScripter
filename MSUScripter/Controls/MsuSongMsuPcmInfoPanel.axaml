@@ -1,0 +1,178 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:controls="clr-namespace:MSUScripter.Controls"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
+             x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
+    <Grid>
+        <controls:CardControl Name="MainGroupBox" HeaderText="MsuPcm++ Details" DisplayHeaderButtons="{Binding CanDelete}" Padding="10" Margin="0 0 0 5">
+            <controls:CardControl.HeaderButtons>
+                <Button 
+                    Name="RemoveButton"
+                    Grid.Column="1" 
+                    Padding="5 0"
+                    Margin="0 0 0 0"
+                    Click="RemoveButton_OnClick"
+                >
+                    <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
+                </Button>
+            </controls:CardControl.HeaderButtons>
+            <StackPanel Orientation="Vertical">
+                
+                <controls:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" DisplayHint="True">
+                    <controls:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated" Filter="All Files:*"></controls:FileControl>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">
+                    <NumericUpDown Value="{Binding Normalization}" ></NumericUpDown>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Trim:" Hint="Trim the start and/or end of the current track at the specified sample" DisplayHint="True">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <NumericUpDown Grid.Column="1" Value="{Binding TrimStart}" ></NumericUpDown>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <NumericUpDown Grid.Column="3" Value="{Binding TrimEnd}" ></NumericUpDown>
+                    </Grid>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" DisplayHint="True">
+                    <NumericUpDown Value="{Binding Loop}" ></NumericUpDown>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Fade:" Hint="Apply a fade in or out effect to the current track lasting a specified number of samples. The cross fade will apply from the end of the current track to its loop point lasting a specified number of samples" DisplayHint="True">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">In:</TextBlock>
+                        <NumericUpDown Grid.Column="1" Value="{Binding FadeIn}" ></NumericUpDown>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">Out:</TextBlock>
+                        <NumericUpDown Grid.Column="3" Value="{Binding FadeOut}" ></NumericUpDown>
+                        <TextBlock Grid.Column="4" Margin="15 5 5 0">Cross:</TextBlock>
+                        <NumericUpDown Grid.Column="5" Value="{Binding CrossFade}" ></NumericUpDown>
+                    </Grid>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Padding:" Hint="Pad the beginning and/or ending of the current track with a specified number of silent samples" DisplayHint="True">
+                    <Grid Margin="0 0 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <NumericUpDown Grid.Column="1" Value="{Binding PadStart}" ></NumericUpDown>
+                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <NumericUpDown Grid.Column="3" Value="{Binding PadEnd}" ></NumericUpDown>
+                    </Grid>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
+                    <NumericUpDown Value="{Binding Tempo}" ></NumericUpDown>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True" IsVisible="{Binding CanEditSubTracks}">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True">
+                            <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubTrack_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"></controls:MsuSongMsuPcmInfoPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <Button
+                            Name="AddSubTrackButton"
+                            Content="Add Sub Track"
+                            HorizontalAlignment="Center"
+                            Margin="0 5"
+                            Padding="8 5"
+                            IsEnabled="{Binding CanEditSubTracks}"
+                            Click="AddSubTrackButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl"  Hint="Files which will be mixed together to form the input to the parent track" DisplayHint="True" IsVisible="{Binding CanEditSubChannels}">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Vertical" Name="SubChannelStackPanel"  Grid.IsSharedSizeScope="True">
+                            <ItemsControl ItemsSource="{Binding SubChannels, Mode=OneWay}" Name="SubChannelssItemsControl">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"></controls:MsuSongMsuPcmInfoPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <Button
+                            Name="AddSubChannelButton"
+                            Content="Add Sub Channel"
+                            HorizontalAlignment="Center"
+                            Margin="0 5"
+                            Padding="8 5"
+                            IsEnabled="{Binding CanEditSubChannels}"
+                            Click="AddSubChannelButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </controls:LabeledControl>
+                
+                <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel" IsVisible="{Binding IsTopLevel}">
+                    <Separator Margin="0 5"></Separator>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button
+                            Name="PlaySongButton"
+                            Content="Play Song"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="PlaySongButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="TestLoopButton"
+                            Content="Test Loop"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="TestLoopButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="GenerateAsMainPcmFileButton"
+                            Content="Generate as primary .pcm file"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="GenerateAsMainPcmFileButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="GeneratePcmFileButton"
+                            Content="Generate .pcm file"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="GeneratePcmFileButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </StackPanel>
+                
+            </StackPanel>
+        </controls:CardControl>
+    </Grid>
+</UserControl>

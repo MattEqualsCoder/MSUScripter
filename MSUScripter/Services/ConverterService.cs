@@ -1,19 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using MSURandomizerLibrary.Configs;
+using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.ViewModels;
 using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
 public class ConverterService
 {
-    public static bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()
+    private readonly IMsuTypeService _msuTypeService;
+    
+    public ConverterService(IMsuTypeService msuTypeService)
     {
-        var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true).ToDictionary(x => x.Name, x => x);
-        var propertiesB = typeof(B).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true).ToDictionary(x => x.Name, x => x);
+        _msuTypeService = msuTypeService;
+    }
+    
+    public bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()
+    {
+        var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
+        var propertiesB = typeof(B).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
         var updated = false;
 
         if (propertiesA.Count != propertiesB.Count)
@@ -28,12 +39,14 @@ public class ConverterService
                 continue;
             }
 
-            if (propA.PropertyType == typeof(List<A>))
+            if (propA.PropertyType == typeof(List<A>) || propA.PropertyType == typeof(ObservableCollection<A>))
             {
                 if (recursive)
                 {
-                    var aValue = propA.GetValue(input) as List<A>;
-                    var bValue = new List<B>();
+                    IList<A>? aValue = propA.GetValue(input) as IList<A>;
+                    IList<B> bValue = new List<B>();
+                    if (propB.PropertyType == typeof(ObservableCollection<B>))
+                        bValue = new ObservableCollection<B>();
                     if (aValue != null)
                     {
                         foreach (var aSubItem in aValue)
@@ -58,7 +71,70 @@ public class ConverterService
         return updated;
     }
 
-    public static ICollection<MsuSongMsuPcmInfo> ConvertMsuPcmTrackInfo(Track_base trackBase, string rootPath)
+    public MsuProjectViewModel ConvertProject(MsuProject project)
+    {
+        var viewModel = new MsuProjectViewModel();
+        ConvertViewModel(project, viewModel);
+        ConvertViewModel(project.BasicInfo, viewModel.BasicInfo);
+
+        foreach (var track in project.Tracks)
+        {
+            var trackViewModel = new MsuTrackInfoViewModel();
+            ConvertViewModel(track, trackViewModel);
+
+            foreach (var song in track.Songs)
+            {
+                var songViewModel = new MsuSongInfoViewModel
+                {
+                    Project = viewModel,
+                    MsuPcmInfo =
+                    {
+                        Project = viewModel,
+                        IsTopLevel = true
+                    }
+                };
+                songViewModel.MsuPcmInfo.Song = songViewModel;
+                ConvertViewModel(song, songViewModel);
+                ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
+                trackViewModel.Songs.Add(songViewModel);
+            }
+
+            viewModel.Tracks.Add(trackViewModel);
+        }
+
+        viewModel.LastSaveTime = DateTime.Now;
+
+        return viewModel;
+    }
+    
+    public MsuProject ConvertProject(MsuProjectViewModel viewModel)
+    {
+        var project = new MsuProject();
+        ConvertViewModel(viewModel, project);
+        ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
+        project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ??
+                          throw new InvalidOperationException("Invalid MSU Type");
+
+        foreach (var trackViewModel in viewModel.Tracks)
+        {
+            var track = new MsuTrackInfo();
+            ConvertViewModel(trackViewModel, track);
+
+            foreach (var songViewModel in trackViewModel.Songs)
+            {
+                var song = new MsuSongInfo();
+                ConvertViewModel(songViewModel, song);
+                ConvertViewModel(songViewModel.MsuPcmInfo, song.MsuPcmInfo);
+                track.Songs.Add(song);
+            }
+
+            project.Tracks.Add(track);
+        }
+        
+        return project;
+    }
+
+    public ICollection<MsuSongMsuPcmInfo> ConvertMsuPcmTrackInfo(Track_base trackBase, string rootPath)
     {
         var outputList = new List<MsuSongMsuPcmInfo>();
         var output = new MsuSongMsuPcmInfo();
@@ -121,7 +197,7 @@ public class ConverterService
         return outputList;
     }
     
-    public static Track_base ConvertMsuPcmTrackInfo(MsuSongMsuPcmInfo trackBase, bool isSubTrack, bool isSubChannel)
+    public Track_base ConvertMsuPcmTrackInfo(MsuSongMsuPcmInfo trackBase, bool isSubTrack, bool isSubChannel)
     {
         Track_base output;
         if (!isSubTrack && !isSubChannel)
@@ -172,7 +248,7 @@ public class ConverterService
         return output;
     }
     
-    public static string GetAbsolutePath(string basePath, string relativePath)
+    public string GetAbsolutePath(string basePath, string relativePath)
     {
         if (Path.GetFullPath(relativePath) == relativePath)
         {
@@ -183,7 +259,7 @@ public class ConverterService
         return Path.GetFullPath(absolute);
     }
 
-    public static MsuDetails ConvertMsuDetailsToMsuType(MsuDetails msuDetails, MsuType oldType, MsuType msuType, string oldPath, string newPath)
+    public MsuDetails ConvertMsuDetailsToMsuType(MsuDetails msuDetails, MsuType oldType, MsuType msuType, string oldPath, string newPath)
     {
         var newDetails = new MsuDetails()
         {

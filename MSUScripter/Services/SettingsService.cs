@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using YamlDotNet.Serialization;
@@ -13,14 +14,12 @@ public class SettingsService
 {
     private ILogger<SettingsService> _logger;
 
-    public static Settings Settings { get; private set; } = new();
-    public static bool SettingsLoaded { get; private set; }
+    public Settings Settings { get; set; } = null!;
 
     public SettingsService(ILogger<SettingsService> logger)
     {
         _logger = logger;
         LoadSettings();
-        SettingsLoaded = true;
     }
 
     public void LoadSettings()
@@ -47,6 +46,12 @@ public class SettingsService
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();
         var yaml = serializer.Serialize(Settings);
+        var path = GetSettingsPath();
+        var directory = new FileInfo(path).DirectoryName;
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
         File.WriteAllText(GetSettingsPath(), yaml);
     }
 
@@ -71,7 +76,16 @@ public class SettingsService
 
     private string GetSettingsPath()
     {
-        var settingsDirectory = Environment.ExpandEnvironmentVariables("%LocalAppData%\\MSUScripter");
+        string settingsDirectory;
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            settingsDirectory = Environment.ExpandEnvironmentVariables("%LocalAppData%\\MSUScripter");
+        }
+        else
+        {
+            settingsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Settings");
+        }
+        
 #if DEBUG
         return Path.Combine(settingsDirectory, "settings-debug.yml");
 #else

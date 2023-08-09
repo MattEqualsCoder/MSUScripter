@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
@@ -12,14 +13,15 @@ namespace MSUScripter.Services;
 
 public class MsuPcmService
 {
-    public static MsuPcmService Instance { get; private set; } = null!;
-
     private readonly ILogger<MsuPcmService> _logger;
+    private readonly ConverterService _converterService;
+    private readonly Settings _settings;
 
-    public MsuPcmService(ILogger<MsuPcmService> logger)
+    public MsuPcmService(ILogger<MsuPcmService> logger, ConverterService converterService, Settings settings)
     {
         _logger = logger;
-        Instance = this;
+        _converterService = converterService;
+        _settings = settings;
     }
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
@@ -149,8 +151,8 @@ public class MsuPcmService
 
     public bool RunMsuPcm(string trackJson, out string error)
     {
-        if (string.IsNullOrEmpty(SettingsService.Settings.MsuPcmPath) ||
-            !File.Exists(SettingsService.Settings.MsuPcmPath))
+        if (string.IsNullOrEmpty(_settings.MsuPcmPath) ||
+            !File.Exists(_settings.MsuPcmPath))
         {
             error = "MsuPcm++ path not specified or is invalid";
             return false;
@@ -160,17 +162,34 @@ public class MsuPcmService
 
         try
         {
-            var msuPcmFile = new FileInfo(SettingsService.Settings.MsuPcmPath);
+            var msuPcmFile = new FileInfo(_settings.MsuPcmPath);
             var command = msuPcmFile.Name + " \"" + trackJson + "\"";
         
-            var procStartInfo = new ProcessStartInfo("cmd", "/c " + command)
+            ProcessStartInfo procStartInfo;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                WorkingDirectory = msuPcmFile.DirectoryName,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+                procStartInfo= new ProcessStartInfo("cmd", "/c " + command)
+                {
+                    WorkingDirectory = msuPcmFile.DirectoryName,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
+            else
+            {
+                procStartInfo= new ProcessStartInfo(msuPcmFile.FullName)
+                {
+                    Arguments = "\"" + trackJson + "\"",
+                    WorkingDirectory = msuPcmFile.DirectoryName,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
 
             // wrap IDisposable into using (in order to release hProcess) 
             using var process = new Process();
@@ -229,7 +248,7 @@ public class MsuPcmService
         
         foreach (var song in songs)
         {
-            if (ConverterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
+            if (_converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
             track.Output = song.OutputPath;
             track.Track_number = song.TrackNumber;
             track.Title = song.TrackName;
