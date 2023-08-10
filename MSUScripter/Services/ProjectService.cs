@@ -217,9 +217,20 @@ public class ProjectService
             var newSongs = new List<MsuSongInfo>();
             foreach (var oldSong in oldTrack.Songs)
             {
-                var songBaseName = new FileInfo(oldSong.OutputPath).Name;
+                var oldSongFile = new FileInfo(oldSong.OutputPath);
+                var songBaseName = oldSongFile.Name;
                 if (!songBaseName.StartsWith($"{baseName}-{oldTrack.TrackNumber}"))
                     continue;
+
+                var songDirectory = oldSongFile.DirectoryName;
+
+                if (string.IsNullOrEmpty(songDirectory))
+                {
+                    continue;
+                }
+                
+                var newSongName =
+                    songBaseName.Replace($"{baseName}-{oldTrack.TrackNumber}", $"{baseName}-{newTrackNumber}");
                 
                 var newSong = new MsuSongInfo()
                 {
@@ -229,8 +240,7 @@ public class ProjectService
                     Artist = oldSong.Artist,
                     Album = oldSong.Album,
                     Url = oldSong.Url,
-                    OutputPath = oldSong.OutputPath.Replace($"{basePath}-{oldTrack.TrackNumber}",
-                        $"{basePath}-{newTrackNumber}"),
+                    OutputPath = Path.Combine(songDirectory, newSongName),
                     IsAlt = oldSong.IsAlt,
                     MsuPcmInfo = oldSong.MsuPcmInfo
                 };
