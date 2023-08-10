@@ -77,7 +77,7 @@
                                 <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
                                 <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
                                 <MenuItem Name="ExportButton_Swapper" Header="Export _Swapper Script" Click="ExportButton_Swapper_OnClick"></MenuItem>
-                                <MenuItem Name="ExportButton_Smz3" Header="Export _Swapper Script" Click="ExportButton_Smz3_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Smz3" Header="Export SM_Z3 Split Script" Click="ExportButton_Smz3_OnClick"></MenuItem>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>
