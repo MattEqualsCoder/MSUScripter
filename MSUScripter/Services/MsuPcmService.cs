@@ -26,16 +26,18 @@ public class MsuPcmService
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
     {
+        
+        if (string.IsNullOrEmpty(song.OutputPath))
+        {
+            message = $"Track #{song.TrackNumber} - Missing output PCM path";
+            return false;
+        }
+            
+        var msu = new FileInfo(project.MsuPath);
+        var guid = Guid.NewGuid().ToString("N");
+        var jsonPath = msu.FullName.Replace(msu.Extension, $"-msupcm-temp-{guid}.json");
         try
         {
-            if (string.IsNullOrEmpty(song.OutputPath))
-            {
-                message = $"Track #{song.TrackNumber} - Missing output PCM path";
-                return false;
-            }
-            
-            var msu = new FileInfo(project.MsuPath);
-            var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
             ExportMsuPcmTracksJson(project, song, jsonPath);
             
             var msuPath = new FileInfo(project.MsuPath).DirectoryName;
@@ -82,6 +84,10 @@ public class MsuPcmService
         {
             _logger.LogError(e, "Error creating PCM file for Track #{TrackNum} - {SongPath}", song.TrackNumber, song.OutputPath);
             message = $"Track #{song.TrackNumber} - {song.OutputPath} - Unknown error";
+            if (File.Exists(jsonPath))
+            {
+                File.Delete(jsonPath);
+            }
             return false;
         }
     }

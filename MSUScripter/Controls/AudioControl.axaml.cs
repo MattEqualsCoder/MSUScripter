@@ -103,7 +103,7 @@ public partial class AudioControl : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        this.Find<Slider>(nameof(VolumeSlider))!.Value = _settings?.Volume ?? 0 * 100;
+        this.Find<Slider>(nameof(VolumeSlider))!.Value = (_settings?.Volume ?? 0) * 100;
     }
 
     private void PlayPauseButton_OnClick(object? sender, RoutedEventArgs e)

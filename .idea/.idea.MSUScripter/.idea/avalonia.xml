@@ -3,8 +3,14 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="MSUScripter/App.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/LabeledControl.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MessageWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Themes/Light.axaml" value="MSUScripter/MSUScripter.csproj" />
       </map>
     </option>
   </component>

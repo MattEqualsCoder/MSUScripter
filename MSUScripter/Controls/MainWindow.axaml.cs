@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -23,6 +25,8 @@ public partial class MainWindow : Window
         _services = services;
         InitializeComponent();
         DisplayNewPanel();
+        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
+        Title = $"MSU Scripter v{version.ProductVersion}";
     }
     
     private void DisplayNewPanel()

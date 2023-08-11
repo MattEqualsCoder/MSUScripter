@@ -116,6 +116,7 @@ class Program
             .AddSingleton<AudioService>()
             .AddSingleton<AudioMetadataService>()
             .AddSingleton<ConverterService>()
+            .AddSingleton<AudioAnalysisService>()
             .AddSingleton<MainWindow>()
             .AddSingleton<ProjectService>()
             .AddSingleton<MainWindow>()
@@ -125,6 +126,7 @@ class Program
             .AddTransient<MsuPcmGenerationWindow>()
             .AddTransient<AudioControl>()
             .AddTransient<SettingsWindow>()
+            .AddTransient<AudioAnalysisWindow>()
             .BuildServiceProvider();
         
         return _serviceProvider;

@@ -19,6 +19,7 @@
                  <StyleInclude Source="Controls/LabeledControl.axaml"></StyleInclude>
                  <StyleInclude Source="Controls/LinkControl.axaml"></StyleInclude>
                  <StyleInclude Source="Themes/Themes.axaml"></StyleInclude>
+                 <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
              </Application.Styles>
              
 </Application>

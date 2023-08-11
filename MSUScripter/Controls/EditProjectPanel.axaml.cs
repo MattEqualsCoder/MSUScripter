@@ -167,11 +167,15 @@ public partial class EditProjectPanel : UserControl
             return;
         
         // Stop the song if it is currently playing
-        if (_projectViewModel.BasicInfo.IsMsuPcmProject && songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles())
+        if (_projectViewModel.BasicInfo.IsMsuPcmProject)
         {
             await StopSong();
+        }
+        
+        // Regenerate the pcm file if it has updates that have been made to it
+        if (songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles()) {
             if (!GeneratePcmFile(songModel, false))
-                return;
+                    return;
         }
         
         UpdateStatusBarText("Playing Song");
@@ -418,5 +422,14 @@ public partial class EditProjectPanel : UserControl
             UpdateStatusBarText("MSU Generated");
         });
         
+    }
+
+    private void AnalysisButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var topLevel = TopLevel.GetTopLevel(this) as Window;
+        if (_serviceProvider == null || _projectViewModel == null || topLevel == null) return;
+        var window = _serviceProvider.GetRequiredService<AudioAnalysisWindow>();
+        window.SetProject(_projectViewModel);
+        window.Show();
     }
 }

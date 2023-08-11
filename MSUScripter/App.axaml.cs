@@ -49,7 +49,6 @@ public partial class App : Application
         
             _logger.LogInformation("Assembly Location: {Location}", Assembly.GetExecutingAssembly().Location);
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
-            //var version = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
             _logger.LogInformation("Starting MSU Scripter {Version}", version.ProductVersion ?? "");
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         

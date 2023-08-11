@@ -21,7 +21,6 @@
                     <avalonia:MaterialIcon Kind="ChevronDoubleLeft" Margin="0 0 0 0"></avalonia:MaterialIcon>
                     <TextBlock>Prev</TextBlock>
                 </StackPanel>
-                
             </Button>
             <ComboBox Grid.Column="1" 
                       Name="PageComboBox"
@@ -46,10 +45,13 @@
         
         <Border DockPanel.Dock="Bottom">
             <Grid ColumnDefinitions="*,*,*">
-                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center"></StackPanel>
+                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="0 0 0 5"></StackPanel>
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
-                    <TextBlock Padding="0 5 5 0" Name="ExportStatusTextBlock"></TextBlock>
+                    <Button x:Name="AnalysisButton"
+                            Margin="0 0 5 0"
+                            Click="AnalysisButton_OnClick"
+                    >_Audio Analysis</Button>
                     <Button x:Name="ExportButton" 
                             IsVisible="{Binding !BasicInfo.IsMsuPcmProject }"
                             Padding="8 5"
