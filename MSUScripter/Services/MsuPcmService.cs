@@ -24,6 +24,25 @@ public class MsuPcmService
         _settings = settings;
     }
 
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message)
+    {
+        outputPath = GetTempFilePath();
+        if (File.Exists(outputPath))
+        {
+            File.Delete(outputPath);
+        }
+        return CreatePcm(project, new MsuSongInfo()
+            {
+                TrackNumber = project.MsuType.Tracks.First().Number,
+                OutputPath = outputPath,
+                MsuPcmInfo = new MsuSongMsuPcmInfo()
+                {
+                    Output = outputPath,
+                    File = inputFile
+                }
+            }, out message);
+    }
+
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
     {
         
@@ -281,4 +300,15 @@ public class MsuPcmService
     }
     
     public bool IsGeneratingPcm { get; private set; }
+
+    private string GetTempFilePath()
+    {
+        var basePath = Directory.GetCurrentDirectory();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            basePath = Environment.ExpandEnvironmentVariables($"%LocalAppData%{Path.DirectorySeparatorChar}MSUScripter");
+        }
+
+        return Path.Combine(basePath, "tmp-pcm.pcm");
+    }
 }

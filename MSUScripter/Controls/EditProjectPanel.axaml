@@ -45,11 +45,11 @@
         
         <Border DockPanel.Dock="Bottom">
             <Grid ColumnDefinitions="*,*,*">
-                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="0 0 0 5"></StackPanel>
+                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="5 0 0 5"></StackPanel>
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
                     <Button x:Name="AnalysisButton"
-                            Margin="0 0 5 0"
+                            Margin="0 2 5 1"
                             Click="AnalysisButton_OnClick"
                     >_Audio Analysis</Button>
                     <Button x:Name="ExportButton" 

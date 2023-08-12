@@ -86,4 +86,9 @@ public partial class MsuSongInfoPanel : UserControl
             MetaDataFileSelected?.Invoke(this, new SongFileEventArgs(Song, files.FirstOrDefault()?.Path.LocalPath ?? "", true));
         }
     }
+
+    private void StopMusicButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.StopMusic));
+    }
 }

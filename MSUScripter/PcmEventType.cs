@@ -5,5 +5,7 @@ public enum PcmEventType
     Play,
     PlayLoop,
     Generate,
-    GenerateAsPrimary
+    GenerateAsPrimary,
+    LoopWindow,
+    StopMusic
 }

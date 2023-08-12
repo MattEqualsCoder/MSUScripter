@@ -39,15 +39,24 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
                         <NumericUpDown Grid.Column="1" Value="{Binding TrimStart}" ></NumericUpDown>
-                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
                         <NumericUpDown Grid.Column="3" Value="{Binding TrimEnd}" ></NumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" DisplayHint="True">
-                    <NumericUpDown Value="{Binding Loop}" ></NumericUpDown>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <NumericUpDown Value="{Binding Loop}" ></NumericUpDown>
+                        <Button Grid.Column="1" 
+                                Name="LoopWindowButton"
+                                Margin="5 0 0 0 "
+                                Click="LoopWindowButton_OnClick"
+                                IsEnabled="{Binding HasFile}">
+                            Run PyMusicLooper
+                        </Button>
+                    </Grid>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Fade:" Hint="Apply a fade in or out effect to the current track lasting a specified number of samples. The cross fade will apply from the end of the current track to its loop point lasting a specified number of samples" DisplayHint="True">
@@ -60,11 +69,11 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Margin="0 5 5 0">In:</TextBlock>
+                        <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">In:</TextBlock>
                         <NumericUpDown Grid.Column="1" Value="{Binding FadeIn}" ></NumericUpDown>
-                        <TextBlock Grid.Column="2" Margin="15 5 5 0">Out:</TextBlock>
+                        <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">Out:</TextBlock>
                         <NumericUpDown Grid.Column="3" Value="{Binding FadeOut}" ></NumericUpDown>
-                        <TextBlock Grid.Column="4" Margin="15 5 5 0">Cross:</TextBlock>
+                        <TextBlock Grid.Column="4" Margin="15 0 5 0" VerticalAlignment="Center">Cross:</TextBlock>
                         <NumericUpDown Grid.Column="5" Value="{Binding CrossFade}" ></NumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
@@ -77,9 +86,9 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Margin="0 5 5 0">Start:</TextBlock>
+                        <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
                         <NumericUpDown Grid.Column="1" Value="{Binding PadStart}" ></NumericUpDown>
-                        <TextBlock Grid.Column="2" Margin="15 5 5 0">End:</TextBlock>
+                        <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
                         <NumericUpDown Grid.Column="3" Value="{Binding PadEnd}" ></NumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
@@ -152,6 +161,14 @@
                             Margin="5 5"
                             Padding="8 5"
                             Click="TestLoopButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="StopButton"
+                            Content="Stop Music"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="StopButton_OnClick"
                         ></Button>
                         <Button
                             Name="GenerateAsMainPcmFileButton"

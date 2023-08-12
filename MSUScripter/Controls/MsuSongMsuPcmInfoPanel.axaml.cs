@@ -95,4 +95,14 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     {
         FileUpdated?.Invoke(sender, e);
     }
+
+    private void LoopWindowButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.LoopWindow, MsuPcmData));
+    }
+
+    private void StopButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StopMusic));
+    }
 }

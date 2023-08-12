@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,6 +58,7 @@ public partial class EditProjectPanel : UserControl
         _currentPage = msuBasicInfoPanel;
         _pages[0] = msuBasicInfoPanel;
         this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+        _projectService!.CreateMsuFiles(project);
 
         UpdateStatusBarText(project.LastSaveTime == DateTime.MinValue ? "Project Created" : "Project Loaded");
 
@@ -158,6 +160,14 @@ public partial class EditProjectPanel : UserControl
                 await StopSong();
                 return GeneratePcmFile(e.Song, true);
             });
+        }
+        else if (e.Type == PcmEventType.LoopWindow && _serviceProvider != null && _projectViewModel != null)
+        {
+            LoopCheck(e.Song, e.PcmInfo);
+        }
+        else if (e.Type == PcmEventType.StopMusic)
+        {
+            _ = StopSong();
         }
     }
     
@@ -431,5 +441,78 @@ public partial class EditProjectPanel : UserControl
         var window = _serviceProvider.GetRequiredService<AudioAnalysisWindow>();
         window.SetProject(_projectViewModel);
         window.Show();
+    }
+
+    private async void LoopCheck(MsuSongInfoViewModel songInfo, MsuSongMsuPcmInfoViewModel? pcmInfoViewModel)
+    {
+        if (_audioService == null || _serviceProvider == null) return;
+        
+        _audioService.StopSongAsync().Wait();
+
+        pcmInfoViewModel ??= songInfo.MsuPcmInfo;
+
+        var file = pcmInfoViewModel.File;
+            
+        if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
+        {
+            var result = await new MessageWindow(
+                "Either the trim end or loop points have a value. Are you sure you want to overwrite them?",
+                MessageWindowType.YesNo).ShowDialog();
+            if (result != MessageWindowResult.Yes)
+                return;
+        }
+
+        if (string.IsNullOrEmpty(file) || !File.Exists(file))
+        {
+            await new MessageWindow(
+                    "No file specified for this song.",
+                    MessageWindowType.Error)
+                .ShowDialog(App._mainWindow!);
+            return;
+        }
+
+        var service = _serviceProvider.GetRequiredService<PyMusicLooperService>();
+            
+        if (!service.TestService())
+        {
+            var result = await new MessageWindow(
+                    "Could not execute PyMusicLooper. Do you want to open the GitHub page for PyMusicLooper to set it up?",
+                    MessageWindowType.YesNo).ShowDialog();
+            if (result == MessageWindowResult.Yes)
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    Arguments = "https://github.com/arkrow/PyMusicLooper", 
+                    FileName = "explorer.exe"
+                };
+                
+                Process.Start(startInfo);
+            }
+            return;
+        }
+        
+        UpdateStatusBarText("Running PyMusicLooper");
+
+        await Task.Run(async () =>
+        {
+            var successful = service.GetLoopPoints(file, out var message, out var loopStart, out var loopEnd);
+
+            if (!successful)
+            {
+                await new MessageWindow(
+                        $"Error with PyMusicLooper:\n{message}",
+                        MessageWindowType.Error)
+                    .ShowDialog();
+                UpdateStatusBarText("PyMusicLooper Failed");
+            }
+            else
+            {
+                pcmInfoViewModel.TrimEnd = loopEnd;
+                pcmInfoViewModel.Loop = loopStart;
+                UpdateStatusBarText("PyMusicLooper Complete");
+            }
+        });
+
+        
     }
 }

@@ -74,6 +74,14 @@
                             Click="TestLoopButton_OnClick"
                         ></Button>
                         <Button
+                            Name="StopMusicButton"
+                            Content="Stop Music"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="StopMusicButton_OnClick"
+                        ></Button>
+                        <Button
                             Name="ImportSongMetadataButton"
                             Content="Import Audio File Metadata"
                             HorizontalAlignment="Center"

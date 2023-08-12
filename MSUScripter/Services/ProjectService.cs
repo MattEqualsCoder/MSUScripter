@@ -618,14 +618,14 @@ public class ProjectService
                 }
             }
 
-            if (!string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) && !File.Exists(project.BasicInfo.MetroidMsuPath))
+            if (project.BasicInfo.CreateSplitSmz3Script && !string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) && !File.Exists(project.BasicInfo.MetroidMsuPath))
             {
                 using (File.Create(project.BasicInfo.MetroidMsuPath))
                 {
                 }
             }
 
-            if (!string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath) && !File.Exists(project.BasicInfo.ZeldaMsuPath))
+            if (project.BasicInfo.CreateSplitSmz3Script && !string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath) && !File.Exists(project.BasicInfo.ZeldaMsuPath))
             {
                 using (File.Create(project.BasicInfo.ZeldaMsuPath))
                 {

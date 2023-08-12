@@ -33,8 +33,8 @@ public partial class MessageWindow : Window
 
         if (message.Length > 120)
         {
-            Width = MaxWidth = 500;
-            Height = MaxHeight = 200;
+            Width = MaxWidth = 450;
+            Height = MaxHeight = 175;
         }
     }
 

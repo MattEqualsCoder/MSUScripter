@@ -90,7 +90,11 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     public string? File
     {
         get => _file;
-        set => SetField(ref _file, value);
+        set
+        {
+            SetField(ref _file, value);
+            HasFile = !string.IsNullOrEmpty(_file) && System.IO.File.Exists(_file);
+        }
     }
     
     private string? _output;
@@ -130,6 +134,16 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanEditFile));
             OnPropertyChanged(nameof(CanEditSubTracks));
         }
+    }
+
+    
+    private bool _hasFile;
+
+    [SkipConvert]
+    public bool HasFile
+    {
+        get => _hasFile;
+        set => SetField(ref _hasFile, value);
     }
 
     public void AddSubChannel()

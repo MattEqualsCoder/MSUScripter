@@ -119,6 +119,7 @@ class Program
             .AddSingleton<AudioAnalysisService>()
             .AddSingleton<MainWindow>()
             .AddSingleton<ProjectService>()
+            .AddSingleton<PyMusicLooperService>()
             .AddSingleton<MainWindow>()
             .AddTransient<NewProjectPanel>()
             .AddTransient<EditProjectPanel>()

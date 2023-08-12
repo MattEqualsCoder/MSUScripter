@@ -28,7 +28,7 @@
             </StackPanel>
         </Border>
         
-        <Border DockPanel.Dock="Left" Padding="30" IsVisible="False" Name="IconBorder">
+        <Border DockPanel.Dock="Left" Padding="20" IsVisible="False" Name="IconBorder">
             <avalonia:MaterialIcon Kind="Alert" Height="50" Width="50" Name="MessageIcon"></avalonia:MaterialIcon>
         </Border>
         
