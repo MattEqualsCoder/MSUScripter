@@ -1,4 +1,4 @@
-﻿namespace MSUScripter;
+﻿namespace MSUScripter.Tools;
 
 public enum PcmEventType
 {

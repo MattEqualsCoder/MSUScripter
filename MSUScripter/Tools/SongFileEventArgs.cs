@@ -1,7 +1,7 @@
 ﻿using System;
 using MSUScripter.ViewModels;
 
-namespace MSUScripter;
+namespace MSUScripter.Tools;
 
 public class SongFileEventArgs : EventArgs
 {

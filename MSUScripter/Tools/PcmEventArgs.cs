@@ -1,8 +1,7 @@
 ﻿using System;
-using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
-namespace MSUScripter;
+namespace MSUScripter.Tools;
 
 public class PcmEventArgs : EventArgs
 {

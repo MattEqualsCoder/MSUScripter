@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MSUScripter;
+﻿namespace MSUScripter.Tools;
 
 [System.AttributeUsage(System.AttributeTargets.Property)
 ]

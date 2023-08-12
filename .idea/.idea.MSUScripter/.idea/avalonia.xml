@@ -12,6 +12,7 @@
         <entry key="MSUScripter/Controls/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MessageWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuBasicInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />

@@ -7,6 +7,7 @@ using System.Reflection;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Track = MSUScripter.Configs.Track;
 

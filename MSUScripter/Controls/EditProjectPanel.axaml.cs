@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
@@ -173,9 +174,15 @@ public partial class EditProjectPanel : UserControl
     
     public async Task PlaySong(MsuSongInfoViewModel songModel, bool fromEnd)
     {
-        if (_audioService == null || string.IsNullOrEmpty(songModel.OutputPath) || _projectViewModel == null)
+        if (_audioService == null || _projectViewModel == null)
             return;
-        
+
+        if (string.IsNullOrEmpty(songModel.OutputPath) || !File.Exists(songModel.OutputPath))
+        {
+            ShowError("No pcm file detected");
+            return;
+        }
+            
         // Stop the song if it is currently playing
         if (_projectViewModel.BasicInfo.IsMsuPcmProject)
         {
@@ -205,6 +212,13 @@ public partial class EditProjectPanel : UserControl
         if (_msuPcmService == null || _project == null) return false;
         
         if (_msuPcmService.IsGeneratingPcm) return false;
+        
+        if (!songModel.HasFiles())
+        {
+            ShowError("No files specified to generate into a pcm file");
+            return false;
+        }
+        
         UpdateStatusBarText("Generating PCM");
         var song = new MsuSongInfo();
         _converterService!.ConvertViewModel(songModel, song);
@@ -272,8 +286,7 @@ public partial class EditProjectPanel : UserControl
     {
         if (!HasPendingChanges() || _hasCheckedPendingChanges) return;
         _hasCheckedPendingChanges = true;
-        var result = await new MessageWindow("You currently have saved changes. Do you want to save your changes?",
-            MessageWindowType.YesNo).ShowDialog();
+        var result = await ShowYesNoWindow("You currently have saved changes. Do you want to save your changes?");
         if (result == MessageWindowResult.Yes)
         {
             SaveProject();
@@ -319,6 +332,23 @@ public partial class EditProjectPanel : UserControl
         }
         
         _ = new MessageWindow(message, MessageWindowType.Error, title).ShowDialog();
+    }
+    
+    private async Task<MessageWindowResult?> ShowYesNoWindow(string message, string title = "MSU Scripter")
+    {
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            MessageWindowResult? result = null;
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var window = new MessageWindow(message, MessageWindowType.YesNo, title);
+                result = await window.ShowDialog();
+            });
+            return result;
+        }
+
+        var window = new MessageWindow(message, MessageWindowType.YesNo, title);
+        return await window.ShowDialog();
     }
 
     private void ExportButton_Json_OnClick(object? sender, RoutedEventArgs e)
@@ -455,19 +485,14 @@ public partial class EditProjectPanel : UserControl
             
         if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
         {
-            var result = await new MessageWindow(
-                "Either the trim end or loop points have a value. Are you sure you want to overwrite them?",
-                MessageWindowType.YesNo).ShowDialog();
+            var result = await ShowYesNoWindow("Either the trim end or loop points have a value. Are you sure you want to overwrite them?");
             if (result != MessageWindowResult.Yes)
                 return;
         }
 
         if (string.IsNullOrEmpty(file) || !File.Exists(file))
         {
-            await new MessageWindow(
-                    "No file specified for this song.",
-                    MessageWindowType.Error)
-                .ShowDialog(App._mainWindow!);
+            ShowError("No file specified for this song.");
             return;
         }
 
@@ -475,9 +500,8 @@ public partial class EditProjectPanel : UserControl
             
         if (!service.TestService())
         {
-            var result = await new MessageWindow(
-                    "Could not execute PyMusicLooper. Do you want to open the GitHub page for PyMusicLooper to set it up?",
-                    MessageWindowType.YesNo).ShowDialog();
+            var result = await ShowYesNoWindow(
+                    "Could not execute PyMusicLooper. Do you want to open the GitHub page for PyMusicLooper to set it up?");
             if (result == MessageWindowResult.Yes)
             {
                 var startInfo = new ProcessStartInfo
@@ -493,16 +517,13 @@ public partial class EditProjectPanel : UserControl
         
         UpdateStatusBarText("Running PyMusicLooper");
 
-        await Task.Run(async () =>
+        await Task.Run(() =>
         {
             var successful = service.GetLoopPoints(file, out var message, out var loopStart, out var loopEnd);
 
             if (!successful)
             {
-                await new MessageWindow(
-                        $"Error with PyMusicLooper:\n{message}",
-                        MessageWindowType.Error)
-                    .ShowDialog();
+                ShowError($"Error with PyMusicLooper:\n{message}");
                 UpdateStatusBarText("PyMusicLooper Failed");
             }
             else
@@ -511,6 +532,8 @@ public partial class EditProjectPanel : UserControl
                 pcmInfoViewModel.Loop = loopStart;
                 UpdateStatusBarText("PyMusicLooper Complete");
             }
+
+            return Task.CompletedTask;
         });
 
         

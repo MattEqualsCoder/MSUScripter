@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Tmds.DBus.Protocol;
 

@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
