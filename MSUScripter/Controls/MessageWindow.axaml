@@ -32,6 +32,6 @@
             <avalonia:MaterialIcon Kind="Alert" Height="50" Width="50" Name="MessageIcon"></avalonia:MaterialIcon>
         </Border>
         
-        <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap">Testing text</TextBlock>
+        <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap"></TextBlock>
     </DockPanel>
 </Window>

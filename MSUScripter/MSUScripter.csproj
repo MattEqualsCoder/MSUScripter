@@ -8,11 +8,13 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
         <PackageIcon>MSUScripterIcon.ico</PackageIcon>
+        <Version>1.0.0-rc.4</Version>
     </PropertyGroup>
 
 
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.0.0" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0" />
         <PackageReference Include="Avalonia.Desktop" Version="11.0.0" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.0" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
