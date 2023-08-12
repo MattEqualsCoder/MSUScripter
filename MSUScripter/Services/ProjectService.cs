@@ -377,7 +377,7 @@ public class ProjectService
         var testTrack = smz3Project.Tracks.First(x => x.TrackNumber > 100 && x.Songs.Any()).TrackNumber;
         var msu = new FileInfo(smz3Project.MsuPath);
         var folder = msu.DirectoryName ?? "";
-        var testPath = msu.FullName.Replace(msu.Extension, $"-{testTrack}.pcm");
+        var testPath =Path.GetRelativePath(folder,  msu.FullName.Replace(msu.Extension, $"-{testTrack}.pcm"));
 
         var sbIsCombined = new StringBuilder();
         var sbIsSplit = new StringBuilder();
