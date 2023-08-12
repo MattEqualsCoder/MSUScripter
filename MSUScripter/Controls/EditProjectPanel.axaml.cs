@@ -177,22 +177,19 @@ public partial class EditProjectPanel : UserControl
         if (_audioService == null || _projectViewModel == null)
             return;
 
+        // Stop the song if it is currently playing
+        await StopSong();
+        
+        // Regenerate the pcm file if it has updates that have been made to it
+        if (_projectViewModel.BasicInfo.IsMsuPcmProject && songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles()) {
+            if (!GeneratePcmFile(songModel, false))
+                    return;
+        }
+        
         if (string.IsNullOrEmpty(songModel.OutputPath) || !File.Exists(songModel.OutputPath))
         {
             ShowError("No pcm file detected");
             return;
-        }
-            
-        // Stop the song if it is currently playing
-        if (_projectViewModel.BasicInfo.IsMsuPcmProject)
-        {
-            await StopSong();
-        }
-        
-        // Regenerate the pcm file if it has updates that have been made to it
-        if (songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles()) {
-            if (!GeneratePcmFile(songModel, false))
-                    return;
         }
         
         UpdateStatusBarText("Playing Song");

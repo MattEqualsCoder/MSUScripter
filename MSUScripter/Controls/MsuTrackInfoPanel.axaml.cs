@@ -52,6 +52,11 @@ public partial class MsuTrackInfoPanel : UserControl
             songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_trackInfo.TrackNumber}.pcm");
         }
 
+        songInfo.Project = _project!;
+        songInfo.MsuPcmInfo.Project = _project!;
+        songInfo.MsuPcmInfo.Song = songInfo;
+        songInfo.MsuPcmInfo.IsTopLevel = true;
+
         _trackInfo!.AddSong(songInfo);
     }
 

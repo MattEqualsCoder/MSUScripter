@@ -149,7 +149,7 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
 
     public void AddSubChannel()
     {
-        SubChannels.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project });
+        SubChannels.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
         OnPropertyChanged(nameof(CanEditSubTracks));
         LastModifiedDate = DateTime.Now;
     }
@@ -163,7 +163,7 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     
     public void AddSubTrack()
     {
-        SubTracks.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project });
+        SubTracks.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
         OnPropertyChanged(nameof(CanEditSubChannels));
         LastModifiedDate = DateTime.Now;
     }

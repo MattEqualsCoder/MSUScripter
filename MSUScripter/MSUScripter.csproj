@@ -50,4 +50,11 @@
         <HintPath>C:\Users\matte\.nuget\packages\avalonia.themes.simple\11.0.0\lib\net6.0\Avalonia.Themes.Simple.dll</HintPath>
       </Reference>
     </ItemGroup>
+
+
+
+    <ItemGroup>
+      <None Remove="msu-randomizer-settings.yaml" />
+      <EmbeddedResource Include="msu-randomizer-settings.yaml" />
+    </ItemGroup>
 </Project>
