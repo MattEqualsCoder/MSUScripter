@@ -46,10 +46,15 @@ public partial class MsuTrackInfoPanel : UserControl
             IsAlt = _trackInfo.Songs.Count > 0,
         };
         
+        var msu = new FileInfo(_project!.MsuPath);
         if (!songInfo.IsAlt)
         {
-            var msu = new FileInfo(_project!.MsuPath);
             songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_trackInfo.TrackNumber}.pcm");
+        }
+        else
+        {
+            var altSuffix = _trackInfo.Songs.Count == 1 ? "alt" : $"alt{_trackInfo.Songs.Count}";
+            songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_trackInfo.TrackNumber}_{altSuffix}.pcm");
         }
 
         songInfo.Project = _project!;

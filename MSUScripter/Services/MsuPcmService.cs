@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
@@ -109,6 +110,45 @@ public class MsuPcmService
             }
             return false;
         }
+    }
+
+    public bool CreateEmptyPcm(MsuSongInfo song)
+    {
+        if (string.IsNullOrEmpty(song.OutputPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            if (File.Exists(song.OutputPath))
+            {
+                File.Delete(song.OutputPath);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not delete output file");
+            return false;
+        }
+
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.empty.pcm");
+        if (stream == null)
+            return false;
+
+        try
+        {
+            using var fileStream = File.Create(song.OutputPath);
+            stream.CopyTo(fileStream);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not copy empty pcm file");
+            return false;
+        }
+
+        return true;
+
     }
 
     public bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)

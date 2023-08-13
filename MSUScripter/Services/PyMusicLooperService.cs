@@ -13,6 +13,7 @@ public class PyMusicLooperService
     private readonly ILogger<PyMusicLooperService> _logger;
     private static readonly Regex digitsOnly = new Regex(@"[^\d.]");
     private bool _hasValidated;
+    private const string MinVersion = "3.0.0";
 
     public PyMusicLooperService(ILogger<PyMusicLooperService> logger)
     {
@@ -22,14 +23,14 @@ public class PyMusicLooperService
     public bool GetLoopPoints(string filePath, out string message, out int loopStart, out int loopEnd)
     {
         var file = new FileInfo(filePath);
-        var arguments = $"export-points --path \"{file.FullName}\"";
+        var arguments = $"export-points --min-duration-multiplier 0.50 --path \"{file.FullName}\"";
         var successful = RunInternal(arguments, out var result, out var error);
 
         if (!successful || !result.Contains("LOOP_START: ") || !result.Contains("LOOP_END: "))
         {
             loopStart = -1;
             loopEnd = -1;
-            message = string.IsNullOrEmpty(error) ? result : error;
+            message = Regex.Replace(string.IsNullOrEmpty(error) ? result : error, @"\s\s+", " ");
             return false;
         }
 
@@ -55,15 +56,25 @@ public class PyMusicLooperService
         return true;
     }
 
-    public bool TestService()
+    public bool TestService(out string message)
     {
-        if (_hasValidated) return true;
+        if (_hasValidated)
+        {
+            message = "";
+            return true;
+        }
+        
         RunInternal("--version", out var result, out var error);
         if (!result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
+        {
+            message = "Invalid pymusiclooper response.";
             return false;
+        }
+
         var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
         var versionNum = version[0] * 10000 + version[1] * 100 + version[2];
-        _hasValidated = versionNum >= 20000;
+        _hasValidated = versionNum >= GetMinVersionNumber();
+        message = _hasValidated ? "" : $"Minimum pymusiclooper version is {MinVersion}";
         return _hasValidated;
     }
     
@@ -120,5 +131,11 @@ public class PyMusicLooperService
             _logger.LogError(e, "Unknown error running PyMusicLooper");
             return false;
         }
+    }
+    
+    private int GetMinVersionNumber()
+    {
+        var version = MinVersion.Split(".").Select(int.Parse).ToList();
+        return version[0] * 10000 + version[1] * 100 + version[2];
     }
 }

@@ -8,17 +8,17 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
         <PackageIcon>MSUScripterIcon.ico</PackageIcon>
-        <Version>1.0.0-rc.4</Version>
+        <Version>1.0.0-rc.5</Version>
     </PropertyGroup>
 
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.0.0" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.0" />
+        <PackageReference Include="Avalonia" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.3" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.0" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.3" />
         <PackageReference Include="FlacLibSharp" Version="3.2.1" />
         <PackageReference Include="ID3" Version="0.6.0" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
@@ -41,6 +41,7 @@
 	
 	<ItemGroup>
 	  <AvaloniaResource Include="Assets\**" />
+	  <EmbeddedResource Include="empty.pcm" />
 	</ItemGroup>
 
 

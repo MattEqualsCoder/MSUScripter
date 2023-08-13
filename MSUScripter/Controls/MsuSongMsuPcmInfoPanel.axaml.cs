@@ -106,4 +106,9 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     {
         PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StopMusic));
     }
+
+    private void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.GenerateEmpty));
+    }
 }

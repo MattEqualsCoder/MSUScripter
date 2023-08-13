@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
@@ -31,6 +32,8 @@ public partial class EditProjectPanel : UserControl
     private MsuProjectViewModel? _projectViewModel; 
     private UserControl? _currentPage;
     private bool _hasCheckedPendingChanges;
+    private Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
+    private DateTime? _lastAutoSave;
     
     public EditProjectPanel() : this(null, null, null, null, null, null, null, null)
     {
@@ -67,6 +70,22 @@ public partial class EditProjectPanel : UserControl
         {
             this.Find<Panel>(nameof(AudioStackPanel))!.Children.Add(_audioControl);    
         }
+
+        _backupTimer.Elapsed += BackupTimerOnElapsed;
+        _backupTimer.Start();
+    }
+
+    private void BackupTimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (_lastAutoSave == null)
+        {
+            _lastAutoSave = _projectViewModel!.LastSaveTime;
+        }
+        if (!_projectViewModel!.HasChangesSince(_lastAutoSave.Value))
+            return;
+        var backupProject = _converterService!.ConvertProject(_projectViewModel!);
+        _projectService!.SaveMsuProject(backupProject, true);
+        _lastAutoSave = DateTime.Now;
     }
 
     private void InitializeComponent()
@@ -151,7 +170,7 @@ public partial class EditProjectPanel : UserControl
             Task.Run(async () =>
             {
                 await StopSong();
-                return GeneratePcmFile(e.Song, false);
+                return GeneratePcmFile(e.Song, false, false);
             });
         }
         else if (e.Type == PcmEventType.GenerateAsPrimary)
@@ -159,7 +178,15 @@ public partial class EditProjectPanel : UserControl
             Task.Run(async () =>
             {
                 await StopSong();
-                return GeneratePcmFile(e.Song, true);
+                return GeneratePcmFile(e.Song, true, false);
+            });
+        }
+        else if (e.Type == PcmEventType.GenerateEmpty)
+        {
+            Task.Run(async () =>
+            {
+                await StopSong();
+                return GeneratePcmFile(e.Song, false, true);
             });
         }
         else if (e.Type == PcmEventType.LoopWindow && _serviceProvider != null && _projectViewModel != null)
@@ -182,7 +209,7 @@ public partial class EditProjectPanel : UserControl
         
         // Regenerate the pcm file if it has updates that have been made to it
         if (_projectViewModel.BasicInfo.IsMsuPcmProject && songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles()) {
-            if (!GeneratePcmFile(songModel, false))
+            if (!GeneratePcmFile(songModel, false, false))
                     return;
         }
         
@@ -204,11 +231,25 @@ public partial class EditProjectPanel : UserControl
         UpdateStatusBarText("Stopped Song");
     }
     
-    public bool GeneratePcmFile(MsuSongInfoViewModel songModel, bool asPrimary)
+    public bool GeneratePcmFile(MsuSongInfoViewModel songModel, bool asPrimary, bool asEmpty)
     {
         if (_msuPcmService == null || _project == null) return false;
         
         if (_msuPcmService.IsGeneratingPcm) return false;
+
+        if (asEmpty)
+        {
+            var emptySong = new MsuSongInfo();
+            _converterService!.ConvertViewModel(songModel, emptySong);
+            var successful = _msuPcmService.CreateEmptyPcm(emptySong);
+            if (!successful)
+            {
+                ShowError("Could not generate empty pcm file");
+                return false;
+            }
+            UpdateStatusBarText("PCM Generated");
+            return true;
+        }
         
         if (!songModel.HasFiles())
         {
@@ -269,7 +310,9 @@ public partial class EditProjectPanel : UserControl
     {
         if (_projectViewModel == null || _projectService == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
-        _projectService.SaveMsuProject(_project);
+        _projectService.SaveMsuProject(_project, false);
+        _projectViewModel.LastSaveTime = _project.LastSaveTime;
+        _lastAutoSave = _project.LastSaveTime;
         UpdateStatusBarText("Project Saved");
     }
 
@@ -326,6 +369,7 @@ public partial class EditProjectPanel : UserControl
         if (!Dispatcher.UIThread.CheckAccess())
         {
             Dispatcher.UIThread.Invoke(() => { ShowError(message, title); });
+            return;
         }
         
         _ = new MessageWindow(message, MessageWindowType.Error, title).ShowDialog();
@@ -495,10 +539,10 @@ public partial class EditProjectPanel : UserControl
 
         var service = _serviceProvider.GetRequiredService<PyMusicLooperService>();
             
-        if (!service.TestService())
+        if (!service.TestService(out var validationMessage))
         {
             var result = await ShowYesNoWindow(
-                    "Could not execute PyMusicLooper. Do you want to open the GitHub page for PyMusicLooper to set it up?");
+                    $"Error with PyMusicLooper: {validationMessage}. Do you want to open the GitHub page for PyMusicLooper to set it up?");
             if (result == MessageWindowResult.Yes)
             {
                 var startInfo = new ProcessStartInfo
@@ -534,5 +578,10 @@ public partial class EditProjectPanel : UserControl
         });
 
         
+    }
+
+    private void Control_OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        _ = _audioService?.StopSongAsync();
     }
 }

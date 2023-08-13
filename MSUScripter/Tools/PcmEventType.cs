@@ -7,5 +7,6 @@ public enum PcmEventType
     Generate,
     GenerateAsPrimary,
     LoopWindow,
-    StopMusic
+    StopMusic,
+    GenerateEmpty,
 }

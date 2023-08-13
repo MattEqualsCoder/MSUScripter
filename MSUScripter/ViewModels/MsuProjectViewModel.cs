@@ -8,6 +8,7 @@ namespace MSUScripter.ViewModels;
 public class MsuProjectViewModel
 {
     public string ProjectFilePath { get; set; } = "";
+    public string BackupFilePath { get; set; } = "";
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
     public DateTime LastSaveTime { get; set; }

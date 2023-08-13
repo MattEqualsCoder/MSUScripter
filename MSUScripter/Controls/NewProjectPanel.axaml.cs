@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -120,7 +121,7 @@ public partial class NewProjectPanel : UserControl
             if (result == MessageWindowResult.Yes)
             {
                 _projectService.ConvertProjectMsuType(Project, _msuTypeService.GetSMZ3MsuType()!, true);
-                _projectService.SaveMsuProject(Project);
+                _projectService.SaveMsuProject(Project, false);
             }
         }
         
@@ -131,8 +132,7 @@ public partial class NewProjectPanel : UserControl
     {
         if (_projectService == null) return;
         if (sender is not LinkControl { Tag: string projectPath }) return;
-        Project = _projectService.LoadMsuProject(projectPath);
-        OnProjectSelected?.Invoke(this, EventArgs.Empty);
+        _ = LoadProject(projectPath);
     }
 
     private async void SelectProjectButton_OnClick(object? sender, RoutedEventArgs e)
@@ -154,7 +154,22 @@ public partial class NewProjectPanel : UserControl
             return;
         }
         
-        Project = _projectService.LoadMsuProject(file.First().Path.LocalPath);
+        _ = LoadProject(file.First().Path.LocalPath);
+    }
+
+    private async Task LoadProject(string path)
+    {
+        Project = _projectService!.LoadMsuProject(path, false);
+        if (!string.IsNullOrEmpty(Project!.BackupFilePath))
+        {
+            var backupProject = _projectService!.LoadMsuProject(Project!.BackupFilePath, true);
+            if (backupProject != null && backupProject.LastSaveTime > Project.LastSaveTime)
+            {
+                var result = await new MessageWindow("A backup with unsaved changes was detected. Would you like to load from the backup instead?", MessageWindowType.YesNo, "Load Backup?").ShowDialog();
+                if (result == MessageWindowResult.Yes)
+                    Project = backupProject;
+            }
+        }
         OnProjectSelected?.Invoke(this, EventArgs.Empty);
     }
 }

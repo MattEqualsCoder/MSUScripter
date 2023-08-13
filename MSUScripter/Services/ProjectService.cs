@@ -43,18 +43,50 @@ public class ProjectService
         _converterService = converterService;
     }
     
-    public void SaveMsuProject(MsuProject project)
+    public void SaveMsuProject(MsuProject project, bool isBackup)
     {
         project.LastSaveTime = DateTime.Now;
+        
+        if (!isBackup)
+        {
+            _settingsService.AddRecentProject(project);
+            SaveMsuProject(project, true);
+        }
+        
         var serializer = new SerializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();
         var yaml = serializer.Serialize(project);
-        File.WriteAllText(project.ProjectFilePath, yaml);
-        _settingsService.AddRecentProject(project);
+
+        if (isBackup && !Directory.Exists(GetBackupDirectory()))
+        {
+            try
+            {
+                Directory.CreateDirectory(GetBackupDirectory());
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Could not create backups directory");
+                return;
+            }
+        }
+
+        try
+        {
+            var path = isBackup ? Path.Combine(project.BackupFilePath) : project.ProjectFilePath;
+            File.WriteAllText(path, yaml);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not save project file");
+            if (!isBackup)
+                throw;
+        }
+        
+        
     }
 
-    public MsuProject? LoadMsuProject(string path)
+    public MsuProject? LoadMsuProject(string path, bool isBackup)
     {
         if (!File.Exists(path))
         {
@@ -67,7 +99,13 @@ public class ProjectService
             .IgnoreUnmatchedProperties()
             .Build();
         var project = deserializer.Deserialize<MsuProject>(yaml);
-        project.ProjectFilePath = path;
+        
+        if (!isBackup)
+        {
+            project.ProjectFilePath = path;
+            project.BackupFilePath = GetProjectBackupFilePath(path);
+        }
+        
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
 
         if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == _msuTypeService.GetSMZ3MsuType())
@@ -75,7 +113,11 @@ public class ProjectService
             project.BasicInfo.IsSmz3Project = true;
         }
 
-        _settingsService.AddRecentProject(project);
+        if (!isBackup)
+        {
+            _settingsService.AddRecentProject(project);    
+        }
+        
         return project;
     }
 
@@ -91,6 +133,7 @@ public class ProjectService
         var project = new MsuProject()
         {
             ProjectFilePath = projectPath,
+            BackupFilePath = GetProjectBackupFilePath(projectPath),
             MsuType = msuType,
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
@@ -124,7 +167,7 @@ public class ProjectService
             project.BasicInfo.CreateSplitSmz3Script = true;
         }
 
-        SaveMsuProject(project);
+        SaveMsuProject(project, false);
 
         return project;
     }
@@ -683,5 +726,18 @@ public class ProjectService
 
         var text = sb.ToString();
         File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
+    }
+
+    private string GetProjectBackupFilePath(string projectFilePath)
+    {
+        var file = new FileInfo(projectFilePath);
+        byte[] inputBytes = Encoding.ASCII.GetBytes(file.FullName);
+        byte[] hashBytes = System.Security.Cryptography.MD5.HashData(inputBytes);
+        return Path.Combine(GetBackupDirectory(), $"{Convert.ToHexString(hashBytes)}_{file.Name}");
+    }
+
+    private string GetBackupDirectory()
+    {
+        return Path.Combine(Program.GetBaseFolder(), "backups");
     }
 }

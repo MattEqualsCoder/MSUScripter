@@ -6,6 +6,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.EditProjectPanel"
+             Unloaded="Control_OnUnloaded"
              x:DataType="viewModels:MsuProjectViewModel">
     <DockPanel>
         
@@ -57,7 +58,7 @@
                             Padding="8 5"
                             Click="ExportButton_OnClick"
                     >_Export</Button>
-                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }">
+                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }" Click="ExportButton_OnClick">
                         <SplitButton.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                 <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick"></MenuItem>

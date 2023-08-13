@@ -171,6 +171,14 @@
                             Click="StopButton_OnClick"
                         ></Button>
                         <Button
+                            Name="CreateEmptyPcmFileButton"
+                            Content="Generate empty .pcm File"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="CreateEmptyPcmFileButton_OnClick"
+                        ></Button>
+                        <Button
                             Name="GenerateAsMainPcmFileButton"
                             Content="Generate as primary .pcm file"
                             HorizontalAlignment="Center"

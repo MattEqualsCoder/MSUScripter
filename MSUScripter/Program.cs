@@ -144,5 +144,17 @@ class Program
             return "logs";
         }
     }
+
+    public static string GetBaseFolder()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return Path.Combine(Environment.ExpandEnvironmentVariables("%localappdata%"), "MSUScripter");
+        }
+        else
+        {
+            return AppContext.BaseDirectory;
+        }
+    }
     
 }
