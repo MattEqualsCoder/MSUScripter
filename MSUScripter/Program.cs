@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary;
 using MSUScripter.Controls;
 using MSUScripter.Services;
+using Win32RenderingMode = Avalonia.Win32RenderingMode;
 
 namespace MSUScripter;
 
@@ -84,6 +86,7 @@ class Program
     {
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
+            .With(new Win32PlatformOptions() { RenderingMode = new List<Win32RenderingMode>() { Win32RenderingMode.Software }  })
             .WithInterFont()
             .LogToTrace();
     }
