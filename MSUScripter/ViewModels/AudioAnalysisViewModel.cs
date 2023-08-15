@@ -17,6 +17,22 @@ public class AudioAnalysisViewModel : INotifyPropertyChanged
         }
     }
     
+    private int _totalSongs;
+
+    public int TotalSongs
+    {
+        get => _totalSongs;
+        set => SetField(ref _totalSongs, value);
+    }
+    
+    private int _songsCompleted;
+
+    public int SongsCompleted
+    {
+        get => _songsCompleted;
+        set => SetField(ref _songsCompleted, value);
+    }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

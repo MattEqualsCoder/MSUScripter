@@ -23,15 +23,16 @@ public class AudioAnalysisService
         _logger = logger;
     }
 
-    public void AnalyzePcmFiles(MsuProjectViewModel projectViewModel, ICollection<AudioAnalysisSongViewModel> songs, CancellationToken ct = new())
+    public void AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = _converterService.ConvertProject(projectViewModel);
         
-        Parallel.ForEach(songs,
+        Parallel.ForEach(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
             song =>
             {
                 AnalyzePcmFile(project, song);
+                audioAnalysis.SongsCompleted++;
             }); 
     }
 

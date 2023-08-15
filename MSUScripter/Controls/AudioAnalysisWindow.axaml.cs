@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
@@ -51,6 +52,7 @@ public partial class AudioAnalysisWindow : Window
             .ToList();
 
         _rows.Rows = songs;
+        _rows.TotalSongs = songs.Count;
     }
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
@@ -59,7 +61,9 @@ public partial class AudioAnalysisWindow : Window
 
         _ = Task.Run(() =>
         {
-            _audioAnalysisService!.AnalyzePcmFiles(_project!, _rows.Rows, _cts.Token);
+            var start = DateTime.Now;
+            
+            _audioAnalysisService!.AnalyzePcmFiles(_project!, _rows, _cts.Token);
 
             var avg = GetAverageRms();
             var max = GetAveragePeak();
@@ -70,6 +74,14 @@ public partial class AudioAnalysisWindow : Window
             {
                 CheckSongWarnings(row, avg, max);
             }
+
+            var end = DateTime.Now;
+            var span = end - start;
+            
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                Title = $"Audio Analysis - MSU Scripter (Completed in {Math.Round(span.TotalSeconds, 2)} seconds)";
+            });
         }, _cts.Token);
     }
 
