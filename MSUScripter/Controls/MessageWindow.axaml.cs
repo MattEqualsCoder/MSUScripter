@@ -78,7 +78,12 @@ public partial class MessageWindow : Window
     public async Task<MessageWindowResult?> ShowDialog()
     {
         if (App._mainWindow == null) return null;
-        await ShowDialog(App._mainWindow);
+        return await ShowDialog(App._mainWindow);
+    }
+    
+    public new async Task<MessageWindowResult?> ShowDialog(Window window)
+    {
+        await base.ShowDialog(window);
         return Result;
     }
 

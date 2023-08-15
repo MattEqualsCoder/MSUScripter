@@ -486,7 +486,6 @@ public partial class EditProjectPanel : UserControl
     {
         if (_projectViewModel == null || _msuPcmService == null || _serviceProvider == null) return;
         if (_msuPcmService.IsGeneratingPcm) return;
-        _project = _converterService!.ConvertProject(_projectViewModel);
         
         if (_audioService != null)
         {
@@ -498,7 +497,7 @@ public partial class EditProjectPanel : UserControl
         Dispatcher.UIThread.Invoke(() =>
         {
             var msuPcmGenerationWindow = _serviceProvider.GetRequiredService<MsuPcmGenerationWindow>();
-            msuPcmGenerationWindow.Project = _project;
+            msuPcmGenerationWindow.SetProject(_projectViewModel);
             msuPcmGenerationWindow.ShowDialog(App._mainWindow!);
             UpdateStatusBarText("MSU Generated");
         });

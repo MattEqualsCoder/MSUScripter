@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,101 +8,122 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using MSUScripter.Configs;
 using MSUScripter.Services;
+using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
 public partial class MsuPcmGenerationWindow : Window
 {
     private readonly MsuPcmService? _msuPcmService;
+    private readonly ConverterService? _converterService;
+    private readonly MsuGenerationViewModel _rows;
+    private readonly CancellationTokenSource _cts = new();
     
-    private int _numCompleted;
-    private int _totalSongs;
-    private List<MsuSongInfo> _songs = new();
-    private readonly List<string> _results = new();
-    
-    private bool _running;
     private int _errors;
     private bool _hasFinished;
-    private readonly CancellationTokenSource _cts = new();
-
-    public MsuPcmGenerationWindow() : this(null)
+    
+    public MsuProjectViewModel _projectViewModel { get; set; } = new();
+    public MsuProject _project { get; set; } = new();
+    
+    public MsuPcmGenerationWindow() : this(null, null)
     {
         
     }
     
-    public MsuPcmGenerationWindow(MsuPcmService? msuPcmService)
+    public MsuPcmGenerationWindow(MsuPcmService? msuPcmService, ConverterService? converterService)
     {
         _msuPcmService = msuPcmService;
+        _converterService = converterService;
         InitializeComponent();
+        DataContext = _rows = new MsuGenerationViewModel(); 
     }
+    
+    public void SetProject(MsuProjectViewModel project)
+    {
+        if (_converterService == null || _msuPcmService == null) return;
+        
+        _projectViewModel = project;
+        _project = _converterService.ConvertProject(project);
 
-    public MsuProject Project { get; set; } = new();
+        var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
+        if (string.IsNullOrEmpty(msuDirectory)) return;
+        
+        var songs = project.Tracks.SelectMany(x => x.Songs)
+            .OrderBy(x => x.TrackNumber)
+            .Select(x => new MsuGenerationSongViewModel()
+            {
+                SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
+                TrackName = x.TrackName,
+                TrackNumber = x.TrackNumber,
+                Path = x.OutputPath!,
+                OriginalViewModel = x
+            })
+            .ToList();
+        
+        _rows.Rows = songs;
+        _rows.TotalSongs = songs.Count;
+    }
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        _songs = Project.Tracks.SelectMany(x => x.Songs).ToList();
-        _totalSongs = _songs.Count;
-        Project = Project;
         
-        var progressBar = this.Find<ProgressBar>(nameof(MsuPcmProgressBar));
-        if (progressBar == null) return;
-        progressBar.Minimum = 0;
-        progressBar.Maximum = _totalSongs;
-        
-        if (_running || _msuPcmService == null) return;
-        _running = true;
-        
-        Task.Run(() =>
+        _ = Task.Run(() =>
         {
-            foreach (var song in _songs.OrderBy(x => x.TrackNumber).ThenBy(x => x.IsAlt))
-            {
-                UpdateCurrent();
-
-                if (!_msuPcmService.CreatePcm(Project, song, out var error))
-                {
-                    _errors++;
-                }
-                _results.Add(error!);
-                DisplayResults();
-                
-                _numCompleted++;
-
-                if (_cts.IsCancellationRequested)
-                    break;
-            }
-
-            UpdateComplete();
-            _hasFinished = true;
+            var start = DateTime.Now;
             
+            Parallel.ForEach(_rows.Rows,
+                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token },
+                songDetails =>
+                {
+                    if (_cts.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    var songViewModel = songDetails.OriginalViewModel;
+                    var song = new MsuSongInfo();
+                    _converterService!.ConvertViewModel(songViewModel, song);
+                    _converterService!.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
+                    if (!_msuPcmService!.CreatePcm(_project, song, out var error))
+                    {
+                        songDetails.HasWarning = true;
+                        songDetails.Message = error ?? "Unknown error";
+                        _errors++;
+                    }
+                    else
+                    {
+                        songDetails.Message = "Success!";
+                    }
+                    
+                    _rows.SongsCompleted++;
+                });
+            
+            _hasFinished = true;
+            _rows.ButtonText = "Close";
+            
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                var end = DateTime.Now;
+                var duration = end - start;
+                Title = $"MSU Export - MSU Scripter (Completed in {Math.Round(duration.TotalSeconds, 2)} seconds)";
+                
+                if (_errors > 0)
+                {
+                    var errorString = _errors == 1 ? "was 1 error" : $"were {_errors} errors";
+                    _ = new MessageWindow($"MSU Generation Complete. There {errorString} when running MsuPcm++", MessageWindowType.Error,
+                        "Error").ShowDialog(this);
+                }
+                else
+                {
+                    _ = new MessageWindow($"MSU Generation Completed Successfully", MessageWindowType.Info,
+                        "MSU Scripter").ShowDialog(this);
+                }
+            });
+
         }, _cts.Token);
     }
     
-    private void UpdateCurrent()
-    {
-        if (!Dispatcher.UIThread.CheckAccess())
-        {
-            Dispatcher.UIThread.Invoke(UpdateCurrent);
-            return;
-        }
-
-        this.Find<ProgressBar>(nameof(MsuPcmProgressBar))!.Value = _numCompleted;
-        var songName = _songs[_numCompleted].SongName ?? _songs[_numCompleted].TrackName;
-
-        this.Find<TextBlock>(nameof(CurrentRunningTextBlock))!.Text = $"Converting Track {_songs[_numCompleted].TrackNumber} - {songName}...";
-    }
-    
-    private void DisplayResults()
-    {
-        if (!Dispatcher.UIThread.CheckAccess())
-        {
-            Dispatcher.UIThread.Invoke(DisplayResults);
-            return;
-        }
-
-        ErrorTextBlock.Text = string.Join("\r\n", _results);
-    }
-
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
@@ -109,32 +131,6 @@ public partial class MsuPcmGenerationWindow : Window
         if (!_hasFinished)
         {
             _cts.Cancel();    
-        }
-    }
-
-    private void UpdateComplete()
-    {
-        if (!Dispatcher.UIThread.CheckAccess())
-        {
-            Dispatcher.UIThread.Invoke(UpdateComplete);
-            return;
-        }
-
-        var progressBar = this.Find<ProgressBar>(nameof(MsuPcmProgressBar));
-        progressBar!.Value = _totalSongs;
-        
-        var currentRunningTextBlock = this.Find<TextBlock>(nameof(CurrentRunningTextBlock));
-        currentRunningTextBlock!.Text = "Complete!";
-        if (_results.Count == 0)
-        {
-            this.Find<TextBlock>(nameof(ErrorTextBlock))!.Text = "No errors!";
-        }
-        this.Find<Button>(nameof(CloseButton))!.Content = "Close";
-
-        if (_errors > 0)
-        {
-            _ = new MessageWindow($"There were {_errors} error(s) when running MsuPcm++", MessageWindowType.Error,
-                "Error").ShowDialog();
         }
     }
 
