@@ -1,0 +1,37 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:controls="clr-namespace:MSUScripter.Controls"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+        MaxHeight="150" MaxWidth="350"
+        Height="150" Width="350"
+        CanResize="False"
+        Loaded="Control_OnLoaded"
+        Unloaded="Control_OnUnloaded"
+        Icon="/Assets/MSUScripterIcon.ico"
+        x:Class="MSUScripter.Controls.MusicLooperWindow"
+        Title="PyMusicLooper - MSU Scripter">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" Padding="10 0 10 10">
+            <StackPanel HorizontalAlignment="Center" Orientation="Vertical">
+                <Button Name="CloseButton" Click="CloseButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
+                    Close
+                </Button>
+            </StackPanel>
+        </Border>
+        
+        <Border DockPanel.Dock="Left" Padding="20" IsVisible="False" Name="IconBorder">
+            <avalonia:MaterialIcon Kind="Alert" Height="50" Width="50" Name="MessageIcon"></avalonia:MaterialIcon>
+        </Border>
+        
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Name="MessageStackPanel">
+            <TextBlock Name="MessageTextBlock" TextWrapping="Wrap" HorizontalAlignment="Center">
+                Verifying PyMusicLooper
+            </TextBlock>
+            <controls:LinkControl Name="GitHubLink" Click="GitHubLink_OnClick" IsVisible="False">Go to the PyMusicLooper GitHub</controls:LinkControl>
+        </StackPanel>
+        
+    </DockPanel>
+</Window>

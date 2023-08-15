@@ -4,7 +4,6 @@ using Avalonia.Interactivity;
 using Avalonia.Styling;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
-using Tmds.DBus.Protocol;
 
 namespace MSUScripter.Controls;
 
@@ -45,21 +44,22 @@ public partial class SettingsWindow : Window
         Close();
     }
 
-    private void ValidateMsuPcmButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void ValidateMsuPcmButton_OnClick(object? sender, RoutedEventArgs e)
     {
         var isSuccessful = _msuPcmService?.ValidateMsuPcmPath(_model.MsuPcmPath!, out var error);
         if (isSuccessful != true)
         {
-            new MessageWindow(
+            await new MessageWindow(
                     "There was an error verifying msupcm++. Please verify that the application runs independently.",
                     MessageWindowType.Error)
                 .ShowDialog(this);
         }
         else
         {
-            new MessageWindow(
+            await new MessageWindow(
                     "msupcm++ verification successful!",
-                    MessageWindowType.Info)
+                    MessageWindowType.Info,
+                    "Success")
                 .ShowDialog(this);
         }
     }

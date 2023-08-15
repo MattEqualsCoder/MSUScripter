@@ -27,7 +27,7 @@
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="MSU Path:">
-                    <controls:FileControl FileInputType="SaveFile" Filter="MSU Files:*.msu" WarnOnOverwrite="False" Name="MsuPath"></controls:FileControl>
+                    <controls:FileControl FileInputType="SaveFile" Filter="MSU Files:*.msu" WarnOnOverwrite="False" Name="MsuPath" ForceExtension="msu"></controls:FileControl>
                 </controls:LabeledControl>
                     
                 <controls:LabeledControl Text="Import msupcm++ Json File (optional):" DisplayHint="True" Hint="The tracks.json file used by msupcm++">

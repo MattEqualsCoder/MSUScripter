@@ -106,11 +106,17 @@ public partial class NewProjectPanel : UserControl
             {
                 new("MSU Scripter Project File") { Patterns = new List<string>() { "*.msup" }}
             },
+            ShowOverwritePrompt = true
         });
 
         if (string.IsNullOrEmpty(file?.Path.LocalPath)) return;
         
         var projectPath = file.Path.LocalPath;
+
+        if (!projectPath.EndsWith(".msup"))
+        {
+            projectPath += ".msup";
+        }
         
         Project = _projectService.NewMsuProject(projectPath, msuType, msuPath, tracksJsonPath, msuPcmWorking);
         

@@ -77,8 +77,6 @@ class Program
                 await Task.Delay(500);
             }
         });
-        
-        
     }
     
     // Avalonia configuration, don't remove; also used by visual designer.
@@ -90,7 +88,6 @@ class Program
             .WithInterFont()
             .LogToTrace();
     }
-        
 
     private static IServiceProvider? _serviceProvider;
     
@@ -131,6 +128,7 @@ class Program
             .AddTransient<AudioControl>()
             .AddTransient<SettingsWindow>()
             .AddTransient<AudioAnalysisWindow>()
+            .AddTransient<MusicLooperWindow>()
             .BuildServiceProvider();
         
         return _serviceProvider;

@@ -52,6 +52,7 @@
                                           FileInputType="SaveFile"
                                           IsEnabled="{Binding IsAlt}"
                                           Filter="PCM Files:*.pcm"
+                                          ForceExtension="pcm"
                     ></controls:FileControl>
                 </controls:LabeledControl>
                 <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel">

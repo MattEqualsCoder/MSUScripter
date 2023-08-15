@@ -16,6 +16,8 @@
         <entry key="MSUScripter/Controls/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/MusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Themes/Light.axaml" value="MSUScripter/MSUScripter.csproj" />
       </map>

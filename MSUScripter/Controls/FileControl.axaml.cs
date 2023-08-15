@@ -90,6 +90,15 @@ public partial class FileControl : UserControl
         get => GetValue(WarnOnOverwriteProperty);
         set => SetValue(WarnOnOverwriteProperty, value);
     }
+    
+    public static readonly StyledProperty<string?> ForceExtensionProperty = AvaloniaProperty.Register<FileControl, string?>(
+        "ForceExtension", null);
+
+    public string? ForceExtension
+    {
+        get => GetValue(ForceExtensionProperty);
+        set => SetValue(ForceExtensionProperty, value);
+    }
 
     public event EventHandler<BasicEventArgs>? OnUpdated; 
 
@@ -125,6 +134,12 @@ public partial class FileControl : UserControl
             if (!string.IsNullOrEmpty(file?.Path.LocalPath))
             {
                 FilePath = file.Path.LocalPath;
+                
+                if (!string.IsNullOrEmpty(ForceExtension) && !string.IsNullOrEmpty(FilePath) && !FilePath.EndsWith($".{ForceExtension}", StringComparison.OrdinalIgnoreCase))
+                {
+                    FilePath += $".{ForceExtension}";
+                }
+                
                 OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!));
             }
         }
@@ -132,7 +147,7 @@ public partial class FileControl : UserControl
         {
             var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
             {
-                Title = DialogTitle ?? "Select Folter"
+                Title = DialogTitle ?? "Select Folder"
             });
             
             if (!string.IsNullOrEmpty(folders.FirstOrDefault()?.Path.LocalPath))

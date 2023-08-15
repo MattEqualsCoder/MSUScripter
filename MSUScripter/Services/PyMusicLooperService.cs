@@ -23,7 +23,7 @@ public class PyMusicLooperService
     public bool GetLoopPoints(string filePath, out string message, out int loopStart, out int loopEnd)
     {
         var file = new FileInfo(filePath);
-        var arguments = $"export-points --min-duration-multiplier 0.50 --path \"{file.FullName}\"";
+        var arguments = $"export-points --min-duration-multiplier 0.25 --path \"{file.FullName}\"";
         var successful = RunInternal(arguments, out var result, out var error);
 
         if (!successful || !result.Contains("LOOP_START: ") || !result.Contains("LOOP_END: "))
@@ -67,14 +67,14 @@ public class PyMusicLooperService
         RunInternal("--version", out var result, out var error);
         if (!result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
         {
-            message = "Invalid pymusiclooper response.";
+            message = "Could not run PyMusicLooper. Make sure it's installed and executable in command line.";
             return false;
         }
 
         var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
         var versionNum = version[0] * 10000 + version[1] * 100 + version[2];
         _hasValidated = versionNum >= GetMinVersionNumber();
-        message = _hasValidated ? "" : $"Minimum pymusiclooper version is {MinVersion}";
+        message = _hasValidated ? "" : $"Minimum PyMusicLooper version is {MinVersion}";
         return _hasValidated;
     }
     
@@ -101,6 +101,7 @@ public class PyMusicLooperService
             {
                 procStartInfo= new ProcessStartInfo(command)
                 {
+                    Arguments = arguments,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,

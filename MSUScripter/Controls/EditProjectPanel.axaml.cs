@@ -27,12 +27,11 @@ public partial class EditProjectPanel : UserControl
     private readonly ConverterService? _converterService;
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
-    private readonly Dictionary<int, UserControl> _pages = new();
+    private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
     private UserControl? _currentPage;
     private bool _hasCheckedPendingChanges;
-    private Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private DateTime? _lastAutoSave;
     
     public EditProjectPanel() : this(null, null, null, null, null, null, null, null)
@@ -58,10 +57,7 @@ public partial class EditProjectPanel : UserControl
         _projectViewModel = _converterService!.ConvertProject(project);
         DataContext = _projectViewModel;
         PopulatePageComboBox();
-        var msuBasicInfoPanel = new MsuBasicInfoPanel(_projectViewModel.BasicInfo);
-        _currentPage = msuBasicInfoPanel;
-        _pages[0] = msuBasicInfoPanel;
-        this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+        
         _projectService!.CreateMsuFiles(project);
 
         UpdateStatusBarText(project.LastSaveTime == DateTime.MinValue ? "Project Created" : "Project Loaded");
@@ -70,6 +66,8 @@ public partial class EditProjectPanel : UserControl
         {
             this.Find<Panel>(nameof(AudioStackPanel))!.Children.Add(_audioControl);    
         }
+
+        DisplayPage(0);
 
         _backupTimer.Elapsed += BackupTimerOnElapsed;
         _backupTimer.Start();
@@ -119,33 +117,38 @@ public partial class EditProjectPanel : UserControl
     
     private void DisplayPage(int page)
     {
-        if (page < 0 || page >= this.Find<ComboBox>(nameof(PageComboBox))!.Items.Count || _pages.Count == 0 || _project == null)
+        if (page < 0 || page >= this.Find<ComboBox>(nameof(PageComboBox))!.Items.Count || _project == null)
             return;
 
         if (_serviceProvider == null)
             throw new InvalidOperationException("Unable to dislay track page");
 
-        if (_currentPage != null)
+        if (_currentPage is MsuTrackInfoPanel prevPage)
         {
-            _currentPage.IsVisible = false;    
+            prevPage.PcmOptionSelected -= PagePanelOnPcmOptionSelected;
+            prevPage.MetaDataFileSelected -= SongFileSelected;
+            prevPage.FileUpdated -= SongFileSelected; 
         }
         
-        if (_pages.TryGetValue(page, out var previousPage))
-        {
-            previousPage.IsVisible = true;
-            _currentPage = previousPage;
-            return;
-        }
+        this.Find<Panel>(nameof(PagePanel))!.Children.Clear();
 
-        var track = _projectViewModel!.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-1];
-        var pagePanel = _serviceProvider.GetRequiredService<MsuTrackInfoPanel>();
-        pagePanel.SetTrackInfo(_projectViewModel, track);
-        pagePanel.PcmOptionSelected += PagePanelOnPcmOptionSelected;
-        pagePanel.MetaDataFileSelected += SongFileSelected;
-        pagePanel.FileUpdated += SongFileSelected;
-        _pages[page] = pagePanel;
-        _currentPage = pagePanel;
-        this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+        if (page == 0)
+        {
+            var msuBasicInfoPanel = new MsuBasicInfoPanel(_projectViewModel!.BasicInfo);
+            _currentPage = msuBasicInfoPanel;
+            this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+        }
+        else
+        {
+            var track = _projectViewModel!.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-1];
+            var pagePanel = _serviceProvider.GetRequiredService<MsuTrackInfoPanel>();
+            pagePanel.SetTrackInfo(_projectViewModel, track);
+            pagePanel.PcmOptionSelected += PagePanelOnPcmOptionSelected;
+            pagePanel.MetaDataFileSelected += SongFileSelected;
+            pagePanel.FileUpdated += SongFileSelected;
+            _currentPage = pagePanel;
+            this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+        }
     }
 
     private void SongFileSelected(object? sender, SongFileEventArgs e)
@@ -504,13 +507,15 @@ public partial class EditProjectPanel : UserControl
         
     }
 
+    private AudioAnalysisWindow? _audioAnalysisWindow;
+
     private void AnalysisButton_OnClick(object? sender, RoutedEventArgs e)
     {
         var topLevel = TopLevel.GetTopLevel(this) as Window;
         if (_serviceProvider == null || _projectViewModel == null || topLevel == null) return;
-        var window = _serviceProvider.GetRequiredService<AudioAnalysisWindow>();
-        window.SetProject(_projectViewModel);
-        window.Show();
+        _audioAnalysisWindow = _serviceProvider.GetRequiredService<AudioAnalysisWindow>();
+        _audioAnalysisWindow.SetProject(_projectViewModel);
+        _audioAnalysisWindow.Show();
     }
 
     private async void LoopCheck(MsuSongInfoViewModel songInfo, MsuSongMsuPcmInfoViewModel? pcmInfoViewModel)
@@ -521,66 +526,24 @@ public partial class EditProjectPanel : UserControl
 
         pcmInfoViewModel ??= songInfo.MsuPcmInfo;
 
-        var file = pcmInfoViewModel.File;
-            
         if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
         {
             var result = await ShowYesNoWindow("Either the trim end or loop points have a value. Are you sure you want to overwrite them?");
             if (result != MessageWindowResult.Yes)
                 return;
         }
-
-        if (string.IsNullOrEmpty(file) || !File.Exists(file))
-        {
-            ShowError("No file specified for this song.");
-            return;
-        }
-
-        var service = _serviceProvider.GetRequiredService<PyMusicLooperService>();
-            
-        if (!service.TestService(out var validationMessage))
-        {
-            var result = await ShowYesNoWindow(
-                    $"Error with PyMusicLooper: {validationMessage}. Do you want to open the GitHub page for PyMusicLooper to set it up?");
-            if (result == MessageWindowResult.Yes)
-            {
-                var startInfo = new ProcessStartInfo
-                {
-                    Arguments = "https://github.com/arkrow/PyMusicLooper", 
-                    FileName = "explorer.exe"
-                };
-                
-                Process.Start(startInfo);
-            }
-            return;
-        }
         
-        UpdateStatusBarText("Running PyMusicLooper");
-
-        await Task.Run(() =>
-        {
-            var successful = service.GetLoopPoints(file, out var message, out var loopStart, out var loopEnd);
-
-            if (!successful)
-            {
-                ShowError($"Error with PyMusicLooper:\n{message}");
-                UpdateStatusBarText("PyMusicLooper Failed");
-            }
-            else
-            {
-                pcmInfoViewModel.TrimEnd = loopEnd;
-                pcmInfoViewModel.Loop = loopStart;
-                UpdateStatusBarText("PyMusicLooper Complete");
-            }
-
-            return Task.CompletedTask;
-        });
-
-        
+        var window = _serviceProvider.GetRequiredService<MusicLooperWindow>();
+        window.Model = pcmInfoViewModel;
+        await window.ShowDialog();
     }
 
     private void Control_OnUnloaded(object? sender, RoutedEventArgs e)
     {
         _ = _audioService?.StopSongAsync();
+        if (_audioAnalysisWindow?.IsVisible == true)
+        {
+            _audioAnalysisWindow.Close();
+        }
     }
 }
