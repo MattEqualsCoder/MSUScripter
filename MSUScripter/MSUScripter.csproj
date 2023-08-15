@@ -1,47 +1,61 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0-windows</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <UseWPF>true</UseWPF>
-        <Version>1.0.0-rc.3</Version>
-        <PackageIcon>MSUScripterIcon.ico</PackageIcon>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
+        <PackageIcon>MSUScripterIcon.ico</PackageIcon>
+        <Version>1.0.0-rc.6</Version>
     </PropertyGroup>
 
+
     <ItemGroup>
-      <PackageReference Include="FlacLibSharp" Version="3.2.1" />
-      <PackageReference Include="ID3" Version="0.6.0" />
-      <PackageReference Include="MahApps.Metro.IconPacks.FontAwesome" Version="4.11.0" />
-      <PackageReference Include="MahApps.Metro.IconPacks.Material" Version="4.11.0" />
-      <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.0.0" />
-      <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="0.9.8" />
-      <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
-      <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0-preview.6.23329.7" />
-      <PackageReference Include="NAudio" Version="2.1.0" />
-      <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="10.9.0" />
-      <PackageReference Include="NReco.Logging.File" Version="1.1.6" />
-      <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
-      <PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
+        <PackageReference Include="Avalonia" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.0.3" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.0.3" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.0.3" />
+        <PackageReference Include="FlacLibSharp" Version="3.2.1" />
+        <PackageReference Include="ID3" Version="0.6.0" />
+        <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
+        <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="0.9.8" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
+        <PackageReference Include="NAudio" Version="2.1.0" />
+        <PackageReference Include="NAudio.WinMM" Version="2.1.0" />
+        <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="10.9.0" />
+        <PackageReference Include="NReco.Logging.File" Version="1.1.6" />
     </ItemGroup>
+
+
+    <ItemGroup>
+      <Compile Update="Controls\MainWindow.axaml.cs">
+        <DependentUpon>MainWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+	
+	<ItemGroup>
+	  <AvaloniaResource Include="Assets\**" />
+	  <EmbeddedResource Include="empty.pcm" />
+	</ItemGroup>
+
+
+
+    <ItemGroup>
+      <Reference Include="Avalonia.Themes.Simple">
+        <HintPath>C:\Users\matte\.nuget\packages\avalonia.themes.simple\11.0.0\lib\net6.0\Avalonia.Themes.Simple.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+
 
     <ItemGroup>
       <None Remove="msu-randomizer-settings.yaml" />
       <EmbeddedResource Include="msu-randomizer-settings.yaml" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Page Update="UI\Generic.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Remove="MSUScripterIcon.ico" />
-      <Resource Include="MSUScripterIcon.ico" />
-    </ItemGroup>
-
 </Project>

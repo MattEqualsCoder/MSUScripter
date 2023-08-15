@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
@@ -12,28 +14,50 @@ namespace MSUScripter.Services;
 
 public class MsuPcmService
 {
-    public static MsuPcmService Instance { get; private set; } = null!;
-
     private readonly ILogger<MsuPcmService> _logger;
+    private readonly ConverterService _converterService;
+    private readonly Settings _settings;
 
-    public MsuPcmService(ILogger<MsuPcmService> logger)
+    public MsuPcmService(ILogger<MsuPcmService> logger, ConverterService converterService, Settings settings)
     {
         _logger = logger;
-        Instance = this;
+        _converterService = converterService;
+        _settings = settings;
+    }
+
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message)
+    {
+        outputPath = GetTempFilePath();
+        if (File.Exists(outputPath))
+        {
+            File.Delete(outputPath);
+        }
+        return CreatePcm(project, new MsuSongInfo()
+            {
+                TrackNumber = project.MsuType.Tracks.First().Number,
+                OutputPath = outputPath,
+                MsuPcmInfo = new MsuSongMsuPcmInfo()
+                {
+                    Output = outputPath,
+                    File = inputFile
+                }
+            }, out message);
     }
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
     {
+        
+        if (string.IsNullOrEmpty(song.OutputPath))
+        {
+            message = $"Track #{song.TrackNumber} - Missing output PCM path";
+            return false;
+        }
+            
+        var msu = new FileInfo(project.MsuPath);
+        var guid = Guid.NewGuid().ToString("N");
+        var jsonPath = msu.FullName.Replace(msu.Extension, $"-msupcm-temp-{guid}.json");
         try
         {
-            if (string.IsNullOrEmpty(song.OutputPath))
-            {
-                message = $"Track #{song.TrackNumber} - Missing output PCM path";
-                return false;
-            }
-            
-            var msu = new FileInfo(project.MsuPath);
-            var jsonPath = msu.FullName.Replace(msu.Extension, "-msupcm-temp.json");
             ExportMsuPcmTracksJson(project, song, jsonPath);
             
             var msuPath = new FileInfo(project.MsuPath).DirectoryName;
@@ -80,8 +104,51 @@ public class MsuPcmService
         {
             _logger.LogError(e, "Error creating PCM file for Track #{TrackNum} - {SongPath}", song.TrackNumber, song.OutputPath);
             message = $"Track #{song.TrackNumber} - {song.OutputPath} - Unknown error";
+            if (File.Exists(jsonPath))
+            {
+                File.Delete(jsonPath);
+            }
             return false;
         }
+    }
+
+    public bool CreateEmptyPcm(MsuSongInfo song)
+    {
+        if (string.IsNullOrEmpty(song.OutputPath))
+        {
+            return false;
+        }
+
+        try
+        {
+            if (File.Exists(song.OutputPath))
+            {
+                File.Delete(song.OutputPath);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not delete output file");
+            return false;
+        }
+
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.empty.pcm");
+        if (stream == null)
+            return false;
+
+        try
+        {
+            using var fileStream = File.Create(song.OutputPath);
+            stream.CopyTo(fileStream);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not copy empty pcm file");
+            return false;
+        }
+
+        return true;
+
     }
 
     public bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)
@@ -149,28 +216,59 @@ public class MsuPcmService
 
     public bool RunMsuPcm(string trackJson, out string error)
     {
-        if (string.IsNullOrEmpty(SettingsService.Settings.MsuPcmPath) ||
-            !File.Exists(SettingsService.Settings.MsuPcmPath))
+        IsGeneratingPcm = true;
+        var toReturn = RunMsuPcmInternal("\"" + trackJson + "\"", out _, out error);
+        IsGeneratingPcm = false;
+        return toReturn;
+    }
+
+    public bool ValidateMsuPcmPath(string msuPcmPath, out string error)
+    {
+        var successful = RunMsuPcmInternal("-v", out var result, out error, msuPcmPath);
+        return successful && result.StartsWith("msupcm v");
+    }
+
+    private bool RunMsuPcmInternal(string innerCommand, out string result, out string error, string? msuPcmPath = null)
+    {
+        msuPcmPath ??= _settings.MsuPcmPath;
+        if (string.IsNullOrEmpty(msuPcmPath) ||
+            !File.Exists(msuPcmPath))
         {
+            result = "";
             error = "MsuPcm++ path not specified or is invalid";
             return false;
         }
-
-        IsGeneratingPcm = true;
-
+        
         try
         {
-            var msuPcmFile = new FileInfo(SettingsService.Settings.MsuPcmPath);
-            var command = msuPcmFile.Name + " \"" + trackJson + "\"";
-        
-            var procStartInfo = new ProcessStartInfo("cmd", "/c " + command)
+            var msuPcmFile = new FileInfo(msuPcmPath);
+            
+            ProcessStartInfo procStartInfo;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                WorkingDirectory = msuPcmFile.DirectoryName,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+                var command = msuPcmFile.Name + " " + innerCommand;
+                procStartInfo= new ProcessStartInfo("cmd", "/c " + command)
+                {
+                    WorkingDirectory = msuPcmFile.DirectoryName,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
+            else
+            {
+                procStartInfo= new ProcessStartInfo(msuPcmFile.FullName)
+                {
+                    Arguments = innerCommand,
+                    WorkingDirectory = msuPcmFile.DirectoryName,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+            }
 
             // wrap IDisposable into using (in order to release hProcess) 
             using var process = new Process();
@@ -181,17 +279,16 @@ public class MsuPcmService
             process.WaitForExit();
 
             // and only then read the result
-            var result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
+            result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
             error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
-
-            IsGeneratingPcm = false;
+            
             if (string.IsNullOrEmpty(error)) return true;
             _logger.LogError("Error running MsuPcm++: {Error}", error);
             return false;
         }
         catch (Exception e)
         {
-            IsGeneratingPcm = false;
+            result = "";
             error = "Unknown error running MsuPcm++";
             _logger.LogError(e, "Unknown error running MsuPcm++");
             return false;
@@ -229,7 +326,7 @@ public class MsuPcmService
         
         foreach (var song in songs)
         {
-            if (ConverterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
+            if (_converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
             track.Output = song.OutputPath;
             track.Track_number = song.TrackNumber;
             track.Title = song.TrackName;
@@ -243,4 +340,15 @@ public class MsuPcmService
     }
     
     public bool IsGeneratingPcm { get; private set; }
+
+    private string GetTempFilePath()
+    {
+        var basePath = Directory.GetCurrentDirectory();
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            basePath = Environment.ExpandEnvironmentVariables($"%LocalAppData%{Path.DirectorySeparatorChar}MSUScripter");
+        }
+
+        return Path.Combine(basePath, "tmp-pcm.pcm");
+    }
 }

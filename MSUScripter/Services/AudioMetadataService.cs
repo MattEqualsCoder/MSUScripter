@@ -51,13 +51,13 @@ public class AudioMetadataService
                 return new AudioMetadata()
                 {
                     SongName = !string.IsNullOrEmpty(tag.Title.Value)
-                        ? tag.Title.Value 
-                        : fileInfo.Name.Replace(fileInfo.Extension, ""),
-                    Artist = string.Join(", ", tag.Artists.Value),
-                    Album = tag.Album.Value,
+                        ? tag.Title.Value.Replace("\0", "")
+                        : fileInfo.Name.Replace(fileInfo.Extension, "").Replace("\0", ""),
+                    Artist = string.Join(", ", tag.Artists.Value).Replace("\0", ""),
+                    Album = tag.Album.Value.Replace("\0", ""),
                     Url = tag.ArtistUrls.Any()
-                        ? string.Join(", ", tag.ArtistUrls.Select(x => x.Url).ToList())
-                        : tag.CopyrightUrl.Url
+                        ? string.Join(", ", tag.ArtistUrls.Select(x => x.Url).ToList()).Replace("\0", "")
+                        : tag.CopyrightUrl.Url.Replace("\0", "")
                 };
             }
 

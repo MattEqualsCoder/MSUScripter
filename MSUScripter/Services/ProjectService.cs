@@ -21,6 +21,8 @@ public class ProjectService
     private readonly AudioMetadataService _audioMetadataService;
     private readonly SettingsService _settingsService;
     private readonly ILogger<ProjectService> _logger;
+    private readonly ConverterService _converterService;
+    
     private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -30,7 +32,7 @@ public class ProjectService
         .IgnoreUnmatchedProperties()
         .Build();
     
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService)
+    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService, ConverterService converterService)
     {
         _msuTypeService = msuTypeService;
         _msuLookupService = msuLookupService;
@@ -38,20 +40,53 @@ public class ProjectService
         _logger = logger;
         _audioMetadataService = audioMetadataService;
         _settingsService = settingsService;
+        _converterService = converterService;
     }
     
-    public void SaveMsuProject(MsuProject project)
+    public void SaveMsuProject(MsuProject project, bool isBackup)
     {
         project.LastSaveTime = DateTime.Now;
+        
+        if (!isBackup)
+        {
+            _settingsService.AddRecentProject(project);
+            SaveMsuProject(project, true);
+        }
+        
         var serializer = new SerializerBuilder()
             .WithNamingConvention(PascalCaseNamingConvention.Instance)
             .Build();
         var yaml = serializer.Serialize(project);
-        File.WriteAllText(project.ProjectFilePath, yaml);
-        _settingsService.AddRecentProject(project);
+
+        if (isBackup && !Directory.Exists(GetBackupDirectory()))
+        {
+            try
+            {
+                Directory.CreateDirectory(GetBackupDirectory());
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Could not create backups directory");
+                return;
+            }
+        }
+
+        try
+        {
+            var path = isBackup ? Path.Combine(project.BackupFilePath) : project.ProjectFilePath;
+            File.WriteAllText(path, yaml);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Could not save project file");
+            if (!isBackup)
+                throw;
+        }
+        
+        
     }
 
-    public MsuProject? LoadMsuProject(string path)
+    public MsuProject? LoadMsuProject(string path, bool isBackup)
     {
         if (!File.Exists(path))
         {
@@ -64,7 +99,13 @@ public class ProjectService
             .IgnoreUnmatchedProperties()
             .Build();
         var project = deserializer.Deserialize<MsuProject>(yaml);
-        project.ProjectFilePath = path;
+        
+        if (!isBackup)
+        {
+            project.ProjectFilePath = path;
+            project.BackupFilePath = GetProjectBackupFilePath(path);
+        }
+        
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
 
         if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == _msuTypeService.GetSMZ3MsuType())
@@ -72,17 +113,27 @@ public class ProjectService
             project.BasicInfo.IsSmz3Project = true;
         }
 
-        _settingsService.AddRecentProject(project);
+        if (!isBackup)
+        {
+            _settingsService.AddRecentProject(project);    
+        }
+        
         return project;
     }
 
     public MsuProject NewMsuProject(string projectPath, string msuTypeName, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
     {
         var msuType = _msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
-        
+
+        return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+    }
+    
+    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
+    {
         var project = new MsuProject()
         {
             ProjectFilePath = projectPath,
+            BackupFilePath = GetProjectBackupFilePath(projectPath),
             MsuType = msuType,
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
@@ -116,7 +167,7 @@ public class ProjectService
             project.BasicInfo.CreateSplitSmz3Script = true;
         }
 
-        SaveMsuProject(project);
+        SaveMsuProject(project, false);
 
         return project;
     }
@@ -303,7 +354,7 @@ public class ProjectService
     private MsuProject InternalGetSmz3MsuProject(MsuProject project, MsuType msuType, string newMsuPath, Dictionary<string, string> convertedPaths)
     {
         var basicInfo = new MsuBasicInfo();
-        ConverterService.ConvertViewModel(project.BasicInfo, basicInfo);
+        _converterService.ConvertViewModel(project.BasicInfo, basicInfo);
 
         var conversion = msuType.Conversions[project.MsuType];
 
@@ -335,7 +386,7 @@ public class ProjectService
             foreach (var song in project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs)
             {
                 var newSong = new MsuSongInfo();
-                ConverterService.ConvertViewModel(song, newSong);
+                _converterService.ConvertViewModel(song, newSong);
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
@@ -419,7 +470,7 @@ public class ProjectService
             var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
             if (projectTrack == null) continue;
 
-            var msuPcmInfo = track.SelectMany(x => ConverterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
+            var msuPcmInfo = track.SelectMany(x => _converterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
             var songs = projectTrack.Songs.OrderBy(x => x.IsAlt).ToList();
             
             for (var i = 0; i < msuPcmInfo.Count; i++)
@@ -428,7 +479,7 @@ public class ProjectService
                 
                 if (!string.IsNullOrEmpty(msuPcmInfo[i].Output))
                 {
-                    trackPath = ConverterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
+                    trackPath = _converterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
                 }
                 else if (i == 0)
                 {
@@ -538,7 +589,7 @@ public class ProjectService
             {
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
-                var newMsuType = ConverterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
+                var newMsuType = _converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
                 var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
                 File.WriteAllText(newYamlPath, outYaml);
             }
@@ -610,14 +661,14 @@ public class ProjectService
                 }
             }
 
-            if (!string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) && !File.Exists(project.BasicInfo.MetroidMsuPath))
+            if (project.BasicInfo.CreateSplitSmz3Script && !string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath) && !File.Exists(project.BasicInfo.MetroidMsuPath))
             {
                 using (File.Create(project.BasicInfo.MetroidMsuPath))
                 {
                 }
             }
 
-            if (!string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath) && !File.Exists(project.BasicInfo.ZeldaMsuPath))
+            if (project.BasicInfo.CreateSplitSmz3Script && !string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath) && !File.Exists(project.BasicInfo.ZeldaMsuPath))
             {
                 using (File.Create(project.BasicInfo.ZeldaMsuPath))
                 {
@@ -675,5 +726,18 @@ public class ProjectService
 
         var text = sb.ToString();
         File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
+    }
+
+    private string GetProjectBackupFilePath(string projectFilePath)
+    {
+        var file = new FileInfo(projectFilePath);
+        byte[] inputBytes = Encoding.ASCII.GetBytes(file.FullName);
+        byte[] hashBytes = System.Security.Cryptography.MD5.HashData(inputBytes);
+        return Path.Combine(GetBackupDirectory(), $"{Convert.ToHexString(hashBytes)}_{file.Name}");
+    }
+
+    private string GetBackupDirectory()
+    {
+        return Path.Combine(Program.GetBaseFolder(), "backups");
     }
 }

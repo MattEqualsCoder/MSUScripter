@@ -1,0 +1,62 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Controls.AudioControl">
+    <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto,Auto">
+        <Button Grid.Column="0" Padding="5" IsEnabled="False" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+            <StackPanel>
+                <avalonia:MaterialIcon Kind="Stop"
+                                       Name="IconStop"
+                                       IsVisible="True"
+                ></avalonia:MaterialIcon>
+                <avalonia:MaterialIcon Kind="Play"
+                                       Name="IconPause"
+                                       IsVisible="False"
+                ></avalonia:MaterialIcon>
+                <avalonia:MaterialIcon Kind="Pause"
+                                       Name="IconPlay"
+                                       IsVisible="False"
+                ></avalonia:MaterialIcon>
+            </StackPanel>
+        </Button>
+        
+        <avalonia:MaterialIcon Grid.Column="2" Kind="VolumeHigh" Margin="0 2 0 0"></avalonia:MaterialIcon>
+        
+        <Slider Grid.Column="1" IsEnabled="False" Margin="4 4 0 0" Name="PositionSlider" Minimum="0" Maximum="100" ValueChanged="PositionSlider_OnValueChanged"></Slider>
+        
+        <Slider Grid.Column="3" Width="80" Margin="4 4 0 0" Name="VolumeSlider" Minimum="0" Maximum="100" ValueChanged="VolumeSlider_OnValueChanged"></Slider>
+    </Grid>
+    <!--<Grid VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5 -2 0 0">
+            <StackPanel Orientation="Horizontal">
+                
+            </StackPanel>
+            <Button Padding="5" IsEnabled="False" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+                <StackPanel>
+                    <avalonia:MaterialIcon Kind="Stop"
+                                           Name="IconStop"
+                                           IsVisible="True"
+                    ></avalonia:MaterialIcon>
+                    <avalonia:MaterialIcon Kind="Play"
+                                           Name="IconPause"
+                                           IsVisible="False"
+                    ></avalonia:MaterialIcon>
+                    <avalonia:MaterialIcon Kind="Pause"
+                                           Name="IconPlay"
+                                           IsVisible="False"
+                    ></avalonia:MaterialIcon>
+                </StackPanel>
+            </Button>
+            
+            <Slider IsEnabled="False" Width="80" Margin="4 4 0 0" Name="PositionSlider" Minimum="0" Maximum="100" ValueChanged="PositionSlider_OnValueChanged"></Slider>
+            
+            <avalonia:MaterialIcon Kind="VolumeHigh"></avalonia:MaterialIcon>
+            
+            <Slider Width="80" Margin="4 4 0 0" Name="VolumeSlider" Minimum="0" Maximum="100" ValueChanged="VolumeSlider_OnValueChanged"></Slider>
+            
+        </StackPanel>
+    </Grid>-->
+</UserControl>

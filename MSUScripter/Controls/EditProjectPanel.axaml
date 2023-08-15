@@ -1,0 +1,85 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Controls.EditProjectPanel"
+             Unloaded="Control_OnUnloaded"
+             x:DataType="viewModels:MsuProjectViewModel">
+    <DockPanel>
+        
+        <Grid DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">
+            <Button 
+                Name="PrevButton"
+                Grid.Column="0" 
+                Margin="0 0 5 0" 
+                Padding="5 0" 
+                Click="PrevButton_OnClick"
+            >
+                <StackPanel Orientation="Horizontal">
+                    <avalonia:MaterialIcon Kind="ChevronDoubleLeft" Margin="0 0 0 0"></avalonia:MaterialIcon>
+                    <TextBlock>Prev</TextBlock>
+                </StackPanel>
+            </Button>
+            <ComboBox Grid.Column="1" 
+                      Name="PageComboBox"
+                      Margin="0 0 0 0"
+                      HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch"
+                      SelectionChanged="PageComboBox_OnSelectionChanged"
+            />
+            <Button 
+                Name="NextButton"
+                Grid.Column="2"
+                Margin="5 0 0 0" 
+                Padding="5 0"
+                Click="NextButton_OnClick"
+            >
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock>Next</TextBlock>
+                    <avalonia:MaterialIcon Kind="ChevronDoubleRight" Margin="0 0 0 0"></avalonia:MaterialIcon>
+                </StackPanel>
+            </Button>
+        </Grid>
+        
+        <Border DockPanel.Dock="Bottom">
+            <Grid ColumnDefinitions="*,*,*">
+                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="5 0 0 5"></StackPanel>
+                <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
+                    <Button x:Name="AnalysisButton"
+                            Margin="0 2 5 1"
+                            Click="AnalysisButton_OnClick"
+                    >_Audio Analysis</Button>
+                    <Button x:Name="ExportButton" 
+                            IsVisible="{Binding !BasicInfo.IsMsuPcmProject }"
+                            Padding="8 5"
+                            Click="ExportButton_OnClick"
+                    >_Export</Button>
+                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }" Click="ExportButton_OnClick">
+                        <SplitButton.Flyout>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight">
+                                <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Swapper" Header="Export Alt Track Swap Script" Click="ExportButton_Swapper_OnClick" IsVisible="{Binding BasicInfo.CreateAltSwapper}"></MenuItem>
+                                <MenuItem Name="ExportButton_Smz3" Header="Export _SMZ3 Split MSU Script" Click="ExportButton_Smz3_OnClick" IsVisible="{Binding BasicInfo.CreateSplitSmz3Script}"></MenuItem>
+                            </MenuFlyout>
+                        </SplitButton.Flyout>
+                    </SplitButton>
+                </StackPanel>
+            </Grid>
+            
+        </Border>
+        
+        <Border BorderBrush="DimGray" BorderThickness="1" Margin="5">
+            <ScrollViewer>
+                <StackPanel Orientation="Vertical" Name="PagePanel" Margin="10 10 10 10">
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+        
+    </DockPanel>
+</UserControl>

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using MSUScripter.Tools;
 
 namespace MSUScripter.ViewModels;
 
@@ -64,7 +64,7 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _isAlt, value);
     }
     
-    public DateTime _lastModifiedDate;
+    private DateTime _lastModifiedDate;
     public DateTime LastModifiedDate
     {
         
@@ -72,11 +72,26 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _lastModifiedDate, value);
     }
     
-    public DateTime _lastGeneratedDate;
+    private DateTime _lastGeneratedDate;
     public DateTime LastGeneratedDate
     {
         get => _lastGeneratedDate;
         set => SetField(ref _lastGeneratedDate, value);
+    }
+
+    [SkipConvert]
+    public MsuProjectViewModel Project { get; set; } = null!;
+    
+    public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        return MsuPcmInfo.HasChangesSince(time) || LastModifiedDate > time;
+    }
+
+    public bool HasFiles()
+    {
+        return MsuPcmInfo.HasFiles();
     }
     
     public event PropertyChangedEventHandler? PropertyChanged;

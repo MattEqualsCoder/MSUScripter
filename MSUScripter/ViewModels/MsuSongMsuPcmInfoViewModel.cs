@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using MSUScripter.Tools;
 
 namespace MSUScripter.ViewModels;
 
@@ -89,7 +91,11 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     public string? File
     {
         get => _file;
-        set => SetField(ref _file, value);
+        set
+        {
+            SetField(ref _file, value);
+            HasFile = !string.IsNullOrEmpty(_file) && System.IO.File.Exists(_file);
+        }
     }
     
     private string? _output;
@@ -107,8 +113,8 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _lastModifiedDate, value);
     }
     
-    private List<MsuSongMsuPcmInfoViewModel> _subTracks = new List<MsuSongMsuPcmInfoViewModel>();
-    public List<MsuSongMsuPcmInfoViewModel> SubTracks
+    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subTracks = new ObservableCollection<MsuSongMsuPcmInfoViewModel>();
+    public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubTracks
     {
         get => _subTracks;
         set
@@ -119,8 +125,8 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         }
     }
 
-    private List<MsuSongMsuPcmInfoViewModel> _subChannels = new List<MsuSongMsuPcmInfoViewModel>();
-    public List<MsuSongMsuPcmInfoViewModel> SubChannels
+    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subChannels = new ObservableCollection<MsuSongMsuPcmInfoViewModel>();
+    public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubChannels
     {
         get => _subChannels;
         set
@@ -131,12 +137,75 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         }
     }
 
+    
+    private bool _hasFile;
+
+    [SkipConvert]
+    public bool HasFile
+    {
+        get => _hasFile;
+        set => SetField(ref _hasFile, value);
+    }
+
+    public void AddSubChannel()
+    {
+        SubChannels.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
+        OnPropertyChanged(nameof(CanEditSubTracks));
+        LastModifiedDate = DateTime.Now;
+    }
+
+    public void RemoveSubChannel(MsuSongMsuPcmInfoViewModel model)
+    {
+        SubChannels.Remove(model);
+        OnPropertyChanged(nameof(CanEditSubTracks));
+        LastModifiedDate = DateTime.Now;
+    }
+    
+    public void AddSubTrack()
+    {
+        SubTracks.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
+        OnPropertyChanged(nameof(CanEditSubChannels));
+        LastModifiedDate = DateTime.Now;
+    }
+
+    public void RemoveSubTrack(MsuSongMsuPcmInfoViewModel model)
+    {
+        SubTracks.Remove(model);
+        OnPropertyChanged(nameof(CanEditSubChannels));
+        LastModifiedDate = DateTime.Now;
+    }
+
+    [SkipConvert]
+    public MsuProjectViewModel Project { get; set; } = null!;
+    
+    [SkipConvert]
+    public MsuSongInfoViewModel Song { get; set; } = null!;
+    
+    [SkipConvert]
+    public bool IsTopLevel { get; set; }
+
+    public bool CanDelete => !IsTopLevel;
+
     public bool CanEditFile => !_subTracks.Any() && !_subChannels.Any();
 
-    public bool CanEditSubTracks => string.IsNullOrEmpty(_file) && !_subChannels.Any();
+    public bool CanEditSubTracks => !_subChannels.Any();
 
-    public bool CanEditSubChannels => string.IsNullOrEmpty(_file) && !_subTracks.Any();
-    
+    public bool CanEditSubChannels => !_subTracks.Any();
+
+    public bool HasChangesSince(DateTime time)
+    {
+        if (SubTracks.Any(x => x.HasChangesSince(time)))
+            return true;
+        if (SubChannels.Any(x => x.HasChangesSince(time)))
+            return true;
+        return LastModifiedDate > time;
+    }
+
+    public bool HasFiles()
+    {
+        return !string.IsNullOrEmpty(File) || SubTracks.Any(x => x.HasFiles()) || SubChannels.Any(x => x.HasFiles());
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

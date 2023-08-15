@@ -24,7 +24,7 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _recentProjects, value);
     }
 
-    public double _volume;
+    private double _volume;
     
     public double Volume 
     {
@@ -49,6 +49,15 @@ public class SettingsViewModel : INotifyPropertyChanged
         
         get => _promptOnPreRelease;
         set => SetField(ref _promptOnPreRelease, value);
+    }
+    
+    private bool _darkTheme;
+    
+    public bool DarkTheme
+    {
+        
+        get => _darkTheme;
+        set => SetField(ref _darkTheme, value);
     }
     
 
