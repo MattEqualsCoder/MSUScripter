@@ -2,7 +2,7 @@
 
 A cross platform application built for creating MSUs and related files. The application works as a wrapper around [msupcm++](https://github.com/qwertymodo/msupcmplusplus), creating the necessary JSON and executing it to generate pcm files. Furthermore, it also creates YAML files for the [MSU Randomizer](https://github.com/MattEqualsCoder/MSURandomizer) to help it identify MSUs and their tracks, intended to be used in [SMZ3 Cas' Randomizer](https://github.com/Vivelin/SMZ3Randomizer) to identify the current playing track.
 
-![image](https://github.com/MattEqualsCoder/MSUScripter/assets/63823784/d4afd616-03c3-4946-a743-8b18ebf81352)
+![image](https://github.com/MattEqualsCoder/MSUScripter/assets/63823784/8aa52ce7-06e5-4405-aa83-33fbaba42e9d)
 
 ## Features
 
