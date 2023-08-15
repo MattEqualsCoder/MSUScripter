@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
 
@@ -15,14 +16,16 @@ public partial class MainWindow : Window
     private readonly IServiceProvider? _services;
     private NewProjectPanel? _newProjectPanel;
     private EditProjectPanel? _editProjectPanel;
+    private Settings? _settings;
 
-    public MainWindow() : this(null)
+    public MainWindow() : this(null, null)
     {
     }
     
-    public MainWindow(IServiceProvider? services)
+    public MainWindow(IServiceProvider? services, Settings? settings)
     {
         _services = services;
+        _settings = settings;
         InitializeComponent();
         DisplayNewPanel();
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
@@ -110,5 +113,28 @@ public partial class MainWindow : Window
     {
         if (_editProjectPanel == null) return;
         await _editProjectPanel.CheckPendingChanges();
+    }
+
+    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (_services == null || _settings?.PromptOnUpdate != true) return;
+        
+        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
+
+        var newerGitHubRelease = _services.GetRequiredService<IGitHubReleaseCheckerService>()
+            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", version.ProductVersion ?? "", _settings?.PromptOnPreRelease == true);
+
+        if (newerGitHubRelease != null)
+        {
+            var response =
+                await new MessageWindow(
+                    "A new update was found for the MSU Scripter. Do you want to open the GitHub page to download it?", MessageWindowType.YesNo, $"Update Available").ShowDialog(this);
+
+            if (response == MessageWindowResult.Yes)
+            {
+                var url = newerGitHubRelease.Url.Replace("&", "^&");
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+        }
     }
 }

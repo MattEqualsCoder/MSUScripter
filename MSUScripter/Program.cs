@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary;
@@ -110,6 +111,7 @@ class Program
             })
 #endif
             .AddMsuRandomizerServices()
+            .AddGitHubReleaseCheckerServices()
             .AddSingleton<SettingsService>()
             .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<SettingsService>().Settings)
             .AddSingleton<MsuPcmService>()
