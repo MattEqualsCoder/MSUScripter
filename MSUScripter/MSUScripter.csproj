@@ -22,6 +22,7 @@
         <PackageReference Include="FlacLibSharp" Version="3.2.1" />
         <PackageReference Include="ID3" Version="0.6.0" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.0.1" />
+        <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.0.0" />
         <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="0.9.8" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
