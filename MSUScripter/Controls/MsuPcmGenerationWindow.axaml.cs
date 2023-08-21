@@ -18,32 +18,36 @@ public partial class MsuPcmGenerationWindow : Window
     private readonly ConverterService? _converterService;
     private readonly MsuGenerationViewModel _rows;
     private readonly CancellationTokenSource _cts = new();
+    private readonly ProjectService? _projectService;
     
     private int _errors;
     private bool _hasFinished;
+    private bool _exportYaml;
     
     public MsuProjectViewModel _projectViewModel { get; set; } = new();
     public MsuProject _project { get; set; } = new();
     
-    public MsuPcmGenerationWindow() : this(null, null)
+    public MsuPcmGenerationWindow() : this(null, null, null)
     {
         
     }
     
-    public MsuPcmGenerationWindow(MsuPcmService? msuPcmService, ConverterService? converterService)
+    public MsuPcmGenerationWindow(MsuPcmService? msuPcmService, ConverterService? converterService, ProjectService? projectService)
     {
         _msuPcmService = msuPcmService;
         _converterService = converterService;
+        _projectService = projectService;
         InitializeComponent();
         DataContext = _rows = new MsuGenerationViewModel(); 
     }
     
-    public void SetProject(MsuProjectViewModel project)
+    public void SetProject(MsuProjectViewModel project, bool exportYaml)
     {
         if (_converterService == null || _msuPcmService == null) return;
         
         _projectViewModel = project;
         _project = _converterService.ConvertProject(project);
+        _exportYaml = exportYaml;
 
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory)) return;
@@ -101,6 +105,12 @@ public partial class MsuPcmGenerationWindow : Window
             
             _hasFinished = true;
             _rows.ButtonText = "Close";
+            _rows.SongsCompleted = _rows.Rows.Count;
+
+            if (_exportYaml && _projectService != null)
+            {
+                _projectService.ExportMsuRandomizerYaml(_project, out var error);
+            }
             
             Dispatcher.UIThread.Invoke(() =>
             {

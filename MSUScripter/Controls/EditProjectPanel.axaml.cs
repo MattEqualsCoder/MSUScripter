@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
@@ -356,10 +357,15 @@ public partial class EditProjectPanel : UserControl
     {
         if (_projectViewModel == null || _projectService == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
-        _projectService.ExportMsuRandomizerYaml(_project);
+        _projectService.ExportMsuRandomizerYaml(_project, out var error);
+        if (!string.IsNullOrEmpty(error))
+        {
+            ShowError(error);
+            return;
+        }
         
         // Try to create the extra SMZ3 YAML files
-        if (_project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out var error))
+        if (_project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
         {
             ShowError(error ?? "Unknown error creating YAML file");
         }
@@ -408,7 +414,7 @@ public partial class EditProjectPanel : UserControl
         if (_msuPcmService == null || _projectViewModel == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        Task.Run(DisplayMsuGenerationWindow);
+        Task.Run(() => DisplayMsuGenerationWindow(false));
     }
 
     private void ExportButton_Swapper_OnClick(object? sender, RoutedEventArgs e)
@@ -448,7 +454,6 @@ public partial class EditProjectPanel : UserControl
         if (_projectService == null || _projectViewModel == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
         _projectService.CreateMsuFiles(_project);
-        _projectService.ExportMsuRandomizerYaml(_project);
         var extraProjects = new List<MsuProject>();
 
         if (_project.BasicInfo.CreateSplitSmz3Script)
@@ -482,10 +487,10 @@ public partial class EditProjectPanel : UserControl
         }
         
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        Task.Run(DisplayMsuGenerationWindow);
+        Task.Run(() => DisplayMsuGenerationWindow(true));
     }
     
-    private async Task DisplayMsuGenerationWindow()
+    private async Task DisplayMsuGenerationWindow(bool exportYaml)
     {
         if (_projectViewModel == null || _msuPcmService == null || _serviceProvider == null) return;
         if (_msuPcmService.IsGeneratingPcm) return;
@@ -500,7 +505,7 @@ public partial class EditProjectPanel : UserControl
         Dispatcher.UIThread.Invoke(() =>
         {
             var msuPcmGenerationWindow = _serviceProvider.GetRequiredService<MsuPcmGenerationWindow>();
-            msuPcmGenerationWindow.SetProject(_projectViewModel);
+            msuPcmGenerationWindow.SetProject(_projectViewModel, exportYaml);
             msuPcmGenerationWindow.ShowDialog(App._mainWindow!);
             UpdateStatusBarText("MSU Generated");
         });
@@ -544,6 +549,14 @@ public partial class EditProjectPanel : UserControl
         if (_audioAnalysisWindow?.IsVisible == true)
         {
             _audioAnalysisWindow.Close();
+        }
+    }
+
+    private void OpenFolderMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(_project?.MsuPath))
+        {
+            Process.Start("explorer.exe", $"/select,\"{_project!.MsuPath}\"");
         }
     }
 }

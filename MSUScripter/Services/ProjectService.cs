@@ -607,7 +607,7 @@ public class ProjectService
         
     }
 
-    public void ExportMsuRandomizerYaml(MsuProject project)
+    public void ExportMsuRandomizerYaml(MsuProject project, out string? error)
     {
         var msuFile = new FileInfo(project.MsuPath);
         var msuDirectory = msuFile.Directory!;
@@ -647,7 +647,7 @@ public class ProjectService
         };
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
-        _msuDetailsService.SaveMsuDetails(msu, yamlPath, out var error);
+        _msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
     }
 
     public bool CreateMsuFiles(MsuProject project)

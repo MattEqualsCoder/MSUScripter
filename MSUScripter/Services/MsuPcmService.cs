@@ -52,10 +52,16 @@ public class MsuPcmService
             message = $"Track #{song.TrackNumber} - Missing output PCM path";
             return false;
         }
+
+        var jsonDirectory = Path.Combine(Program.GetBaseFolder(), "msupcmtemp");
+        if (!Directory.Exists(jsonDirectory))
+        {
+            Directory.CreateDirectory(jsonDirectory);
+        }
             
         var msu = new FileInfo(project.MsuPath);
         var guid = Guid.NewGuid().ToString("N");
-        var jsonPath = msu.FullName.Replace(msu.Extension, $"-msupcm-temp-{guid}.json");
+        var jsonPath = Path.Combine(jsonDirectory, msu.Name.Replace(msu.Extension, $"-msupcm-temp-{guid}.json"));
         try
         {
             ExportMsuPcmTracksJson(project, song, jsonPath);

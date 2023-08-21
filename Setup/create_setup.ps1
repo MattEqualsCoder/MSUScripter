@@ -2,7 +2,7 @@
 
 $pathFromRoot = "MSUScripter\bin\Release\net7.0"
 $exe = "MSUScripter.exe"
-$timeDifference = 180
+$timeDifference = 2
 
 $scriptFolder = $PSScriptRoot
 $outputFolder = "$PSScriptRoot\Output"

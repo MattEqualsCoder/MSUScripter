@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MSUScripter.Tools;
 
 namespace MSUScripter.ViewModels;
@@ -16,6 +17,8 @@ public class MsuProjectViewModel
     public MsuBasicInfoViewModel BasicInfo { get; set; } = new();
     [SkipConvert]
     public List<MsuTrackInfoViewModel> Tracks { get; set; } = new();
+    
+    [SkipConvert] public bool ShowOpenFolderButton => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
     
     public bool HasPendingChanges()
     {
