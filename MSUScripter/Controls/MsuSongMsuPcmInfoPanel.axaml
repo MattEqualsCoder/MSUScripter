@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:tools1="clr-namespace:MSUScripter.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
@@ -95,6 +96,16 @@
                 
                 <controls:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
                     <NumericUpDown Value="{Binding Tempo}" ></NumericUpDown>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
+                    <ComboBox 
+                        Name="CompressionComboBox"
+                        SelectedItem="{Binding Compression, Converter={StaticResource NullableBoolToStringConverter}}"
+                        ItemsSource="{x:Static tools1:NullableBoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True" IsVisible="{Binding CanEditSubTracks}">
