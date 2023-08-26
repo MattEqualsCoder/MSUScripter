@@ -23,6 +23,7 @@ public partial class MsuPcmGenerationWindow : Window
     private int _errors;
     private bool _hasFinished;
     private bool _exportYaml;
+    private bool _splitSmz3;
     
     public MsuProjectViewModel _projectViewModel { get; set; } = new();
     public MsuProject _project { get; set; } = new();
@@ -41,13 +42,14 @@ public partial class MsuPcmGenerationWindow : Window
         DataContext = _rows = new MsuGenerationViewModel(); 
     }
     
-    public void SetProject(MsuProjectViewModel project, bool exportYaml)
+    public void SetProject(MsuProjectViewModel project, bool exportYaml, bool splitSmz3)
     {
         if (_converterService == null || _msuPcmService == null) return;
         
         _projectViewModel = project;
         _project = _converterService.ConvertProject(project);
         _exportYaml = exportYaml;
+        _splitSmz3 = splitSmz3;
 
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory)) return;
@@ -110,6 +112,12 @@ public partial class MsuPcmGenerationWindow : Window
             if (_exportYaml && _projectService != null)
             {
                 _projectService.ExportMsuRandomizerYaml(_project, out var error);
+                
+                if (_splitSmz3 && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
+                {
+                    _ = new MessageWindow($"Error generating SMZ3 YAML: {error}", MessageWindowType.Error,
+                        "Error").ShowDialog(this);
+                }
             }
             
             Dispatcher.UIThread.Invoke(() =>

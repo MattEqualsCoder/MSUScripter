@@ -467,12 +467,6 @@ public partial class EditProjectPanel : UserControl
             }
             
             _projectService.CreateSmz3SplitScript(_project, conversions);
-
-            if (!_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
-            {
-                ShowError(error ?? "Unknown error creating YAML");
-                return;
-            }
         }
         
         if (_project.BasicInfo.CreateAltSwapperScript)
@@ -505,7 +499,7 @@ public partial class EditProjectPanel : UserControl
         Dispatcher.UIThread.Invoke(() =>
         {
             var msuPcmGenerationWindow = _serviceProvider.GetRequiredService<MsuPcmGenerationWindow>();
-            msuPcmGenerationWindow.SetProject(_projectViewModel, exportYaml);
+            msuPcmGenerationWindow.SetProject(_projectViewModel, exportYaml, _project!.BasicInfo.CreateSplitSmz3Script);
             msuPcmGenerationWindow.ShowDialog(App._mainWindow!);
             UpdateStatusBarText("MSU Generated");
         });

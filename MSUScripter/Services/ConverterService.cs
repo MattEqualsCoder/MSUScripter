@@ -329,7 +329,6 @@ public class ConverterService
                 {
                     newTrackDetails.Alts.Add(new MsuDetailsTrack()
                     {
-                        TrackNumber = newTypeTrack.Number,
                         Name = alt.Name,
                         Artist = alt.Artist,
                         Album = alt.Album,
