@@ -48,17 +48,55 @@ public class AudioMetadataService
 
             if (tag != null)
             {
-                return new AudioMetadata()
+                var toReturn = new AudioMetadata()
                 {
-                    SongName = !string.IsNullOrEmpty(tag.Title.Value)
-                        ? tag.Title.Value.Replace("\0", "")
-                        : fileInfo.Name.Replace(fileInfo.Extension, "").Replace("\0", ""),
-                    Artist = string.Join(", ", tag.Artists.Value).Replace("\0", ""),
-                    Album = tag.Album.Value.Replace("\0", ""),
-                    Url = tag.ArtistUrls.Any()
-                        ? string.Join(", ", tag.ArtistUrls.Select(x => x.Url).ToList()).Replace("\0", "")
-                        : tag.CopyrightUrl.Url.Replace("\0", "")
+                    SongName = "",
+                    Artist = "",
+                    Album = "",
+                    Url = ""
                 };
+
+                try
+                {
+                    toReturn.SongName = !string.IsNullOrEmpty(tag.Title.Value)
+                        ? tag.Title.Value.Replace("\0", "")
+                        : fileInfo.Name.Replace(fileInfo.Extension, "").Replace("\0", "");
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+                
+                try
+                {
+                    toReturn.Artist = string.Join(", ", tag.Artists.Value).Replace("\0", "");
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+                
+                try
+                {
+                    toReturn.Album = tag.Album.Value?.Replace("\0", "") ?? "";
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+                
+                try
+                {
+                    toReturn.Url = tag.ArtistUrls.Any()
+                        ? string.Join(", ", tag.ArtistUrls.Select(x => x.Url).ToList()).Replace("\0", "")
+                        : tag.CopyrightUrl.Url?.Replace("\0", "") ?? "";
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+
+                return toReturn;
             }
 
             return new AudioMetadata()
