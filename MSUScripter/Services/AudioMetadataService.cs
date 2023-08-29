@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using FlacLibSharp;
-using Id3;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using File = System.IO.File;
+using Tag = TagLib.NonContainer.Tag;
+using UrlLinkFrame = TagLib.Id3v2.UrlLinkFrame;
 
 namespace MSUScripter.Services;
 
@@ -23,115 +24,59 @@ public class AudioMetadataService
         {
             return new AudioMetadata();
         }
-        
-        var fileInfo = new FileInfo(file);
 
-        if (fileInfo.Extension.Equals(".mp3", StringComparison.OrdinalIgnoreCase))
-        {
-            return GetMp3AudioMetadata(file);
-        }
-        else if (fileInfo.Extension.Equals(".flac", StringComparison.OrdinalIgnoreCase))
-        {
-            return GetFlacAudioMetadata(file);
-        }
-
-        return new AudioMetadata();
-    }
-
-    public AudioMetadata GetMp3AudioMetadata(string file)
-    {
         try
         {
-            using var mp3 = new Mp3(file);
-            var tag = mp3.GetTag(Id3TagFamily.Version2X);
-            var fileInfo = new FileInfo(file);
-
-            if (tag != null)
+            var toReturn = new AudioMetadata()
             {
-                var toReturn = new AudioMetadata()
-                {
-                    SongName = "",
-                    Artist = "",
-                    Album = "",
-                    Url = ""
-                };
-
-                try
-                {
-                    toReturn.SongName = !string.IsNullOrEmpty(tag.Title.Value)
-                        ? tag.Title.Value.Replace("\0", "")
-                        : fileInfo.Name.Replace(fileInfo.Extension, "").Replace("\0", "");
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                }
-                
-                try
-                {
-                    toReturn.Artist = string.Join(", ", tag.Artists.Value).Replace("\0", "");
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                }
-                
-                try
-                {
-                    toReturn.Album = tag.Album.Value?.Replace("\0", "") ?? "";
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                }
-                
-                try
-                {
-                    toReturn.Url = tag.ArtistUrls.Any()
-                        ? string.Join(", ", tag.ArtistUrls.Select(x => x.Url).ToList()).Replace("\0", "")
-                        : tag.CopyrightUrl.Url?.Replace("\0", "") ?? "";
-                }
-                catch (Exception e)
-                {
-                    // ignored
-                }
-
+                SongName = Path.GetFileNameWithoutExtension(file),
+                Artist = "",
+                Album = "",
+                Url = ""
+            };
+            
+            var tagFile = TagLib.File.Create(file);
+            
+            if (tagFile == null)
+            {
                 return toReturn;
             }
 
-            return new AudioMetadata()
+            if (!string.IsNullOrEmpty(tagFile.Tag?.Title))
             {
-                SongName = fileInfo.Name.Replace(fileInfo.Extension, "")
-            };
-
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Unable to retrieve metadata for {File}", file);
-            return new AudioMetadata();
-        }
-    }
-    
-    public AudioMetadata GetFlacAudioMetadata(string file)
-    {
-        try
-        {
-            var fileInfo = new FileInfo(file);
-            using FlacFile flacFile = new FlacFile(file);
-            var vorbisComment = flacFile.VorbisComment;
-            if (vorbisComment != null)
-            {
-                return new AudioMetadata()
-                {
-                    SongName = vorbisComment.Title.FirstOrDefault() ?? fileInfo.Name.Replace(fileInfo.Extension, ""),
-                    Artist = string.Join(", ", vorbisComment.Artist),
-                    Album = vorbisComment.Album.FirstOrDefault()
-                };
+                toReturn.SongName = tagFile.Tag.Title;
             }
-            return new AudioMetadata()
+
+            if (tagFile.Tag?.Performers?.Any() == true)
             {
-                SongName = fileInfo.Name.Replace(fileInfo.Extension, "")
-            };
+                toReturn.Artist = string.Join(", ", tagFile.Tag.Performers);
+            }
+            else if (tagFile.Tag?.AlbumArtists?.Any() == true)
+            {
+                toReturn.Artist = string.Join(", ", tagFile.Tag.AlbumArtists);
+            }
+
+            if (!string.IsNullOrEmpty(tagFile.Tag?.Album))
+            {
+                toReturn.Album = tagFile.Tag.Album;
+            }
+
+            if (tagFile.Tag is Tag baseTag)
+            {
+                foreach (var tag in baseTag.Tags)
+                {
+                    if (tag is TagLib.Id3v2.Tag id3Tag)
+                    {
+                        var urlFrame = id3Tag.FirstOrDefault(x => x is UrlLinkFrame) as UrlLinkFrame;
+                        if (!(urlFrame?.Text.Length > 0)) continue;
+                        toReturn.Url = urlFrame.Text[0];
+                        break;
+                    }
+                    
+                }
+            }
+            
+            return toReturn;
         }
         catch (Exception e)
         {
@@ -139,4 +84,5 @@ public class AudioMetadataService
             return new AudioMetadata();
         }
     }
+
 }
