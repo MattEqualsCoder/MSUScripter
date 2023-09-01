@@ -102,7 +102,7 @@ public class MsuPcmService
                 {
                     message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
                     File.Delete(jsonPath);
-                    generated = true;
+                    generated = false;
                     return false;
                 }
                 message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
