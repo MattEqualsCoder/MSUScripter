@@ -91,7 +91,7 @@ public partial class MsuPcmGenerationWindow : Window
                     var song = new MsuSongInfo();
                     _converterService!.ConvertViewModel(songViewModel, song);
                     _converterService!.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
-                    if (!_msuPcmService!.CreatePcm(_project, song, out var error))
+                    if (!_msuPcmService!.CreatePcm(_project, song, out var error, out var generated))
                     {
                         songDetails.HasWarning = true;
                         songDetails.Message = error ?? "Unknown error";

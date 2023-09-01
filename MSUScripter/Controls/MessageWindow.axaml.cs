@@ -54,7 +54,7 @@ public partial class MessageWindow : Window
             var icon = this.Find<MaterialIcon>(nameof(MessageIcon));
             if (icon != null)
             {
-                icon.Kind = _type == MessageWindowType.Error ? MaterialIconKind.CloseCircle
+                icon.Kind = _type is MessageWindowType.Error or MessageWindowType.PcmWarning ? MaterialIconKind.CloseCircle
                     : _type == MessageWindowType.Warning ? MaterialIconKind.Alert
                     : _type == MessageWindowType.Info ? MaterialIconKind.Info
                     : MaterialIconKind.HelpCircle;
@@ -65,6 +65,11 @@ public partial class MessageWindow : Window
                 this.Find<Button>(nameof(OkButton))!.IsVisible = false;
                 this.Find<Button>(nameof(YesButton))!.IsVisible = true;
                 this.Find<Button>(nameof(NoButton))!.IsVisible = true;
+            }
+
+            if (_type == MessageWindowType.PcmWarning)
+            {
+                this.Find<CheckBox>(nameof(IgnoreCheckBox))!.IsVisible = true;
             }
         }
         else
@@ -94,7 +99,14 @@ public partial class MessageWindow : Window
 
     private void OkButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        Result = MessageWindowResult.Ok;
+        if (_type == MessageWindowType.PcmWarning && this.Find<CheckBox>(nameof(IgnoreCheckBox))?.IsChecked == true)
+        {
+            Result = MessageWindowResult.DontShow;
+        }
+        else
+        {
+            Result = MessageWindowResult.Ok;    
+        }
         Close();
     }
     
@@ -113,6 +125,12 @@ public partial class MessageWindow : Window
     private void NoButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Result = MessageWindowResult.No;
+        Close();
+    }
+
+    private void DontShowButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Result = MessageWindowResult.DontShow;
         Close();
     }
 }

@@ -25,7 +25,7 @@ public class MsuPcmService
         _settings = settings;
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message)
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated)
     {
         outputPath = GetTempFilePath();
         if (File.Exists(outputPath))
@@ -41,15 +41,16 @@ public class MsuPcmService
                     Output = outputPath,
                     File = inputFile
                 }
-            }, out message);
+            }, out message, out generated);
     }
 
-    public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message)
+    public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated)
     {
         
         if (string.IsNullOrEmpty(song.OutputPath))
         {
             message = $"Track #{song.TrackNumber} - Missing output PCM path";
+            generated = false;
             return false;
         }
 
@@ -72,6 +73,7 @@ public class MsuPcmService
             if (!File.Exists(jsonPath))
             {
                 message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
+                generated = false;
                 return false;
             }
 
@@ -79,6 +81,7 @@ public class MsuPcmService
             {
                 message = $"Track #{song.TrackNumber} - {relativePath} - {message!.ReplaceLineEndings("")}";
                 File.Delete(jsonPath);
+                generated = false;
                 return false;
             }
 
@@ -86,8 +89,12 @@ public class MsuPcmService
             {
                 message = $"Track #{song.TrackNumber} - {relativePath} - No input files specified";
                 File.Delete(jsonPath);
+                generated = false;
                 return false;
             }
+
+            var file = new FileInfo(song.OutputPath);
+            var lastModifiedDate = file.Exists ? file.LastWriteTime : DateTime.MinValue;
 
             if (RunMsuPcm(jsonPath, out message))
             {
@@ -95,15 +102,30 @@ public class MsuPcmService
                 {
                     message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
                     File.Delete(jsonPath);
+                    generated = true;
                     return false;
                 }
                 message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
                 File.Delete(jsonPath);
+                generated = true;
                 return true;
             }
-        
-            message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
+
+            file = new FileInfo(song.OutputPath);
+            var newModifiedDate = file.Exists ? file.LastWriteTime : DateTime.MinValue;
+            generated = newModifiedDate > lastModifiedDate;
+            
+            if (generated)
+            {
+                message = $"Track #{song.TrackNumber} - {relativePath} - PCM Generated with msupcm++ warning: {message.ReplaceLineEndings("")}";
+            }
+            else
+            {
+                message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
+            }
+           
             File.Delete(jsonPath);
+            
             return false;
         }
         catch (Exception e)
@@ -114,6 +136,8 @@ public class MsuPcmService
             {
                 File.Delete(jsonPath);
             }
+
+            generated = false;
             return false;
         }
     }

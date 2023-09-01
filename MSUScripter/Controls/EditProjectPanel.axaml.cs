@@ -273,11 +273,41 @@ public partial class EditProjectPanel : UserControl
             song.OutputPath = path;
         }
         
-        if (!_msuPcmService.CreatePcm(_project, song, out var message))
+        if (!_msuPcmService.CreatePcm(_project, song, out var message, out var generated))
         {
-            UpdateStatusBarText("msupcm++ Error");
-            ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
-            return false;
+            if (generated)
+            {
+                UpdateStatusBarText("PCM Generated with Warning");
+
+                if (!_projectViewModel!.IgnoreWarnings.Contains(song.OutputPath))
+                {
+                    Task<MessageWindowResult?>? task = null;
+                
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        var window = new MessageWindow(message ?? "Unknown error with msupcm++",
+                            MessageWindowType.PcmWarning, "msupcm++ Warning");
+                        task = window.ShowDialog();
+                    });
+
+                    task?.Wait();
+                    var result = task?.Result;
+
+                    if (result == MessageWindowResult.DontShow)
+                    {
+                        _projectViewModel!.IgnoreWarnings.Add(song.OutputPath);
+                    }
+                }
+                
+                songModel.LastGeneratedDate = DateTime.Now;
+                return true;
+            }
+            else
+            {
+                UpdateStatusBarText("msupcm++ Error");
+                ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
+                return false;
+            }
         }
         
         songModel.LastGeneratedDate = DateTime.Now;
