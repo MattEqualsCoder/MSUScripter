@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Material.Icons.Avalonia;
+using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Services;
 
@@ -45,7 +46,13 @@ public partial class AudioControl : UserControl
     {
         if (_audioService == null) return;
         var position = _prevValue = _audioService.GetCurrentPosition() ?? 0.0;
-        Dispatcher.UIThread.Invoke(() => this.Find<Slider>(nameof(PositionSlider))!.Value = position * 100);
+        var currentTime = TimeSpan.FromSeconds(_audioService.GetCurrentPositionSeconds()).ToString(@"mm\:ss");
+        var totalTime = TimeSpan.FromSeconds(_audioService.GetLengthSeconds()).ToString(@"mm\:ss");
+        Dispatcher.UIThread.Invoke(() =>
+        {
+            this.Find<TextBlock>(nameof(TimestampTextBlock))!.Text = $"{currentTime}/{totalTime}";
+            this.Find<Slider>(nameof(PositionSlider))!.Value = position * 100;
+        });
     }
 
     private void PlayStopped(object? sender, EventArgs e)
