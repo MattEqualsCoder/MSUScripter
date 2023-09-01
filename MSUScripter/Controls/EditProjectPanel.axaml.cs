@@ -387,7 +387,14 @@ public partial class EditProjectPanel : UserControl
     {
         if (_projectViewModel == null || _projectService == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
-        _projectService.ExportMsuRandomizerYaml(_project, out var error);
+        ExportYaml(_project);
+        UpdateStatusBarText("YAML File Written");
+    }
+
+    private void ExportYaml(MsuProject project)
+    {
+        if (!project.BasicInfo.WriteYamlFile) return;
+        _projectService!.ExportMsuRandomizerYaml(project, out var error);
         if (!string.IsNullOrEmpty(error))
         {
             ShowError(error);
@@ -395,12 +402,10 @@ public partial class EditProjectPanel : UserControl
         }
         
         // Try to create the extra SMZ3 YAML files
-        if (_project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
+        if (project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(project, out error))
         {
             ShowError(error ?? "Unknown error creating YAML file");
         }
-        
-        UpdateStatusBarText("YAML File Written");
     }
 
     private void ShowError(string message, string title = "Error")
@@ -503,15 +508,21 @@ public partial class EditProjectPanel : UserControl
         {
             _projectService.CreateAltSwapperFile(_project, extraProjects);
         }
+
+        if (_project.BasicInfo.WriteTrackList)
+        {
+            WriteTrackList(_project);
+        }
         
         if (!_project.BasicInfo.IsMsuPcmProject || _msuPcmService == null)
         {
+            ExportYaml(_project);
             UpdateStatusBarText("Export Complete");
             return;
         }
         
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        Task.Run(() => DisplayMsuGenerationWindow(true));
+        Task.Run(() => DisplayMsuGenerationWindow(_project.BasicInfo.WriteYamlFile));
     }
     
     private async Task DisplayMsuGenerationWindow(bool exportYaml)
@@ -534,6 +545,16 @@ public partial class EditProjectPanel : UserControl
             UpdateStatusBarText("MSU Generated");
         });
         
+    }
+
+    private void WriteTrackList(MsuProject? project = null)
+    {
+        if (_projectViewModel == null || _projectService == null) return;
+        if (project == null)
+        {
+            _project = project = _converterService!.ConvertProject(_projectViewModel);
+        }
+        _projectService.WriteTrackListFile(project);
     }
 
     private AudioAnalysisWindow? _audioAnalysisWindow;
@@ -582,5 +603,10 @@ public partial class EditProjectPanel : UserControl
         {
             Process.Start("explorer.exe", $"/select,\"{_project!.MsuPath}\"");
         }
+    }
+
+    private void ExportButton_TrackList_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WriteTrackList();
     }
 }

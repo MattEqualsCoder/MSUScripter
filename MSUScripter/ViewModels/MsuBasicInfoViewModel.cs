@@ -132,6 +132,23 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _metroidMsuPath, value);
     }
     
+    public bool _writeTrackList;
+    public bool WriteTrackList
+    {
+        
+        get => _writeTrackList;
+        set => SetField(ref _writeTrackList, value);
+    }
+    
+    public bool _writeYamlFile;
+    public bool WriteYamlFile
+    {
+        
+        get => _writeYamlFile;
+        set => SetField(ref _writeYamlFile, value);
+    }
+    
+    
     public event PropertyChangedEventHandler? PropertyChanged;
     
     public bool HasChangesSince(DateTime time)
