@@ -58,7 +58,7 @@
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
                 </controls:LabeledControl>
-                <controls:LabeledControl Text="Create Track List:" Hint="Create a track list text file" DisplayHint="True">
+                <controls:LabeledControl Text="Track List Format:" Hint='Create a text file with the track details in either a list with the format "%album% - %song% (%artist%)" or in a table view' DisplayHint="True">
                     <ComboBox 
                         Name="WriteTrackListComboBox"
                         SelectedItem="{Binding TrackList}"
