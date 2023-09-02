@@ -58,6 +58,18 @@ public class AudioService
         return value;
     }
 
+    public double GetLengthSeconds()
+    {
+        if (_loopStream == null) return 0;
+        return (_loopStream.Length - 8) / 4.0 / 44100.0;
+    }
+    
+    public double GetCurrentPositionSeconds()
+    {
+        if (_loopStream == null) return 0;
+        return (_loopStream.Position - 8) / 4.0 / 44100.0;
+    }
+
     public void SetPosition(double value)
     {
         if (_waveOutEvent == null || _loopStream == null) return;

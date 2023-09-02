@@ -12,20 +12,24 @@
         Title="MessageWindow">
     <DockPanel>
         <Border DockPanel.Dock="Bottom" Padding="10 0 10 10">
-            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                <Button Name="OkButton" Click="OkButton_OnClick" Margin="10 0">
-                    OK
-                </Button>
-                <Button Name="CancelButton" Click="CancelButton_OnClick" IsVisible="False" Margin="10 0">
-                    Cancel
-                </Button>
-                <Button Name="YesButton" Click="YesButton_OnClick" IsVisible="False" Margin="10 0">
-                    Yes
-                </Button>
-                <Button Name="NoButton" Click="NoButton_OnClick" IsVisible="False" Margin="10 0">
-                    No
-                </Button>
+            <StackPanel Orientation="Vertical">
+                <CheckBox Name="IgnoreCheckBox" IsVisible="False" Margin="90 0 0 10"> Ignore future warnings for this song</CheckBox>
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button Name="OkButton" Click="OkButton_OnClick" Margin="10 0">
+                        OK
+                    </Button>
+                    <Button Name="CancelButton" Click="CancelButton_OnClick" IsVisible="False" Margin="10 0">
+                        Cancel
+                    </Button>
+                    <Button Name="YesButton" Click="YesButton_OnClick" IsVisible="False" Margin="10 0">
+                        Yes
+                    </Button>
+                    <Button Name="NoButton" Click="NoButton_OnClick" IsVisible="False" Margin="10 0">
+                        No
+                    </Button>
+                </StackPanel>
             </StackPanel>
+            
         </Border>
         
         <Border DockPanel.Dock="Left" Padding="20" IsVisible="False" Name="IconBorder">

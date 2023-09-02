@@ -123,6 +123,7 @@ class Program
             .AddSingleton<ProjectService>()
             .AddSingleton<PyMusicLooperService>()
             .AddSingleton<MainWindow>()
+            .AddSingleton<TrackListService>()
             .AddTransient<NewProjectPanel>()
             .AddTransient<EditProjectPanel>()
             .AddTransient<MsuTrackInfoPanel>()

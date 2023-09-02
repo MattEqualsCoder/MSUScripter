@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MSUScripter.Configs;
 
 namespace MSUScripter.ViewModels;
 
@@ -131,6 +132,29 @@ public class MsuBasicInfoViewModel : INotifyPropertyChanged
         get => _metroidMsuPath;
         set => SetField(ref _metroidMsuPath, value);
     }
+    
+    public string _trackList = TrackListType.List;
+    public string TrackList
+    {
+        
+        get => _trackList;
+        set
+        {
+            SetField(ref _trackList, value);
+            OnPropertyChanged(nameof(WriteTrackList));
+        }
+    }
+
+    public bool WriteTrackList => _trackList != TrackListType.Disabled;
+    
+    public bool _writeYamlFile;
+    public bool WriteYamlFile
+    {
+        
+        get => _writeYamlFile;
+        set => SetField(ref _writeYamlFile, value);
+    }
+    
     
     public event PropertyChangedEventHandler? PropertyChanged;
     

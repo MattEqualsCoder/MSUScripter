@@ -13,6 +13,7 @@ public class MsuProjectViewModel
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
     public DateTime LastSaveTime { get; set; }
+    public List<string> IgnoreWarnings { get; set; } = new List<string>();
     [SkipConvert]
     public MsuBasicInfoViewModel BasicInfo { get; set; } = new();
     [SkipConvert]

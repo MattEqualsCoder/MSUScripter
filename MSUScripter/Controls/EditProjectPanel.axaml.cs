@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
@@ -28,6 +27,7 @@ public partial class EditProjectPanel : UserControl
     private readonly ConverterService? _converterService;
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
+    private readonly TrackListService? _trackListService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
@@ -35,12 +35,12 @@ public partial class EditProjectPanel : UserControl
     private bool _hasCheckedPendingChanges;
     private DateTime? _lastAutoSave;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -49,6 +49,7 @@ public partial class EditProjectPanel : UserControl
         _audioMetadataService = audioMetadataService;
         _converterService = converterService;
         _audioControl = audioControl;
+        _trackListService = trackListService;
         InitializeComponent();
     }
 
@@ -273,11 +274,41 @@ public partial class EditProjectPanel : UserControl
             song.OutputPath = path;
         }
         
-        if (!_msuPcmService.CreatePcm(_project, song, out var message))
+        if (!_msuPcmService.CreatePcm(_project, song, out var message, out var generated))
         {
-            UpdateStatusBarText("msupcm++ Error");
-            ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
-            return false;
+            if (generated)
+            {
+                UpdateStatusBarText("PCM Generated with Warning");
+
+                if (!_projectViewModel!.IgnoreWarnings.Contains(song.OutputPath))
+                {
+                    Task<MessageWindowResult?>? task = null;
+                
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        var window = new MessageWindow(message ?? "Unknown error with msupcm++",
+                            MessageWindowType.PcmWarning, "msupcm++ Warning");
+                        task = window.ShowDialog();
+                    });
+
+                    task?.Wait();
+                    var result = task?.Result;
+
+                    if (result == MessageWindowResult.DontShow)
+                    {
+                        _projectViewModel!.IgnoreWarnings.Add(song.OutputPath);
+                    }
+                }
+                
+                songModel.LastGeneratedDate = DateTime.Now;
+                return true;
+            }
+            else
+            {
+                UpdateStatusBarText("msupcm++ Error");
+                ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
+                return false;
+            }
         }
         
         songModel.LastGeneratedDate = DateTime.Now;
@@ -357,7 +388,14 @@ public partial class EditProjectPanel : UserControl
     {
         if (_projectViewModel == null || _projectService == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
-        _projectService.ExportMsuRandomizerYaml(_project, out var error);
+        ExportYaml(_project);
+        UpdateStatusBarText("YAML File Written");
+    }
+
+    private void ExportYaml(MsuProject project)
+    {
+        if (!project.BasicInfo.WriteYamlFile) return;
+        _projectService!.ExportMsuRandomizerYaml(project, out var error);
         if (!string.IsNullOrEmpty(error))
         {
             ShowError(error);
@@ -365,12 +403,10 @@ public partial class EditProjectPanel : UserControl
         }
         
         // Try to create the extra SMZ3 YAML files
-        if (_project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
+        if (project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(project, out error))
         {
             ShowError(error ?? "Unknown error creating YAML file");
         }
-        
-        UpdateStatusBarText("YAML File Written");
     }
 
     private void ShowError(string message, string title = "Error")
@@ -473,15 +509,21 @@ public partial class EditProjectPanel : UserControl
         {
             _projectService.CreateAltSwapperFile(_project, extraProjects);
         }
+
+        if (_project.BasicInfo.TrackList != TrackListType.Disabled)
+        {
+            WriteTrackList(_project);
+        }
         
         if (!_project.BasicInfo.IsMsuPcmProject || _msuPcmService == null)
         {
+            ExportYaml(_project);
             UpdateStatusBarText("Export Complete");
             return;
         }
         
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        Task.Run(() => DisplayMsuGenerationWindow(true));
+        Task.Run(() => DisplayMsuGenerationWindow(_project.BasicInfo.WriteYamlFile));
     }
     
     private async Task DisplayMsuGenerationWindow(bool exportYaml)
@@ -504,6 +546,16 @@ public partial class EditProjectPanel : UserControl
             UpdateStatusBarText("MSU Generated");
         });
         
+    }
+
+    private void WriteTrackList(MsuProject? project = null)
+    {
+        if (_projectViewModel == null || _trackListService == null) return;
+        if (project == null)
+        {
+            _project = project = _converterService!.ConvertProject(_projectViewModel);
+        }
+        _trackListService.WriteTrackListFile(project);
     }
 
     private AudioAnalysisWindow? _audioAnalysisWindow;
@@ -552,5 +604,10 @@ public partial class EditProjectPanel : UserControl
         {
             Process.Start("explorer.exe", $"/select,\"{_project!.MsuPath}\"");
         }
+    }
+
+    private void ExportButton_TrackList_OnClick(object? sender, RoutedEventArgs e)
+    {
+        WriteTrackList();
     }
 }

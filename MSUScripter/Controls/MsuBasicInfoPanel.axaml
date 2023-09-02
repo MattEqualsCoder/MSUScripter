@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             xmlns:configs="clr-namespace:MSUScripter.Configs"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuBasicInfoPanel"
              x:DataType="viewModels:MsuBasicInfoViewModel">
@@ -47,6 +48,24 @@
                         Name="UrlTextBox"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
+                </controls:LabeledControl>
+                <controls:LabeledControl Text="Create YAML File:" Hint="Create MSU Randomizer YAML file(s)" DisplayHint="True">
+                    <ComboBox 
+                        Name="WriteYamlComboBox"
+                        SelectedItem="{Binding WriteYamlFile, Converter={StaticResource BoolToStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
+                </controls:LabeledControl>
+                <controls:LabeledControl Text="Create Track List:" Hint="Create a track list text file" DisplayHint="True">
+                    <ComboBox 
+                        Name="WriteTrackListComboBox"
+                        SelectedItem="{Binding TrackList}"
+                        ItemsSource="{x:Static configs:TrackListType.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
                 </controls:LabeledControl>
                 <controls:LabeledControl Text="Enable MsuPcm:" Hint="If this is a project for modifying the MsuPcm++ data" DisplayHint="True">
                     <ComboBox 
