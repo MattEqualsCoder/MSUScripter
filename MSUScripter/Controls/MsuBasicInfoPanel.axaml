@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             xmlns:configs="clr-namespace:MSUScripter.Configs"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuBasicInfoPanel"
              x:DataType="viewModels:MsuBasicInfoViewModel">
@@ -60,8 +61,8 @@
                 <controls:LabeledControl Text="Create Track List:" Hint="Create a track list text file" DisplayHint="True">
                     <ComboBox 
                         Name="WriteTrackListComboBox"
-                        SelectedItem="{Binding WriteTrackList, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        SelectedItem="{Binding TrackList}"
+                        ItemsSource="{x:Static configs:TrackListType.ItemsSource}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>

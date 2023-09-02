@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
@@ -28,6 +27,7 @@ public partial class EditProjectPanel : UserControl
     private readonly ConverterService? _converterService;
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
+    private readonly TrackListService? _trackListService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
@@ -35,12 +35,12 @@ public partial class EditProjectPanel : UserControl
     private bool _hasCheckedPendingChanges;
     private DateTime? _lastAutoSave;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -49,6 +49,7 @@ public partial class EditProjectPanel : UserControl
         _audioMetadataService = audioMetadataService;
         _converterService = converterService;
         _audioControl = audioControl;
+        _trackListService = trackListService;
         InitializeComponent();
     }
 
@@ -509,7 +510,7 @@ public partial class EditProjectPanel : UserControl
             _projectService.CreateAltSwapperFile(_project, extraProjects);
         }
 
-        if (_project.BasicInfo.WriteTrackList)
+        if (_project.BasicInfo.TrackList != TrackListType.Disabled)
         {
             WriteTrackList(_project);
         }
@@ -549,12 +550,12 @@ public partial class EditProjectPanel : UserControl
 
     private void WriteTrackList(MsuProject? project = null)
     {
-        if (_projectViewModel == null || _projectService == null) return;
+        if (_projectViewModel == null || _trackListService == null) return;
         if (project == null)
         {
             _project = project = _converterService!.ConvertProject(_projectViewModel);
         }
-        _projectService.WriteTrackListFile(project);
+        _trackListService.WriteTrackListFile(project);
     }
 
     private AudioAnalysisWindow? _audioAnalysisWindow;

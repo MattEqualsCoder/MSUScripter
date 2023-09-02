@@ -17,7 +17,7 @@ public class MsuBasicInfo
     public bool IsMsuPcmProject { get; set; } = true;
     public bool CreateAltSwapperScript { get; set; } = true;
     public bool CreateSplitSmz3Script { get; set; }
-    public bool WriteTrackList { get; set; } = true;
+    public string TrackList { get; set; } = TrackListType.List;
     public bool WriteYamlFile { get; set; } = true;
     public string? ZeldaMsuPath { get; set; }
     public string? MetroidMsuPath { get; set; }

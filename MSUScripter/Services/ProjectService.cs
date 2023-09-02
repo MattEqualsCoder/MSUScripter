@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Tools;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -726,137 +727,6 @@ public class ProjectService
 
         var text = sb.ToString();
         File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
-    }
-
-    public void WriteTrackListFile(MsuProject project)
-    {
-        var msuFileInfo = new FileInfo(project.MsuPath);
-        var tracklistPath = Path.Combine(msuFileInfo.DirectoryName!, "Track List.txt");
-        var sb = new StringBuilder();
-
-        var title = $"{project.BasicInfo.PackName}";
-        if (!title.Contains(" MSU", StringComparison.OrdinalIgnoreCase))
-        {
-            title += " MSU Pack";
-        }
-        if (!string.IsNullOrEmpty(project.BasicInfo.PackCreator))
-        {
-            title += $" by {project.BasicInfo.PackCreator}";
-        }
-
-        sb.AppendLine(title);
-        sb.AppendLine(new string('-', title.Length));
-        sb.AppendLine();
-        
-        if (project.BasicInfo.CreateSplitSmz3Script)
-        {
-            var zeldaTrackRange = (0, 98);
-            var metroidTrackRange = (101, 199);
-            var zeldaTrackModifier = 0;
-            var metroidTrackModifier = -100;
-
-            if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType())
-            {
-                zeldaTrackRange = (101, 199);
-                metroidTrackRange = (0, 98);
-                zeldaTrackModifier = -100;
-                metroidTrackModifier = 0;
-            }
-
-            sb.AppendLine("Zelda Tracks:");
-            sb.AppendLine();
-            
-            foreach (var track in project.Tracks.Where(t => t.TrackNumber >= zeldaTrackRange.Item1 && t.TrackNumber <= zeldaTrackRange.Item2).OrderBy(x => x.TrackNumber))
-            {
-                sb.AppendLine($"Track {track.TrackNumber + zeldaTrackModifier} ({track.TrackName})");
-
-                foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
-                {
-                    sb.AppendLine(GetSongInfo(song));
-                }
-
-                sb.AppendLine();
-            }
-            
-            sb.AppendLine("Metroid Tracks:");
-            sb.AppendLine();
-            
-            foreach (var track in project.Tracks.Where(t => t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2).OrderBy(x => x.TrackNumber))
-            {
-                sb.AppendLine($"Track {track.TrackNumber + metroidTrackModifier} ({track.TrackName})");
-
-                foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
-                {
-                    sb.AppendLine(GetSongInfo(song));
-                }
-
-                sb.AppendLine();
-            }
-
-            sb.AppendLine("SMZ3 Tracks:");
-            sb.AppendLine();
-            
-            foreach (var track in project.Tracks.Where(t => !(t.TrackNumber >= zeldaTrackRange.Item1 && t.TrackNumber <= zeldaTrackRange.Item2 ) && !(t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2)).OrderBy(x => x.TrackNumber))
-            {
-                sb.AppendLine($"Track {track.TrackNumber} ({track.TrackName})");
-
-                foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
-                {
-                    sb.AppendLine(GetSongInfo(song));
-                }
-
-                sb.AppendLine();
-            }
-        }
-        else
-        {
-            foreach (var track in project.Tracks.OrderBy(x => x.TrackNumber))
-            {
-                sb.AppendLine($"Track {track.TrackNumber} ({track.TrackName})");
-
-                foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
-                {
-                    sb.AppendLine(GetSongInfo(song));
-                }
-
-                sb.AppendLine();
-            }
-        }
-
-        var output = sb.ToString();
-        try
-        {
-            File.WriteAllText(tracklistPath, sb.ToString());
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Unable to write tracklist file");
-        }
-        return;
-
-        string GetSongInfo(MsuSongInfo song)
-        {
-            var songInfo = "";
-            
-            if (!string.IsNullOrEmpty(song.Album))
-            {
-                songInfo += $"{song.Album} - ";
-            }
-
-            songInfo += song.SongName;
-
-            if (!string.IsNullOrEmpty(song.Artist))
-            {
-                songInfo += $" ({song.Artist})";
-            }
-
-            if (song.IsAlt)
-            {
-                songInfo += " (Alt)";
-            }
-
-            return songInfo;
-        }
     }
 
     private string GetProjectBackupFilePath(string projectFilePath)
