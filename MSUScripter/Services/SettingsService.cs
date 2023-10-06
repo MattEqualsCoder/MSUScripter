@@ -76,16 +76,8 @@ public class SettingsService
 
     private string GetSettingsPath()
     {
-        string settingsDirectory;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            settingsDirectory = Environment.ExpandEnvironmentVariables("%LocalAppData%\\MSUScripter");
-        }
-        else
-        {
-            settingsDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Settings");
-        }
-        
+        string settingsDirectory =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSUScripter");
 #if DEBUG
         return Path.Combine(settingsDirectory, "settings-debug.yml");
 #else

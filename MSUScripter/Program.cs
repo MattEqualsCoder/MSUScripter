@@ -98,7 +98,7 @@ class Program
         
         _serviceProvider =  new ServiceCollection()
 #if DEBUG
-            .AddLogging(x => x.AddDebug())
+            .AddLogging(x => x.AddDebug().AddConsole())
 #else
             .AddLogging(logging =>
             {
@@ -107,7 +107,7 @@ class Program
                     options.Append = true;
                     options.FileSizeLimitBytes = 52428800;
                     options.MaxRollingFiles = 5;
-                });
+                }).AddConsole();
             })
 #endif
             .AddMsuRandomizerServices()
@@ -139,26 +139,12 @@ class Program
 
     public static string GetLogLocation()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return $"%LocalAppData%{Path.DirectorySeparatorChar}MSUScripter";
-        }
-        else
-        {
-            return "logs";
-        }
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSUScripter");
     }
 
     public static string GetBaseFolder()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            return Path.Combine(Environment.ExpandEnvironmentVariables("%localappdata%"), "MSUScripter");
-        }
-        else
-        {
-            return AppContext.BaseDirectory;
-        }
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSUScripter");
     }
     
 }

@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Services;
@@ -29,18 +30,19 @@ public partial class EditProjectPanel : UserControl
     private readonly AudioControl? _audioControl;
     private readonly TrackListService? _trackListService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
+    private readonly ILogger<EditProjectPanel>? _logger;
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
     private UserControl? _currentPage;
     private bool _hasCheckedPendingChanges;
     private DateTime? _lastAutoSave;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, ILogger<EditProjectPanel>? logger)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -50,6 +52,7 @@ public partial class EditProjectPanel : UserControl
         _converterService = converterService;
         _audioControl = audioControl;
         _trackListService = trackListService;
+        _logger = logger;
         InitializeComponent();
     }
 
@@ -361,6 +364,7 @@ public partial class EditProjectPanel : UserControl
     {
         if (!HasPendingChanges() || _hasCheckedPendingChanges) return;
         _hasCheckedPendingChanges = true;
+        _logger?.LogInformation("Pending changes detected");
         var result = await ShowYesNoWindow("You currently have saved changes. Do you want to save your changes?");
         if (result == MessageWindowResult.Yes)
         {

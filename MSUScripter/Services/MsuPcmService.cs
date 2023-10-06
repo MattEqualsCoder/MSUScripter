@@ -373,12 +373,7 @@ public class MsuPcmService
 
     private string GetTempFilePath()
     {
-        var basePath = Directory.GetCurrentDirectory();
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            basePath = Environment.ExpandEnvironmentVariables($"%LocalAppData%{Path.DirectorySeparatorChar}MSUScripter");
-        }
-
-        return Path.Combine(basePath, "tmp-pcm.pcm");
+        return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "MSUScripter", "tmp-pcm.pcm");
     }
 }

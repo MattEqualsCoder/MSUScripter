@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -62,20 +61,15 @@ public partial class App : Application
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                msuInitializationRequest.MsuTypeConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs");
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings.yml");
+                if (Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Configs")))
+                    msuInitializationRequest.MsuTypeConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs");
+                else
+                    msuInitializationRequest.MsuTypeConfigPath = "/app/bin/Configs";
             }
 
 #if DEBUG
             msuInitializationRequest.MsuTypeConfigPath = GetConfigDirectory();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                msuInitializationRequest.UserOptionsPath = "%LocalAppData%\\MSUScripter\\msu-user-settings-debug.yml";
-            }
-            else
-            {
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings-debug.yml");
-            }
+            msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings-debug.yml");
 #endif
         
             _services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
