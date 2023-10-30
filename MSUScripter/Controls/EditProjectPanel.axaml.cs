@@ -572,8 +572,8 @@ public partial class EditProjectPanel : UserControl
     private async void LoopCheck(MsuSongInfoViewModel songInfo, MsuSongMsuPcmInfoViewModel? pcmInfoViewModel)
     {
         if (_audioService == null || _serviceProvider == null) return;
-        
-        _audioService.StopSongAsync().Wait();
+
+        await _audioService.StopSongAsync();
 
         pcmInfoViewModel ??= songInfo.MsuPcmInfo;
 
