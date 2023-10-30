@@ -353,15 +353,16 @@ public partial class EditProjectPanel : UserControl
 
     public bool HasPendingChanges()
     {
+        if (_hasCheckedPendingChanges) return false;
         if (_projectViewModel == null) return false;
+        _hasCheckedPendingChanges = true;
         return _projectViewModel.HasPendingChanges();
     }
 
     public async Task CheckPendingChanges()
     {
-        if (!HasPendingChanges() || _hasCheckedPendingChanges) return;
-        _hasCheckedPendingChanges = true;
-        var result = await ShowYesNoWindow("You currently have saved changes. Do you want to save your changes?");
+        if (!HasPendingChanges()) return;
+        var result = await ShowYesNoWindow("You currently have unsaved changes. Do you want to save your changes?");
         if (result == MessageWindowResult.Yes)
         {
             SaveProject();

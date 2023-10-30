@@ -83,6 +83,11 @@ public class ProjectService
             if (!isBackup)
                 throw;
         }
+
+        if (!isBackup)
+        {
+            _logger.LogInformation("Saved project");
+        }
         
         
     }

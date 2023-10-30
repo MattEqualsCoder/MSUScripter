@@ -90,9 +90,23 @@ public partial class App : Application
     private async void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         if (_mainWindow == null) return;
+        
+        var hasPendingChanges = _mainWindow.CheckPendingChanges();
+        if (!hasPendingChanges) return;
+        
         e.Cancel = true;
-        await _mainWindow.CheckPendingChanges();
-        e.Cancel = false;
+            
+        var window = new MessageWindow("You currently have unsaved changes. Do you want to save your changes?", MessageWindowType.YesNo, "MSU Scripter", _mainWindow);
+        window.Show();
+
+        window.OnButtonClick += (o, args) =>
+        {
+            var result = window.Result;
+            if (result == MessageWindowResult.Yes)
+            {
+                _mainWindow.SaveChanges();
+            }
+        };
     }
 
 #if DEBUG
