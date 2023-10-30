@@ -27,7 +27,7 @@ public class MsuPcmService
 
     public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated)
     {
-        outputPath = GetTempFilePath();
+        outputPath = TempFilePath;
         if (File.Exists(outputPath))
         {
             File.Delete(outputPath);
@@ -54,7 +54,7 @@ public class MsuPcmService
             return false;
         }
 
-        var jsonDirectory = Path.Combine(Program.GetBaseFolder(), "msupcmtemp");
+        var jsonDirectory = Path.Combine(Program.BaseFolder, "msupcmtemp");
         if (!Directory.Exists(jsonDirectory))
         {
             Directory.CreateDirectory(jsonDirectory);
@@ -371,14 +371,5 @@ public class MsuPcmService
     
     public bool IsGeneratingPcm { get; private set; }
 
-    private string GetTempFilePath()
-    {
-        var basePath = Directory.GetCurrentDirectory();
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            basePath = Environment.ExpandEnvironmentVariables($"%LocalAppData%{Path.DirectorySeparatorChar}MSUScripter");
-        }
-
-        return Path.Combine(basePath, "tmp-pcm.pcm");
-    }
+    private string TempFilePath => Path.Combine(Program.BaseFolder, "tmp-pcm.pcm");
 }

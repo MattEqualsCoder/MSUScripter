@@ -739,6 +739,6 @@ public class ProjectService
 
     private string GetBackupDirectory()
     {
-        return Path.Combine(Program.GetBaseFolder(), "backups");
+        return Path.Combine(Program.BaseFolder, "backups");
     }
 }
