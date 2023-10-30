@@ -14,6 +14,7 @@ public class PyMusicLooperService
     private static readonly Regex digitsOnly = new Regex(@"[^\d.]");
     private bool _hasValidated;
     private const string MinVersion = "3.0.0";
+    private RunMethod _runMethod;
 
     public PyMusicLooperService(ILogger<PyMusicLooperService> logger)
     {
@@ -77,11 +78,52 @@ public class PyMusicLooperService
         message = _hasValidated ? "" : $"Minimum PyMusicLooper version is {MinVersion}";
         return _hasValidated;
     }
-    
-    private bool RunInternal(string arguments, out string result, out string error)
+
+    private bool RunInternal(string command, out string result, out string error)
     {
-        var command = "pymusiclooper";
+        result = "";
+        error = "Unknown error";
         
+        switch (_runMethod)
+        {
+            case RunMethod.Unknown when RunInternalDirect(command, out result, out error):
+                _runMethod = RunMethod.Direct;
+                return true;
+            case RunMethod.Unknown when RunInternalPy(command, out result, out error):
+                _runMethod = RunMethod.Py;
+                return true;
+            case RunMethod.Unknown when RunInternalPython3(command, out result, out error):
+                _runMethod = RunMethod.Python3;
+                return true;
+            case RunMethod.Direct:
+                return RunInternalDirect(command, out result, out error);
+            case RunMethod.Py:
+                return RunInternalPy(command, out result, out error);
+            case RunMethod.Python3:
+                return RunInternalPython3(command, out result, out error);
+            default:
+                return false;
+        }
+        
+    }
+
+    private bool RunInternalDirect(string command, out string result, out string error)
+    {
+        return RunInternal("pymusiclooper", command, out result, out error);
+    }
+
+    private bool RunInternalPy(string command, out string result, out string error)
+    {
+        return RunInternal("py", "-m pymusiclooper " + command, out result, out error);
+    }
+
+    private bool RunInternalPython3(string command, out string result, out string error)
+    {
+        return RunInternal("python3", "-m pymusiclooper " + command, out result, out error);
+    }
+    
+    private bool RunInternal(string command, string arguments, out string result, out string error)
+    {
         try
         {
             ProcessStartInfo procStartInfo;
@@ -139,4 +181,12 @@ public class PyMusicLooperService
         var version = MinVersion.Split(".").Select(int.Parse).ToList();
         return version[0] * 10000 + version[1] * 100 + version[2];
     }
+}
+
+internal enum RunMethod
+{
+    Unknown,
+    Direct,
+    Py,
+    Python3
 }
