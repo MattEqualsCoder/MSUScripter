@@ -57,25 +57,12 @@ public partial class App : Application
             
             var msuInitializationRequest = new MsuRandomizerInitializationRequest
             {
-                MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml")
+                MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml"),
+                UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings.yml")
             };
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                msuInitializationRequest.MsuTypeConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs");
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings.yml");
-            }
-
 #if DEBUG
-            msuInitializationRequest.MsuTypeConfigPath = GetConfigDirectory();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                msuInitializationRequest.UserOptionsPath = "%LocalAppData%\\MSUScripter\\msu-user-settings-debug.yml";
-            }
-            else
-            {
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings-debug.yml");
-            }
+            msuInitializationRequest.UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings-debug.yml");
 #endif
         
             _services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
@@ -87,26 +74,26 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private async void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    private void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         if (_mainWindow == null) return;
+        
+        var hasPendingChanges = _mainWindow.CheckPendingChanges();
+        if (!hasPendingChanges) return;
+        
         e.Cancel = true;
-        await _mainWindow.CheckPendingChanges();
-        e.Cancel = false;
-    }
+            
+        var window = new MessageWindow("You currently have unsaved changes. Do you want to save your changes?", MessageWindowType.YesNo, "MSU Scripter", _mainWindow);
+        window.Show();
 
-#if DEBUG
-    public string GetConfigDirectory()
-    {
-        var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
-        while (directory != null && !directory.GetFiles("*.sln").Any())
+        window.OnButtonClick += (o, args) =>
         {
-            directory = directory.Parent;
-        }
-
-        return directory != null ? Path.Combine(directory.FullName, "ConfigRepo", "resources") : "";
+            var result = window.Result;
+            if (result == MessageWindowResult.Yes)
+            {
+                _mainWindow.SaveChanges();
+            }
+        };
     }
-#endif
-    
-    
+
 }

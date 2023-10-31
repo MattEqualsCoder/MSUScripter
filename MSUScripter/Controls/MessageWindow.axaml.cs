@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
@@ -18,24 +20,36 @@ public partial class MessageWindow : Window
         _message = "Unknown";
     }
     
-    public MessageWindow(string message, MessageWindowType type = MessageWindowType.Basic, string? title = null)
+    public MessageWindow(string message, MessageWindowType type = MessageWindowType.Basic, string? title = null, Window? parent = null)
     {
         _message = message;
         _type = type;
+        
+        if (message.Length > 120)
+        {
+            Width = MaxWidth = 450;
+            Height = MaxHeight = 175;
+        }
+        
+        if (parent == null)
+        {
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        }
+        else
+        {
+            var pos = new PixelPoint(parent.Position.X + (int)Math.Floor(parent.Width / 2) - 175,
+                parent.Position.Y + (int)Math.Floor(parent.Height / 2));
+            Position = pos;
+            WindowStartupLocation = WindowStartupLocation.Manual;
+        }
+        
         InitializeComponent();
-        WindowStartupLocation = WindowStartupLocation.CenterOwner;
         
         Title = title ??
             ( _type == MessageWindowType.Error ? "Error"
             : _type == MessageWindowType.Warning ? "Warning"
             : _type == MessageWindowType.Info ? "Info"
             : "MSU Scripter");
-
-        if (message.Length > 120)
-        {
-            Width = MaxWidth = 450;
-            Height = MaxHeight = 175;
-        }
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -92,6 +106,8 @@ public partial class MessageWindow : Window
         return Result;
     }
 
+    public event EventHandler? OnButtonClick; 
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
@@ -107,30 +123,35 @@ public partial class MessageWindow : Window
         {
             Result = MessageWindowResult.Ok;    
         }
+        OnButtonClick?.Invoke(this, EventArgs.Empty);
         Close();
     }
     
     private void CancelButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Result = MessageWindowResult.Cancel;
+        OnButtonClick?.Invoke(this, EventArgs.Empty);
         Close();
     }
     
     private void YesButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Result = MessageWindowResult.Yes;
+        OnButtonClick?.Invoke(this, EventArgs.Empty);
         Close();
     }
     
     private void NoButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Result = MessageWindowResult.No;
+        OnButtonClick?.Invoke(this, EventArgs.Empty);
         Close();
     }
 
     private void DontShowButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Result = MessageWindowResult.DontShow;
+        OnButtonClick?.Invoke(this, EventArgs.Empty);
         Close();
     }
 }

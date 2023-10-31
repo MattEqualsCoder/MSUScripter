@@ -31,6 +31,11 @@ public partial class MainWindow : Window
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
         Title = $"MSU Scripter v{version.ProductVersion}";
     }
+
+    public void SaveChanges()
+    {
+        _editProjectPanel?.SaveProject();
+    }
     
     private void DisplayNewPanel()
     {
@@ -109,10 +114,10 @@ public partial class MainWindow : Window
         settingsWindow.ShowDialog(this);
     }
 
-    public async Task CheckPendingChanges()
+    public bool CheckPendingChanges()
     {
-        if (_editProjectPanel == null) return;
-        await _editProjectPanel.CheckPendingChanges();
+        if (_editProjectPanel == null) return false;
+        return _editProjectPanel.HasPendingChanges();
     }
 
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
