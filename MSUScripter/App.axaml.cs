@@ -57,25 +57,12 @@ public partial class App : Application
             
             var msuInitializationRequest = new MsuRandomizerInitializationRequest
             {
-                MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml")
+                MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml"),
+                UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings.yml")
             };
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                msuInitializationRequest.MsuTypeConfigPath = Path.Combine(Directory.GetCurrentDirectory(), "Configs");
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings.yml");
-            }
-
 #if DEBUG
-            msuInitializationRequest.MsuTypeConfigPath = GetConfigDirectory();
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                msuInitializationRequest.UserOptionsPath = "%LocalAppData%\\MSUScripter\\msu-user-settings-debug.yml";
-            }
-            else
-            {
-                msuInitializationRequest.UserOptionsPath = Path.Combine(Directory.GetCurrentDirectory(), "Settings", "msu-user-settings-debug.yml");
-            }
+            msuInitializationRequest.UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings-debug.yml");
 #endif
         
             _services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
@@ -109,18 +96,4 @@ public partial class App : Application
         };
     }
 
-#if DEBUG
-    public string GetConfigDirectory()
-    {
-        var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
-        while (directory != null && !directory.GetFiles("*.sln").Any())
-        {
-            directory = directory.Parent;
-        }
-
-        return directory != null ? Path.Combine(directory.FullName, "ConfigRepo", "resources") : "";
-    }
-#endif
-    
-    
 }
