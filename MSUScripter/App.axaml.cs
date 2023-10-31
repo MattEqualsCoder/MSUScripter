@@ -74,7 +74,7 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
-    private async void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    private void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
         if (_mainWindow == null) return;
         
