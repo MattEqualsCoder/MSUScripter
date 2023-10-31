@@ -2,9 +2,9 @@ name: .NET Build + Publish
 
 on:
   push:
-    branches: [ release-1.1.1-action ]
+    branches: [ main ]
   pull_request:
-    branches: [ release-1.1.1-action ]
+    branches: [ main ]
 
 jobs:
   build:

@@ -24,7 +24,7 @@ DisableProgramGroupPage=yes
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=MSUScripter_{#MyAppVersion}-win
+OutputBaseFilename=MSUScripterSetupWin_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
