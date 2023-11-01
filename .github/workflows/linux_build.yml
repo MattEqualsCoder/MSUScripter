@@ -43,6 +43,9 @@ jobs:
       working-directory: Setup
       run: "./LinuxBuildZipper.ps1"
       shell: pwsh
+    - name: Install libfuse2
+      if: ${{ github.event_name != 'pull_request' }}
+      run: sudo apt install libfuse2
     - name: Setup pupnet
       if: ${{ github.event_name != 'pull_request' }}
       run: dotnet tool install -g KuiperZone.PupNet
