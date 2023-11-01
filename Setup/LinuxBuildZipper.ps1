@@ -22,10 +22,7 @@ Write-Host "Version: $version"
 # Create package
 $fullVersion = "MSUScripterLinux_$version"
 $outputFolder = "$PSScriptRoot/Output"
-if (-not Test-Path $outputFolder)
-{
-    New-Item -Path "$PSScriptRoot" -Name "Output" -ItemType Directory
-}
+New-Item -Path "$outputFolder" -Force -ItemType Directory -ErrorAction SilentlyContinue
 $outputFile = "$outputFolder/$fullVersion.tar.gz"
 Write-Host "Creating $outputFile"
 if (Test-Path $outputFile) {
