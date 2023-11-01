@@ -43,6 +43,12 @@ jobs:
       working-directory: Setup
       run: "./LinuxBuildZipper.ps1"
       shell: pwsh
+    - name: Setup pupnet
+      if: ${{ github.event_name != 'pull_request' }}
+      run: dotnet tool install -g KuiperZone.PupNet
+    - name: Create appimage
+      if: ${{ github.event_name != 'pull_request' }}
+      run: pupnet --kind appimage -y
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ github.event_name != 'pull_request' }}
