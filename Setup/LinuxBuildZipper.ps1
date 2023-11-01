@@ -33,8 +33,3 @@ if (-not (Test-Path $outputFile)) {
     tar -cvzf $outputFile *
 }
 Set-Location $PSScriptRoot
-
-# Update pupnet file
-$filecontent = Get-Content -Path "$parentFolder/app.pupnet.conf" -Raw
-$filecontent.replace("%AppVersionRelease%", $version) | Set-Content -Path "$parentFolder/app.pupnet.conf"    
-Write-Host "Updated pupnet conf file"
