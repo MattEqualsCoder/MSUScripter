@@ -17,10 +17,12 @@ if (Test-Path "$winFolder\MSUScripter.exe") {
 else {
     $version = (Get-Item "$folder\MSUScripter.dll").VersionInfo.ProductVersion
 }
+Write-Host "Version: $version"
 
 # Create package
 $fullVersion = "MSUScripterLinux_$version"
 $outputFile = "$PSScriptRoot\Output\$fullVersion.tar.gz"
+Write-Host "Creating $outputFile"
 if (Test-Path $outputFile) {
     Remove-Item $outputFile -Force
 }
