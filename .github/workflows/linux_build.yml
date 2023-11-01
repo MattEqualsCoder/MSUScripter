@@ -40,12 +40,12 @@ jobs:
     #   shell: cmd
     - name: Building the Linux 64bit package
       if: ${{ github.event_name != 'pull_request' }}
-      working-directory: setup
+      working-directory: Setup
       run: "./LinuxBuildZipper.ps1"
       shell: pwsh
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       if: ${{ github.event_name != 'pull_request' }}
       with:
-        path: "setup/Output/*"
+        path: "Setup/Output/*"
         name: MSUScripter_${{ steps.version.outputs.number }}
