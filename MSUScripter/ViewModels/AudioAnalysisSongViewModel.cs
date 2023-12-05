@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MSUScripter.Models;
 using MSUScripter.Services;
 
 namespace MSUScripter.ViewModels;
@@ -81,7 +82,7 @@ public class AudioAnalysisSongViewModel : INotifyPropertyChanged
     }
     
 
-    public void ApplyAudioAnalysis(AudioService.AnalysisDataOutput data)
+    public void ApplyAudioAnalysis(AnalysisDataOutput data)
     {
         AvgDecibals = data.AvgDecibals;
         MaxDecibals = data.MaxDecibals;

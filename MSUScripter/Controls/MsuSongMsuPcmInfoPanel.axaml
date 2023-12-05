@@ -6,6 +6,7 @@
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">

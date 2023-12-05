@@ -6,6 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Tmds.DBus.Protocol;
@@ -91,5 +92,15 @@ public partial class MsuSongInfoPanel : UserControl
     private void StopMusicButton_OnClick(object? sender, RoutedEventArgs e)
     {
         PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.StopMusic));
+    }
+
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (IAudioPlayerService.CanPlaySongs != true)
+        {
+            this.Find<Button>(nameof(PlaySongButton))!.IsVisible = false;
+            this.Find<Button>(nameof(TestLoopButton))!.IsVisible = false;
+            this.Find<Button>(nameof(StopMusicButton))!.IsVisible = false;
+        }
     }
 }

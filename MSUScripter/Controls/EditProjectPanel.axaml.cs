@@ -22,7 +22,7 @@ public partial class EditProjectPanel : UserControl
 {
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
-    private readonly AudioService? _audioService;
+    private readonly IAudioPlayerService? _audioService;
     private readonly AudioMetadataService? _audioMetadataService;
     private readonly ConverterService? _converterService;
     private readonly IServiceProvider? _serviceProvider;
@@ -40,7 +40,7 @@ public partial class EditProjectPanel : UserControl
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, AudioService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -123,7 +123,7 @@ public partial class EditProjectPanel : UserControl
             return;
 
         if (_serviceProvider == null)
-            throw new InvalidOperationException("Unable to dislay track page");
+            throw new InvalidOperationException("Unable to display track page");
 
         if (_currentPage is MsuTrackInfoPanel prevPage)
         {

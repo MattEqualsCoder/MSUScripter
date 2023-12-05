@@ -25,10 +25,10 @@ public partial class MessageWindow : Window
         _message = message;
         _type = type;
         
-        if (message.Length > 120)
+        if (_message.Length > 120)
         {
-            Width = MaxWidth = 450;
-            Height = MaxHeight = 175;
+           Width = MaxWidth = 450;
+           Height = MaxHeight = 175;
         }
         
         if (parent == null)
@@ -54,8 +54,14 @@ public partial class MessageWindow : Window
 
     protected override void OnLoaded(RoutedEventArgs e)
     {
-        
         base.OnLoaded(e);
+        
+        if (_message.Length > 120)
+        {
+            Width = MaxWidth = 450;
+            Height = MaxHeight = 175;
+        }
+        
         var textBlock = this.Find<TextBlock>(nameof(MessageTextBlock));
         if (textBlock == null) return;
         textBlock.Text = _message;

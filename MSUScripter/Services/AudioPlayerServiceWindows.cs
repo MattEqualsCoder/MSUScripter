@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -9,20 +8,21 @@ using NAudio.Wave;
 
 namespace MSUScripter.Services;
 
-public class AudioService
+public class AudioPlayerServiceWindows : IAudioPlayerService
 {
     private WaveOutEvent? _waveOutEvent;
     private LoopStream? _loopStream;
-    private readonly ILogger<AudioService> _logger;
+    private readonly ILogger<AudioPlayerServiceWindows> _logger;
     private readonly Settings _settings;
 
-    public AudioService(ILogger<AudioService> logger, Settings settings)
+    public AudioPlayerServiceWindows(ILogger<AudioPlayerServiceWindows> logger, Settings settings)
     {
         _logger = logger;
         _settings = settings;
+        IAudioPlayerService.CanPlaySongs = true;
     }
 
-    public string CurrentPlayingFile { get; private set; } = "";
+    public string CurrentPlayingFile { get; set; } = "";
 
     public void Pause()
     {
@@ -217,65 +217,15 @@ public class AudioService
         return true;
     }
 
-    public AnalysisDataOutput AnalyzeAudio(string path)
-    {
-        StopSongAsync(path, true).Wait();
-        
-        try
-        {
-            using var reader = new BinaryReader(new FileStream(path, FileMode.Open));
-        }
-        catch
-        {
-            return new AnalysisDataOutput();
-        }
-        
-        // Initialize the sample reader
-        var readBuffer = new float[2000];
-        using var fs = File.OpenRead(path);
-        using var rs = new RawSourceWaveStream(fs, new WaveFormat(44100, 2));
-        var sampleProvider = rs.ToSampleProvider();
-        sampleProvider.Read(readBuffer, 0, 8);
-        
-        float maxPeak = 0;
-        double sum = 0;
-        var totalSampleCount = 0;
-
-        var samples = 0;
-        do
-        {
-            samples = sampleProvider.Read(readBuffer, 0, readBuffer.Length);
-            sum += readBuffer.Select(x => Math.Pow(x, 2)).Sum();
-            totalSampleCount += samples;
-            maxPeak = Math.Max(maxPeak, readBuffer.Max());
-        } while (samples == readBuffer.Length);
-
-        var average = Math.Sqrt(sum / totalSampleCount);
-        
-        return new AnalysisDataOutput()
-        {
-            AvgDecibals = ConvertToDecibel(average),
-            MaxDecibals = ConvertToDecibel(maxPeak)
-        };
-    }
-
-    public double ConvertToDecibel(float value)
-    {
-        return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
-    }
     
-    public double ConvertToDecibel(double value)
-    {
-        return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
-    }
-
-    public class AnalysisDataOutput
-    {
-        public double? AvgDecibals { get; set; }
-        public double? MaxDecibals { get; set; }
-    }
 
     public EventHandler? PlayStarted { get; set; }
     public EventHandler? PlayPaused { get; set; }
     public EventHandler? PlayStopped { get; set; }
+
+    public bool CanPlayMusic { get; set; } = true;
+
+    public bool CanSetMusicPosition { get; set; } = true;
+
+    public bool CanChangeVolume { get; set; } = true;
 }

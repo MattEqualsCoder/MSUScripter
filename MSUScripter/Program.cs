@@ -89,8 +89,8 @@ class Program
     public static IServiceProvider GetServiceProvider()
     {
         if (_serviceProvider != null) return _serviceProvider;
-        
-        _serviceProvider =  new ServiceCollection()
+
+        var serviceCollection = new ServiceCollection()
             .AddLogging(logging =>
             {
                 logging.AddSerilog(dispose: true);
@@ -100,7 +100,6 @@ class Program
             .AddSingleton<SettingsService>()
             .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<SettingsService>().Settings)
             .AddSingleton<MsuPcmService>()
-            .AddSingleton<AudioService>()
             .AddSingleton<AudioMetadataService>()
             .AddSingleton<ConverterService>()
             .AddSingleton<AudioAnalysisService>()
@@ -117,7 +116,18 @@ class Program
             .AddTransient<SettingsWindow>()
             .AddTransient<AudioAnalysisWindow>()
             .AddTransient<MusicLooperWindow>()
-            .BuildServiceProvider();
+            .AddTransient<PythonCommandRunnerService>();
+
+        if (OperatingSystem.IsWindows())
+        {
+            serviceCollection.AddSingleton<IAudioPlayerService, AudioPlayerServiceWindows>();
+        }
+        else
+        {
+            serviceCollection.AddSingleton<IAudioPlayerService, AudioPlayerServiceLinux>();    
+        }
+        
+        _serviceProvider = serviceCollection.BuildServiceProvider();
         
         return _serviceProvider;
     }
