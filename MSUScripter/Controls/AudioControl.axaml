@@ -23,11 +23,9 @@
             </StackPanel>
         </Button>
         
-        
-        
         <Slider Grid.Column="1" IsEnabled="False" Margin="4 4 0 0" Name="PositionSlider" Minimum="0" Maximum="100" ValueChanged="PositionSlider_OnValueChanged"></Slider>
         <TextBlock Grid.Column="2" Width="85" VerticalAlignment="Center" Name="TimestampTextBlock">0:00/0:00</TextBlock>
-        <avalonia:MaterialIcon Grid.Column="3" Kind="VolumeHigh" Margin="0 2 0 0"></avalonia:MaterialIcon>
+        <avalonia:MaterialIcon Grid.Column="3" Kind="VolumeHigh" Margin="0 2 0 0" Name="VolumeIcon"></avalonia:MaterialIcon>
         <Slider Grid.Column="4" Width="80" Margin="4 4 0 0" Name="VolumeSlider" Minimum="0" Maximum="100" ValueChanged="VolumeSlider_OnValueChanged"></Slider>
     </Grid>
     <!--<Grid VerticalAlignment="Center">

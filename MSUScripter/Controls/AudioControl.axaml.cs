@@ -13,7 +13,7 @@ namespace MSUScripter.Controls;
 
 public partial class AudioControl : UserControl
 {
-    private readonly AudioService? _audioService;
+    private readonly IAudioPlayerService? _audioService;
     private readonly SettingsService? _settingsService;
     private readonly Timer _timer;
     private readonly Settings? _settings;
@@ -24,7 +24,7 @@ public partial class AudioControl : UserControl
         
     }
     
-    public AudioControl(AudioService? audioService, SettingsService? settingsService, Settings? settings)
+    public AudioControl(IAudioPlayerService? audioService, SettingsService? settingsService, Settings? settings)
     {
         _audioService = audioService;
         _settingsService = settingsService;
@@ -80,12 +80,22 @@ public partial class AudioControl : UserControl
         
         if (isPlaying)
         {
-            this.Find<MaterialIcon>(nameof(IconPlay))!.IsVisible = true;
-            this.Find<MaterialIcon>(nameof(IconPause))!.IsVisible = false;
-            this.Find<MaterialIcon>(nameof(IconStop))!.IsVisible = false;
+            if (_audioService?.CanSetMusicPosition == true)
+            {
+                this.Find<MaterialIcon>(nameof(IconPlay))!.IsVisible = true;
+                this.Find<MaterialIcon>(nameof(IconPause))!.IsVisible = false;
+                this.Find<MaterialIcon>(nameof(IconStop))!.IsVisible = false;
+            }
+            else
+            {
+                this.Find<MaterialIcon>(nameof(IconPlay))!.IsVisible = false;
+                this.Find<MaterialIcon>(nameof(IconPause))!.IsVisible = false;
+                this.Find<MaterialIcon>(nameof(IconStop))!.IsVisible = true;
+            }
+            
             this.Find<Button>(nameof(PlayPauseButton))!.IsEnabled = true;
             this.Find<Slider>(nameof(PositionSlider))!.IsEnabled = true;
-            _timer.Start();
+            StartTimer();
         }
         else if (isPaused)
         {
@@ -94,7 +104,7 @@ public partial class AudioControl : UserControl
             this.Find<MaterialIcon>(nameof(IconStop))!.IsVisible = false;
             this.Find<Button>(nameof(PlayPauseButton))!.IsEnabled = true;
             this.Find<Slider>(nameof(PositionSlider))!.IsEnabled = true;
-            _timer.Stop();
+            StopTimer();
         }
         else
         {
@@ -103,6 +113,22 @@ public partial class AudioControl : UserControl
             this.Find<MaterialIcon>(nameof(IconStop))!.IsVisible = true;
             this.Find<Button>(nameof(PlayPauseButton))!.IsEnabled = false;
             this.Find<Slider>(nameof(PositionSlider))!.IsEnabled = false;
+            StopTimer();
+        }
+    }
+
+    private void StartTimer()
+    {
+        if (_audioService?.CanSetMusicPosition == true)
+        {
+            _timer.Start();
+        }
+    }
+
+    private void StopTimer()
+    {
+        if (_audioService?.CanSetMusicPosition == true)
+        {
             _timer.Stop();
         }
     }
@@ -110,7 +136,28 @@ public partial class AudioControl : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        this.Find<Slider>(nameof(VolumeSlider))!.Value = (_settings?.Volume ?? 0) * 100;
+
+        if (_audioService?.CanPlayMusic != true)
+        {
+            this.Find<Button>(nameof(PlayPauseButton))!.IsVisible = false;
+        }
+
+        if (_audioService?.CanSetMusicPosition != true)
+        {
+            this.Find<Slider>(nameof(PositionSlider))!.IsVisible = false;
+            this.Find<TextBlock>(nameof(TimestampTextBlock))!.IsVisible = false;
+        }
+
+        if (_audioService?.CanChangeVolume == true)
+        {
+            this.Find<Slider>(nameof(VolumeSlider))!.Value = (_settings?.Volume ?? 0) * 100;
+        }
+        else
+        {
+            this.Find<Slider>(nameof(VolumeSlider))!.IsVisible = false;
+            this.Find<MaterialIcon>(nameof(VolumeIcon))!.IsVisible = false;
+        }
+
     }
 
     private void PlayPauseButton_OnClick(object? sender, RoutedEventArgs e)

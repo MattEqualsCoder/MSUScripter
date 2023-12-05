@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
@@ -110,5 +111,15 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     private void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
     {
         PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.GenerateEmpty));
+    }
+
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (IAudioPlayerService.CanPlaySongs != true)
+        {
+            this.Find<Button>(nameof(PlaySongButton))!.IsVisible = false;
+            this.Find<Button>(nameof(TestLoopButton))!.IsVisible = false;
+            this.Find<Button>(nameof(StopButton))!.IsVisible = false;
+        }
     }
 }

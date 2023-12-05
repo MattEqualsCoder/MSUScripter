@@ -8,7 +8,7 @@ A cross platform application built for creating MSUs and related files. The appl
 
 - **Converts audio files into pcm files** ([msupcm++](https://github.com/qwertymodo/msupcmplusplus) required) - Through the UI you can enter almost any field available to msupcm++ and generate either all pcm files for the MSU-1 or even just single files for testing. The MSU Scripter will even verify that created pcms are valid and can run multiple instances of msupcm++ simultaneously for faster generation of MSUs.
 - **Create MSU YAML files with song information** - The MSU Scripter will write YAML files for the [MSU Randomizer](https://github.com/MattEqualsCoder/MSURandomizer) to pull information about the MSU and the songs such as the song name, artist, and album. These YAML files also double as generated user friendly track lists! [View more information about the MSU Randomizer YAML files here.](https://github.com/MattEqualsCoder/MSURandomizer/blob/main/Docs/yaml.md)
-- **Play generated pcm files** (Windows only) - Built into the MSU Scripter is an audio player for playing pcm files, including an option to start playing near the end of the song to test loop points.
+- **Play generated pcm files** - Built into the MSU Scripter is an audio player for playing pcm files, including an option to start playing near the end of the song to test loop points.
 - **Audio balance analysis** - After creating your MSU, run the Audio Analysis to scan through all of the generated files to look for songs that have an average volume or peak that is louder than the overall averages of all of the songs.
 - **Auto loop detection** ([PyMusicLooper](https://github.com/arkrow/PyMusicLooper) required) - By using the PyMusicLooper script, the MSU Scripter can attempt to find a loop point for you.
 - **Import audio metadata** - Automatically pulls in mp3 and flac metadata for song names, artists, and playlists.
@@ -24,6 +24,7 @@ A cross platform application built for creating MSUs and related files. The appl
     - Linux - Make sure to have .net 7 installed. Either make the MSUScripter file executable and run it or run dotnet MSUScripter.dll
 - Download [msupcm++](https://github.com/qwertymodo/msupcmplusplus) if generating pcms is desired
 - Install [PyMusicLooper](https://github.com/arkrow/PyMusicLooper) if automatic loop point detection is desired (make sure you can run it via a PowerShell or Terminal window)
+- For Linux users, install [PCM Player](https://github.com/MattEqualsCoder/pcm_player) in order to be able to listen to pcm files
 - Add in all details desired about the MSU and the tracks
 - Click on export to generate the MSU and all related files
 
