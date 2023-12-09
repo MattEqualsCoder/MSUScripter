@@ -10,6 +10,7 @@ using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSURandomizerLibrary;
 using MSUScripter.Controls;
+using MSUScripter.Models;
 using MSUScripter.Services;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
@@ -53,7 +54,7 @@ class Program
         window.Closing += (sender, args) =>
         {
             if (window.Result != MessageWindowResult.Yes) return;
-            var logFileLocation = BaseFolder;
+            var logFileLocation = Directories.LogFolder;
             var startInfo = new ProcessStartInfo
             {
                 Arguments = logFileLocation, 
@@ -132,12 +133,10 @@ class Program
         return _serviceProvider;
     }
 
-    public static string BaseFolder => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MSUScripter");
-    
 #if DEBUG
-    private static string LogPath => Path.Combine(BaseFolder, "msu-scripter-debug_.log");
+    private static string LogPath => Path.Combine(Directories.LogFolder, "msu-scripter-debug_.log");
 #else
-    private static string LogPath => Path.Combine(BaseFolder, "msu-scripter_.log");
+    private static string LogPath => Path.Combine(Directories.LogFolder, "msu-scripter_.log");
 #endif
 
 }

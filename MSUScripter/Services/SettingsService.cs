@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Settings = MSUScripter.Configs.Settings;
@@ -77,9 +78,9 @@ public class SettingsService
     private string GetSettingsPath()
     {
 #if DEBUG
-        return Path.Combine(Program.BaseFolder, "settings-debug.yml");
+        return Path.Combine(Directories.BaseFolder, "settings-debug.yml");
 #else
-        return Path.Combine(Program.BaseFolder, "settings.yml");
+        return Path.Combine(Directories.BaseFolder, "settings.yml");
 #endif
     }
 }

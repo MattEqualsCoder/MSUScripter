@@ -70,17 +70,17 @@ public partial class MusicLooperWindow : Window
         
         await Task.Run(() =>
         {
-            var successful = _pyMusicLooperService.GetLoopPoints(file, out var message, out var loopStart, out var loopEnd);
+            var results = _pyMusicLooperService.GetLoopPoints(file, out var message);
 
-            if (!successful)
+            if (results == null)
             {
                 DisplayMessage($"Error with PyMusicLooper:\n{message}", true);
             }
             else if (Result == null)
             {
                 Result = true;
-                Model.TrimEnd = loopEnd;
-                Model.Loop = loopStart;
+                Model.TrimEnd = results[0].LoopEnd;
+                Model.Loop = results[0].LoopStart;
             }
 
             return Task.CompletedTask;

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Tools;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
@@ -744,6 +745,6 @@ public class ProjectService
 
     private string GetBackupDirectory()
     {
-        return Path.Combine(Program.BaseFolder, "backups");
+        return Path.Combine(Directories.BaseFolder, "backups");
     }
 }
