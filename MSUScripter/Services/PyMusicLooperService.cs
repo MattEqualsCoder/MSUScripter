@@ -221,6 +221,15 @@ public class PyMusicLooperService
 
     private string CleanPyMusicLooperError(string message)
     {
-        return Regex.Replace(Regex.Replace(message, @"\s\s+", " "), "@__+", "_");
+        _logger.LogError("PyMusicLooper Error: {Message}", message);
+        if (message.Contains("\u2502"))
+        {
+            message = message.Split("\u2502")[1];
+            return message.Trim();
+        }
+        else
+        {
+            return Regex.Replace(Regex.Replace(Regex.Replace(message, @"\s\s+", " "), "@__+", "_"), @"[─╭╮╯╰│]+", "");
+        }
     }
 }
