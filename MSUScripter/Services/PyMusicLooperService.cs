@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using MSUScripter.Models;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
@@ -13,35 +19,93 @@ public class PyMusicLooperService
     private static readonly Regex digitsOnly = new(@"[^\d.]");
     private bool _hasValidated;
     private const string MinVersion = "3.0.0";
+    private const string MinVersionMultipleResults = "3.2.0";
+    private bool _canReturnMultipleResults;
+    private readonly string _cachePath;
+    private int _currentVersion;
+    
+    private readonly ISerializer _serializer = new SerializerBuilder()
+        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .Build();
+    private readonly IDeserializer _deserializer = new DeserializerBuilder()
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .IgnoreUnmatchedProperties()
+        .Build();
 
     public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python)
     {
         _logger = logger;
         _python = python;
+        _cachePath = Directories.CacheFolder;
     }
 
-    public bool GetLoopPoints(string filePath, out string message, out int loopStart, out int loopEnd)
+    public List<(int LoopStart, int LoopEnd)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
     {
         var file = new FileInfo(filePath);
-        var arguments = $"export-points --min-duration-multiplier 0.25 --path \"{file.FullName}\"";
+
+        var path = GetCacheFilePath(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration);
+        if (File.Exists(path))
+        {
+            var ymlText = File.ReadAllText(path);
+            try
+            {
+                message = "";
+                return _deserializer.Deserialize<List<(int, int)>>(ymlText);
+            }
+            catch
+            {
+                message = "Could not parse cached PyMusicLooper results";
+                return null;
+            }
+        }
+        
+        var arguments = GetArguments(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration);
+        List<(int, int)>? loopPoints;
+
+        if (!_canReturnMultipleResults)
+        {
+            loopPoints = GetLoopPointsSingle(arguments, out message);
+        }
+        else
+        {
+            loopPoints = GetLoopPointsMulti(arguments, out message);
+        }
+
+        if (loopPoints != null)
+        {
+            try
+            {
+                var ymlText = _serializer.Serialize(loopPoints);
+                File.WriteAllText(path, ymlText);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error saving PyMusicLooper cache");
+            }
+            
+        }
+
+        return loopPoints;
+    }
+
+    private List<(int, int)>? GetLoopPointsSingle(string arguments, out string message)
+    {
         var successful = _python.RunCommand(arguments, out var result, out var error);
 
         if (!successful || !result.Contains("LOOP_START: ") || !result.Contains("LOOP_END: "))
         {
-            loopStart = -1;
-            loopEnd = -1;
-            message = Regex.Replace(string.IsNullOrEmpty(error) ? result : error, @"\s\s+", " ");
-            return false;
+            message = CleanPyMusicLooperError(string.IsNullOrEmpty(error) ? result : error);
+            return null;
         }
 
-        loopStart = -1;
-        loopEnd = -1;
+        var loopStart = -1;
+        var loopEnd = -1;
         
         var regex = new Regex(@"LOOP_START: (\d)+");
         var match = regex.Match(result);
         if (match.Success)
         {
-            
             loopStart = int.Parse(match.Groups[0].Value.Split(" ")[1]);
         }
 
@@ -52,8 +116,54 @@ public class PyMusicLooperService
             loopEnd = int.Parse(match.Groups[0].Value.Split(" ")[1]);
         }
 
+        if (loopStart == -1 || loopEnd == -1)
+        {
+            message = "Invalid loop found";
+            return null;
+        }
+        else
+        {
+            message = "";
+            return new List<(int, int)>() { (loopStart, loopEnd) };
+        }
+    }
+    
+    private List<(int, int)>? GetLoopPointsMulti(string arguments, out string message)
+    {
+        arguments += " --alt-export-top -1";
+        
+        var successful = _python.RunCommand(arguments, out var result, out var error);
+
+        var regexValid = new Regex("^[0-9- .\n]+$");
+        if (!successful || !regexValid.IsMatch(result))
+        {
+            message = CleanPyMusicLooperError(string.IsNullOrEmpty(error) ? result : error);
+            return null;
+        }
+
         message = "";
-        return true;
+
+        return result.Split("\n")
+            .Select(x => x.Split(" "))
+            .Select(x => (int.Parse(x[0]), int.Parse(x[1])))
+            .ToList();
+    }
+
+    private string GetArguments(string filePath, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
+    {
+        var arguments = $"export-points --min-duration-multiplier {minDurationMultiplier} --path \"{filePath}\"";
+        
+        if (minLoopDuration != null)
+        {
+            arguments += $" --min-loop-duration {minDurationMultiplier}";
+        }
+
+        if (maxLoopDuration != null)
+        {
+            arguments += $" --max-loop-duration {maxLoopDuration}";
+        }
+
+        return arguments;
     }
 
     public bool TestService(out string message)
@@ -71,8 +181,9 @@ public class PyMusicLooperService
         }
         
         var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
-        var versionNum = version[0] * 10000 + version[1] * 100 + version[2];
-        _hasValidated = versionNum >= GetMinVersionNumber();
+        _currentVersion = ConvertVersionNumber(version[0], version[1], version[2]);
+        _hasValidated = _currentVersion >= GetMinVersionNumber();
+        _canReturnMultipleResults = _currentVersion >= GetMinVersionNumberForMultipleResults();
         message = _hasValidated ? "" : $"Minimum PyMusicLooper version is {MinVersion}";
         return _hasValidated;
     }
@@ -80,6 +191,36 @@ public class PyMusicLooperService
     private int GetMinVersionNumber()
     {
         var version = MinVersion.Split(".").Select(int.Parse).ToList();
-        return version[0] * 10000 + version[1] * 100 + version[2];
+        return ConvertVersionNumber(version[0], version[1], version[2]);
+    }
+    
+    private int GetMinVersionNumberForMultipleResults()
+    {
+        var version = MinVersionMultipleResults.Split(".").Select(int.Parse).ToList();
+        return ConvertVersionNumber(version[0], version[1], version[2]);
+    }
+    
+    private int ConvertVersionNumber(int a, int b, int c)
+    {
+        return a * 10000 + b * 100 + c;
+    }
+
+    private string GetCacheFilePath(string path, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
+    {
+        using var md5 = MD5.Create();
+        using var stream = File.OpenRead(path);
+        var pathHash = GetHexString(md5.ComputeHash(Encoding.Default.GetBytes(path)));
+        var fileHash = GetHexString(md5.ComputeHash(stream));
+        return Path.Combine(_cachePath, $"{pathHash}_{fileHash}_{_currentVersion}_{Math.Round(minDurationMultiplier, 2)}_{minLoopDuration}_{maxLoopDuration}.yml");
+    }
+
+    private string GetHexString(byte[] bytes)
+    {
+        return BitConverter.ToString(bytes).Replace("-", string.Empty);
+    }
+
+    private string CleanPyMusicLooperError(string message)
+    {
+        return Regex.Replace(Regex.Replace(message, @"\s\s+", " "), "@__+", "_");
     }
 }

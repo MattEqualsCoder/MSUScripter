@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Models;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Controls;
+using MSUScripter.Models;
 using MSUScripter.Services;
 
 namespace MSUScripter;
@@ -58,11 +59,11 @@ public partial class App : Application
             var msuInitializationRequest = new MsuRandomizerInitializationRequest
             {
                 MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml"),
-                UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings.yml")
+                UserOptionsPath = Path.Combine(Directories.BaseFolder, "msu-user-settings.yml")
             };
 
 #if DEBUG
-            msuInitializationRequest.UserOptionsPath = Path.Combine(Program.BaseFolder, "msu-user-settings-debug.yml");
+            msuInitializationRequest.UserOptionsPath = Path.Combine(Directories.BaseFolder, "msu-user-settings-debug.yml");
 #endif
         
             _services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);

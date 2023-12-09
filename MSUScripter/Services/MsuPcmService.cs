@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using Newtonsoft.Json;
 
 namespace MSUScripter.Services;
@@ -54,7 +55,7 @@ public class MsuPcmService
             return false;
         }
 
-        var jsonDirectory = Path.Combine(Program.BaseFolder, "msupcmtemp");
+        var jsonDirectory = Path.Combine(Directories.BaseFolder, "msupcmtemp");
         if (!Directory.Exists(jsonDirectory))
         {
             Directory.CreateDirectory(jsonDirectory);
@@ -371,5 +372,5 @@ public class MsuPcmService
     
     public bool IsGeneratingPcm { get; private set; }
 
-    private string TempFilePath => Path.Combine(Program.BaseFolder, "tmp-pcm.pcm");
+    private string TempFilePath => Path.Combine(Directories.BaseFolder, "tmp-pcm.pcm");
 }
