@@ -111,6 +111,7 @@ class Program
             .AddSingleton<TrackListService>()
             .AddTransient<NewProjectPanel>()
             .AddTransient<EditProjectPanel>()
+            .AddTransient<PyMusicLooperPanel>()
             .AddTransient<MsuTrackInfoPanel>()
             .AddTransient<MsuPcmGenerationWindow>()
             .AddTransient<AudioControl>()

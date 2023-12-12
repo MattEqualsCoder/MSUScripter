@@ -26,23 +26,50 @@ public class MsuPcmService
         _settings = settings;
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated)
+    public void DeleteTempPcms()
     {
-        outputPath = TempFilePath;
+        var tempDirectory = new DirectoryInfo(Directories.TempFolder);
+        foreach (var tempPcm in tempDirectory.EnumerateFiles("*.pcm"))
+        {
+            tempPcm.Delete();
+        }
+    }
+
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int loop, int trimEnd)
+    {
+        outputPath = Path.Combine(Directories.TempFolder, $"{Guid.NewGuid():N}.pcm");
         if (File.Exists(outputPath))
         {
             File.Delete(outputPath);
         }
-        return CreatePcm(project, new MsuSongInfo()
+        var result = CreatePcm(project, new MsuSongInfo()
             {
                 TrackNumber = project.MsuType.Tracks.First().Number,
                 OutputPath = outputPath,
                 MsuPcmInfo = new MsuSongMsuPcmInfo()
                 {
                     Output = outputPath,
-                    File = inputFile
+                    File = inputFile,
+                    Loop = loop,
+                    TrimEnd = trimEnd,
+                    Normalization = -25
                 }
             }, out message, out generated);
+
+        if (result && generated)
+        {
+            _logger.LogInformation("Temp PCM {Path} created successfully", outputPath);
+        }
+        else if (generated)
+        {
+            _logger.LogInformation("Temp PCM {Path} created with warning: {Warning}", outputPath, message);
+        }
+        else
+        {
+            _logger.LogInformation("Temp PCM {Path} had an error: {Error}", outputPath, message);
+        }
+
+        return result;
     }
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated)

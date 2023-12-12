@@ -586,8 +586,14 @@ public partial class EditProjectPanel : UserControl
         }
         
         var window = _serviceProvider.GetRequiredService<MusicLooperWindow>();
-        window.Model = pcmInfoViewModel;
-        await window.ShowDialog();
+        window.SetDetails(_projectViewModel!, songInfo);
+        var loopResult = await window.ShowDialog();
+        if (loopResult != null)
+        {
+            pcmInfoViewModel.Loop = loopResult.LoopStart;
+            pcmInfoViewModel.TrimEnd = loopResult.LoopEnd;
+        }
+        
     }
 
     private void Control_OnUnloaded(object? sender, RoutedEventArgs e)

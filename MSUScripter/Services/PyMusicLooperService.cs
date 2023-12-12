@@ -40,18 +40,28 @@ public class PyMusicLooperService
         _cachePath = Directories.CacheFolder;
     }
 
-    public List<(int LoopStart, int LoopEnd)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
+    public bool CanReturnMultipleResults => _canReturnMultipleResults;
+
+    public List<(int LoopStart, int LoopEnd, decimal Score)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
     {
+        if (!_hasValidated)
+        {
+            if (!TestService(out message))
+            {
+                return null;
+            }
+        }
+        
         var file = new FileInfo(filePath);
 
-        var path = GetCacheFilePath(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration);
+        var path = GetCacheFilePath(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration, approximateLoopStart, approximateLoopEnd);
         if (File.Exists(path))
         {
             var ymlText = File.ReadAllText(path);
             try
             {
                 message = "";
-                return _deserializer.Deserialize<List<(int, int)>>(ymlText);
+                return _deserializer.Deserialize<List<(int, int, decimal)>>(ymlText);
             }
             catch
             {
@@ -60,8 +70,8 @@ public class PyMusicLooperService
             }
         }
         
-        var arguments = GetArguments(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration);
-        List<(int, int)>? loopPoints;
+        var arguments = GetArguments(file.FullName, minDurationMultiplier, minLoopDuration, maxLoopDuration, approximateLoopStart, approximateLoopEnd);
+        List<(int, int, decimal)>? loopPoints;
 
         if (!_canReturnMultipleResults)
         {
@@ -89,8 +99,10 @@ public class PyMusicLooperService
         return loopPoints;
     }
 
-    private List<(int, int)>? GetLoopPointsSingle(string arguments, out string message)
+    private List<(int, int, decimal)>? GetLoopPointsSingle(string arguments, out string message)
     {
+        _logger.LogInformation("Executing PyMusicLooper: {Command}", arguments);
+        
         var successful = _python.RunCommand(arguments, out var result, out var error);
 
         if (!successful || !result.Contains("LOOP_START: ") || !result.Contains("LOOP_END: "))
@@ -124,17 +136,19 @@ public class PyMusicLooperService
         else
         {
             message = "";
-            return new List<(int, int)>() { (loopStart, loopEnd) };
+            return new List<(int, int, decimal)>() { (loopStart, loopEnd, 0) };
         }
     }
     
-    private List<(int, int)>? GetLoopPointsMulti(string arguments, out string message)
+    private List<(int, int, decimal)>? GetLoopPointsMulti(string arguments, out string message)
     {
         arguments += " --alt-export-top -1";
         
+        _logger.LogInformation("Executing PyMusicLooper: {Command}", arguments);
+        
         var successful = _python.RunCommand(arguments, out var result, out var error);
 
-        var regexValid = new Regex("^[0-9- .\n]+$");
+        var regexValid = new Regex("^[0-9- .e\n]+$");
         if (!successful || !regexValid.IsMatch(result))
         {
             message = CleanPyMusicLooperError(string.IsNullOrEmpty(error) ? result : error);
@@ -145,22 +159,27 @@ public class PyMusicLooperService
 
         return result.Split("\n")
             .Select(x => x.Split(" "))
-            .Select(x => (int.Parse(x[0]), int.Parse(x[1])))
+            .Select(x => (int.Parse(x[0]), int.Parse(x[1]), decimal.Parse(x[4])))
             .ToList();
     }
 
-    private string GetArguments(string filePath, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
+    private string GetArguments(string filePath, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
     {
         var arguments = $"export-points --min-duration-multiplier {minDurationMultiplier} --path \"{filePath}\"";
         
         if (minLoopDuration != null)
         {
-            arguments += $" --min-loop-duration {minDurationMultiplier}";
+            arguments += $" --min-loop-duration {minLoopDuration}";
         }
 
         if (maxLoopDuration != null)
         {
             arguments += $" --max-loop-duration {maxLoopDuration}";
+        }
+
+        if (approximateLoopStart != null && approximateLoopEnd != null)
+        {
+            arguments += $" --approx-loop-position {approximateLoopStart} {approximateLoopEnd}";
         }
 
         return arguments;
@@ -184,7 +203,7 @@ public class PyMusicLooperService
         _currentVersion = ConvertVersionNumber(version[0], version[1], version[2]);
         _hasValidated = _currentVersion >= GetMinVersionNumber();
         _canReturnMultipleResults = _currentVersion >= GetMinVersionNumberForMultipleResults();
-        message = _hasValidated ? "" : $"Minimum PyMusicLooper version is {MinVersion}";
+        message = _hasValidated ? "" : $"Minimum required PyMusicLooper version is {MinVersion}";
         return _hasValidated;
     }
 
@@ -205,13 +224,13 @@ public class PyMusicLooperService
         return a * 10000 + b * 100 + c;
     }
 
-    private string GetCacheFilePath(string path, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null)
+    private string GetCacheFilePath(string path, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
     {
         using var md5 = MD5.Create();
         using var stream = File.OpenRead(path);
         var pathHash = GetHexString(md5.ComputeHash(Encoding.Default.GetBytes(path)));
         var fileHash = GetHexString(md5.ComputeHash(stream));
-        return Path.Combine(_cachePath, $"{pathHash}_{fileHash}_{_currentVersion}_{Math.Round(minDurationMultiplier, 2)}_{minLoopDuration}_{maxLoopDuration}.yml");
+        return Path.Combine(_cachePath, $"{pathHash}_{fileHash}_{_currentVersion}_{Math.Round(minDurationMultiplier, 2)}_{minLoopDuration}_{maxLoopDuration}_{approximateLoopStart}_{approximateLoopEnd}.yml");
     }
 
     private string GetHexString(byte[] bytes)
