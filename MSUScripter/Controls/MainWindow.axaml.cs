@@ -126,8 +126,10 @@ public partial class MainWindow : Window
         
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
 
+        var versionString = (version.ProductVersion ?? "").Split("+")[0];
+
         var newerGitHubRelease = _services.GetRequiredService<IGitHubReleaseCheckerService>()
-            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", version.ProductVersion ?? "", _settings?.PromptOnPreRelease == true);
+            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", versionString, _settings?.PromptOnPreRelease == true);
 
         if (newerGitHubRelease != null)
         {

@@ -38,6 +38,7 @@ jobs:
       id: version
       run: |
         $version = (Get-Item "MSUScripter\bin\Release\net7.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
+        $version = $version.Split("+")[0]
         Write-Host $version
         Write-Output "number=$version" >> $env:GITHUB_OUTPUT
       shell: pwsh
