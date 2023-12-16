@@ -41,8 +41,8 @@ public partial class MusicLooperWindow : Window
     
     public async Task<PyMusicLooperResultViewModel?> ShowDialog()
     {
-        if (App._mainWindow == null) return null;
-        return await ShowDialog(App._mainWindow);
+        if (App.MainWindow == null) return null;
+        return await ShowDialog(App.MainWindow);
     }
     
     public new async Task<PyMusicLooperResultViewModel?> ShowDialog(Window window)
@@ -64,7 +64,7 @@ public partial class MusicLooperWindow : Window
         Close();
     }
 
-    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_pyMusicLooperPanel == null) return;
         this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);

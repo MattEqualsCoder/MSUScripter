@@ -35,7 +35,7 @@ public class MsuPcmService
         }
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int loop, int trimEnd)
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null)
     {
         outputPath = Path.Combine(Directories.TempFolder, $"{Guid.NewGuid():N}.pcm");
         if (File.Exists(outputPath))
@@ -51,8 +51,9 @@ public class MsuPcmService
                     Output = outputPath,
                     File = inputFile,
                     Loop = loop,
+                    TrimStart = trimStart,
                     TrimEnd = trimEnd,
-                    Normalization = -25
+                    Normalization = normalization
                 }
             }, out message, out generated);
 

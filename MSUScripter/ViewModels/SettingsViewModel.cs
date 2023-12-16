@@ -59,7 +59,14 @@ public class SettingsViewModel : INotifyPropertyChanged
         get => _darkTheme;
         set => SetField(ref _darkTheme, value);
     }
-    
+
+    public string? _previousPath;
+    public string? PreviousPath
+    {
+        
+        get => _previousPath;
+        set => SetField(ref _previousPath, value);
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

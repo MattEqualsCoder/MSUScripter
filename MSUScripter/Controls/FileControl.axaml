@@ -11,6 +11,7 @@
                  Text="{Binding ElementName=MyFileControl, Path=FilePath}"
                  IsReadOnly="True" 
                  IsEnabled="False" 
+                 Watermark="{Binding ElementName=MyFileControl, Path=Watermark}"
         />
         
         <Button Grid.Column="1" 

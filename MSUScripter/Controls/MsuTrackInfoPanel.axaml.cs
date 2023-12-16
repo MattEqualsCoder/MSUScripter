@@ -22,6 +22,7 @@ public partial class MsuTrackInfoPanel : UserControl
     public void SetTrackInfo(MsuProjectViewModel project, MsuTrackInfoViewModel trackInfo)
     {
         _project = project;
+        trackInfo.Project = project;
         _trackInfo = trackInfo;
         DataContext = trackInfo;
     }
@@ -31,6 +32,8 @@ public partial class MsuTrackInfoPanel : UserControl
     public event EventHandler<SongFileEventArgs>? FileUpdated;
     
     public event EventHandler<SongFileEventArgs>? MetaDataFileSelected;
+    
+    public event EventHandler<TrackEventArgs>? AddSongWindowButtonPressed;
     
     private void InitializeComponent()
     {
@@ -63,6 +66,11 @@ public partial class MsuTrackInfoPanel : UserControl
         songInfo.MsuPcmInfo.IsTopLevel = true;
 
         _trackInfo!.AddSong(songInfo);
+    }
+
+    private void AddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        AddSongWindowButtonPressed?.Invoke(this, new TrackEventArgs(_trackInfo!.TrackNumber));
     }
 
     private void MsuSongInfoPanel_OnOnDelete(object? sender, EventArgs e)

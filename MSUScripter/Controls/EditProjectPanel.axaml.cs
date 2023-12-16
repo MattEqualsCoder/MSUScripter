@@ -148,9 +148,15 @@ public partial class EditProjectPanel : UserControl
             pagePanel.PcmOptionSelected += PagePanelOnPcmOptionSelected;
             pagePanel.MetaDataFileSelected += SongFileSelected;
             pagePanel.FileUpdated += SongFileSelected;
+            pagePanel.AddSongWindowButtonPressed += PagePanelOnAddSongWindowButtonPressed;
             _currentPage = pagePanel;
             this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
         }
+    }
+
+    private void PagePanelOnAddSongWindowButtonPressed(object? sender, TrackEventArgs e)
+    {
+        OpenAddSongWindow(e.TrackNumber);
     }
 
     private void SongFileSelected(object? sender, SongFileEventArgs e)
@@ -543,7 +549,7 @@ public partial class EditProjectPanel : UserControl
         {
             var msuPcmGenerationWindow = _serviceProvider.GetRequiredService<MsuPcmGenerationWindow>();
             msuPcmGenerationWindow.SetProject(_projectViewModel, exportYaml, _project!.BasicInfo.CreateSplitSmz3Script);
-            msuPcmGenerationWindow.ShowDialog(App._mainWindow!);
+            msuPcmGenerationWindow.ShowDialog(App.MainWindow!);
             UpdateStatusBarText("MSU Generated");
         });
         
@@ -616,5 +622,23 @@ public partial class EditProjectPanel : UserControl
     private void ExportButton_TrackList_OnClick(object? sender, RoutedEventArgs e)
     {
         WriteTrackList();
+    }
+
+    private void AddSongButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        OpenAddSongWindow();
+    }
+
+    private void OpenAddSongWindow(int? trackNumber = null)
+    {
+        if (_serviceProvider == null || App.MainWindow == null || _projectViewModel == null)
+        {
+            return;
+        }
+        
+        var addSongWindow = _serviceProvider.GetRequiredService<AddSongWindow>();
+        addSongWindow.TrackNumber = trackNumber;
+        addSongWindow.ProjectModel = _projectViewModel;
+        addSongWindow.ShowDialog(App.MainWindow);
     }
 }

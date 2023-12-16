@@ -22,7 +22,7 @@ namespace MSUScripter;
 public partial class App : Application
 {
     private ILogger<App>? _logger;
-    public static MainWindow? _mainWindow;
+    public static MainWindow? MainWindow { get; private set; }
     private IServiceProvider? _services;
     
     public override void Initialize()
@@ -69,7 +69,7 @@ public partial class App : Application
             _services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
             _services.GetRequiredService<ConverterService>();
             Resources[typeof(IServiceProvider)] = _services;
-            desktop.MainWindow = _mainWindow = _services?.GetRequiredService<MainWindow>();
+            desktop.MainWindow = MainWindow = _services?.GetRequiredService<MainWindow>();
         }
         
         base.OnFrameworkInitializationCompleted();
@@ -77,14 +77,14 @@ public partial class App : Application
 
     private void DesktopOnShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
     {
-        if (_mainWindow == null) return;
+        if (MainWindow == null) return;
         
-        var hasPendingChanges = _mainWindow.CheckPendingChanges();
+        var hasPendingChanges = MainWindow.CheckPendingChanges();
         if (!hasPendingChanges) return;
         
         e.Cancel = true;
             
-        var window = new MessageWindow("You currently have unsaved changes. Do you want to save your changes?", MessageWindowType.YesNo, "MSU Scripter", _mainWindow);
+        var window = new MessageWindow("You currently have unsaved changes. Do you want to save your changes?", MessageWindowType.YesNo, "MSU Scripter", MainWindow);
         window.Show();
 
         window.OnButtonClick += (o, args) =>
@@ -92,7 +92,7 @@ public partial class App : Application
             var result = window.Result;
             if (result == MessageWindowResult.Yes)
             {
-                _mainWindow.SaveChanges();
+                MainWindow.SaveChanges();
             }
         };
     }

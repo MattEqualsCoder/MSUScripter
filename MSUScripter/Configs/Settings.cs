@@ -10,4 +10,5 @@ public class Settings
     public bool DarkTheme { get; set; } = true;
     public ICollection<RecentProject> RecentProjects { get; set; } = new List<RecentProject>();
     public double Volume { get; set; } = 1;
+    public string? PreviousPath { get; set; }
 }

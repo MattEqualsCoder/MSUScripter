@@ -42,6 +42,8 @@ public partial class PyMusicLooperPanel : UserControl
             DataContext = _model;
         }
     }
+    
+    public event EventHandler? OnUpdated;
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
@@ -70,7 +72,7 @@ public partial class PyMusicLooperPanel : UserControl
         RunPyMusicLooper();
     }
 
-    private void RunPyMusicLooper()
+    public void RunPyMusicLooper()
     {
         if (_pyMusicLooperService == null || string.IsNullOrEmpty(_model.MsuSongInfoViewModel.MsuPcmInfo.File))
         {
@@ -95,6 +97,7 @@ public partial class PyMusicLooperPanel : UserControl
                 _model.SelectedResult.IsSelected = true;
                 _model.Message = null;
                 RunMsuPcm();
+                OnUpdated?.Invoke(this, EventArgs.Empty);
                 return;
             }
 
@@ -212,6 +215,7 @@ public partial class PyMusicLooperPanel : UserControl
         }
 
         result.IsSelected = true;
+        OnUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     private void RunPyMusicLooperButton_OnClick(object? sender, RoutedEventArgs e)
