@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
@@ -15,6 +16,7 @@ using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using Timer = System.Timers.Timer;
 
 namespace MSUScripter.Controls;
 
@@ -34,6 +36,7 @@ public partial class EditProjectPanel : UserControl
     private UserControl? _currentPage;
     private bool _hasCheckedPendingChanges;
     private DateTime? _lastAutoSave;
+    private bool _displaySearchBar;
     
     public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null)
     {
@@ -110,6 +113,8 @@ public partial class EditProjectPanel : UserControl
 
         comboBox.ItemsSource = pages;
         comboBox.SelectedIndex = Math.Clamp(currentPage, 0, pages.Count - 1);
+
+        this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.ItemsSource = pages;
     }
 
     private void PageComboBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -640,5 +645,51 @@ public partial class EditProjectPanel : UserControl
         addSongWindow.TrackNumber = trackNumber;
         addSongWindow.ProjectModel = _projectViewModel;
         addSongWindow.ShowDialog(App.MainWindow);
+    }
+
+    private void SearchButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _displaySearchBar = !_displaySearchBar;
+        this.Find<ComboBox>(nameof(PageComboBox))!.IsVisible = !_displaySearchBar;
+        this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.IsVisible = _displaySearchBar;
+        if (_displaySearchBar)
+        {
+            this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = "";
+            
+            // Delay because setting focus the first time doesn't work for some reason
+            Task.Run(() =>
+            {
+                Thread.Sleep(50);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Focus();
+                });
+            });
+        }
+    }
+
+    private void TrackSearchAutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var text = (sender as AutoCompleteBox)?.Text;
+
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+        
+        if (text == "MSU Details")
+        {
+            DisplayPage(0);
+            return;
+        }
+        
+        var tracks = _projectViewModel!.Tracks.Where(x =>
+                $"Track #{x.TrackNumber} - {x.TrackName}".Equals(text, StringComparison.OrdinalIgnoreCase) || text.Equals(x.TrackNumber.ToString()))
+            .ToList();
+        if (tracks.Count == 1)
+        {
+            DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(tracks.First()) + 1);
+            return;
+        }
     }
 }

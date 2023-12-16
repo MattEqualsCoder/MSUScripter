@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Services;
@@ -75,7 +77,7 @@ public partial class AddSongWindow : Window
         }
 
         Model.Tracks = items;
-
+        
         if (TrackNumber == null)
         {
             this.Find<ComboBox>(nameof(MsuTypeComboBox))!.SelectedIndex = 0;    
@@ -285,5 +287,43 @@ public partial class AddSongWindow : Window
             _forceClosing = true;
             Close();
         }
+    }
+
+    private void SearchButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Model.EnableSearchBox = !Model.EnableSearchBox;
+        this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.IsVisible = Model.EnableSearchBox;
+        if (Model.EnableSearchBox)
+        {
+            // Delay because setting focus the first time doesn't work for some reason
+            Task.Run(() =>
+            {
+                Thread.Sleep(50);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Focus();
+                });
+            });
+        }
+    }
+
+    private void AutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var text = (sender as AutoCompleteBox)?.Text;
+        if (string.IsNullOrEmpty(text))
+        {
+            Model.SelectedIndex = 0;
+            return;
+        }
+        
+        var tracks = _projectModel.Tracks.Where(x =>
+                $"Track #{x.TrackNumber} - {x.TrackName}".Contains(text, StringComparison.OrdinalIgnoreCase) || text.Equals(x.TrackNumber.ToString()))
+            .ToList();
+        if (tracks.Count == 1)
+        {
+            Model.SelectedIndex = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(tracks.First()) + 1;
+            return;
+        }
+        Model.SelectedIndex = 0;
     }
 }

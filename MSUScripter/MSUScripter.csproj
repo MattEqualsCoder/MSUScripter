@@ -8,7 +8,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
         <PackageIcon>MSUScripterIcon.ico</PackageIcon>
-        <Version>2.0.0-alpha.1</Version>
+        <Version>2.0.0-beta.1</Version>
     </PropertyGroup>
 
 

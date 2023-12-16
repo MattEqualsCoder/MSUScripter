@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="MSUScripter/App.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/AddSongWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
