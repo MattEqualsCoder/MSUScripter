@@ -23,13 +23,29 @@
                     <TextBlock>Prev</TextBlock>
                 </StackPanel>
             </Button>
-            <ComboBox Grid.Column="1" 
-                      Name="PageComboBox"
-                      Margin="0 0 0 0"
-                      HorizontalAlignment="Stretch"
-                      HorizontalContentAlignment="Stretch"
-                      SelectionChanged="PageComboBox_OnSelectionChanged"
-            />
+            
+            <Grid Grid.Column="1" 
+                  Margin="0 0 0 0"
+                  ColumnDefinitions="* Auto"
+            >
+                <ComboBox Grid.Column="0"
+                          Name="PageComboBox"
+                          ItemsSource="{Binding Tracks}"
+                          SelectionChanged="PageComboBox_OnSelectionChanged"
+                />
+                        
+                <AutoCompleteBox Grid.Column="0" 
+                                 Name="TrackSearchAutoCompleteBox"
+                                 ItemsSource="{Binding Tracks}"
+                                 IsVisible="False"
+                                 FilterMode="Contains"
+                                 TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
+                ></AutoCompleteBox>
+                        
+                <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
+                    <avalonia:MaterialIcon Kind="Search" Height="18" Width="18" Name="SearchIcon"></avalonia:MaterialIcon>
+                </Button>
+            </Grid>
             <Button 
                 Name="NextButton"
                 Grid.Column="2"

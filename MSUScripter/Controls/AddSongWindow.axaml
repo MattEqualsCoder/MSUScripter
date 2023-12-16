@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:MSUScripter.Controls"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         Width="1000" Height="700"
         x:Class="MSUScripter.Controls.AddSongWindow"
@@ -17,7 +18,7 @@
             <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Margin="5, 0" 
-                        IsEnabled="{Binding CanEditMainFields}"
+                        IsEnabled="{Binding CanAddSong}"
                         Name="AddSongButton"
                         Click="AddSongButton_OnClick"
                 >
@@ -37,14 +38,30 @@
                     <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
                     <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>
                     
-                    <ComboBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" 
-                              Name="MsuTypeComboBox"
-                              Margin="0 0 3 0"
-                              HorizontalAlignment="Stretch"
-                              HorizontalContentAlignment="Stretch"
-                              ItemsSource="{Binding Tracks}"
-                              SelectedIndex="{Binding SelectedIndex, Mode=OneWayToSource}"
-                    />
+                    <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" 
+                          Margin="0 0 3 0"
+                          ColumnDefinitions="* Auto"
+                    >
+                        <ComboBox Grid.Column="0"
+                            Name="MsuTypeComboBox"
+                            ItemsSource="{Binding Tracks}"
+                            SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                            IsVisible="{Binding !EnableSearchBox}"
+                        />
+                        
+                        <AutoCompleteBox Grid.Column="0" 
+                                         Name="TrackSearchAutoCompleteBox"
+                                         ItemsSource="{Binding Tracks}" 
+                                         IsVisible="{Binding EnableSearchBox}" 
+                                         FilterMode="Contains"
+                                         TextChanged="AutoCompleteBox_OnTextChanged"
+                        ></AutoCompleteBox>
+                        
+                        <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
+                            <avalonia:MaterialIcon Kind="Search" Height="18" Width="18" Name="SearchIcon"></avalonia:MaterialIcon>
+                        </Button>
+                    </Grid>
+                        
                     <controls:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
                                           Name="FileControl" 
                                           Filter="All Files:*"

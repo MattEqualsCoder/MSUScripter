@@ -14,6 +14,7 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
         {
             SetField(ref _filePath, value);
             OnPropertyChanged(nameof(CanEditMainFields));
+            OnPropertyChanged(nameof(CanAddSong));
         }
     }
 
@@ -35,7 +36,17 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
         set
         {
             SetField(ref _selectedIndex, value);
-            OnPropertyChanged(nameof(CanEditMainFields));
+            OnPropertyChanged(nameof(CanAddSong));
+        }
+    }
+    
+    private string? _selectedTrackName;
+    public string? SelectedTrackName
+    {
+        get => _selectedTrackName;
+        set
+        {
+            SetField(ref _selectedTrackName, value);
         }
     }
 
@@ -157,6 +168,14 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool _enableSearchBox;
+
+    public bool EnableSearchBox
+    {
+        get => _enableSearchBox;
+        set => SetField(ref _enableSearchBox, value);
+    }
+
     public void Clear()
     {
         FilePath = "";
@@ -175,6 +194,8 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
     public bool HasAudioAnalysis => !string.IsNullOrEmpty(_peakAudio);
 
     public bool CanEditMainFields => !string.IsNullOrEmpty(FilePath);
+
+    public bool CanAddSong => !string.IsNullOrEmpty(FilePath) && SelectedIndex > 0;
     
     private bool _hasModified; 
     public bool HasModified
