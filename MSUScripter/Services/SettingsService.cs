@@ -15,12 +15,15 @@ public class SettingsService
 {
     private ILogger<SettingsService> _logger;
 
+    public static SettingsService Instance { get; private set; } = null!;
+
     public Settings Settings { get; set; } = null!;
 
     public SettingsService(ILogger<SettingsService> logger)
     {
         _logger = logger;
         LoadSettings();
+        Instance = this;
     }
 
     public void LoadSettings()

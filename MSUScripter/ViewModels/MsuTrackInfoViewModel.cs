@@ -31,6 +31,9 @@ public class MsuTrackInfoViewModel : INotifyPropertyChanged
         get => _lastModifiedDate;
         set => SetField(ref _lastModifiedDate, value);
     }
+
+    [SkipConvert] 
+    public MsuProjectViewModel Project { get; set; } = new();
     
     [SkipConvert]
     public ObservableCollection<MsuSongInfoViewModel> Songs { get; set; } = new ObservableCollection<MsuSongInfoViewModel>();

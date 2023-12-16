@@ -81,6 +81,7 @@ class Program
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .With(new Win32PlatformOptions() { RenderingMode = new List<Win32RenderingMode>() { Win32RenderingMode.Software }  })
+            .With(new X11PlatformOptions() { UseDBusFilePicker = false })
             .WithInterFont()
             .LogToTrace();
     }
@@ -118,6 +119,7 @@ class Program
             .AddTransient<SettingsWindow>()
             .AddTransient<AudioAnalysisWindow>()
             .AddTransient<MusicLooperWindow>()
+            .AddTransient<AddSongWindow>()
             .AddTransient<PythonCommandRunnerService>();
 
         if (OperatingSystem.IsWindows())

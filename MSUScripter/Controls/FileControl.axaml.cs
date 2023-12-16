@@ -6,6 +6,8 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using MSUScripter.Configs;
+using MSUScripter.Services;
 using MSUScripter.Tools;
 
 namespace MSUScripter.Controls;
@@ -75,6 +77,15 @@ public partial class FileControl : UserControl
         get => GetValue(DialogTitleProperty);
         set => SetValue(DialogTitleProperty, value);
     }
+    
+    public static readonly StyledProperty<string> WatermarkProperty = AvaloniaProperty.Register<FileControl, string>(
+        "Watermark", "");
+
+    public string Watermark
+    {
+        get => GetValue(WatermarkProperty);
+        set => SetValue(WatermarkProperty, value);
+    }
 
     private void ClearButton_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -91,6 +102,8 @@ public partial class FileControl : UserControl
         set => SetValue(WarnOnOverwriteProperty, value);
     }
     
+    
+    
     public static readonly StyledProperty<string?> ForceExtensionProperty = AvaloniaProperty.Register<FileControl, string?>(
         "ForceExtension", null);
 
@@ -100,24 +113,40 @@ public partial class FileControl : UserControl
         set => SetValue(ForceExtensionProperty, value);
     }
 
-    public event EventHandler<BasicEventArgs>? OnUpdated; 
+    public event EventHandler<BasicEventArgs>? OnUpdated;
+
+    private static IStorageFolder? PreviousFolder;
 
     private async void BrowseButton_OnClick(object? sender, RoutedEventArgs e)
     {
         var topLevel = TopLevel.GetTopLevel(this);
 
         if (topLevel == null) return;
-        
+
+        if (PreviousFolder == null)
+        {
+            if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
+            {
+                PreviousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);    
+            }
+            else
+            {
+                PreviousFolder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+            }
+        }
+
         if (FileInputType == FileInputControlType.OpenFile)
         {
             var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
             {
                 Title = DialogTitle ?? "Select File",
-                FileTypeFilter = ParseFilter()
+                FileTypeFilter = ParseFilter(),
+                SuggestedStartLocation = PreviousFolder,
             });
-
+            
             if (!string.IsNullOrEmpty(files.FirstOrDefault()?.Path.LocalPath))
             {
+                PreviousFolder = await files.First().GetParentAsync();
                 FilePath = files.FirstOrDefault()?.Path.LocalPath;
                 OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!));
             }
@@ -128,12 +157,14 @@ public partial class FileControl : UserControl
             {
                 Title = DialogTitle ?? "Save File",
                 FileTypeChoices = ParseFilter(),
-                ShowOverwritePrompt = WarnOnOverwrite
+                ShowOverwritePrompt = WarnOnOverwrite,
+                SuggestedStartLocation = PreviousFolder,
             });
 
             if (!string.IsNullOrEmpty(file?.Path.LocalPath))
             {
                 FilePath = file.Path.LocalPath;
+                PreviousFolder = await file.GetParentAsync();
                 
                 if (!string.IsNullOrEmpty(ForceExtension) && !string.IsNullOrEmpty(FilePath) && !FilePath.EndsWith($".{ForceExtension}", StringComparison.OrdinalIgnoreCase))
                 {
@@ -147,15 +178,31 @@ public partial class FileControl : UserControl
         {
             var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions()
             {
-                Title = DialogTitle ?? "Select Folder"
+                Title = DialogTitle ?? "Select Folder",
+                SuggestedStartLocation = PreviousFolder,
             });
             
             if (!string.IsNullOrEmpty(folders.FirstOrDefault()?.Path.LocalPath))
             {
+                PreviousFolder = folders.First();
                 FilePath = folders.FirstOrDefault()?.Path.LocalPath;
                 OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!));
             }
         }
+
+        if (PreviousFolder != null)
+        {
+            SettingsService.Instance.Settings.PreviousPath = PreviousFolder.Path.LocalPath;
+            try
+            {
+                SettingsService.Instance.SaveSettings();
+            }
+            catch (Exception)
+            {
+                // Do nothing
+            }
+        }
+        
     }
 
     private List<FilePickerFileType> ParseFilter()

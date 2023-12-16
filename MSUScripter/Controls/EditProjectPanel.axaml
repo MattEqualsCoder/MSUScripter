@@ -49,16 +49,22 @@
                 <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="5 0 0 5"></StackPanel>
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
+                    <Button x:Name="AddSongButton"
+                            Margin="0 2 5 1"
+                            IsVisible="{Binding BasicInfo.IsMsuPcmProject }"
+                            Click="AddSongButton_OnClick"
+                    >Add _Song</Button>
                     <Button x:Name="AnalysisButton"
                             Margin="0 2 5 1"
                             Click="AnalysisButton_OnClick"
                     >_Audio Analysis</Button>
                     <Button x:Name="ExportButton" 
                             IsVisible="{Binding !BasicInfo.IsMsuPcmProject }"
+                            Margin="0 2 5 1"
                             Padding="8 5"
                             Click="ExportButton_OnClick"
                     >_Export</Button>
-                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }" Click="ExportButton_OnClick">
+                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }" Click="ExportButton_OnClick" >
                         <SplitButton.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                 <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick" IsVisible="{Binding BasicInfo.WriteYamlFile}"></MenuItem>
