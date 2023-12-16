@@ -29,7 +29,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         DisplayNewPanel();
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
-        Title = $"MSU Scripter v{version.ProductVersion}";
+        Title = $"MSU Scripter v{App.GetAppVersion()}";
     }
 
     public void SaveChanges()
@@ -124,12 +124,8 @@ public partial class MainWindow : Window
     {
         if (_services == null || _settings?.PromptOnUpdate != true) return;
         
-        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
-
-        var versionString = (version.ProductVersion ?? "").Split("+")[0];
-
         var newerGitHubRelease = _services.GetRequiredService<IGitHubReleaseCheckerService>()
-            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", versionString, _settings?.PromptOnPreRelease == true);
+            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", App.GetAppVersion(), _settings?.PromptOnPreRelease == true);
 
         if (newerGitHubRelease != null)
         {

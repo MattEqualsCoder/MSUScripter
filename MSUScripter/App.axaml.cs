@@ -29,6 +29,12 @@ public partial class App : Application
     {
         AvaloniaXamlLoader.Load(this);
     }
+
+    public static string GetAppVersion()
+    {
+        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location); 
+        return (version.ProductVersion ?? "").Split("+")[0];
+    }
     
     private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
@@ -50,7 +56,7 @@ public partial class App : Application
         
             _logger.LogInformation("Assembly Location: {Location}", Assembly.GetExecutingAssembly().Location);
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
-            _logger.LogInformation("Starting MSU Scripter {Version}", version.ProductVersion ?? "");
+            _logger.LogInformation("Starting MSU Scripter {Version}", GetAppVersion());
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
         
             var settings = _services.GetRequiredService<SettingsService>().Settings;
