@@ -13,6 +13,7 @@ using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
@@ -620,7 +621,10 @@ public partial class EditProjectPanel : UserControl
     {
         if (!string.IsNullOrEmpty(_project?.MsuPath))
         {
-            Process.Start("explorer.exe", $"/select,\"{_project!.MsuPath}\"");
+            if (!Directories.OpenDirectory(_project.MsuPath, true))
+            {
+                ShowError("Could not open MSU directory");
+            }
         }
     }
 

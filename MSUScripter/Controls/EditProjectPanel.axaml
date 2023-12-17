@@ -89,7 +89,7 @@
                                 <MenuItem Name="ExportButton_Swapper" Header="Export Alt Track Swap Script" Click="ExportButton_Swapper_OnClick" IsVisible="{Binding BasicInfo.CreateAltSwapper}"></MenuItem>
                                 <MenuItem Name="ExportButton_Smz3" Header="Export _SMZ3 Split MSU Script" Click="ExportButton_Smz3_OnClick" IsVisible="{Binding BasicInfo.CreateSplitSmz3Script}"></MenuItem>
                                 <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
-                                <MenuItem Name="OpenFolderMenuItem" Header="Open _Folder" Click="OpenFolderMenuItem_OnClick" IsVisible="{Binding ShowOpenFolderButton}"></MenuItem>
+                                <MenuItem Name="OpenFolderMenuItem" Header="Open _Folder" Click="OpenFolderMenuItem_OnClick"></MenuItem>
                             </MenuFlyout>
                         </SplitButton.Flyout>
                     </SplitButton>
