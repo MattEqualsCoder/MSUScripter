@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace MSUScripter.Models;
@@ -33,5 +34,34 @@ public class Directories
             }
             return path;
         }
+    }
+
+    public static bool OpenDirectory(string path, bool isFile = false)
+    {
+        if (isFile)
+        {
+            path = new FileInfo(path).DirectoryName ?? "";
+        }
+        
+        if (!Directory.Exists(path))
+        {
+            return false;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo()
+            {
+                FileName = path,
+                UseShellExecute = true,
+                Verb = "open"
+            });
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

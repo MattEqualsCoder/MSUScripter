@@ -19,8 +19,6 @@ public class MsuProjectViewModel
     [SkipConvert]
     public List<MsuTrackInfoViewModel> Tracks { get; set; } = new();
     
-    [SkipConvert] public bool ShowOpenFolderButton => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-    
     public bool HasPendingChanges()
     {
         return HasChangesSince(LastSaveTime);

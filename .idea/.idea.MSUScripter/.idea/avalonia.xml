@@ -11,6 +11,7 @@
         <entry key="MSUScripter/Controls/FileControl.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/GuidedWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/LabeledControl.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/LinkControl.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/LoopWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/MessageWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

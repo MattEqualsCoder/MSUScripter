@@ -54,14 +54,7 @@ class Program
         window.Closing += (sender, args) =>
         {
             if (window.Result != MessageWindowResult.Yes) return;
-            var logFileLocation = Directories.LogFolder;
-            var startInfo = new ProcessStartInfo
-            {
-                Arguments = logFileLocation, 
-                FileName = "explorer.exe"
-            };
-
-            Process.Start(startInfo);
+            Directories.OpenDirectory(Directories.LogFolder);
         };
         
         window.Show();

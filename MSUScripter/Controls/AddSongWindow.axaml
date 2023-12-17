@@ -11,6 +11,7 @@
         Title="Add Song"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
+        Icon="/Assets/MSUScripterIcon.ico"
         x:DataType="viewModels:AddSongWindowViewModel">
     <DockPanel>
         
