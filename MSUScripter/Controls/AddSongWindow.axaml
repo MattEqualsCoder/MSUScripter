@@ -22,9 +22,7 @@
                         IsEnabled="{Binding CanAddSong}"
                         Name="AddSongButton"
                         Click="AddSongButton_OnClick"
-                >
-                    Add Song
-                </Button>
+                        Content="{Binding AddSongButtonText}" />
                 <Button Margin="5, 0" Name="CloseButton" Click="CloseButton_OnClick">
                     Close
                 </Button>

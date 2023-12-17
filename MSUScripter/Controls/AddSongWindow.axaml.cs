@@ -261,6 +261,13 @@ public partial class AddSongWindow : Window
 
         _pyMusicLooperPanel.Model = new();
         Model.Clear();
+
+        Model.AddSongButtonText = "Added Song";
+        Task.Run(() =>
+        {
+            Thread.Sleep(TimeSpan.FromSeconds(3));
+            Model.AddSongButtonText = "Add Song";
+        });
     }
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
