@@ -84,6 +84,7 @@
                         <SplitButton.Flyout>
                             <MenuFlyout Placement="BottomEdgeAlignedRight">
                                 <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick" IsVisible="{Binding BasicInfo.WriteYamlFile}"></MenuItem>
+                                <MenuItem Name="ExportButton_ValidatedYaml" Header="_Validate YAML" Click="ExportButton_ValidatedYaml_OnClick" IsVisible="{Binding BasicInfo.WriteYamlFile}"></MenuItem>
                                 <MenuItem Name="ExportButton_TrackList" Header="Export _Track List File" Click="ExportButton_TrackList_OnClick" IsVisible="{Binding BasicInfo.WriteTrackList}"></MenuItem>
                                 <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
                                 <MenuItem Name="ExportButton_Swapper" Header="Export Alt Track Swap Script" Click="ExportButton_Swapper_OnClick" IsVisible="{Binding BasicInfo.CreateAltSwapper}"></MenuItem>

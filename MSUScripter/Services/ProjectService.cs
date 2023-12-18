@@ -9,6 +9,7 @@ using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Tools;
+using MSUScripter.ViewModels;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -733,6 +734,47 @@ public class ProjectService
 
         var text = sb.ToString();
         File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
+    }
+
+    public bool ValidateProject(MsuProjectViewModel project, out string message)
+    {
+        var msuPath = project.MsuPath;
+        var msu = _msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
+
+        if (msu == null)
+        {
+            message = "Could not load MSU.";
+            return false;
+        }
+        
+        var projectTracks = project.Tracks.SelectMany(x => x.Songs).ToList();
+
+        if (projectTracks.Count != msu.ValidTracks.Count)
+        {
+            message = "Could not load all tracks from the YAML file.";
+            return false;
+        }
+
+        foreach (var projectTrack in projectTracks)
+        {
+            var filename = new FileInfo(projectTrack.OutputPath!).Name;
+            var msuTrack = msu.Tracks.FirstOrDefault(x => x.Path.EndsWith(filename));
+
+            if (msuTrack == null)
+            {
+                message = $"Could not find track for song {projectTrack.SongName} in the YAML file.";
+                return false;
+            }
+            else if ((projectTrack.SongName ?? "") != msuTrack.SongName || (projectTrack.Album ?? "") != (msuTrack.Album ?? "") ||
+                     (projectTrack.Artist ?? "") != (msuTrack.Artist ?? "") || (projectTrack.Url ?? "") != (msuTrack.Url ?? ""))
+            {
+                message = $"Detail mismatch for song {projectTrack.SongName}.";
+                return false;
+            }
+        }
+            
+        message = "";
+        return true;
     }
 
     private string GetProjectBackupFilePath(string projectFilePath)
