@@ -322,7 +322,10 @@ public partial class EditProjectPanel : UserControl
         }
         
         songModel.LastGeneratedDate = DateTime.Now;
-        UpdateStatusBarText("PCM Generated");
+
+        var hasAlts = _project.Tracks.First(x => x.TrackNumber == songModel.TrackNumber).Songs.Count > 1;
+        
+        UpdateStatusBarText(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
         return true;
     }
 
