@@ -31,6 +31,7 @@ public partial class EditProjectPanel : UserControl
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
     private readonly TrackListService? _trackListService;
+    private readonly VideoCreatorService? _videoCreatorService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
@@ -39,12 +40,12 @@ public partial class EditProjectPanel : UserControl
     private DateTime? _lastAutoSave;
     private bool _displaySearchBar;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorService? videoCreatorService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -54,6 +55,7 @@ public partial class EditProjectPanel : UserControl
         _converterService = converterService;
         _audioControl = audioControl;
         _trackListService = trackListService;
+        _videoCreatorService = videoCreatorService;
         InitializeComponent();
     }
 
@@ -709,5 +711,17 @@ public partial class EditProjectPanel : UserControl
         {
             ShowError(message);
         }
+    }
+
+    private void ExportButton_Video_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_serviceProvider == null || _projectViewModel == null)
+        {
+            return;
+        }
+
+        var window = _serviceProvider.GetRequiredService<VideoCreatorWindow>();
+        window.Project = _projectViewModel;
+        window.ShowDialog(App.MainWindow!);
     }
 }

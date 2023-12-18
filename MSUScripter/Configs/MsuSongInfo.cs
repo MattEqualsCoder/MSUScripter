@@ -12,6 +12,7 @@ public class MsuSongInfo
     public string? Url { get; set; }
     public string OutputPath { get; set; } = "";
     public bool IsAlt { get; set; }
+    public bool CheckCopyright { get; set; } = true;
     public DateTime LastModifiedDate { get; set; }
     public DateTime LastGeneratedDate { get; set; }
 
