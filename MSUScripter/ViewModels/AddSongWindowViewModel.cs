@@ -176,6 +176,14 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
         set => SetField(ref _enableSearchBox, value);
     }
 
+    private string _addSongButtonText = "Add Song";
+
+    public string AddSongButtonText
+    {
+        get => _addSongButtonText;
+        set => SetField(ref _addSongButtonText, value);
+    }
+
     public void Clear()
     {
         FilePath = "";
