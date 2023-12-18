@@ -15,6 +15,7 @@ A cross platform application built for creating MSUs and related files. The appl
 - **Alt file support** - Want to include different options for people for particular tracks? Add multiple songs to a track, and it will generate different pcm files for each track. Optionally, the MSU Scripter will even generate a .bat (batch) file for swapping between the original base file and the alt files.
 - **Auto create split ALttPR and VARIA files for SMZ3 MSUs** - Creating an SMZ3 MSU and want to allow people to change it to work with ALttPR or VARIA randomizers? The MSU Scripter will create separate MSUs and their YAML files and then create a .bat file for swapping between combined SMZ3 and split ALttPR and VARIA MSUs.
 - **Import previously created MSUs** - Already have an MSU you want to create YAML files for or make updates to the pcm files? Simply point the MSU Scripter to a previously created MSU and, if msupcm++ is being used, the msupcm++ json file and the directory you previously executed msupcm++ from. It'll pull in all the info it can from the files.
+- **Create video files for copyright testing** ([MSU Test Video Creator](https://github.com/MattEqualsCoder/MSUTestVideoCreator) required) - Based on a Python code by [StructuralMike](https://github.com/StructuralMike), create an mp4 video file with all of the songs which can be uploaded to YouTube to test for copyright strikes.
 - **Supports over 20 types of MSUs** - Thanks to JSON files created by [Minnie Trethewey](https://github.com/miketrethewey), the MSU Scripter supports a variety of MSU types, such as A Link to the Past, Super Metroid, SMZ3, Donkey Kong Country, Super Mario World, and others!
 
 ## Setup
@@ -24,6 +25,7 @@ A cross platform application built for creating MSUs and related files. The appl
     - Linux - Make sure to have .net 7 installed. Either make the MSUScripter file executable and run it or run dotnet MSUScripter.dll
 - Download [msupcm++](https://github.com/qwertymodo/msupcmplusplus) if generating pcms is desired
 - Install [PyMusicLooper](https://github.com/arkrow/PyMusicLooper) if automatic loop point detection is desired (make sure you can run it via a PowerShell or Terminal window)
+- Install [MSU Test Video Creator](https://github.com/MattEqualsCoder/MSUTestVideoCreator) for creating mp4 files to upload to YouTube to test for potential copyright strikes
 - For Linux users, install [PCM Player](https://github.com/MattEqualsCoder/pcm_player) in order to be able to listen to pcm files
 - Add in all details desired about the MSU and the tracks
 - Click on export to generate the MSU and all related files
@@ -44,3 +46,4 @@ Having problems? Please feel free to [post an Issue on GitHub](). If encounterin
 - [Minnie Trethewey](https://github.com/miketrethewey) for the json files for the MSU types.
 - [qwertymodo](https://github.com/qwertymodo) for msupcm++ 
 - [arkrow](https://github.com/arkrow) for PyMusicLooper
+- [StructuralMike](https://github.com/StructuralMike) for the original Python code to create the Copyright Test Videos.

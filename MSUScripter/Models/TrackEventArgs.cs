@@ -1,6 +1,6 @@
 using System;
 
-namespace MSUScripter.Tools;
+namespace MSUScripter.Models;
 
 public class TrackEventArgs : EventArgs
 {

@@ -8,6 +8,7 @@ using Avalonia.Interactivity;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 
 namespace MSUScripter.Controls;
 

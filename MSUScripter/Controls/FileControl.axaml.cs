@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 

@@ -1,4 +1,4 @@
-﻿namespace MSUScripter.Tools;
+﻿namespace MSUScripter.Models;
 
 [System.AttributeUsage(System.AttributeTargets.Property)
 ]

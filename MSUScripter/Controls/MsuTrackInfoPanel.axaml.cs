@@ -4,6 +4,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using MSUScripter.Models;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 

@@ -57,7 +57,7 @@ public class Directories
                 Verb = "open"
             });
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }

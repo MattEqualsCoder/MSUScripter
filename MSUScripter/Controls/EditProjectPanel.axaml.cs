@@ -720,6 +720,7 @@ public partial class EditProjectPanel : UserControl
             return;
         }
 
+        this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
         var window = _serviceProvider.GetRequiredService<VideoCreatorWindow>();
         window.Project = _projectViewModel;
         window.ShowDialog(App.MainWindow!);

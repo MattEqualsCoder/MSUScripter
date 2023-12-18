@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MSUScripter.Models;
 using MSUScripter.Tools;
 
 namespace MSUScripter.Configs;
