@@ -1,4 +1,4 @@
-﻿namespace MSUScripter.Controls;
+﻿namespace MSUScripter.Models;
 
 public enum FileInputControlType
 {

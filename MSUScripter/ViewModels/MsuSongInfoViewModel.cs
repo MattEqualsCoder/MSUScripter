@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using MSUScripter.Models;
 using MSUScripter.Tools;
 
 namespace MSUScripter.ViewModels;

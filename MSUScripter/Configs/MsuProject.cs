@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MSURandomizerLibrary.Configs;
+using MSUScripter.Models;
 using MSUScripter.Tools;
 using YamlDotNet.Serialization;
 

@@ -10,6 +10,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Services;
 
 namespace MSUScripter.Controls;

@@ -7,6 +7,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Material.Icons;
 using Material.Icons.Avalonia;
+using MSUScripter.Models;
 
 namespace MSUScripter.Controls;
 

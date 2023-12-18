@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 

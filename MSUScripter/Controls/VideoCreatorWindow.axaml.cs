@@ -24,6 +24,7 @@ public partial class VideoCreatorWindow : Window
     public VideoCreatorWindow(VideoCreatorService? videoCreatorService)
     {
         _videoCreatorService = videoCreatorService;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
         InitializeComponent();
 
         if (_videoCreatorService != null)
