@@ -225,10 +225,8 @@ public partial class EditProjectPanel : UserControl
         await StopSong();
         
         // Regenerate the pcm file if it has updates that have been made to it
-        if (_projectViewModel.BasicInfo.IsMsuPcmProject && songModel.HasChangesSince(songModel.LastGeneratedDate) && songModel.HasFiles()) {
-            if (!GeneratePcmFile(songModel, false, false))
-                    return;
-        }
+        if (!GeneratePcmFile(songModel, false, false))
+            return;
         
         if (string.IsNullOrEmpty(songModel.OutputPath) || !File.Exists(songModel.OutputPath))
         {

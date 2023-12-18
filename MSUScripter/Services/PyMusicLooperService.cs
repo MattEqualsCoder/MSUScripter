@@ -37,7 +37,11 @@ public class PyMusicLooperService
     {
         _logger = logger;
         _python = python;
-        _cachePath = Directories.CacheFolder;
+        _cachePath = Path.Combine(Directories.CacheFolder, "pymusiclooper");
+        if (!Directory.Exists(_cachePath))
+        {
+            Directory.CreateDirectory(_cachePath);
+        }
     }
 
     public bool CanReturnMultipleResults => _canReturnMultipleResults;
