@@ -2,6 +2,8 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
@@ -50,9 +52,15 @@ public class VideoCreatorService
         
         _logger.LogInformation("Creating test video");
         
-        var pcmPaths = project.Tracks.SelectMany(x => x.Songs).Where(x => x.CheckCopyright && File.Exists(x.OutputPath)).Select(x => x.OutputPath);
+        var pcmPaths = project.Tracks.SelectMany(x => x.Songs).Where(x => x.CheckCopyright && File.Exists(x.OutputPath)).Select(x => x.OutputPath).ToList();
+        
+        if (!pcmPaths.Any())
+        {
+            message = "No songs are set to be added to the copyright test";
+            return false;
+        }
         var pathsString = string.Join(",", pcmPaths);
-        _process = _python.RunCommandAsync($"-f \"{pathsString}\" -o \"{outputPath}\"");
+        _process = _python.RunCommandAsync($"-f \"{pathsString}\" -o \"{outputPath}\"", false);
 
         if (_process == null)
         {
@@ -67,13 +75,11 @@ public class VideoCreatorService
             _process.WaitForExit();
             IsRunning = false;
             var code = _process.ExitCode;
-            var result = _process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
-            var error = _process.StandardError.ReadToEnd().Replace("\0", "").Trim();
             if (code != 0)
             {
-                _logger.LogError("Error calling msu_test_video_creator: {Message}", error);
+                _logger.LogError("Error {Code} calling msu_test_video_creator", code);
             }
-            VideoCreationCompleted?.Invoke(this, new VideoCreatorServiceEventArgs(code == 0, code == 0 ? "" : error));
+            VideoCreationCompleted?.Invoke(this, new VideoCreatorServiceEventArgs(code == 0, code == 0 ? "" : "Error calling msu_test_video_creator. Make sure you can call it manually via console."));
         });
 
         message = "";
@@ -82,13 +88,51 @@ public class VideoCreatorService
 
     public void Cancel()
     {
+        if (_process == null)
+        {
+            return;
+        }
+        
+        if (OperatingSystem.IsWindows())
+        {
+            KillProcessWindows(_process.Id);
+        }
+        else
+        {
+            try
+            {
+                _process?.Kill();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Unable to kill Video Creator");
+            }
+        }
+    }
+    
+    [SupportedOSPlatform("windows")]
+    private static void KillProcessWindows(int pid)
+    {
+        var processSearch = new ManagementObjectSearcher($"Select * From Win32_Process Where ParentProcessID={pid}");
+        var processCollection = processSearch.Get();
+
+        if (processCollection.Count > 0)
+        {
+            foreach (var managementObject in processCollection)
+            {
+                KillProcessWindows(Convert.ToInt32(managementObject["ProcessID"]));
+            }
+        }
+
+        // Then kill parents.
         try
         {
-            _process?.Kill();
+            Process proc = Process.GetProcessById(pid);
+            if (!proc.HasExited) proc.Kill();
         }
-        catch (Exception e)
+        catch (ArgumentException)
         {
-            _logger.LogError(e, "Unable to kill Video Creator");
+            // Process already exited.
         }
     }
 }

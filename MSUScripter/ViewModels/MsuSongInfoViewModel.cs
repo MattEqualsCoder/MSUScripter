@@ -64,7 +64,7 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _isAlt, value);
     }
     
-    private bool _checkCopyright;
+    private bool _checkCopyright = true;
     public bool CheckCopyright
     {
         get => _checkCopyright;

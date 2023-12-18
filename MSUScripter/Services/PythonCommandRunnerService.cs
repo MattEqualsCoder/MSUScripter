@@ -23,91 +23,93 @@ public class PythonCommandRunnerService
         return RunCommand(testCommand, out testResult, out testError);
     }
     
-    public bool RunCommand(string command, out string result, out string error)
+    public bool RunCommand(string command, out string result, out string error, bool redirectOutput = true)
     {
         result = "";
         error = "Unknown error";
         
         switch (_runMethod)
         {
-            case RunMethod.Unknown when RunInternalDirect(command, out result, out error):
+            case RunMethod.Unknown when RunInternalDirect(command, out result, out error, redirectOutput):
                 _runMethod = RunMethod.Direct;
                 return true;
-            case RunMethod.Unknown when RunInternalPy(command, out result, out error):
+            case RunMethod.Unknown when RunInternalPy(command, out result, out error, redirectOutput):
                 _runMethod = RunMethod.Py;
                 return true;
-            case RunMethod.Unknown when RunInternalPython3(command, out result, out error):
+            case RunMethod.Unknown when RunInternalPython3(command, out result, out error, redirectOutput):
                 _runMethod = RunMethod.Python3;
                 return true;
             case RunMethod.Direct:
-                return RunInternalDirect(command, out result, out error);
+                return RunInternalDirect(command, out result, out error, redirectOutput);
             case RunMethod.Py:
-                return RunInternalPy(command, out result, out error);
+                return RunInternalPy(command, out result, out error, redirectOutput);
             case RunMethod.Python3:
-                return RunInternalPython3(command, out result, out error);
+                return RunInternalPython3(command, out result, out error, redirectOutput);
             default:
                 return false;
         }
     }
     
-    public Process? RunCommandAsync(string command)
+    public Process? RunCommandAsync(string command, bool redirectOutput = true)
     {
         switch (_runMethod)
         {
             case RunMethod.Direct:
-                return RunInternalDirectAsync(command);
+                return RunInternalDirectAsync(command, redirectOutput);
             case RunMethod.Py:
-                return RunInternalPyAsync(command);
+                return RunInternalPyAsync(command, redirectOutput);
             case RunMethod.Python3:
-                return RunInternalPython3Async(command);
+                return RunInternalPython3Async(command, redirectOutput);
             default:
                 return null;
         }
     }
 
-    private bool RunInternalDirect(string command, out string result, out string error)
+    private bool RunInternalDirect(string command, out string result, out string error, bool redirectOutput)
     {
-        return RunInternal(_baseCommand, command, out result, out error);
+        return RunInternal(_baseCommand, command, out result, out error, redirectOutput);
     }
 
-    private bool RunInternalPy(string command, out string result, out string error)
+    private bool RunInternalPy(string command, out string result, out string error, bool redirectOutput)
     {
-        return RunInternal("py", $"-m {_baseCommand} {command}", out result, out error);
+        return RunInternal("py", $"-m {_baseCommand} {command}", out result, out error, redirectOutput);
     }
 
-    private bool RunInternalPython3(string command, out string result, out string error)
+    private bool RunInternalPython3(string command, out string result, out string error, bool redirectOutput)
     {
-        return RunInternal("python3", $"-m {_baseCommand} {command}", out result, out error);
+        return RunInternal("python3", $"-m {_baseCommand} {command}", out result, out error, redirectOutput);
     }
     
-    private Process? RunInternalDirectAsync(string command)
+    private Process? RunInternalDirectAsync(string command, bool redirectOutput)
     {
-        return RunInternalAsync(_baseCommand, command);
+        return RunInternalAsync(_baseCommand, command, redirectOutput);
     }
 
-    private Process? RunInternalPyAsync(string command)
+    private Process? RunInternalPyAsync(string command, bool redirectOutput)
     {
-        return RunInternalAsync("py", $"-m {_baseCommand} {command}");
+        return RunInternalAsync("py", $"-m {_baseCommand} {command}", redirectOutput);
     }
 
-    private Process? RunInternalPython3Async(string command)
+    private Process? RunInternalPython3Async(string command, bool redirectOutput)
     {
-        return RunInternalAsync("python3", $"-m {_baseCommand} {command}");
+        return RunInternalAsync("python3", $"-m {_baseCommand} {command}", redirectOutput);
     }
     
-    private bool RunInternal(string command, string arguments, out string result, out string error)
+    private bool RunInternal(string command, string arguments, out string result, out string error, bool redirectOutput)
     {
         try
         {
             ProcessStartInfo procStartInfo;
+            
+            var innerCommand = $"{command} {arguments}";
+            _logger.LogInformation("Executing python command: {Command}", innerCommand);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var innerCommand = $"{command} {arguments}";
                 procStartInfo= new ProcessStartInfo("cmd", "/c " + innerCommand)
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = redirectOutput,
+                    RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
@@ -117,8 +119,8 @@ public class PythonCommandRunnerService
                 procStartInfo= new ProcessStartInfo(command)
                 {
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = redirectOutput,
+                    RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
@@ -149,21 +151,24 @@ public class PythonCommandRunnerService
         }
     }
     
-    private Process? RunInternalAsync(string command, string arguments)
+    private Process? RunInternalAsync(string command, string arguments, bool redirectOutput)
     {
         try
         {
             ProcessStartInfo procStartInfo;
+            
+            var innerCommand = $"{command} {arguments}";
+            _logger.LogInformation("Executing async python command: {Command}", innerCommand);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                var innerCommand = $"{command} {arguments}";
                 procStartInfo= new ProcessStartInfo("cmd", "/c " + innerCommand)
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = redirectOutput,
+                    RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = @"C:\Users\Administrator\Documents"
                 };
             }
             else
@@ -171,8 +176,8 @@ public class PythonCommandRunnerService
                 procStartInfo= new ProcessStartInfo(command)
                 {
                     Arguments = arguments,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = redirectOutput,
+                    RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
