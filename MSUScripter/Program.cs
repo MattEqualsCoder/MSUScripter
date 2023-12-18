@@ -113,7 +113,9 @@ class Program
             .AddTransient<AudioAnalysisWindow>()
             .AddTransient<MusicLooperWindow>()
             .AddTransient<AddSongWindow>()
-            .AddTransient<PythonCommandRunnerService>();
+            .AddTransient<PythonCommandRunnerService>()
+            .AddTransient<VideoCreatorService>()
+            .AddTransient<VideoCreatorWindow>();
 
         if (OperatingSystem.IsWindows())
         {

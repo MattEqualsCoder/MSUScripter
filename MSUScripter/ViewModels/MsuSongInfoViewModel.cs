@@ -64,6 +64,13 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _isAlt, value);
     }
     
+    private bool _checkCopyright;
+    public bool CheckCopyright
+    {
+        get => _checkCopyright;
+        set => SetField(ref _checkCopyright, value);
+    }
+    
     private DateTime _lastModifiedDate;
     public DateTime LastModifiedDate
     {

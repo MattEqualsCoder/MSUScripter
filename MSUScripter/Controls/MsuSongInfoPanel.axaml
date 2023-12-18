@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:tools1="clr-namespace:MSUScripter.Tools"
              Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuSongInfoPanel"
@@ -46,6 +47,15 @@
                         Name="UrlTextBox"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
+                </controls:LabeledControl>
+                <controls:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
+                    <ComboBox 
+                        Name="CheckCopyrightComboBox"
+                        SelectedItem="{Binding CheckCopyright, Converter={StaticResource BoolToStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
                 </controls:LabeledControl>
                 <controls:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
                     <controls:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
