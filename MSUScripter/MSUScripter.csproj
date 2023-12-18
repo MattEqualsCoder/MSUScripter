@@ -9,6 +9,7 @@
         <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
         <PackageIcon>MSUScripterIcon.ico</PackageIcon>
         <Version>2.0.0-beta.1</Version>
+        <RuntimeFrameworkVersion>7.0.0</RuntimeFrameworkVersion>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     </PropertyGroup>
 
