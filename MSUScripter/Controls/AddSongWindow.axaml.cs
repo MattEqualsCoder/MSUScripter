@@ -47,6 +47,7 @@ public partial class AddSongWindow : Window
         DataContext = Model;
         InitializeComponent();
         _pyMusicLooperPanel.OnUpdated += PyMusicLooperPanelOnOnUpdated;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
     }
 
     private AddSongWindowViewModel Model { get; set; } = new();

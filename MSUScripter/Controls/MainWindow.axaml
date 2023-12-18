@@ -12,6 +12,7 @@
         Width="1024"
         Height="768"
         Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
         Title="MSUScripter">
     <Grid Name="MainGrid" RowDefinitions="Auto,*" IsSharedSizeScope="True">
         
