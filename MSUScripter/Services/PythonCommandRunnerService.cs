@@ -167,8 +167,7 @@ public class PythonCommandRunnerService
                     RedirectStandardOutput = redirectOutput,
                     RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WorkingDirectory = @"C:\Users\Administrator\Documents"
+                    CreateNoWindow = true
                 };
             }
             else
