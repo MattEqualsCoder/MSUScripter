@@ -13,7 +13,8 @@ public static class WindowExtensions
             X = position.X,
             Y = position.Y,
             Width = window.Width,
-            Height = window.Height
+            Height = window.Height,
+            IsMaximized = window.WindowState == WindowState.Maximized
         };
     }
 }

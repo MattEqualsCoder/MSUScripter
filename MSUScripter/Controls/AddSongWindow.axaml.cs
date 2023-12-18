@@ -124,16 +124,20 @@ public partial class AddSongWindow : Window
 
         if (!parentPanel.Children.Any())
         {
+            Model.RunningPyMusicLooper = true;
             parentPanel.Children.Add(_pyMusicLooperPanel);
         }
         else
         {
+            Model.RunningPyMusicLooper = true;
             _pyMusicLooperPanel.RunPyMusicLooper();
         }
     }
     
     private void PyMusicLooperPanelOnOnUpdated(object? sender, EventArgs e)
     {
+        Model.RunningPyMusicLooper = false;
+        
         if (_pyMusicLooperPanel.Model.SelectedResult == null)
         {
             return;
@@ -256,9 +260,9 @@ public partial class AddSongWindow : Window
                 TrimStart = Model.TrimStart,
                 TrimEnd = Model.TrimEnd,
                 Normalization = Model.Normalization,
-                File = Model.FilePath
+                File = Model.FilePath,
+                IsTopLevel = true
             }
-            
         });
 
         _pyMusicLooperPanel.Model = new();
