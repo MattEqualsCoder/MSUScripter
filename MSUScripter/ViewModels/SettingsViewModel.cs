@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 
 namespace MSUScripter.ViewModels;
 
@@ -60,12 +61,20 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _darkTheme, value);
     }
 
-    public string? _previousPath;
+    private string? _previousPath;
     public string? PreviousPath
     {
         
         get => _previousPath;
         set => SetField(ref _previousPath, value);
+    }
+
+    private WindowRestoreDetails? _mainWindowRestoreDetails;
+
+    public WindowRestoreDetails? MainWindowRestoreDetails
+    {
+        get => _mainWindowRestoreDetails;
+        set => SetField(ref _mainWindowRestoreDetails, value);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

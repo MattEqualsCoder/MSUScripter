@@ -9,6 +9,8 @@ using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
 using MSUScripter.Models;
+using MSUScripter.Services;
+using MSUScripter.Tools;
 
 namespace MSUScripter.Controls;
 
@@ -18,19 +20,29 @@ public partial class MainWindow : Window
     private NewProjectPanel? _newProjectPanel;
     private EditProjectPanel? _editProjectPanel;
     private Settings? _settings;
+    private SettingsService? _settingsService;
 
-    public MainWindow() : this(null, null)
+    public MainWindow() : this(null, null, null)
     {
     }
     
-    public MainWindow(IServiceProvider? services, Settings? settings)
+    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService)
     {
         _services = services;
         _settings = settings;
+        _settingsService = settingsService;
         InitializeComponent();
         DisplayNewPanel();
         var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
         Title = $"MSU Scripter v{App.GetAppVersion()}";
+
+        if (settings?.MainWindowRestoreDetails != null)
+        {
+            Position = settings.MainWindowRestoreDetails.GetPosition();
+            Width = settings.MainWindowRestoreDetails.Width;
+            Height = settings.MainWindowRestoreDetails.Height;
+            WindowStartupLocation = WindowStartupLocation.Manual;
+        }
     }
 
     public void SaveChanges()
@@ -140,5 +152,17 @@ public partial class MainWindow : Window
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
         }
+    }
+
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        if (_settings == null || _settingsService == null)
+        {
+            return;
+        }
+        
+        var details = this.GetWindowRestoreDetails();
+        _settings.MainWindowRestoreDetails = details;
+        _settingsService.SaveSettings();
     }
 }
