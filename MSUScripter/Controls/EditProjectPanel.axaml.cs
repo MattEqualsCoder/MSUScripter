@@ -696,4 +696,17 @@ public partial class EditProjectPanel : UserControl
             return;
         }
     }
+
+    private void ExportButton_ValidatedYaml_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_projectService == null || _projectViewModel == null)
+        {
+            return;
+        }
+
+        if (!_projectService.ValidateProject(_projectViewModel, out var message))
+        {
+            ShowError(message);
+        }
+    }
 }
