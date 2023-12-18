@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
@@ -18,12 +19,18 @@ public class MsuPcmService
     private readonly ILogger<MsuPcmService> _logger;
     private readonly ConverterService _converterService;
     private readonly Settings _settings;
+    private readonly string _cacheFolder;
 
     public MsuPcmService(ILogger<MsuPcmService> logger, ConverterService converterService, Settings settings)
     {
         _logger = logger;
         _converterService = converterService;
         _settings = settings;
+        _cacheFolder = Path.Combine(Directories.CacheFolder, "msupcm");
+        if (!Directory.Exists(_cacheFolder))
+        {
+            Directory.CreateDirectory(_cacheFolder);
+        }
     }
 
     public void DeleteTempPcms()
@@ -75,7 +82,6 @@ public class MsuPcmService
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated)
     {
-        
         if (string.IsNullOrEmpty(song.OutputPath))
         {
             message = $"Track #{song.TrackNumber} - Missing output PCM path";
@@ -83,7 +89,7 @@ public class MsuPcmService
             return false;
         }
 
-        var jsonDirectory = Path.Combine(Directories.BaseFolder, "msupcmtemp");
+        var jsonDirectory = Path.Combine(Directories.TempFolder, "msupcm");
         if (!Directory.Exists(jsonDirectory))
         {
             Directory.CreateDirectory(jsonDirectory);
@@ -101,7 +107,7 @@ public class MsuPcmService
         
             if (!File.Exists(jsonPath))
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - Invalid MsuPcm++ json was not able to be created";
+                message = $"Track #{song.TrackNumber} - {relativePath} - Valid MsuPcm++ json was not able to be created";
                 generated = false;
                 return false;
             }
@@ -123,6 +129,14 @@ public class MsuPcmService
             }
 
             var file = new FileInfo(song.OutputPath);
+            
+            if (IsCached(song.MsuPcmInfo.GetFiles(), file.FullName, jsonPath))
+            {
+                message = "";
+                generated = true;
+                return true;
+            }
+            
             var lastModifiedDate = file.Exists ? file.LastWriteTime : DateTime.MinValue;
 
             if (RunMsuPcm(jsonPath, out message))
@@ -134,6 +148,7 @@ public class MsuPcmService
                     generated = false;
                     return false;
                 }
+                Cache(song.MsuPcmInfo.GetFiles(), file.FullName, jsonPath);
                 message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
                 File.Delete(jsonPath);
                 generated = true;
@@ -285,6 +300,57 @@ public class MsuPcmService
     {
         var successful = RunMsuPcmInternal("-v", out var result, out error, msuPcmPath);
         return successful && result.StartsWith("msupcm v");
+    }
+
+    private bool IsCached(ICollection<string> inputPaths, string outputPath, string jsonPath)
+    {
+        if (!File.Exists(outputPath))
+        {
+            return false;
+        }
+
+        var expectedCache = GetCacheDetails(inputPaths, outputPath, jsonPath);
+
+        if (!File.Exists(expectedCache.CachePath))
+        {
+            return false;
+        }
+
+        var currentCache = File.ReadAllText(expectedCache.CachePath);
+
+        return currentCache == expectedCache.CacheValue;
+    }
+
+    private void Cache(ICollection<string> inputPaths, string outputPath, string jsonPath)
+    {
+        var cache = GetCacheDetails(inputPaths, outputPath, jsonPath);
+        File.WriteAllText(cache.CachePath, cache.CacheValue);
+    }
+
+    private (string CachePath, string CacheValue) GetCacheDetails(ICollection<string> inputPaths, string outputPath,
+        string jsonPath)
+    {
+        using var sha1 = SHA1.Create();
+
+        var key = BitConverter.ToString(sha1.ComputeHash(Encoding.UTF8.GetBytes(outputPath))).Replace("-", "");
+        
+        var paths = new List<string>();
+        paths.Add(jsonPath);
+        paths.Add(outputPath);
+        paths.AddRange(inputPaths);
+        
+        var hashes = new List<string>();
+        foreach (var inputPath in paths)
+        {
+            using var stream = File.OpenRead(inputPath);
+            hashes.Add(BitConverter.ToString(sha1.ComputeHash(stream)).Replace("-", ""));
+        }
+        
+        var value = string.Join("|", hashes);
+
+        var filePath = Path.Combine(_cacheFolder, key);
+            
+        return (filePath, value);
     }
 
     private bool RunMsuPcmInternal(string innerCommand, out string result, out string error, string? msuPcmPath = null)
