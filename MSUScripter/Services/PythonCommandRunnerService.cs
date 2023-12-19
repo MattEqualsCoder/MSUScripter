@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
 
@@ -125,18 +126,31 @@ public class PythonCommandRunnerService
                     CreateNoWindow = true
                 };
             }
-
-            // wrap IDisposable into using (in order to release hProcess) 
+            
             using var process = new Process();
             process.StartInfo = procStartInfo;
+
+            var resultBuilder = new StringBuilder();
+            var errorBuilder = new StringBuilder();
+            process.OutputDataReceived += new DataReceivedEventHandler(
+                (s, e) =>
+                {
+                    resultBuilder.AppendLine(e.Data);
+                }
+            );
+            process.ErrorDataReceived += new DataReceivedEventHandler(
+                (s, e) =>
+                {
+                    errorBuilder.AppendLine(e.Data);
+                }
+            );
+    
             process.Start();
-
-            // Add this: wait until process does its work
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             process.WaitForExit();
-
-            // and only then read the result
-            result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
-            error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
+            result = resultBuilder.ToString().Trim();
+            error = errorBuilder.ToString().Trim();
             
             if (string.IsNullOrEmpty(error)) return true;
             _logger.LogError("Error running {Command}: {Error}", _baseCommand, error);
@@ -182,7 +196,6 @@ public class PythonCommandRunnerService
                 };
             }
 
-            // wrap IDisposable into using (in order to release hProcess) 
             var process = new Process();
             process.StartInfo = procStartInfo;
             if (process.Start())

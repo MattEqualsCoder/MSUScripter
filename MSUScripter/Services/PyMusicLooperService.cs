@@ -152,7 +152,7 @@ public class PyMusicLooperService
         
         var successful = _python.RunCommand(arguments, out var result, out var error);
 
-        var regexValid = new Regex("^[0-9- .e\n]+$");
+        var regexValid = new Regex("^[0-9- .e\r\n]+$");
         if (!successful || !regexValid.IsMatch(result))
         {
             message = CleanPyMusicLooperError(string.IsNullOrEmpty(error) ? result : error);

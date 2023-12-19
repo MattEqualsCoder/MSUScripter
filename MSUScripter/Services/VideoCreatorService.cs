@@ -81,7 +81,7 @@ public class VideoCreatorService
             }
             VideoCreationCompleted?.Invoke(this, new VideoCreatorServiceEventArgs(code == 0, code == 0 ? "" : "Error calling msu_test_video_creator. Make sure you can call it manually via console."));
         });
-
+        
         message = "";
         return true;
     }
