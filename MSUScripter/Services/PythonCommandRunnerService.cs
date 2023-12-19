@@ -132,18 +132,14 @@ public class PythonCommandRunnerService
 
             var resultBuilder = new StringBuilder();
             var errorBuilder = new StringBuilder();
-            process.OutputDataReceived += new DataReceivedEventHandler(
-                (s, e) =>
-                {
-                    resultBuilder.AppendLine(e.Data);
-                }
-            );
-            process.ErrorDataReceived += new DataReceivedEventHandler(
-                (s, e) =>
-                {
-                    errorBuilder.AppendLine(e.Data);
-                }
-            );
+            process.OutputDataReceived += (_, e) =>
+            {
+                resultBuilder.AppendLine(e.Data);
+            };
+            process.ErrorDataReceived += (_, e) =>
+            {
+                errorBuilder.AppendLine(e.Data);
+            };
     
             process.Start();
             process.BeginOutputReadLine();
