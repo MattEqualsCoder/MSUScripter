@@ -26,13 +26,13 @@ jobs:
       run: dotnet build --no-restore -p:PostBuildEvent=
     - name: Publish Windows 64bit
       if: ${{ github.event_name != 'pull_request' }}
-      run: dotnet publish --os win --arch x64 -c Release MSUScripter/MSUScripter.csproj
+      run: dotnet publish --os win --arch x64 -c Release --self-contained false  MSUScripter/MSUScripter.csproj
     - name: Publish Windows 32bit
       if: ${{ github.event_name != 'pull_request' }}
-      run: dotnet publish --os win --arch x86 -c Release MSUScripter/MSUScripter.csproj
+      run: dotnet publish --os win --arch x86 -c Release --self-contained false MSUScripter/MSUScripter.csproj
     - name: Publish Linux 64bit
       if: ${{ github.event_name != 'pull_request' }}
-      run: dotnet publish --os linux --arch x64 -c Release MSUScripter/MSUScripter.csproj
+      run: dotnet publish --os linux --arch x64 -c Release --self-contained false MSUScripter/MSUScripter.csproj
     - name: Get version number
       if: ${{ github.event_name != 'pull_request' }}
       id: version
