@@ -30,11 +30,6 @@ A cross platform application built for creating MSUs and related files. The appl
 - Add in all details desired about the MSU and the tracks
 - Click on export to generate the MSU and all related files
 
-## Planned Features
-
-- Bulk import of tracks that will auto detect loop points and balance audio
-- Once PyMusicLooper is updated to 3.2.0, update to support multiple options for loop points
-
 ## Troubleshooting & Support
 
 Having problems? Please feel free to [post an Issue on GitHub](). If encountering a crash, please include the latest log file located at %localappdata%/MSUScripter.
