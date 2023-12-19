@@ -21,6 +21,24 @@ Write-Host "Win64 Exe Path: $win64Exe"
 Write-Host "Win32 Exe Path: $win32Exe"
 Write-Host "Linux Exe Path: $linuxExe"
 
+if (Test-Path "$win64Folder") {
+    Remove-Item "$win64Folder" -Recurse -Force
+}
+
+if (Test-Path "$win32Folder") {
+    Remove-Item "$win32Folder" -Recurse -Force
+}
+
+if (Test-Path "$linuxFolder") {
+    Remove-Item "$linuxFolder" -Recurse -Force
+}
+
+Write-Host "Deleted previous builds"
+
+dotnet publish --os win --arch x64 -c Release --framework net7.0 --self-contained false ../MSUScripter/MSUScripter.csproj
+dotnet publish --os win --arch x86 -c Release --framework net7.0 --self-contained false  ../MSUScripter/MSUScripter.csproj
+dotnet publish --os linux --arch x64 -c Release --framework net7.0 --self-contained false ../MSUScripter/MSUScripter.csproj
+
 $hasError = $false
 
 if (-not(Test-Path -Path $win64Exe -PathType Leaf)) {
@@ -81,19 +99,10 @@ $ErrorActionPreference = "Stop"
 
 iscc "$scriptFolder\MSUScripter.iss"
 
-if (Test-Path "$linuxFolder\Configs\snes") {
- 
-    Remove-Item "$linuxFolder\Configs\snes" -Recurse -Force
-}
-	
-Copy-Item -Path "$parentFolder\ConfigRepo\resources\snes" -Destination "$linuxFolder\Configs\snes" -Force -Recurse
-
-Get-ChildItem  -Recurse "$linuxFolder\Configs\snes" | where { ! $_.PSIsContainer } | Where-Object {-not ($_.Name -match "tracks.json")} | Remove-Item -Force
-
 $zipFileName = $exe -replace ".exe", "_$linuxVersion-linux.zip"
 
 if (Test-Path "$outputFolder\$zipFileName") {
     Remove-Item "$outputFolder\$zipFileName" -Recurse -Force
 }
 
-& "7z.exe" a -tzip "$outputFolder\$zipFileName" "$linuxFolder\*" -aoa
+& "7z.exe" a -tzip "$outputFolder\$zipFileName" "$linuxFolder\publish\*" -aoa
