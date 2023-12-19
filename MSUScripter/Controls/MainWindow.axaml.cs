@@ -33,7 +33,6 @@ public partial class MainWindow : Window
         _settingsService = settingsService;
         InitializeComponent();
         DisplayNewPanel();
-        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location);
         Title = $"MSU Scripter v{App.GetAppVersion()}";
 
         if (settings?.MainWindowRestoreDetails != null)
@@ -42,6 +41,7 @@ public partial class MainWindow : Window
             Width = settings.MainWindowRestoreDetails.Width;
             Height = settings.MainWindowRestoreDetails.Height;
             WindowStartupLocation = WindowStartupLocation.Manual;
+            WindowState = settings.MainWindowRestoreDetails.IsMaximized ? WindowState.Maximized : WindowState.Normal;
         }
     }
 

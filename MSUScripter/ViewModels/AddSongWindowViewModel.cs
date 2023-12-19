@@ -203,13 +203,24 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
 
     public bool CanEditMainFields => !string.IsNullOrEmpty(FilePath);
 
-    public bool CanAddSong => !string.IsNullOrEmpty(FilePath) && SelectedIndex > 0;
+    public bool CanAddSong => !string.IsNullOrEmpty(FilePath) && SelectedIndex > 0 && !RunningPyMusicLooper;
     
     private bool _hasModified; 
     public bool HasModified
     {
         get => _hasModified;
         set => SetField(ref _hasModified, value);
+    }
+    
+    private bool _runningPyMusicLooper; 
+    public bool RunningPyMusicLooper
+    {
+        get => _runningPyMusicLooper;
+        set
+        {
+            SetField(ref _runningPyMusicLooper, value);
+            OnPropertyChanged(nameof(CanAddSong));
+        }
     }
     
     public event PropertyChangedEventHandler? PropertyChanged;
