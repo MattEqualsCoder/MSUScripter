@@ -107,13 +107,12 @@ public partial class AddSongWindow : Window
     private void UpdatePyMusicLooper()
     {
         if (!Model.CanEditMainFields) return;
-        var selectedTrack = _projectModel.Tracks[Model.SelectedIndex];
         _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel
         {
             MsuProjectViewModel = _projectModel,
             MsuSongInfoViewModel = new MsuSongInfoViewModel()
             {
-                TrackNumber = selectedTrack.TrackNumber,
+                TrackNumber = _projectModel.Tracks.First().TrackNumber,
                 MsuPcmInfo = new MsuSongMsuPcmInfoViewModel()
                 {
                     File = Model.FilePath
@@ -149,14 +148,13 @@ public partial class AddSongWindow : Window
 
     private void TestAudioLevelButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        Task.Run(() =>
+        Task.Run(async () =>
         {
-            _audioPlayerService.StopSongAsync();
-            
-            _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var outputPath, out var message,
-                out bool generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
+            await StopSong();
 
-            if (generated)
+            var outputPath = CreateTempPcm();
+
+            if (!string.IsNullOrEmpty(outputPath))
             {
                 var output = _audioAnalysisService.AnalyzeAudio(outputPath);
 
@@ -181,33 +179,17 @@ public partial class AddSongWindow : Window
 
     private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _audioPlayerService.StopSongAsync().Wait();
-        
-        _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var outputPath, out var message,
-            out bool generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
-
-        if (generated)
-        {
-            _audioPlayerService.PlaySongAsync(outputPath, false);
-        }
+        _ = PlaySong(false);
     }
 
     private void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _audioPlayerService.StopSongAsync().Wait();
-        
-        _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var outputPath, out _,
-            out var generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
-        
-        if (generated)
-        {
-            _audioPlayerService.PlaySongAsync(outputPath, true);
-        }
+        _ = PlaySong(true);
     }
 
     private void StopSongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _audioPlayerService.StopSongAsync();
+        _ = StopSong();
     }
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
@@ -320,23 +302,73 @@ public partial class AddSongWindow : Window
         }
     }
 
-    private void AutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
+    private async Task PlaySong(bool fromEnd)
+    {
+        // Stop the song if it is currently playing
+        await StopSong();
+        
+        var outputPath = CreateTempPcm();
+        
+        if (string.IsNullOrEmpty(outputPath))
+        {
+            return;
+        }
+        
+        await _audioPlayerService.PlaySongAsync(outputPath, fromEnd);
+    }
+    
+    private async Task StopSong()
+    {
+        await _audioPlayerService.StopSongAsync(null, true);
+    }
+
+    private string? CreateTempPcm()
+    {
+        _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var outputPath, out _,
+            out var generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
+        return generated ? outputPath : null;
+    }
+
+    private void TrackSearchAutoCompleteBox_OnPopulated(object? sender, PopulatedEventArgs e)
+    {
+        var items = e.Data.Cast<string>().ToList();
+        if (items.Count != 1 || string.IsNullOrEmpty(items[0]))
+        {
+            return;
+        }
+        else
+        {
+            Model.SelectedIndex = 0;
+        }
+
+        TrackSearch(items.First());
+    }
+    
+    private void TrackSearchAutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
     {
         var text = (sender as AutoCompleteBox)?.Text;
         if (string.IsNullOrEmpty(text))
         {
-            Model.SelectedIndex = 0;
             return;
         }
-        
-        var tracks = _projectModel.Tracks.Where(x =>
-                $"Track #{x.TrackNumber} - {x.TrackName}".Contains(text, StringComparison.OrdinalIgnoreCase) || text.Equals(x.TrackNumber.ToString()))
-            .ToList();
-        if (tracks.Count == 1)
-        {
-            Model.SelectedIndex = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(tracks.First()) + 1;
-            return;
-        }
-        Model.SelectedIndex = 0;
+
+        TrackSearch(text);
     }
+
+    private void TrackSearch(string selectedItem)
+    {
+        var track = _projectModel!.Tracks.FirstOrDefault(x =>
+            $"Track #{x.TrackNumber} - {x.TrackName}" == selectedItem);
+
+        if (track != null)
+        {
+            Model.SelectedIndex = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 1;  
+        }
+        else
+        {
+            Model.SelectedIndex = 0;
+        }
+    }
+
+    
 }

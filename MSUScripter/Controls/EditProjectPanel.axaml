@@ -40,6 +40,7 @@
                                  IsVisible="False"
                                  FilterMode="Contains"
                                  TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
+                                 Populated="TrackSearchAutoCompleteBox_OnPopulated"
                 ></AutoCompleteBox>
                         
                 <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
