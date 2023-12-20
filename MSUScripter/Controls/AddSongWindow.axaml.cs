@@ -243,7 +243,8 @@ public partial class AddSongWindow : Window
                 TrimEnd = Model.TrimEnd,
                 Normalization = Model.Normalization,
                 File = Model.FilePath,
-                IsTopLevel = true
+                IsTopLevel = true,
+                IsAlt = isAlt
             }
         });
 

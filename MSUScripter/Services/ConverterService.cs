@@ -92,12 +92,13 @@ public class ConverterService
                     MsuPcmInfo =
                     {
                         Project = viewModel,
-                        IsTopLevel = true
+                        IsTopLevel = true,
                     }
                 };
                 songViewModel.MsuPcmInfo.Song = songViewModel;
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
+                songViewModel.MsuPcmInfo.IsAlt = songViewModel.IsAlt;
                 trackViewModel.Songs.Add(songViewModel);
             }
 

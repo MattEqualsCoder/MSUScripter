@@ -184,6 +184,9 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     
     [SkipConvert]
     public bool IsTopLevel { get; set; }
+    
+    [SkipConvert]
+    public bool IsAlt { get; set; }
 
     public bool CanDelete => !IsTopLevel;
 
