@@ -389,7 +389,10 @@ public partial class EditProjectPanel : UserControl
         var comboBox = this.Find<ComboBox>(nameof(PageComboBox))!;
         var newIndex = comboBox.SelectedIndex + 1;
         if (newIndex < comboBox.Items.Count)
+        {
             comboBox.SelectedIndex = newIndex;
+            this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = comboBox.SelectedItem as string;
+        }
     }
 
     private void PrevButton_OnClick(object? sender, RoutedEventArgs e)
@@ -397,7 +400,10 @@ public partial class EditProjectPanel : UserControl
         var comboBox = this.Find<ComboBox>(nameof(PageComboBox))!;
         var newIndex = comboBox.SelectedIndex - 1;
         if (newIndex >= 0)
+        {
             comboBox.SelectedIndex = newIndex;
+            this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = comboBox.SelectedItem as string;
+        }
     }
 
     private void ExportButton_Yaml_OnClick(object? sender, RoutedEventArgs e)
@@ -675,31 +681,6 @@ public partial class EditProjectPanel : UserControl
         }
     }
 
-    private void TrackSearchAutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
-    {
-        var text = (sender as AutoCompleteBox)?.Text;
-
-        if (string.IsNullOrEmpty(text))
-        {
-            return;
-        }
-        
-        if (text == "MSU Details")
-        {
-            DisplayPage(0);
-            return;
-        }
-        
-        var tracks = _projectViewModel!.Tracks.Where(x =>
-                $"Track #{x.TrackNumber} - {x.TrackName}".Equals(text, StringComparison.OrdinalIgnoreCase) || text.Equals(x.TrackNumber.ToString()))
-            .ToList();
-        if (tracks.Count == 1)
-        {
-            DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(tracks.First()) + 1);
-            return;
-        }
-    }
-
     private void ExportButton_ValidatedYaml_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_projectService == null || _projectViewModel == null)
@@ -724,5 +705,44 @@ public partial class EditProjectPanel : UserControl
         var window = _serviceProvider.GetRequiredService<VideoCreatorWindow>();
         window.Project = _projectViewModel;
         window.ShowDialog(App.MainWindow!);
+    }
+
+    private void TrackSearchAutoCompleteBox_OnPopulated(object? sender, PopulatedEventArgs e)
+    {
+        var items = e.Data.Cast<string>().ToList();
+        if (items.Count != 1 || string.IsNullOrEmpty(items[0]))
+        {
+            return;
+        }
+
+        TrackSearch(items.First());
+    }
+
+    private void TrackSearchAutoCompleteBox_OnTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var text = (sender as AutoCompleteBox)?.Text;
+        if (string.IsNullOrEmpty(text))
+        {
+            return;
+        }
+
+        TrackSearch(text);
+    }
+
+    private void TrackSearch(string selectedItem)
+    {
+        if (selectedItem == "MSU Details")
+        {
+            DisplayPage(0);
+            return;
+        }
+
+        var track = _projectViewModel!.Tracks.FirstOrDefault(x =>
+            $"Track #{x.TrackNumber} - {x.TrackName}" == selectedItem);
+
+        if (track != null)
+        {
+            DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 1);    
+        }
     }
 }

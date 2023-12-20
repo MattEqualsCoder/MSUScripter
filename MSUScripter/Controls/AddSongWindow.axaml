@@ -53,7 +53,8 @@
                                          ItemsSource="{Binding Tracks}" 
                                          IsVisible="{Binding EnableSearchBox}" 
                                          FilterMode="Contains"
-                                         TextChanged="AutoCompleteBox_OnTextChanged"
+                                         Populated="TrackSearchAutoCompleteBox_OnPopulated"
+                                         TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
                         ></AutoCompleteBox>
                         
                         <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
