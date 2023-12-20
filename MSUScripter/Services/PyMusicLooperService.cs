@@ -45,6 +45,25 @@ public class PyMusicLooperService
     }
 
     public bool CanReturnMultipleResults => _canReturnMultipleResults;
+    
+    public void ClearCache()
+    {
+        var cacheDirectory = new DirectoryInfo(_cachePath);
+        foreach (var file in cacheDirectory.EnumerateFiles())
+        {
+            if (file.CreationTime < DateTime.Now.AddMonths(-1))
+            {
+                try
+                {
+                    file.Delete();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+        }
+    }
 
     public List<(int LoopStart, int LoopEnd, decimal Score)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
     {

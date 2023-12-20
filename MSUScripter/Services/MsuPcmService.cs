@@ -33,17 +33,37 @@ public class MsuPcmService
         }
     }
 
-    public void DeleteTempPcms()
+    public void DeleteTempPcms(int capPcms = -1)
     {
         var tempDirectory = new DirectoryInfo(Directories.TempFolder);
-        foreach (var tempPcm in tempDirectory.EnumerateFiles("*.pcm"))
+
+        if (capPcms <= 0)
         {
-            tempPcm.Delete();
+            foreach (var tempPcm in tempDirectory.EnumerateFiles("*.pcm", SearchOption.AllDirectories))
+            {
+                tempPcm.Delete();
+            }
+        }
+        else
+        {
+            var pcmFiles = tempDirectory.EnumerateFiles("*.pcm", SearchOption.AllDirectories)
+                .OrderBy(x => x.CreationTime).ToList();
+            if (pcmFiles.Count >= capPcms)
+            {
+                foreach (var tempPcm in pcmFiles.Take(pcmFiles.Count-capPcms+1))
+                {
+                    tempPcm.Delete();
+                }
+            }
         }
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null)
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null, bool skipCleanup = false)
     {
+        if (!skipCleanup)
+        {
+            DeleteTempPcms(10);    
+        }
         outputPath = Path.Combine(Directories.TempFolder, $"{Guid.NewGuid():N}.pcm");
         if (File.Exists(outputPath))
         {
@@ -78,6 +98,45 @@ public class MsuPcmService
         }
 
         return result;
+    }
+
+    public void ClearCache()
+    {
+        var cacheDirectory = new DirectoryInfo(_cacheFolder);
+        foreach (var file in cacheDirectory.EnumerateFiles())
+        {
+            if (file.CreationTime < DateTime.Now.AddMonths(-1))
+            {
+                try
+                {
+                    file.Delete();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+        }
+    }
+
+    public void DeleteTempJsonFiles()
+    {
+        var jsonDirectory = Path.Combine(Directories.TempFolder, "msupcm");
+        var tempDirectory = new DirectoryInfo(jsonDirectory);
+        if (tempDirectory.Exists)
+        {
+            foreach (var tempPcm in tempDirectory.EnumerateFiles("*.json"))
+            {
+                try
+                {
+                    tempPcm.Delete();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+        }
     }
 
     public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated)

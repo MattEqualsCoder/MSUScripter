@@ -99,9 +99,9 @@ public partial class AudioAnalysisWindow : Window
         song.HasWarning = false;
         song.HasLoaded = false;
 
-        _ = Task.Run(() =>
+        _ = Task.Run(async () =>
         {
-            _audioAnalysisService!.AnalyzePcmFile(_project!, song);
+            await _audioAnalysisService!.AnalyzePcmFile(_project!, song);
             CheckSongWarnings(song, GetAverageRms(), GetAveragePeak());
         });
     }

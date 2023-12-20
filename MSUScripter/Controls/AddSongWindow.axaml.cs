@@ -156,7 +156,7 @@ public partial class AddSongWindow : Window
 
             if (!string.IsNullOrEmpty(outputPath))
             {
-                var output = _audioAnalysisService.AnalyzeAudio(outputPath);
+                var output = await _audioAnalysisService.AnalyzeAudio(outputPath);
 
                 if (output is { AvgDecibals: not null, MaxDecibals: not null })
                 {

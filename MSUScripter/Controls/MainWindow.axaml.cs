@@ -21,16 +21,20 @@ public partial class MainWindow : Window
     private EditProjectPanel? _editProjectPanel;
     private Settings? _settings;
     private SettingsService? _settingsService;
+    private MsuPcmService? _msuPcmService;
+    private PyMusicLooperService? _pyMusicLooperService;
 
-    public MainWindow() : this(null, null, null)
+    public MainWindow() : this(null, null, null, null, null)
     {
     }
     
-    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService)
+    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService, MsuPcmService? msuPcmService, PyMusicLooperService? pyMusicLooperService)
     {
         _services = services;
         _settings = settings;
         _settingsService = settingsService;
+        _msuPcmService = msuPcmService;
+        _pyMusicLooperService = pyMusicLooperService;
         InitializeComponent();
         DisplayNewPanel();
         Title = $"MSU Scripter v{App.GetAppVersion()}";
@@ -43,6 +47,14 @@ public partial class MainWindow : Window
             WindowStartupLocation = WindowStartupLocation.Manual;
             WindowState = settings.MainWindowRestoreDetails.IsMaximized ? WindowState.Maximized : WindowState.Normal;
         }
+
+        Task.Run(() =>
+        {
+            _msuPcmService?.DeleteTempPcms();
+            _msuPcmService?.DeleteTempJsonFiles();
+            _msuPcmService?.ClearCache();
+            _pyMusicLooperService?.ClearCache();
+        });
     }
 
     public void SaveChanges()
@@ -164,5 +176,8 @@ public partial class MainWindow : Window
         var details = this.GetWindowRestoreDetails();
         _settings.MainWindowRestoreDetails = details;
         _settingsService.SaveSettings();
+
+        _msuPcmService?.DeleteTempPcms();
+        _msuPcmService?.DeleteTempJsonFiles();
     }
 }

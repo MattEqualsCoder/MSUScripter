@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
@@ -18,6 +19,7 @@ public partial class PyMusicLooperPanel : UserControl
     private readonly MsuPcmService? _msuPcmService;
     private readonly IAudioPlayerService? _audioPlayerService;
     private PyMusicLooperPanelViewModel _model = new();
+    private MsuProject _project = new();
 
     public PyMusicLooperPanel() : this(null, null, null, null)
     {
@@ -40,8 +42,16 @@ public partial class PyMusicLooperPanel : UserControl
         {
             _model = value;
             DataContext = _model;
+
+            if (_converterService != null)
+            {
+                _project = _converterService!.ConvertProject(Model.MsuProjectViewModel);
+            }
+            
         }
     }
+    
+    
     
     public event EventHandler? OnUpdated;
 
@@ -95,8 +105,9 @@ public partial class PyMusicLooperPanel : UserControl
                     loopPoints.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
                 _model.SelectedResult = _model.PyMusicLooperResults.First();
                 _model.SelectedResult.IsSelected = true;
-                _model.Message = null;
+                _model.Message = "Generating Preview Files";
                 RunMsuPcm();
+                _model.Message = null;
                 OnUpdated?.Invoke(this, EventArgs.Empty);
                 return;
             }
@@ -116,13 +127,12 @@ public partial class PyMusicLooperPanel : UserControl
         
         _msuPcmService.DeleteTempPcms();
         
-        var project = _converterService.ConvertProject(_model.MsuProjectViewModel);
         Parallel.ForEach(_model.CurrentPageResults, result =>
         {
             result.Status = "Generating Preview .pcm File";
             
-            if (!_msuPcmService.CreateTempPcm(project, _model.MsuSongInfoViewModel.MsuPcmInfo.File!, out var outputPath,
-                    out var message, out var generated, result.LoopStart, result.LoopEnd))
+            if (!_msuPcmService.CreateTempPcm(_project, _model.MsuSongInfoViewModel.MsuPcmInfo.File!, out var outputPath,
+                    out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: true))
             {
                 if (generated)
                 {
@@ -169,10 +179,7 @@ public partial class PyMusicLooperPanel : UserControl
             return;
         }
 
-        _audioPlayerService?.StopSongAsync().Wait();
-        _model.GeneratingPcms = true;
-        _model.Page++;
-        Task.Run(RunMsuPcm);
+        _ = ChangePage(1);
     }
 
     private void PrevPageButton_OnClick(object? sender, RoutedEventArgs e)
@@ -182,10 +189,24 @@ public partial class PyMusicLooperPanel : UserControl
             return;
         }
 
-        _audioPlayerService?.StopSongAsync().Wait();
+        _ = ChangePage(-1);
+    }
+
+    private async Task ChangePage(int mod)
+    {
+        _model.Message = "Generating Preview Files";
+        if (_audioPlayerService != null)
+        {
+            await _audioPlayerService.StopSongAsync();    
+        }
         _model.GeneratingPcms = true;
-        _model.Page--;
-        Task.Run(RunMsuPcm);
+        _model.Page += mod;
+
+        _ = Task.Run(() =>
+        {
+            RunMsuPcm();
+            _model.Message = null;
+        });
     }
 
     private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
@@ -197,7 +218,39 @@ public partial class PyMusicLooperPanel : UserControl
         Task.Run(async () =>
         {
             await _audioPlayerService.StopSongAsync();
-            _ = _audioPlayerService.PlaySongAsync(result.TempPath, true);
+
+            var songPath = result.TempPath;
+            var playSong = true;
+            if (!File.Exists(result.TempPath))
+            {
+                if (_msuPcmService != null)
+                {
+                    _msuPcmService.CreateTempPcm(_project, _model.MsuSongInfoViewModel.MsuPcmInfo.File!,
+                        out var outputPath,
+                        out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: false);
+                    if (generated)
+                    {
+                        songPath = outputPath;
+                    }
+                    else
+                    {
+                        playSong = false;
+                    }
+                }
+                else
+                {
+                    playSong = false;
+                }
+            }
+
+            if (playSong)
+            {
+                _ = _audioPlayerService.PlaySongAsync(songPath, true);    
+            }
+            else
+            {
+                _model.Message = "Could not play song";
+            }
         });
         
     }
