@@ -131,7 +131,6 @@
                         
                         <TextBlock Margin="8 5 0 0"
                                    VerticalAlignment="Center"
-                                   IsVisible="{Binding HasAudioAnalysis}"
                                    Text="{Binding AverageAudio}" />
                         
                         <TextBlock Margin="8 5 0 0"

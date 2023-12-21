@@ -148,9 +148,12 @@ public partial class AddSongWindow : Window
 
     private void TestAudioLevelButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        Model.AverageAudio = "Running";
+        Model.PeakAudio = null;
+        
         Task.Run(async () =>
         {
-            await StopSong();
+            await StopSong(false);
 
             var outputPath = CreateTempPcm();
 
@@ -208,6 +211,31 @@ public partial class AddSongWindow : Window
         {
             return;
         }
+
+        _ = AddSong();
+    }
+
+    private async Task AddSong()
+    {
+        var successful = _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var tempPcmPath, out var message,
+            out var generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
+
+        if (!generated)
+        {
+            var window = new MessageWindow(message ?? "Unknown error", MessageWindowType.Error, "MSU Scripter", this);
+            _ = window.ShowDialog(this);
+            return;
+        }
+        
+        if (!successful)
+        {
+            var window = new MessageWindow($"{message}\r\nDo you want to continue adding this song?", MessageWindowType.YesNo, "MSU Scripter", this);
+            var result = await window.ShowDialog(this);
+            if (result != MessageWindowResult.Yes)
+            {
+                return;
+            }
+        }
         
         var track = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList()[Model.SelectedIndex-1];
 
@@ -224,8 +252,8 @@ public partial class AddSongWindow : Window
             var altSuffix = track.Songs.Count == 1 ? "alt" : $"alt{track.Songs.Count}";
             outputPath = msu.FullName.Replace(msu.Extension, $"-{track.TrackNumber}_{altSuffix}.pcm");
         }
-        
-        track.AddSong(new MsuSongInfoViewModel()
+
+        var song = new MsuSongInfoViewModel()
         {
             TrackNumber = track.TrackNumber,
             TrackName = track.TrackName,
@@ -244,15 +272,18 @@ public partial class AddSongWindow : Window
                 Normalization = Model.Normalization,
                 File = Model.FilePath,
                 IsTopLevel = true,
-                IsAlt = isAlt
+                IsAlt = isAlt,
             }
-        });
+        };
+
+        song.MsuPcmInfo.Song = song;
+        track.AddSong(song);
 
         _pyMusicLooperPanel.Model = new();
         Model.Clear();
 
         Model.AddSongButtonText = "Added Song";
-        Task.Run(() =>
+        _ = Task.Run(() =>
         {
             Thread.Sleep(TimeSpan.FromSeconds(3));
             Model.AddSongButtonText = "Add Song";
@@ -318,9 +349,9 @@ public partial class AddSongWindow : Window
         await _audioPlayerService.PlaySongAsync(outputPath, fromEnd);
     }
     
-    private async Task StopSong()
+    private async Task StopSong(bool wait = true)
     {
-        await _audioPlayerService.StopSongAsync(null, true);
+        await _audioPlayerService.StopSongAsync(null, wait);
     }
 
     private string? CreateTempPcm()

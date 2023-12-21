@@ -43,15 +43,13 @@ public partial class PyMusicLooperPanel : UserControl
             _model = value;
             DataContext = _model;
 
-            if (_converterService != null)
+            if (_converterService != null && !string.IsNullOrEmpty(Model.MsuProjectViewModel.MsuTypeName))
             {
                 _project = _converterService!.ConvertProject(Model.MsuProjectViewModel);
             }
             
         }
     }
-    
-    
     
     public event EventHandler? OnUpdated;
 

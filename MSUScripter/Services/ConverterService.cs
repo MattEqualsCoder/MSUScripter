@@ -116,7 +116,7 @@ public class ConverterService
         ConvertViewModel(viewModel, project);
         ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ??
-                          throw new InvalidOperationException("Invalid MSU Type");
+                          throw new InvalidOperationException($"Invalid MSU Type {project.MsuTypeName}");
 
         foreach (var trackViewModel in viewModel.Tracks)
         {

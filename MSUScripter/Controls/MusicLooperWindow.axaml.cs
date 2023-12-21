@@ -8,15 +8,17 @@ namespace MSUScripter.Controls;
 
 public partial class MusicLooperWindow : Window
 {
-    private PyMusicLooperPanel? _pyMusicLooperPanel;
+    private readonly PyMusicLooperPanel? _pyMusicLooperPanel;
+    private readonly AudioControl? _audioControl = null!;
     
-    public MusicLooperWindow() : this(null)
+    public MusicLooperWindow() : this(null, null)
     {
     }
     
-    public MusicLooperWindow(PyMusicLooperPanel? pyMusicLooperPanel)
+    public MusicLooperWindow(PyMusicLooperPanel? pyMusicLooperPanel, AudioControl? audioControl)
     {
         _pyMusicLooperPanel = pyMusicLooperPanel;
+        _audioControl = audioControl; 
         InitializeComponent();
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
     }
@@ -69,5 +71,10 @@ public partial class MusicLooperWindow : Window
         if (_pyMusicLooperPanel == null) return;
         this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);
         _pyMusicLooperPanel.Margin = new Thickness(5);
+
+        if (_audioControl != null)
+        {
+            AudioPanelParent.Children.Add(_audioControl);    
+        }
     }
 }

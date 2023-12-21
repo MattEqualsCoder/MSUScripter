@@ -59,7 +59,7 @@ public class PyMusicLooperService
                 }
                 catch
                 {
-                    // Do nothing
+                    _logger.LogWarning("Could not delete {File}", file.FullName);
                 }
             }
         }

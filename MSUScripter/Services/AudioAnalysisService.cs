@@ -53,7 +53,6 @@ public class AudioAnalysisService
         {
             _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
             GeneratePcmFile(project, song.OriginalViewModel);
-            
         }
         
         var data = await AnalyzeAudio(song.Path);

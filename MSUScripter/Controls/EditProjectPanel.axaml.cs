@@ -286,7 +286,7 @@ public partial class EditProjectPanel : UserControl
             song.OutputPath = path;
         }
         
-        if (!_msuPcmService.CreatePcm(_project, song, out var message, out var generated))
+        if (!_msuPcmService.CreatePcm(_project, song, out var message, out var generated, false))
         {
             if (generated)
             {
