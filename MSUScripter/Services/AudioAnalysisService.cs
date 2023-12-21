@@ -31,32 +31,31 @@ public class AudioAnalysisService
     {
         var project = _converterService.ConvertProject(projectViewModel);
         
-        Parallel.ForEach(audioAnalysis.Rows,
+        Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
-            song =>
+            async (song, token) =>
             {
-                AnalyzePcmFile(project, song);
+                await AnalyzePcmFile(project, song);
                 audioAnalysis.SongsCompleted++;
             }); 
     }
 
-    public void AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
+    public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
     {
         var project = _converterService.ConvertProject(projectViewModel);
-        AnalyzePcmFile(project, song);
+        await AnalyzePcmFile(project, song);
     }
     
-    public void AnalyzePcmFile(MsuProject project, AudioAnalysisSongViewModel song)
+    public async Task AnalyzePcmFile(MsuProject project, AudioAnalysisSongViewModel song)
     {
         // Regenerate the pcm file if it has updates that have been made to it
         if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) && song.OriginalViewModel.HasFiles())
         {
             _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
             GeneratePcmFile(project, song.OriginalViewModel);
-            
         }
         
-        var data = AnalyzeAudio(song.Path);
+        var data = await AnalyzeAudio(song.Path);
         song.ApplyAudioAnalysis(data);
         _logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
@@ -78,9 +77,9 @@ public class AudioAnalysisService
         }
     }
     
-    public AnalysisDataOutput AnalyzeAudio(string path)
+    public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
     {
-       _audioPlayerService.StopSongAsync(path, true).Wait();
+        await _audioPlayerService.StopSongAsync(path, true);
         
         try
         {

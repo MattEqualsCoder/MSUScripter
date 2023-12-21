@@ -196,6 +196,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding IsAlt}"
                             Click="GenerateAsMainPcmFileButton_OnClick"
                         ></Button>
                         <Button

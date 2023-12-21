@@ -92,12 +92,13 @@ public class ConverterService
                     MsuPcmInfo =
                     {
                         Project = viewModel,
-                        IsTopLevel = true
+                        IsTopLevel = true,
                     }
                 };
                 songViewModel.MsuPcmInfo.Song = songViewModel;
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
+                songViewModel.MsuPcmInfo.IsAlt = songViewModel.IsAlt;
                 trackViewModel.Songs.Add(songViewModel);
             }
 
@@ -115,7 +116,7 @@ public class ConverterService
         ConvertViewModel(viewModel, project);
         ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
         project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ??
-                          throw new InvalidOperationException("Invalid MSU Type");
+                          throw new InvalidOperationException($"Invalid MSU Type {project.MsuTypeName}");
 
         foreach (var trackViewModel in viewModel.Tracks)
         {

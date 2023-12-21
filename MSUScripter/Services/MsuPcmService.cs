@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Models;
@@ -33,17 +34,49 @@ public class MsuPcmService
         }
     }
 
-    public void DeleteTempPcms()
+    public void DeleteTempPcms(int capPcms = -1)
     {
         var tempDirectory = new DirectoryInfo(Directories.TempFolder);
-        foreach (var tempPcm in tempDirectory.EnumerateFiles("*.pcm"))
+
+        if (capPcms <= 0)
         {
-            tempPcm.Delete();
+            foreach (var tempPcm in tempDirectory.EnumerateFiles("*.pcm", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    tempPcm.Delete();
+                }
+                catch (Exception)
+                {
+                    _logger.LogWarning("Could not delete {File}", tempPcm.FullName);
+                }
+            }
+        }
+        else
+        {
+            var pcmFiles = tempDirectory.EnumerateFiles("*.pcm", SearchOption.AllDirectories)
+                .OrderBy(x => x.CreationTime).ToList();
+            if (pcmFiles.Count < capPcms) return;
+            foreach (var tempPcm in pcmFiles.Take(pcmFiles.Count-capPcms+1))
+            {
+                try
+                {
+                    tempPcm.Delete();
+                }
+                catch (Exception)
+                {
+                    _logger.LogWarning("Could not delete {File}", tempPcm.FullName);
+                }
+            }
         }
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null)
+    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null, bool skipCleanup = false)
     {
+        if (!skipCleanup)
+        {
+            DeleteTempPcms(10);    
+        }
         outputPath = Path.Combine(Directories.TempFolder, $"{Guid.NewGuid():N}.pcm");
         if (File.Exists(outputPath))
         {
@@ -62,7 +95,7 @@ public class MsuPcmService
                     TrimEnd = trimEnd,
                     Normalization = normalization
                 }
-            }, out message, out generated);
+            }, out message, out generated, false);
 
         if (result && generated)
         {
@@ -80,7 +113,46 @@ public class MsuPcmService
         return result;
     }
 
-    public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated)
+    public void ClearCache()
+    {
+        var cacheDirectory = new DirectoryInfo(_cacheFolder);
+        foreach (var file in cacheDirectory.EnumerateFiles())
+        {
+            if (file.CreationTime < DateTime.Now.AddMonths(-1))
+            {
+                try
+                {
+                    file.Delete();
+                }
+                catch
+                {
+                    _logger.LogWarning("Could not delete {File}", file.FullName);
+                }
+            }
+        }
+    }
+
+    public void DeleteTempJsonFiles()
+    {
+        var jsonDirectory = Path.Combine(Directories.TempFolder, "msupcm");
+        var tempDirectory = new DirectoryInfo(jsonDirectory);
+        if (tempDirectory.Exists)
+        {
+            foreach (var tempPcm in tempDirectory.EnumerateFiles("*.json"))
+            {
+                try
+                {
+                    tempPcm.Delete();
+                }
+                catch
+                {
+                    _logger.LogWarning("Could not delete {File}", tempPcm.FullName);
+                }
+            }
+        }
+    }
+
+    public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated, bool addTrackDetailsToMessage = true)
     {
         if (string.IsNullOrEmpty(song.OutputPath))
         {
@@ -107,14 +179,17 @@ public class MsuPcmService
         
             if (!File.Exists(jsonPath))
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - Valid MsuPcm++ json was not able to be created";
+                message = "Valid MsuPcm++ json was not able to be created";
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 generated = false;
                 return false;
             }
 
             if (!ValidateMsuPcmInfo(song.MsuPcmInfo, out message, out var numFiles))
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - {message!.ReplaceLineEndings("")}";
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 File.Delete(jsonPath);
                 generated = false;
                 return false;
@@ -122,7 +197,9 @@ public class MsuPcmService
 
             if (numFiles == 0)
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - No input files specified";
+                message = "No input files specified";
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 File.Delete(jsonPath);
                 generated = false;
                 return false;
@@ -143,13 +220,16 @@ public class MsuPcmService
             {
                 if (!ValidatePcm(song.OutputPath, out message))
                 {
-                    message = $"Track #{song.TrackNumber} - {relativePath} - {message?.ReplaceLineEndings("")}";
+                    if (addTrackDetailsToMessage)
+                        message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                     File.Delete(jsonPath);
                     generated = false;
                     return false;
                 }
                 Cache(song.MsuPcmInfo.GetFiles(), file.FullName, jsonPath);
-                message = $"Track #{song.TrackNumber} - {relativePath} - Success!";
+                message = "Success!";
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 File.Delete(jsonPath);
                 generated = true;
                 return true;
@@ -161,11 +241,15 @@ public class MsuPcmService
             
             if (generated)
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - PCM Generated with msupcm++ warning: {message.ReplaceLineEndings("")}";
+                message = $"PCM Generated with msupcm++ warning: {CleanMsuPcmResponse(message)}";
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
             }
             else
             {
-                message = $"Track #{song.TrackNumber} - {relativePath} - {message.ReplaceLineEndings("")}";
+                message = CleanMsuPcmResponse(message);
+                if (addTrackDetailsToMessage)
+                    message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
             }
            
             File.Delete(jsonPath);
@@ -175,7 +259,9 @@ public class MsuPcmService
         catch (Exception e)
         {
             _logger.LogError(e, "Error creating PCM file for Track #{TrackNum} - {SongPath}", song.TrackNumber, song.OutputPath);
-            message = $"Track #{song.TrackNumber} - {song.OutputPath} - Unknown error";
+            message = "Unknown error";
+            if (addTrackDetailsToMessage)
+                message = $"Track #{song.TrackNumber} - {song.OutputPath} - {message}";
             if (File.Exists(jsonPath))
             {
                 File.Delete(jsonPath);
@@ -467,4 +553,9 @@ public class MsuPcmService
     public bool IsGeneratingPcm { get; private set; }
 
     private string TempFilePath => Path.Combine(Directories.BaseFolder, "tmp-pcm.pcm");
+
+    private string CleanMsuPcmResponse(string input)
+    {
+        return Regex.Replace(input.ReplaceLineEndings(""), @"\s[`'][^`']+\.pcm[`']\s", " ");
+    }
 }
