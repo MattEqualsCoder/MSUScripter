@@ -239,23 +239,23 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
                
                 try
                 {
-                    if (_waveOutEvent != null)
-                    {
-                        _waveOutEvent?.Dispose();
-                        _waveOutEvent = null;
-                    }
-
                     if (_loopStream != null)
                     {
                         _loopStream.Dispose();
                         _loopStream = null;
+                    }
+                    
+                    if (_waveOutEvent != null)
+                    {
+                        _waveOutEvent.Dispose();
+                        _waveOutEvent = null;
                     }
 
                     canPlay = true;
                 }
                 catch (Exception e2)
                 {
-                    _logger.LogError(e, "Error stopping music");
+                    _logger.LogError(e2, "Error stopping music");
                 }
             }
             
