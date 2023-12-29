@@ -74,6 +74,11 @@ public class PyMusicLooperService
                 return null;
             }
         }
+
+        if (minLoopDuration != null && minLoopDuration < 1)
+        {
+            minLoopDuration = 1;
+        }
         
         var file = new FileInfo(filePath);
 
@@ -271,7 +276,12 @@ public class PyMusicLooperService
         }
         else
         {
-            return Regex.Replace(Regex.Replace(Regex.Replace(message, @"\s\s+", " "), "@__+", "_"), @"[─╭╮╯╰│]+", "");
+            message = Regex.Replace(Regex.Replace(Regex.Replace(Regex.Replace(message, @"\s\s+", " "), "@__+", "_"), @"[─╭╮╯╰│]+", ""), @"---+", "-");
+            if (message.Contains("+- Error -+"))
+            {
+                message = "PyMusicLooper Error: " + message.Substring(message.IndexOf("+- Error -+", StringComparison.OrdinalIgnoreCase));    
+            }
+            return message;
         }
     }
 }
