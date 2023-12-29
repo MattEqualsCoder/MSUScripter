@@ -136,6 +136,27 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
                     break;
                 }
             }
+
+            try
+            {
+                if (_waveOutEvent != null)
+                {
+                    _waveOutEvent?.Dispose();
+                    _waveOutEvent = null;
+                }
+
+                if (_loopStream != null)
+                {
+                    await _loopStream.DisposeAsync();
+                    _loopStream = null;
+                }
+
+                canPlay = true;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error stopping music");
+            }
             
             _logger.LogInformation("Song stopped playing {Value}", canPlay ? "successfully" : "unsuccessfully");
             return canPlay;
@@ -175,6 +196,10 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
             {
                 var endSamples = totalSamples - 44100 * 3;
                 startPosition = (long)(endSamples / totalSamples * totalBytes) + 8;
+                if (startPosition < 8)
+                {
+                    startPosition = 8;
+                }
             }
 
             // Fix bad loops to be at the beginning
@@ -210,6 +235,28 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
             catch (Exception e)
             {
                 _logger.LogError(e, "Failure playing song");
+                CurrentPlayingFile = "";
+               
+                try
+                {
+                    if (_waveOutEvent != null)
+                    {
+                        _waveOutEvent?.Dispose();
+                        _waveOutEvent = null;
+                    }
+
+                    if (_loopStream != null)
+                    {
+                        _loopStream.Dispose();
+                        _loopStream = null;
+                    }
+
+                    canPlay = true;
+                }
+                catch (Exception e2)
+                {
+                    _logger.LogError(e, "Error stopping music");
+                }
             }
             
         });
