@@ -118,8 +118,17 @@ public partial class NewProjectPanel : UserControl
         {
             projectPath += ".msup";
         }
+
+        try
+        {
+            Project = _projectService.NewMsuProject(projectPath, msuType, msuPath, tracksJsonPath, msuPcmWorking);
+        }
+        catch (Exception exception)
+        {
+            await new MessageWindow(exception.Message, MessageWindowType.Error).ShowDialog();
+            return;
+        }
         
-        Project = _projectService.NewMsuProject(projectPath, msuType, msuPath, tracksJsonPath, msuPcmWorking);
         
         if (Project.MsuType == _msuTypeService!.GetSMZ3LegacyMSUType() && _msuTypeService.GetSMZ3MsuType() != null)
         {
