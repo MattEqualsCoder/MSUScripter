@@ -166,7 +166,15 @@ public class ProjectService
 
         if (!string.IsNullOrEmpty(msuPcmTracksJsonPath) && File.Exists(msuPcmTracksJsonPath))
         {
-            ImportMsuPcmTracksJson(project, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+            try
+            {
+                ImportMsuPcmTracksJson(project, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Could not import msupcm++ json file");
+                throw new InvalidOperationException("Invalid msupcm++ json file");
+            }
         }
         
         if (msuType == _msuTypeService.GetSMZ3LegacyMSUType() || msuType == _msuTypeService.GetSMZ3MsuType())
