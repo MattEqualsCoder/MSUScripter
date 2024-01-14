@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -187,27 +188,27 @@ public class PyMusicLooperService
 
         return result.Split("\n")
             .Select(x => x.Split(" "))
-            .Select(x => (int.Parse(x[0]), int.Parse(x[1]), decimal.Parse(x[4])))
+            .Select(x => (int.Parse(x[0], CultureInfo.InvariantCulture), int.Parse(x[1], CultureInfo.InvariantCulture), decimal.Parse(x[4], CultureInfo.InvariantCulture)))
             .ToList();
     }
 
     private string GetArguments(string filePath, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
     {
-        var arguments = $"export-points --min-duration-multiplier {minDurationMultiplier} --path \"{filePath}\"";
+        var arguments = string.Create(CultureInfo.InvariantCulture, $"export-points --min-duration-multiplier {minDurationMultiplier} --path \"{filePath}\"");
         
         if (minLoopDuration != null)
         {
-            arguments += $" --min-loop-duration {minLoopDuration}";
+            arguments += string.Create(CultureInfo.InvariantCulture, $" --min-loop-duration {minLoopDuration}");
         }
 
         if (maxLoopDuration != null)
         {
-            arguments += $" --max-loop-duration {maxLoopDuration}";
+            arguments += string.Create(CultureInfo.InvariantCulture, $" --max-loop-duration {maxLoopDuration}");
         }
 
         if (approximateLoopStart != null && approximateLoopEnd != null)
         {
-            arguments += $" --approx-loop-position {approximateLoopStart} {approximateLoopEnd}";
+            arguments += string.Create(CultureInfo.InvariantCulture, $" --approx-loop-position {approximateLoopStart} {approximateLoopEnd}");
         }
 
         return arguments;
@@ -258,7 +259,8 @@ public class PyMusicLooperService
         using var stream = File.OpenRead(path);
         var pathHash = GetHexString(md5.ComputeHash(Encoding.Default.GetBytes(path)));
         var fileHash = GetHexString(md5.ComputeHash(stream));
-        return Path.Combine(_cachePath, $"{pathHash}_{fileHash}_{_currentVersion}_{Math.Round(minDurationMultiplier, 2)}_{minLoopDuration}_{maxLoopDuration}_{approximateLoopStart}_{approximateLoopEnd}.yml");
+        var fileName = string.Create(CultureInfo.InvariantCulture, $"{pathHash}_{fileHash}_{_currentVersion}_{Math.Round(minDurationMultiplier, 2)}_{minLoopDuration}_{maxLoopDuration}_{approximateLoopStart}_{approximateLoopEnd}.yml");
+        return Path.Combine(_cachePath, fileName);
     }
 
     private string GetHexString(byte[] bytes)
