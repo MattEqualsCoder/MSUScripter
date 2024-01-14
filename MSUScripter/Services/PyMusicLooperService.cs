@@ -147,14 +147,14 @@ public class PyMusicLooperService
         var match = regex.Match(result);
         if (match.Success)
         {
-            loopStart = int.Parse(match.Groups[0].Value.Split(" ")[1]);
+            loopStart = int.Parse(match.Groups[0].Value.Split(" ")[1], CultureInfo.InvariantCulture);
         }
 
         regex = new Regex(@"LOOP_END: (\d)+");
         match = regex.Match(result);
         if (match.Success)
         {
-            loopEnd = int.Parse(match.Groups[0].Value.Split(" ")[1]);
+            loopEnd = int.Parse(match.Groups[0].Value.Split(" ")[1], CultureInfo.InvariantCulture);
         }
 
         if (loopStart == -1 || loopEnd == -1)
