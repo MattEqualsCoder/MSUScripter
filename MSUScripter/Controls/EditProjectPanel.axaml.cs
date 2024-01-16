@@ -23,6 +23,8 @@ namespace MSUScripter.Controls;
 
 public partial class EditProjectPanel : UserControl
 {
+    private const string MsuDetailsTitle = "MSU Details";
+    private const string TrackOverviewTitle = "Track Overview";
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
     private readonly IAudioPlayerService? _audioService;
@@ -107,7 +109,7 @@ public partial class EditProjectPanel : UserControl
         
         int currentPage = comboBox.SelectedIndex;
             
-        var pages = new List<string>() { "MSU Details" };
+        var pages = new List<string>() { MsuDetailsTitle, TrackOverviewTitle };
             
         foreach (var track in  _project.Tracks.OrderBy(x => x.TrackNumber))
         {
@@ -140,17 +142,34 @@ public partial class EditProjectPanel : UserControl
             prevPage.FileUpdated -= SongFileSelected; 
         }
         
-        this.Find<Panel>(nameof(PagePanel))!.Children.Clear();
-
+        var parentPagePanel = this.Find<Panel>(nameof(PagePanel))!;
+        var parentPageDockPanel = this.Find<Panel>(nameof(PageDockPanel))!;
+        var scrollViewer = this.Find<ScrollViewer>(nameof(ScrollViewer))!;
+        var scrollViewerBorder = this.Find<Border>(nameof(ScrollViewerBorder))!;
+            
+        parentPagePanel.Children.Clear();
+        parentPageDockPanel.Children.Clear();
+        
         if (page == 0)
         {
             var msuBasicInfoPanel = new MsuBasicInfoPanel(_projectViewModel!.BasicInfo);
             _currentPage = msuBasicInfoPanel;
-            this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+            parentPagePanel.Children.Add(_currentPage);
+            scrollViewerBorder.IsVisible = true;
+            parentPageDockPanel.IsVisible = false;
+        }
+        else if (page == 1)
+        {
+            var trackOverviewPanel = new TrackOverviewPanel(_projectViewModel!.Tracks);
+            _currentPage = trackOverviewPanel;
+            parentPageDockPanel.Children.Add(_currentPage);
+            scrollViewerBorder.IsVisible = false;
+            parentPageDockPanel.IsVisible = true;
+            trackOverviewPanel.OnSelectedTrack += TrackOverviewPanelOnOnSelectedTrack;
         }
         else
         {
-            var track = _projectViewModel!.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-1];
+            var track = _projectViewModel!.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-2];
             var pagePanel = _serviceProvider.GetRequiredService<MsuTrackInfoPanel>();
             pagePanel.SetTrackInfo(_projectViewModel, track);
             pagePanel.PcmOptionSelected += PagePanelOnPcmOptionSelected;
@@ -158,7 +177,21 @@ public partial class EditProjectPanel : UserControl
             pagePanel.FileUpdated += SongFileSelected;
             pagePanel.AddSongWindowButtonPressed += PagePanelOnAddSongWindowButtonPressed;
             _currentPage = pagePanel;
-            this.Find<Panel>(nameof(PagePanel))!.Children.Add(_currentPage);
+            parentPagePanel.Children.Add(_currentPage);
+            scrollViewerBorder.IsVisible = true;
+            parentPageDockPanel.IsVisible = false;
+        }
+    }
+
+    private void TrackOverviewPanelOnOnSelectedTrack(object? sender, TrackEventArgs e)
+    {
+        var track = _projectViewModel!.Tracks.First(x => x.TrackNumber == e.TrackNumber);
+        var newIndex = _projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 2;
+        var comboBox = this.Find<ComboBox>(nameof(PageComboBox))!;
+        if (newIndex > 0 && newIndex < comboBox.Items.Count)
+        {
+            comboBox.SelectedIndex = newIndex;
+            this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = comboBox.SelectedItem as string;
         }
     }
 
@@ -731,9 +764,15 @@ public partial class EditProjectPanel : UserControl
 
     private void TrackSearch(string selectedItem)
     {
-        if (selectedItem == "MSU Details")
+        if (selectedItem == MsuDetailsTitle)
         {
             DisplayPage(0);
+            return;
+        }
+        
+        if (selectedItem == TrackOverviewTitle)
+        {
+            DisplayPage(1);
             return;
         }
 
@@ -742,7 +781,7 @@ public partial class EditProjectPanel : UserControl
 
         if (track != null)
         {
-            DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 1);    
+            DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 2);    
         }
     }
 }

@@ -65,6 +65,13 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _isAlt, value);
     }
     
+    private bool _isComplete;
+    public bool IsComplete
+    {
+        get => _isComplete;
+        set => SetField(ref _isComplete, value);
+    }
+    
     private bool _checkCopyright = true;
     public bool CheckCopyright
     {

@@ -8,9 +8,9 @@
              x:Class="MSUScripter.Controls.EditProjectPanel"
              Unloaded="Control_OnUnloaded"
              x:DataType="viewModels:MsuProjectViewModel">
-    <DockPanel>
+    <Grid RowDefinitions="Auto,*,Auto">
         
-        <Grid DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0" DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">
             <Button 
                 Name="PrevButton"
                 Grid.Column="0" 
@@ -61,7 +61,7 @@
             </Button>
         </Grid>
         
-        <Border DockPanel.Dock="Bottom">
+        <Border Grid.Row="2" DockPanel.Dock="Bottom">
             <Grid ColumnDefinitions="*,*,*">
                 <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="5 0 0 5"></StackPanel>
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
@@ -101,12 +101,14 @@
             
         </Border>
         
-        <Border BorderBrush="DimGray" BorderThickness="1" Margin="5">
-            <ScrollViewer>
+        <DockPanel Grid.Row="1" Name="PageDockPanel" IsVisible="False" Margin="5"></DockPanel>
+        
+        <Border Grid.Row="1" BorderBrush="DimGray" BorderThickness="1" Margin="5" Name="ScrollViewerBorder">
+            <ScrollViewer x:Name="ScrollViewer">
                 <StackPanel Orientation="Vertical" Name="PagePanel" Margin="10 10 10 10">
                 </StackPanel>
             </ScrollViewer>
         </Border>
         
-    </DockPanel>
+    </Grid>
 </UserControl>

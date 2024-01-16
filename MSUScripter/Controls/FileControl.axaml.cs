@@ -128,7 +128,7 @@ public partial class FileControl : UserControl
 
     private static IStorageFolder? PreviousFolder;
     
-    private async void DropFile(object? sender, DragEventArgs e)
+    private void DropFile(object? sender, DragEventArgs e)
     {
         var file = e.Data?.GetFiles()?.FirstOrDefault();
         if (file == null)
@@ -283,7 +283,7 @@ public partial class FileControl : UserControl
             var regex = $"({string.Join("|", regexParts)})";
             return Regex.IsMatch(file, regex);
         }
-        catch (Exception e)
+        catch
         {
             // Just ignore it
         }

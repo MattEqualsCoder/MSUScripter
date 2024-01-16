@@ -71,7 +71,7 @@ public partial class AddSongWindow : Window
 
     private MsuProject _project = new();
 
-    private async void DropFile(object? sender, DragEventArgs e)
+    private void DropFile(object? sender, DragEventArgs e)
     {
         if (Model.RunningPyMusicLooper)
         {
