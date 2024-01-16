@@ -88,6 +88,13 @@ public partial class PyMusicLooperPanel : UserControl
             return;
         }
 
+        if (_model.ApproximateStart >= 0 != _model.ApproximateEnd >= 0)
+        {
+            _model.Message = "Both approximate loop start and end times must be filled out";
+            OnUpdated?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+
         Task.Run(() =>
         {
             _model.Message = "Running PyMusicLooper";
