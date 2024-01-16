@@ -69,6 +69,7 @@ public partial class PyMusicLooperPanel : UserControl
         {
             _model.Message = message;
             _model.DisplayGitHubLink = true;
+            OnUpdated?.Invoke(this, EventArgs.Empty);
             return;
         }
 
@@ -110,6 +111,7 @@ public partial class PyMusicLooperPanel : UserControl
                 return;
             }
 
+            OnUpdated?.Invoke(this, EventArgs.Empty);
             _model.Message = message;
         });
     }
