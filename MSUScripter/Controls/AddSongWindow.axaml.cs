@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
@@ -48,6 +49,8 @@ public partial class AddSongWindow : Window
         InitializeComponent();
         _pyMusicLooperPanel.OnUpdated += PyMusicLooperPanelOnOnUpdated;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        
+        AddHandler(DragDrop.DropEvent, DropFile);
     }
 
     private AddSongWindowViewModel Model { get; set; } = new();
@@ -68,6 +71,25 @@ public partial class AddSongWindow : Window
 
     private MsuProject _project = new();
 
+    private async void DropFile(object? sender, DragEventArgs e)
+    {
+        if (Model.RunningPyMusicLooper)
+        {
+            return;
+        }
+        
+        var file = e.Data?.GetFiles()?.FirstOrDefault();
+        if (file == null)
+        {
+            return;
+        }
+
+        var path = file.Path.LocalPath;
+        Model.FilePath = path;
+        FilePathUpdated(path);
+        _logger.LogInformation("Dropped {File}", path);
+    }
+    
     private void LoadMsuTypes()
     {
         var items = new List<string>() { "Track" };
@@ -91,17 +113,25 @@ public partial class AddSongWindow : Window
         }
     }
 
-    private void FileControl_OnOnUpdated(object? sender, BasicEventArgs _)
+    private void FilePathUpdated(string? path)
     {
         UpdatePyMusicLooper();
-        var path = (sender as FileControl)?.FilePath;
-        if (!string.IsNullOrEmpty(path))
+        
+        if (string.IsNullOrEmpty(path))
         {
-            var metadata = _audioMetadataService.GetAudioMetadata(path);
-            Model.SongName = metadata.SongName ?? Model.SongName;
-            Model.ArtistName = metadata.Artist ?? Model.ArtistName;
-            Model.AlbumName = metadata.Album ?? Model.AlbumName;
+            return;
         }
+        
+        var metadata = _audioMetadataService.GetAudioMetadata(path);
+        Model.SongName = metadata.SongName ?? Model.SongName;
+        Model.ArtistName = metadata.Artist ?? Model.ArtistName;
+        Model.AlbumName = metadata.Album ?? Model.AlbumName;
+    }
+
+    private void FileControl_OnOnUpdated(object? sender, BasicEventArgs _)
+    {
+        var path = (sender as FileControl)?.FilePath;
+        FilePathUpdated(path);
     }
 
     private void UpdatePyMusicLooper()

@@ -37,7 +37,6 @@
                         Grid.Column="0"
                         FilePath="{Binding MsuPcmPath, Mode=TwoWay}"
                         FileInputType="OpenFile"
-                        Filter="All Files:*"
                     ></controls:FileControl>
                     <Button Grid.Column="1"
                             Name="ValidateMsuPcmButton"

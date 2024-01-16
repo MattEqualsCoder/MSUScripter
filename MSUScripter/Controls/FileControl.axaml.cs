@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
@@ -10,6 +13,8 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
+using TagLib.Image.NoMetadata;
+using File = System.IO.File;
 
 namespace MSUScripter.Controls;
 
@@ -18,6 +23,11 @@ public partial class FileControl : UserControl
     public FileControl()
     {
         InitializeComponent();
+
+        if (FileInputType == FileInputControlType.OpenFile)
+        {
+            AddHandler(DragDrop.DropEvent, DropFile);    
+        }
     }
 
     private void InitializeComponent()
@@ -62,7 +72,7 @@ public partial class FileControl : UserControl
     }
 
     public static readonly StyledProperty<string> FilterProperty = AvaloniaProperty.Register<FileControl, string>(
-        "Filter", "All Files:*.*");
+        "Filter", "All Files:*");
 
     public string Filter
     {
@@ -117,6 +127,35 @@ public partial class FileControl : UserControl
     public event EventHandler<BasicEventArgs>? OnUpdated;
 
     private static IStorageFolder? PreviousFolder;
+    
+    private async void DropFile(object? sender, DragEventArgs e)
+    {
+        var file = e.Data?.GetFiles()?.FirstOrDefault();
+        if (file == null)
+        {
+            return;
+        }
+
+        var path = file.Path.LocalPath;
+        var attr = File.GetAttributes(path);
+        bool isDirectory = (attr & FileAttributes.Directory) == FileAttributes.Directory;
+        
+        if (FileInputType == FileInputControlType.OpenFile && !isDirectory && VerifyFileMeetsFilter(path))
+        {
+            FilePath = path;
+            OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!));    
+        }
+        else if (FileInputType == FileInputControlType.SaveFile && !isDirectory && VerifyFileMeetsFilter(path))
+        {
+            FilePath = path;
+            OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!));    
+        }
+        else if (FileInputType == FileInputControlType.Folder && isDirectory)
+        {
+            FilePath = path;
+            OnUpdated?.Invoke(this, new BasicEventArgs(FilePath!)); 
+        }
+    }
 
     private async void BrowseButton_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -224,5 +263,31 @@ public partial class FileControl : UserControl
         }
 
         return toReturn;
+    }
+
+    private bool VerifyFileMeetsFilter(string file)
+    {
+        if (FileInputType == FileInputControlType.Folder)
+        {
+            return true;
+        }
+        
+        if (Filter == "All Files:*.*")
+        {
+            return true;
+        }
+        
+        try
+        {
+            var regexParts = Filter.Split(";").Select(x => x.Split(":")[1].Replace(".", "\\.").Replace("*", ".*"));
+            var regex = $"({string.Join("|", regexParts)})";
+            return Regex.IsMatch(file, regex);
+        }
+        catch (Exception e)
+        {
+            // Just ignore it
+        }
+
+        return false;
     }
 }

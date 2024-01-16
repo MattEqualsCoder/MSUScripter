@@ -12,7 +12,8 @@
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
         Icon="/Assets/MSUScripterIcon.ico"
-        x:DataType="viewModels:AddSongWindowViewModel">
+        x:DataType="viewModels:AddSongWindowViewModel"
+        DragDrop.AllowDrop="True">
     <DockPanel>
         
         <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
@@ -67,6 +68,7 @@
                                           Filter="All Files:*"
                                           Margin="3 0 0 0"
                                           FilePath="{Binding FilePath, Mode=TwoWay}" 
+                                          IsEnabled="{Binding !RunningPyMusicLooper}"
                                           OnUpdated="FileControl_OnOnUpdated"
                     ></controls:FileControl>
                     
