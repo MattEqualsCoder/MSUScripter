@@ -7,6 +7,7 @@
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         Width="1000" Height="700"
+        MinWidth="1000" MinHeight="700"
         x:Class="MSUScripter.Controls.AddSongWindow"
         Title="Add Song"
         Loaded="Control_OnLoaded"
@@ -24,6 +25,11 @@
                         Name="AddSongButton"
                         Click="AddSongButton_OnClick"
                         Content="{Binding AddSongButtonText}" />
+                <Button Margin="5, 0" 
+                        IsEnabled="{Binding CanAddSong}"
+                        Name="AddSongAndCloseButton"
+                        Click="AddSongAndCloseButton_OnClick"
+                        Content="Add and Close" />
                 <Button Margin="5, 0" Name="CloseButton" Click="CloseButton_OnClick">
                     Close
                 </Button>

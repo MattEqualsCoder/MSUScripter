@@ -242,10 +242,10 @@ public partial class AddSongWindow : Window
             return;
         }
 
-        _ = AddSong();
+        _ = AddSong(false);
     }
 
-    private async Task AddSong()
+    private async Task AddSong(bool closeAfter)
     {
         var successful = _msuPcmService.CreateTempPcm(_project, Model.FilePath, out var tempPcmPath, out var message,
             out var generated, Model.LoopPoint, Model.TrimEnd, Model.Normalization ?? ProjectModel.BasicInfo.Normalization, Model.TrimStart);
@@ -308,16 +308,23 @@ public partial class AddSongWindow : Window
 
         song.MsuPcmInfo.Song = song;
         track.AddSong(song);
-
+        
         _pyMusicLooperPanel.Model = new();
         Model.Clear();
 
-        Model.AddSongButtonText = "Added Song";
-        _ = Task.Run(() =>
+        if (closeAfter)
         {
-            Thread.Sleep(TimeSpan.FromSeconds(3));
-            Model.AddSongButtonText = "Add Song";
-        });
+            Close();
+        }
+        else
+        {
+            Model.AddSongButtonText = "Added Song";
+            _ = Task.Run(() =>
+            {
+                Thread.Sleep(TimeSpan.FromSeconds(3));
+                Model.AddSongButtonText = "Add Song";
+            });
+        }
     }
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
@@ -432,5 +439,15 @@ public partial class AddSongWindow : Window
         }
     }
 
-    
+
+    private void AddSongAndCloseButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (Model.SelectedIndex <= 0 || string.IsNullOrEmpty(Model.FilePath))
+        {
+            return;
+        }
+
+        _ = AddSong(true);
+
+    }
 }
