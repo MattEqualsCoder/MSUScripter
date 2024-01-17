@@ -177,7 +177,7 @@ public class PyMusicLooperService
         
         var successful = _python.RunCommand(arguments, out var result, out var error);
 
-        var regexValid = new Regex("^[0-9- .e\r\n]+$");
+        var regexValid = new Regex("^[0-9- .-nae\r\n]+$");
         if (!successful || !regexValid.IsMatch(result))
         {
             message = CleanPyMusicLooperError(string.IsNullOrEmpty(error) ? result : error);
@@ -187,9 +187,17 @@ public class PyMusicLooperService
         message = "";
 
         return result.Split("\n")
-            .Select(x => x.Split(" "))
-            .Select(x => (int.Parse(x[0], CultureInfo.InvariantCulture), int.Parse(x[1], CultureInfo.InvariantCulture), decimal.Parse(x[4], CultureInfo.InvariantCulture)))
+            .Select(ParsePyMusicLooperLine)
             .ToList();
+    }
+
+    private (int, int, decimal) ParsePyMusicLooperLine(string input)
+    {
+        var parts = input.Split(" ");
+        int.TryParse(parts[0], CultureInfo.InvariantCulture, out var loopStart);
+        int.TryParse(parts[1], CultureInfo.InvariantCulture, out var loopEnd);
+        decimal.TryParse(parts[4], CultureInfo.InvariantCulture, out var score);
+        return (loopStart, loopEnd, score);
     }
 
     private string GetArguments(string filePath, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
