@@ -311,6 +311,7 @@ public partial class EditProjectPanel : UserControl
         var song = new MsuSongInfo();
         _converterService!.ConvertViewModel(songModel, song);
         _converterService!.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
+        var tempProject = _converterService!.ConvertProject(_projectViewModel!);
 
         if (asPrimary)
         {
@@ -319,7 +320,7 @@ public partial class EditProjectPanel : UserControl
             song.OutputPath = path;
         }
         
-        if (!_msuPcmService.CreatePcm(_project, song, out var message, out var generated, false))
+        if (!_msuPcmService.CreatePcm(tempProject, song, out var message, out var generated, false))
         {
             if (generated)
             {
@@ -358,7 +359,7 @@ public partial class EditProjectPanel : UserControl
         
         songModel.LastGeneratedDate = DateTime.Now;
 
-        var hasAlts = _project.Tracks.First(x => x.TrackNumber == songModel.TrackNumber).Songs.Count > 1;
+        var hasAlts = tempProject.Tracks.First(x => x.TrackNumber == songModel.TrackNumber).Songs.Count > 1;
         
         UpdateStatusBarText(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
         return true;
