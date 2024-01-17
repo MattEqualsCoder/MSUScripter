@@ -26,7 +26,7 @@
             <StackPanel Orientation="Vertical">
                 
                 <controls:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" DisplayHint="True">
-                    <controls:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated" Filter="All Files:*"></controls:FileControl>
+                    <controls:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated"></controls:FileControl>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">

@@ -13,15 +13,21 @@
     <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
         <controls:CardControl Margin="0 0 0 5" Name="MainGroupBox" HeaderText="Basic Details" DisplayHeaderButtons="True" Padding="10" HorizontalAlignment="Stretch">
             <controls:CardControl.HeaderButtons>
-                <Button 
-                    Name="RemoveButton"
-                    Grid.Column="1" 
-                    Padding="5 0"
-                    Margin="0 0 0 0"
-                    Click="RemoveButton_OnClick"
-                >
-                    <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
-                </Button>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Content="Song Finished" 
+                              Margin="0 0 15 0"
+                              IsChecked="{Binding IsComplete}"
+                    ></CheckBox>
+                    <Button 
+                        Name="RemoveButton"
+                        Grid.Column="1" 
+                        Padding="5 0"
+                        Margin="0 0 0 0"
+                        Click="RemoveButton_OnClick"
+                    >
+                        <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
+                    </Button>
+                </StackPanel>
             </controls:CardControl.HeaderButtons>
             <StackPanel Orientation="Vertical">
                 <controls:LabeledControl Text="Song Name:" Hint="The name of the song" DisplayHint="True">

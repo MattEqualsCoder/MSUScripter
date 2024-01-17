@@ -5,12 +5,13 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="40"
              x:Class="MSUScripter.Controls.FileControl"
-             x:Name="MyFileControl">
+             x:Name="MyFileControl"
+             DragDrop.AllowDrop="True">
     <Grid ColumnDefinitions="*,Auto,Auto">
         <TextBox Grid.Column="0" 
                  Text="{Binding ElementName=MyFileControl, Path=FilePath}"
                  IsReadOnly="True" 
-                 IsEnabled="False" 
+                 IsEnabled="True"
                  Watermark="{Binding ElementName=MyFileControl, Path=Watermark}"
         />
         

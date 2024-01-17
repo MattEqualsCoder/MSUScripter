@@ -69,6 +69,7 @@ public partial class PyMusicLooperPanel : UserControl
         {
             _model.Message = message;
             _model.DisplayGitHubLink = true;
+            OnUpdated?.Invoke(this, EventArgs.Empty);
             return;
         }
 
@@ -84,6 +85,13 @@ public partial class PyMusicLooperPanel : UserControl
     {
         if (_pyMusicLooperService == null || string.IsNullOrEmpty(_model.MsuSongInfoViewModel.MsuPcmInfo.File))
         {
+            return;
+        }
+
+        if (_model.ApproximateStart >= 0 != _model.ApproximateEnd >= 0)
+        {
+            _model.Message = "Both approximate loop start and end times must be filled out";
+            OnUpdated?.Invoke(this, EventArgs.Empty);
             return;
         }
 
@@ -110,6 +118,7 @@ public partial class PyMusicLooperPanel : UserControl
                 return;
             }
 
+            OnUpdated?.Invoke(this, EventArgs.Empty);
             _model.Message = message;
         });
     }

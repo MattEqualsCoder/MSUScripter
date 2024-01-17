@@ -209,6 +209,12 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     {
         return !string.IsNullOrEmpty(File) || SubTracks.Any(x => x.HasFiles()) || SubChannels.Any(x => x.HasFiles());
     }
+    
+    public int GetFileCount()
+    {
+        var fileCount = !string.IsNullOrEmpty(File) ? 1 : 0;
+        return fileCount + SubTracks.Sum(x => x.GetFileCount()) + SubChannels.Sum(x => x.GetFileCount());
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
