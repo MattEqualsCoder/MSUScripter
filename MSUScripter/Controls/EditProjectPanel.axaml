@@ -93,6 +93,7 @@
                                 <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
                                 <MenuItem Name="OpenFolderMenuItem" Header="Open _Folder" Click="OpenFolderMenuItem_OnClick"></MenuItem>
                                 <MenuItem Name="ExportButton_Video" Header="_Create Copyright Test Video" Click="ExportButton_Video_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButton_Package" Header="_Package MSU Files into ZIP" Click="ExportButton_Package_OnClick"></MenuItem>
                             </MenuFlyout>
                         </SplitButton.Flyout>
                     </SplitButton>

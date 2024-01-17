@@ -784,4 +784,11 @@ public partial class EditProjectPanel : UserControl
             DisplayPage(_projectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 2);    
         }
     }
+
+    private void ExportButton_Package_OnClick(object? sender, RoutedEventArgs e)
+    {
+        this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
+        var packageWindow = new PackageMsuWindow(_projectViewModel!);
+        packageWindow.ShowDialog(App.MainWindow!);
+    }
 }
