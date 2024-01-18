@@ -76,6 +76,8 @@ public partial class MainWindow : Window
         _newProjectPanel = _services.GetRequiredService<NewProjectPanel>();
         MainPanel.Children.Add(_newProjectPanel);
         _newProjectPanel.OnProjectSelected += OnProjectSelected;
+        this.Find<MenuItem>(nameof(MsuDetailsMenuItem))!.IsVisible = false;
+        this.Find<MenuItem>(nameof(TrackOverviewMenuItem))!.IsVisible = false;
         UpdateTitle(null);
     }
     
@@ -100,6 +102,8 @@ public partial class MainWindow : Window
         _editProjectPanel = _services.GetRequiredService<EditProjectPanel>();
         _editProjectPanel.SetProject(project);
         MainPanel.Children.Add(_editProjectPanel);
+        this.Find<MenuItem>(nameof(MsuDetailsMenuItem))!.IsVisible = true;
+        this.Find<MenuItem>(nameof(TrackOverviewMenuItem))!.IsVisible = true;
         UpdateTitle(project);
     }
     
@@ -179,5 +183,15 @@ public partial class MainWindow : Window
 
         _msuPcmService?.DeleteTempPcms();
         _msuPcmService?.DeleteTempJsonFiles();
+    }
+
+    private void MsuDetailsMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _editProjectPanel?.DisplayMsuDetails();
+    }
+
+    private void TrackOverviewMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _editProjectPanel?.DisplayTrackOverview();
     }
 }

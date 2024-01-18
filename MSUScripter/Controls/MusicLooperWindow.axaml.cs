@@ -2,6 +2,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
+using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
@@ -10,15 +12,17 @@ public partial class MusicLooperWindow : Window
 {
     private readonly PyMusicLooperPanel? _pyMusicLooperPanel;
     private readonly AudioControl? _audioControl = null!;
+    private readonly IAudioPlayerService? _audioPlayerService;
     
-    public MusicLooperWindow() : this(null, null)
+    public MusicLooperWindow() : this(null, null, null)
     {
     }
     
-    public MusicLooperWindow(PyMusicLooperPanel? pyMusicLooperPanel, AudioControl? audioControl)
+    public MusicLooperWindow(PyMusicLooperPanel? pyMusicLooperPanel, AudioControl? audioControl, IAudioPlayerService? audioPlayerService)
     {
         _pyMusicLooperPanel = pyMusicLooperPanel;
-        _audioControl = audioControl; 
+        _audioControl = audioControl;
+        _audioPlayerService = audioPlayerService;
         InitializeComponent();
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
     }
@@ -69,12 +73,20 @@ public partial class MusicLooperWindow : Window
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_pyMusicLooperPanel == null) return;
-        this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);
-        _pyMusicLooperPanel.Margin = new Thickness(5);
-
-        if (_audioControl != null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            AudioPanelParent.Children.Add(_audioControl);    
-        }
+            this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);
+            _pyMusicLooperPanel.Margin = new Thickness(5);
+
+            if (_audioControl != null)
+            {
+                AudioPanelParent.Children.Add(_audioControl);
+            }
+        });
+    }
+
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        _ = _audioPlayerService?.StopSongAsync();
     }
 }

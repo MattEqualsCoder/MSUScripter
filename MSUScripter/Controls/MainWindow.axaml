@@ -40,6 +40,22 @@
                     Padding="5"
                     Click="SettingsMenuItem_OnClick"
                 ></MenuItem>
+                <MenuItem 
+                    Header="_MSU Details" 
+                    Name="MsuDetailsMenuItem"
+                    FontSize="11"
+                    Padding="5"
+                    IsVisible="False"
+                    Click="MsuDetailsMenuItem_OnClick"
+                ></MenuItem>
+                <MenuItem 
+                    Header="_Track Overview" 
+                    Name="TrackOverviewMenuItem"
+                    FontSize="11"
+                    Padding="5"
+                    IsVisible="False"
+                    Click="TrackOverviewMenuItem_OnClick"
+                ></MenuItem>
             </Menu>
         </Border>
         

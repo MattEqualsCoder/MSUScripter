@@ -7,6 +7,7 @@
         Height="380" Width="1000"
         CanResize="False"
         Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
         Icon="/Assets/MSUScripterIcon.ico"
         x:Class="MSUScripter.Controls.MusicLooperWindow"
         Title="PyMusicLooper - MSU Scripter">
