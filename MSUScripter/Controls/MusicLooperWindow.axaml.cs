@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
@@ -72,13 +73,16 @@ public partial class MusicLooperWindow : Window
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_pyMusicLooperPanel == null) return;
-        this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);
-        _pyMusicLooperPanel.Margin = new Thickness(5);
-
-        if (_audioControl != null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            AudioPanelParent.Children.Add(_audioControl);    
-        }
+            this.Find<DockPanel>(nameof(DockPanel))!.Children.Add(_pyMusicLooperPanel);
+            _pyMusicLooperPanel.Margin = new Thickness(5);
+
+            if (_audioControl != null)
+            {
+                AudioPanelParent.Children.Add(_audioControl);
+            }
+        });
     }
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
