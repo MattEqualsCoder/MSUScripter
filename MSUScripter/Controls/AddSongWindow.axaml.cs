@@ -329,6 +329,8 @@ public partial class AddSongWindow : Window
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        _ = StopSong();
+        
         if (_forceClosing)
         {
             return;
