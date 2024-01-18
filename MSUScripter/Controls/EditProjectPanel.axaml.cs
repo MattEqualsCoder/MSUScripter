@@ -83,6 +83,18 @@ public partial class EditProjectPanel : UserControl
         _backupTimer.Start();
     }
 
+    public void DisplayMsuDetails()
+    {
+        this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = MsuDetailsTitle;
+        this.Find<ComboBox>(nameof(PageComboBox))!.SelectedIndex = 0;
+    }
+
+    public void DisplayTrackOverview()
+    {
+        this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Text = TrackOverviewTitle;
+        this.Find<ComboBox>(nameof(PageComboBox))!.SelectedIndex = 1;
+    }
+
     private void BackupTimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
         if (_lastAutoSave == null)
