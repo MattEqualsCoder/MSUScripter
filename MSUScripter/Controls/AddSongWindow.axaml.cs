@@ -104,12 +104,16 @@ public partial class AddSongWindow : Window
         
         if (TrackNumber == null)
         {
-            this.Find<ComboBox>(nameof(MsuTypeComboBox))!.SelectedIndex = 0;    
+            this.Find<ComboBox>(nameof(MsuTypeComboBox))!.SelectedIndex = 0;
+            Model.TrackDescription =
+                "Once a track is selected, this tooltip will offer additional details about the track if any exists.";
         }
         else
         {
+            var track = tracks.First(x => x.TrackNumber == TrackNumber);
             this.Find<ComboBox>(nameof(MsuTypeComboBox))!.SelectedIndex =
-                tracks.IndexOf(tracks.First(x => x.TrackNumber == TrackNumber)) + 1;
+                tracks.IndexOf(track) + 1;
+            Model.TrackDescription = track.Description ?? "No extra details found for this track";
         }
     }
 
@@ -433,11 +437,14 @@ public partial class AddSongWindow : Window
 
         if (track != null)
         {
-            Model.SelectedIndex = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 1;  
+            Model.SelectedIndex = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList().IndexOf(track) + 1;
+            Model.TrackDescription = track.Description ?? "No extra details found for this track";
         }
         else
         {
             Model.SelectedIndex = 0;
+            Model.TrackDescription =
+                "Once a track is selected, this tooltip will offer additional details about the track if any exists.";
         }
     }
 
@@ -451,5 +458,19 @@ public partial class AddSongWindow : Window
 
         _ = AddSong(true);
 
+    }
+
+    private void MsuTypeComboBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (Model.SelectedIndex > 0)
+        {
+            var track = _projectModel.Tracks.OrderBy(x => x.TrackNumber).ToList()[Model.SelectedIndex - 1];
+            Model.TrackDescription = track.Description ?? "No extra details found for this track";    
+        }
+        else
+        {
+            Model.TrackDescription =
+                "Once a track is selected, this tooltip will offer additional details about the track if any exists.";
+        }
     }
 }

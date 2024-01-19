@@ -46,13 +46,14 @@
                     
                     <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" 
                           Margin="0 0 3 0"
-                          ColumnDefinitions="* Auto"
+                          ColumnDefinitions="* Auto Auto"
                     >
                         <ComboBox Grid.Column="0"
                             Name="MsuTypeComboBox"
                             ItemsSource="{Binding Tracks}"
                             SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
                             IsVisible="{Binding !EnableSearchBox}"
+                            SelectionChanged="MsuTypeComboBox_OnSelectionChanged"
                         />
                         
                         <AutoCompleteBox Grid.Column="0" 
@@ -67,6 +68,15 @@
                         <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
                             <avalonia:MaterialIcon Kind="Search" Height="18" Width="18" Name="SearchIcon"></avalonia:MaterialIcon>
                         </Button>
+                        
+                        <avalonia:MaterialIcon 
+                            Grid.Column="2"
+                            Kind="Information"
+                            ToolTip.Tip="{Binding TrackDescription}"
+                            Margin="3 -5 0 0"
+                            Width="16" Height="16"
+                            IsEnabled="{Binding HasDescription}"
+                        ></avalonia:MaterialIcon>
                     </Grid>
                         
                     <controls:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 

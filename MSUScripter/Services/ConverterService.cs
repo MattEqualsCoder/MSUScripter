@@ -78,11 +78,14 @@ public class ConverterService
         var viewModel = new MsuProjectViewModel();
         ConvertViewModel(project, viewModel);
         ConvertViewModel(project.BasicInfo, viewModel.BasicInfo);
-
+        
         foreach (var track in project.Tracks)
         {
             var trackViewModel = new MsuTrackInfoViewModel();
             ConvertViewModel(track, trackViewModel);
+
+            var msuTypeTrack = project.MsuType.Tracks.First(x => x.Number == track.TrackNumber);
+            trackViewModel.Description = msuTypeTrack.Description;
 
             foreach (var song in track.Songs)
             {
