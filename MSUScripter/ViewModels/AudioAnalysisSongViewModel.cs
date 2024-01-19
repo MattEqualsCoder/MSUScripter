@@ -72,6 +72,14 @@ public class AudioAnalysisSongViewModel : INotifyPropertyChanged
         get => _hasWarning;
         set => SetField(ref _hasWarning, value);
     }
+    
+    private bool _hasFile;
+
+    public bool HasFile
+    {
+        get => _hasFile;
+        set => SetField(ref _hasFile, value);
+    }
 
     public string _warningMessage = "";
 

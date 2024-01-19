@@ -30,8 +30,12 @@ public class AudioAnalysisService
     public void AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = _converterService.ConvertProject(projectViewModel);
+
+        var rowsToProcess = audioAnalysis.Rows.Where(x => x.HasFile);
+
+        audioAnalysis.SongsCompleted = audioAnalysis.Rows.Count(x => !x.HasFile);
         
-        Parallel.ForEachAsync(audioAnalysis.Rows,
+        Parallel.ForEachAsync(rowsToProcess,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
             async (song, token) =>
             {
