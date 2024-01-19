@@ -800,8 +800,27 @@ public partial class EditProjectPanel : UserControl
 
     private void ExportButton_Package_OnClick(object? sender, RoutedEventArgs e)
     {
+        _ = PackageProject();
+    }
+
+    private async Task PackageProject()
+    {
+        if (_projectViewModel == null)
+        {
+            return;
+        }
+
+        if (_projectViewModel.BasicInfo.IsMsuPcmProject && _projectViewModel.Tracks.SelectMany(x => x.Songs).Any(x => x.HasChangesSince(x.LastGeneratedDate)))
+        {
+            var result = await ShowYesNoWindow("One or more PCM file is out of date. It is recommended to export the MSU first before packaging. Do you want to continue?");
+            if (result != MessageWindowResult.Yes)
+            {
+                return;
+            }
+        }
+
         this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
         var packageWindow = new PackageMsuWindow(_projectViewModel!);
-        packageWindow.ShowDialog(App.MainWindow!);
+        await packageWindow.ShowDialog(App.MainWindow!);
     }
 }

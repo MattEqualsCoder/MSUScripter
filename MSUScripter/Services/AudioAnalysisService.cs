@@ -48,19 +48,42 @@ public class AudioAnalysisService
     
     public async Task AnalyzePcmFile(MsuProject project, AudioAnalysisSongViewModel song)
     {
-        // Regenerate the pcm file if it has updates that have been made to it
-        if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) && song.OriginalViewModel.HasFiles())
+        if (string.IsNullOrEmpty(song.Path))
         {
-            _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
-            GeneratePcmFile(project, song.OriginalViewModel);
+            song.HasWarning = true;
+            song.WarningMessage = "No output path for the song";
+            return;
+        }
+        else if (!project.BasicInfo.IsMsuPcmProject && !File.Exists(song.Path))
+        {
+            song.HasWarning = true;
+            song.WarningMessage = "PCM file missing";
+            return;
+        }
+        else if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel?.HasFiles() != true && !File.Exists(song.Path))
+        {
+            song.HasWarning = true;
+            song.WarningMessage = "No input files specified for PCM file";
+            return;
         }
         
+        // Regenerate the pcm file if it has updates that have been made to it
+        if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
+        {
+            _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
+            if (!GeneratePcmFile(project, song.OriginalViewModel))
+            {
+                song.HasWarning = true;
+                song.WarningMessage = "Could not generate new PCM file";
+            }
+        }
+            
         var data = await AnalyzeAudio(song.Path);
         song.ApplyAudioAnalysis(data);
         _logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
     
-    private void GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
+    private bool GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
     {
         var song = new MsuSongInfo();
         _converterService.ConvertViewModel(songModel, song);
@@ -75,6 +98,8 @@ public class AudioAnalysisService
             songModel.LastGeneratedDate = DateTime.Now;
             _logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
         }
+
+        return generated;
     }
     
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)

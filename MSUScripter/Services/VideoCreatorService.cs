@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
@@ -17,6 +21,9 @@ public class VideoCreatorService
     private readonly PythonCommandRunnerService _python;
     private Process? _process;
     private bool _canCreateTestVideo;
+    private bool _isOutOfDate;
+    private const string MinVersion = "0.2.0";
+    private static readonly Regex digitsOnly = new(@"[^\d.]");
 
     public VideoCreatorService(ILogger<VideoCreatorService> logger, PythonCommandRunnerService python)
     {
@@ -25,7 +32,12 @@ public class VideoCreatorService
         if (_python.SetBaseCommand("msu_test_video_creator", "--version", out var result, out var error) &&
             result.StartsWith("msu_test_video_creator "))
         {
-            _canCreateTestVideo = true;
+            var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
+            var currentVersionNumber = ConvertVersionNumber(version[0], version[1], version[2]);
+            var minVersion = digitsOnly.Replace(MinVersion, "").Split(".").Select(int.Parse).ToList();
+            var minVersionNumber = ConvertVersionNumber(minVersion[0], minVersion[1], minVersion[2]);
+            _canCreateTestVideo = currentVersionNumber >= minVersionNumber;
+            _isOutOfDate = !_canCreateTestVideo;
         }
     }
     
@@ -35,6 +47,13 @@ public class VideoCreatorService
 
     public bool CreateVideo(MsuProjectViewModel project, string outputPath, out string message, out bool showGitHub)
     {
+        if (_isOutOfDate)
+        {
+            message = $"msu_test_video_creator is out of date. Please upgrade to version {MinVersion}";
+            showGitHub = true;
+            return false;
+        }
+        
         if (!_canCreateTestVideo)
         {
             message = "Unable to run msu_test_video_creator";
@@ -59,8 +78,25 @@ public class VideoCreatorService
             message = "No songs are set to be added to the copyright test";
             return false;
         }
-        var pathsString = string.Join(",", pcmPaths);
-        _process = _python.RunCommandAsync($"-f \"{pathsString}\" -o \"{outputPath}\"", false);
+
+        var pcmFilesData = new Dictionary<string, List<string?>>()
+        {
+            { "Files", pcmPaths }
+        };
+        
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(PascalCaseNamingConvention.Instance)
+            .Build();
+        var yaml = serializer.Serialize(pcmFilesData);
+        var path = Path.Combine(Directories.TempFolder, "video-creator-list.yml");
+        var directory = new FileInfo(path).DirectoryName;
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        File.WriteAllText(path, yaml);
+        
+        _process = _python.RunCommandAsync($"-i \"{path}\" -o \"{outputPath}\"", false);
 
         if (_process == null)
         {
@@ -134,5 +170,10 @@ public class VideoCreatorService
         {
             // Process already exited.
         }
+    }
+    
+    private int ConvertVersionNumber(int a, int b, int c)
+    {
+        return a * 10000 + b * 100 + c;
     }
 }

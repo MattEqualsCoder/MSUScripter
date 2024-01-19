@@ -39,15 +39,14 @@ public partial class AudioAnalysisWindow : Window
         if (string.IsNullOrEmpty(msuDirectory)) return;
 
         var songs = project.Tracks.SelectMany(x => x.Songs)
-            .Where(x => !string.IsNullOrEmpty(x.OutputPath) && File.Exists(x.OutputPath))
             .OrderBy(x => x.TrackNumber)
             .Select(x => new AudioAnalysisSongViewModel()
             {
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
                 TrackName = x.TrackName,
                 TrackNumber = x.TrackNumber,
-                Path = x.OutputPath!,
-                OriginalViewModel = x
+                Path = x.OutputPath ?? "",
+                OriginalViewModel = x,
             })
             .ToList();
 

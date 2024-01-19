@@ -72,7 +72,7 @@ public class AudioAnalysisSongViewModel : INotifyPropertyChanged
         get => _hasWarning;
         set => SetField(ref _hasWarning, value);
     }
-
+    
     public string _warningMessage = "";
 
     public string WarningMessage

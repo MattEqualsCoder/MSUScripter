@@ -100,6 +100,7 @@ public partial class MsuPcmGenerationWindow : Window
                     }
                     else
                     {
+                        songViewModel.LastGeneratedDate = DateTime.Now;
                         songDetails.Message = "Success!";
                     }
                     
