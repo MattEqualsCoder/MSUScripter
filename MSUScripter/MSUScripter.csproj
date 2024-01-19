@@ -24,7 +24,7 @@
         <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.6" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.0" />
         <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.0.0" />
-        <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="1.2.2" />
+        <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="1.2.4" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
         <PackageReference Include="NAudio" Version="2.1.0" />

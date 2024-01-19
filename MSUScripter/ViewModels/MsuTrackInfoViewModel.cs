@@ -32,6 +32,12 @@ public class MsuTrackInfoViewModel : INotifyPropertyChanged
         get => _lastModifiedDate;
         set => SetField(ref _lastModifiedDate, value);
     }
+    
+    [SkipConvert]
+    public string? Description { get; set; }
+
+    [SkipConvert] 
+    public bool HasDescription => !string.IsNullOrEmpty(Description); 
 
     [SkipConvert] 
     public MsuProjectViewModel Project { get; set; } = new();

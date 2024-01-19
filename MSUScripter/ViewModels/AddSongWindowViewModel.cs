@@ -184,6 +184,25 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
         set => SetField(ref _addSongButtonText, value);
     }
 
+    private string _trackDescription = "";
+
+    public string TrackDescription
+    {
+        get => _trackDescription;
+        set
+        {
+            HasDescription = !string.IsNullOrEmpty(value);
+            SetField(ref _trackDescription, value);   
+        }
+    }
+
+    private bool _hasDescription;
+    public bool HasDescription
+    {
+        get => _hasDescription;
+        set => SetField(ref _hasDescription, value);
+    }
+
     public void Clear()
     {
         FilePath = "";
