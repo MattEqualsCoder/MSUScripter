@@ -45,11 +45,8 @@ public partial class AudioAnalysisWindow : Window
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
                 TrackName = x.TrackName,
                 TrackNumber = x.TrackNumber,
-                Path = !string.IsNullOrEmpty(x.OutputPath) && File.Exists(x.OutputPath) ? x.OutputPath : "Missing",
-                HasWarning = string.IsNullOrEmpty(x.OutputPath) || !File.Exists(x.OutputPath),
-                WarningMessage = !string.IsNullOrEmpty(x.OutputPath) && File.Exists(x.OutputPath) ? "" : "PCM file missing. Export the MSU to generate all PCM files.",
+                Path = x.OutputPath ?? "",
                 OriginalViewModel = x,
-                HasFile = !string.IsNullOrEmpty(x.OutputPath) && File.Exists(x.OutputPath)
             })
             .ToList();
 
