@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using GitHubReleaseChecker;
@@ -41,11 +42,22 @@ public partial class MainWindow : Window
 
         if (settings?.MainWindowRestoreDetails != null)
         {
-            Position = settings.MainWindowRestoreDetails.GetPosition();
-            Width = settings.MainWindowRestoreDetails.Width;
-            Height = settings.MainWindowRestoreDetails.Height;
-            WindowStartupLocation = WindowStartupLocation.Manual;
-            WindowState = settings.MainWindowRestoreDetails.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+            var screen = Screens.ScreenFromPoint(settings.MainWindowRestoreDetails.GetPosition() +
+                                                 new PixelPoint((int)settings.MainWindowRestoreDetails.Width / 2, (int)settings.MainWindowRestoreDetails.Height / 2));
+            if (screen == null)
+            {
+                Width = 1024;
+                Height = 768;
+            }
+            else
+            {
+                Position = settings.MainWindowRestoreDetails.GetPosition();
+                Width = settings.MainWindowRestoreDetails.Width;
+                Height = settings.MainWindowRestoreDetails.Height;
+                WindowStartupLocation = WindowStartupLocation.Manual;
+                WindowState = settings.MainWindowRestoreDetails.IsMaximized ? WindowState.Maximized : WindowState.Normal;
+            }
+            
         }
 
         Task.Run(() =>
