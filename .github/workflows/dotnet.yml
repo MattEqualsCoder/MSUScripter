@@ -2,9 +2,9 @@ name: .NET Build + Publish
 
 on:
   push:
-    branches: [ dotnet-upgrade ]
+    branches: [ main ]
   pull_request:
-    branches: [ dotnet-upgrade ]
+    branches: [ main ]
 
 jobs:
   build:
