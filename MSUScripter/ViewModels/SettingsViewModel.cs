@@ -34,6 +34,13 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _volume, value);
     }
 
+    private int _loopDuration = 5;
+    public int LoopDuration
+    {
+        get => _loopDuration;
+        set => SetField(ref _loopDuration, value);
+    }
+
     private bool _promptOnUpdate;
     
     public bool PromptOnUpdate

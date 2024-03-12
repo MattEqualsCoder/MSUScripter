@@ -9,6 +9,7 @@
         Width="500" Height="200" CanResize="False"
         x:Class="MSUScripter.Controls.SettingsWindow"
         Icon="/Assets/MSUScripterIcon.ico"
+        SizeToContent="Height"
         Title="Settings - MSU Scripter"
         x:DataType="viewModels:SettingsViewModel">
     <DockPanel>
@@ -77,6 +78,20 @@
                     HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch"
                 ></ComboBox>
+            </controls:LabeledControl>
+            
+            <controls:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
+                <Grid ColumnDefinitions="*, Auto">
+                    <Slider Grid.Column="0" x:Name="slider" 
+                            Value="{Binding LoopDuration}" 
+                            Minimum="1" 
+                            Maximum="30" />
+                    <TextBox Grid.Column="1" 
+                             Width="50"
+                             Margin="5 0 0 0"
+                             Text="{Binding LoopDuration}" 
+                             IsReadOnly="True" />
+                </Grid>
             </controls:LabeledControl>
             
         </StackPanel>

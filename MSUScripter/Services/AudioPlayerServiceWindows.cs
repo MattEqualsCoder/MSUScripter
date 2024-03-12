@@ -194,7 +194,7 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
             var startPosition = 8L;
             if (fromEnd)
             {
-                var endSamples = totalSamples - 44100 * 3;
+                var endSamples = totalSamples - 44100 * _settings.LoopDuration;
                 startPosition = (long)(endSamples / totalSamples * totalBytes) + 8;
                 if (startPosition < 8)
                 {
