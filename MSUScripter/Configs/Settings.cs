@@ -9,6 +9,7 @@ public class Settings
     public bool PromptOnUpdate { get; set; } = true;
     public bool PromptOnPreRelease { get; set; }
     public bool DarkTheme { get; set; } = true;
+    public int LoopDuration { get; set; } = 5;
     public ICollection<RecentProject> RecentProjects { get; set; } = new List<RecentProject>();
     public double Volume { get; set; } = 1;
     public string? PreviousPath { get; set; }

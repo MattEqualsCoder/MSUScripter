@@ -1,5 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
@@ -14,6 +16,9 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     private Process? _process;
     private bool _isPlaying;
     private bool _isTestingLoop;
+    private bool _canSetLoopValue;
+    private const string MinVersionSetLoop = "0.3.0";
+    private static readonly Regex digitsOnly = new(@"[^\d.]");
     
     public AudioPlayerServiceLinux(ILogger<AudioPlayerServiceLinux> logger, Settings settings, PythonCommandRunnerService python)
     {
@@ -23,6 +28,10 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
         if (_python.SetBaseCommand("pcm_player", "--version", out var result, out var error) &&
             result.StartsWith("pcm_player "))
         {
+            var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
+            var versionValue = ConvertVersionNumber(version[0], version[1], version[2]);
+            var minVersionValue = GetMinVersionNumberForSetLoop();
+            _canSetLoopValue = versionValue >= minVersionValue;
             CanPlayMusic = true;
             IAudioPlayerService.CanPlaySongs = true;
         }
@@ -92,14 +101,31 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
         Pause();
         _isTestingLoop = fromEnd;
         CurrentPlayingFile = path;
-        if (fromEnd)
+
+        if (_canSetLoopValue)
         {
-            _process = _python.RunCommandAsync($"-f \"{path}\" -l");
+            if (fromEnd)
+            {
+                var duration = _settings.LoopDuration;
+                _process = _python.RunCommandAsync($"-l -s {duration} \"{path}\"");
+            }
+            else
+            {
+                _process = _python.RunCommandAsync($"\"{path}\"");
+            }
         }
         else
         {
-            _process = _python.RunCommandAsync($"-f \"{path}\"");
+            if (fromEnd)
+            {
+                _process = _python.RunCommandAsync($"-f \"{path}\" -l");
+            }
+            else
+            {
+                _process = _python.RunCommandAsync($"-f \"{path}\"");
+            }
         }
+        
 
         if (_process != null)
         {
@@ -126,6 +152,17 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     {
         _isPlaying = false;
         PlayStopped?.Invoke(this, EventArgs.Empty);
+    }
+    
+    private int GetMinVersionNumberForSetLoop()
+    {
+        var version = MinVersionSetLoop.Split(".").Select(int.Parse).ToList();
+        return ConvertVersionNumber(version[0], version[1], version[2]);
+    }
+    
+    private int ConvertVersionNumber(int a, int b, int c)
+    {
+        return a * 10000 + b * 100 + c;
     }
 
     public Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false)
