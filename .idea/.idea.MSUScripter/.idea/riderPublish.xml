@@ -3,8 +3,8 @@
   <component name="LocationsWithSilentDeleteHolder">
     <option name="locations">
       <list>
-        <option value="$PROJECT_DIR$/MSUScripter/bin/Release/net7.0-windows/win-x64/publish" />
-        <option value="$PROJECT_DIR$/MSUScripter/bin/Release/net7.0-windows/win-x86/publish" />
+        <option value="$PROJECT_DIR$/MSUScripter/bin/Release/net8.0-windows/win-x64/publish" />
+        <option value="$PROJECT_DIR$/MSUScripter/bin/Release/net8.0-windows/win-x86/publish" />
       </list>
     </option>
   </component>

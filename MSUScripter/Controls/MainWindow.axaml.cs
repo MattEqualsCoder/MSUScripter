@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -165,8 +164,8 @@ public partial class MainWindow : Window
     {
         if (_services == null || _settings?.PromptOnUpdate != true) return;
         
-        var newerGitHubRelease = _services.GetRequiredService<IGitHubReleaseCheckerService>()
-            .GetGitHubReleaseToUpdateTo("MattEqualsCoder", "MSUScripter", App.GetAppVersion(), _settings?.PromptOnPreRelease == true);
+        var newerGitHubRelease = await _services.GetRequiredService<IGitHubReleaseCheckerService>()
+            .GetGitHubReleaseToUpdateToAsync("MattEqualsCoder", "MSUScripter", App.GetAppVersion(), _settings?.PromptOnPreRelease == true);
 
         if (newerGitHubRelease != null)
         {

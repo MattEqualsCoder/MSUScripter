@@ -8,7 +8,6 @@ using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Newtonsoft.Json;
 using YamlDotNet.Serialization;
@@ -16,16 +15,15 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
-public class ProjectService
+public class ProjectService(
+    IMsuTypeService msuTypeService,
+    IMsuLookupService msuLookupService,
+    IMsuDetailsService msuDetailsService,
+    ILogger<ProjectService> logger,
+    AudioMetadataService audioMetadataService,
+    SettingsService settingsService,
+    ConverterService converterService)
 {
-    private readonly IMsuTypeService _msuTypeService;
-    private readonly IMsuLookupService _msuLookupService;
-    private readonly IMsuDetailsService _msuDetailsService;
-    private readonly AudioMetadataService _audioMetadataService;
-    private readonly SettingsService _settingsService;
-    private readonly ILogger<ProjectService> _logger;
-    private readonly ConverterService _converterService;
-    
     private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -34,25 +32,14 @@ public class ProjectService
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
         .IgnoreUnmatchedProperties()
         .Build();
-    
-    public ProjectService(IMsuTypeService msuTypeService, IMsuLookupService msuLookupService, IMsuDetailsService msuDetailsService, ILogger<ProjectService> logger, AudioMetadataService audioMetadataService, SettingsService settingsService, ConverterService converterService)
-    {
-        _msuTypeService = msuTypeService;
-        _msuLookupService = msuLookupService;
-        _msuDetailsService = msuDetailsService;
-        _logger = logger;
-        _audioMetadataService = audioMetadataService;
-        _settingsService = settingsService;
-        _converterService = converterService;
-    }
-    
+
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
         project.LastSaveTime = DateTime.Now;
         
         if (!isBackup)
         {
-            _settingsService.AddRecentProject(project);
+            settingsService.AddRecentProject(project);
             SaveMsuProject(project, true);
         }
         
@@ -69,7 +56,7 @@ public class ProjectService
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Could not create backups directory");
+                logger.LogWarning(e, "Could not create backups directory");
                 return;
             }
         }
@@ -81,14 +68,14 @@ public class ProjectService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Could not save project file");
+            logger.LogError(e, "Could not save project file");
             if (!isBackup)
                 throw;
         }
 
         if (!isBackup)
         {
-            _logger.LogInformation("Saved project");
+            logger.LogInformation("Saved project");
         }
         
         
@@ -114,16 +101,16 @@ public class ProjectService
             project.BackupFilePath = GetProjectBackupFilePath(path);
         }
         
-        project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
+        project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
 
-        if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == _msuTypeService.GetSMZ3MsuType())
+        if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == msuTypeService.GetSMZ3MsuType())
         {
             project.BasicInfo.IsSmz3Project = true;
         }
 
         if (!isBackup)
         {
-            _settingsService.AddRecentProject(project);    
+            settingsService.AddRecentProject(project);    
         }
         
         return project;
@@ -131,7 +118,7 @@ public class ProjectService
 
     public MsuProject NewMsuProject(string projectPath, string msuTypeName, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
     {
-        var msuType = _msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
+        var msuType = msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
 
         return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
     }
@@ -172,12 +159,12 @@ public class ProjectService
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Could not import msupcm++ json file");
+                logger.LogError(e, "Could not import msupcm++ json file");
                 throw new InvalidOperationException("Invalid msupcm++ json file");
             }
         }
         
-        if (msuType == _msuTypeService.GetSMZ3LegacyMSUType() || msuType == _msuTypeService.GetSMZ3MsuType())
+        if (msuType == msuTypeService.GetSMZ3LegacyMSUType() || msuType == msuTypeService.GetSMZ3MsuType())
         {
             project.BasicInfo.IsSmz3Project = true;
             project.BasicInfo.CreateSplitSmz3Script = true;
@@ -190,7 +177,7 @@ public class ProjectService
 
     public void ImportMsu(MsuProject project, string msuPath)
     {
-        var msu = _msuLookupService.LoadMsu(msuPath, project.MsuType);
+        var msu = msuLookupService.LoadMsu(msuPath, project.MsuType);
 
         if (msu == null)
             return;
@@ -255,7 +242,6 @@ public class ProjectService
         var conversion = project.MsuType.Conversions[oldType];
         
         var msu = new FileInfo(project.MsuPath);
-        var basePath = msu.FullName.Replace(msu.Extension, "");
         var baseName = msu.Name.Replace(msu.Extension, "");
 
         HashSet<string> swappedFiles = new HashSet<string>();
@@ -310,7 +296,7 @@ public class ProjectService
                 {
                     if (File.Exists(newSong.OutputPath))
                     {
-                        _logger.LogInformation("{New} <=> {Old}", newSong.OutputPath, oldSong.OutputPath);
+                        logger.LogInformation("{New} <=> {Old}", newSong.OutputPath, oldSong.OutputPath);
                         swappedFiles.Add(newSong.OutputPath);
                         swappedFiles.Add(oldSong.OutputPath);
                         File.Move(newSong.OutputPath, newSong.OutputPath + ".tmp");
@@ -320,7 +306,7 @@ public class ProjectService
                     }
                     else
                     {
-                        _logger.LogInformation("{New} <== {Old}", newSong.OutputPath, oldSong.OutputPath);
+                        logger.LogInformation("{New} <== {Old}", newSong.OutputPath, oldSong.OutputPath);
                         File.Move(oldSong.OutputPath, newSong.OutputPath );
                     }
                 }
@@ -342,7 +328,7 @@ public class ProjectService
         var toReturn = new List<MsuProject>();
         convertedPaths = new Dictionary<string, string>();
         
-        if (project.MsuType != _msuTypeService.GetSMZ3LegacyMSUType() && project.MsuType != _msuTypeService.GetSMZ3MsuType())
+        if (project.MsuType != msuTypeService.GetSMZ3LegacyMSUType() && project.MsuType != msuTypeService.GetSMZ3MsuType())
         {
             error = "Invalid MSU Type";
             return toReturn;
@@ -355,11 +341,11 @@ public class ProjectService
             return toReturn;
         }
 
-        var msuType = _msuTypeService.GetMsuType("Super Metroid") ??
+        var msuType = msuTypeService.GetMsuType("Super Metroid") ??
                       throw new InvalidOperationException("Super Metroid MSU Type not found");
         toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.MetroidMsuPath, convertedPaths));
 
-        msuType = _msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past") ??
+        msuType = msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past") ??
                   throw new InvalidOperationException("A Link to the Past MSU Type not found");
         toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.ZeldaMsuPath, convertedPaths));
 
@@ -370,7 +356,7 @@ public class ProjectService
     private MsuProject InternalGetSmz3MsuProject(MsuProject project, MsuType msuType, string newMsuPath, Dictionary<string, string> convertedPaths)
     {
         var basicInfo = new MsuBasicInfo();
-        _converterService.ConvertViewModel(project.BasicInfo, basicInfo);
+        converterService.ConvertViewModel(project.BasicInfo, basicInfo);
 
         var conversion = msuType.Conversions[project.MsuType];
 
@@ -402,7 +388,7 @@ public class ProjectService
             foreach (var song in project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs)
             {
                 var newSong = new MsuSongInfo();
-                _converterService.ConvertViewModel(song, newSong);
+                converterService.ConvertViewModel(song, newSong);
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
@@ -465,6 +451,11 @@ public class ProjectService
         var data = File.ReadAllText(jsonPath);
         var msuPcmData = JsonConvert.DeserializeObject<MsuPcmPlusPlusConfig>(data);
 
+        if (msuPcmData == null)
+        {
+            return;
+        }
+
         if (string.IsNullOrEmpty(msuPcmWorkingDirectory))
         {
             msuPcmWorkingDirectory = new FileInfo(jsonPath).DirectoryName!;
@@ -486,7 +477,7 @@ public class ProjectService
             var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
             if (projectTrack == null) continue;
 
-            var msuPcmInfo = track.SelectMany(x => _converterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
+            var msuPcmInfo = track.SelectMany(x => converterService.ConvertMsuPcmTrackInfo(x, msuPcmWorkingDirectory)).ToList();
             var songs = projectTrack.Songs.OrderBy(x => x.IsAlt).ToList();
             
             for (var i = 0; i < msuPcmInfo.Count; i++)
@@ -495,7 +486,7 @@ public class ProjectService
                 
                 if (!string.IsNullOrEmpty(msuPcmInfo[i].Output))
                 {
-                    trackPath = _converterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
+                    trackPath = converterService.GetAbsolutePath(msuPcmWorkingDirectory, msuPcmInfo[i].Output!);
                 }
                 else if (i == 0)
                 {
@@ -510,7 +501,7 @@ public class ProjectService
                 var files = msuPcmInfo[i].GetFiles();
                 if (files.Count == 1)
                 {
-                    metadata = _audioMetadataService.GetAudioMetadata(files.First());
+                    metadata = audioMetadataService.GetAudioMetadata(files.First());
                 }
 
                 if (i < songs.Count)
@@ -564,8 +555,8 @@ public class ProjectService
     {
         var data = new List<(MsuType?, string?)>()
         {
-            (_msuTypeService.GetMsuType("Super Metroid"), project.BasicInfo.MetroidMsuPath),
-            (_msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past"), project.BasicInfo.ZeldaMsuPath)
+            (msuTypeService.GetMsuType("Super Metroid"), project.BasicInfo.MetroidMsuPath),
+            (msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past"), project.BasicInfo.ZeldaMsuPath)
         };
 
         var msu = new FileInfo(project.MsuPath);
@@ -579,7 +570,7 @@ public class ProjectService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Could not retrieve MSU Details from {YamlPath}", yamlPath);
+            logger.LogError(e, "Could not retrieve MSU Details from {YamlPath}", yamlPath);
             error = $"Could not retrieve MSU Details from {yamlPath}";
             return false;
         }
@@ -605,13 +596,13 @@ public class ProjectService
             {
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
-                var newMsuType = _converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
+                var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
                 var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
                 File.WriteAllText(newYamlPath, outYaml);
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Unable to convert MSU YAML");
+                logger.LogError(e, "Unable to convert MSU YAML");
                 error = "Unable to convert MSU YAML";
                 return false;
             }
@@ -663,7 +654,7 @@ public class ProjectService
         };
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
-        _msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
+        msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
     }
 
     public bool CreateMsuFiles(MsuProject project)
@@ -695,7 +686,7 @@ public class ProjectService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to create msu file");
+            logger.LogError(e, "Unable to create msu file");
             return false;
         }
         
@@ -747,7 +738,7 @@ public class ProjectService
     public bool ValidateProject(MsuProjectViewModel project, out string message)
     {
         var msuPath = project.MsuPath;
-        var msu = _msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
+        var msu = msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
 
         if (msu == null)
         {
