@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -41,6 +42,7 @@ public partial class EditProjectPanel : UserControl
     private bool _hasCheckedPendingChanges;
     private DateTime? _lastAutoSave;
     private bool _displaySearchBar;
+    private int _previousPage = -1;
     
     public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null)
     {
@@ -132,6 +134,16 @@ public partial class EditProjectPanel : UserControl
         comboBox.SelectedIndex = Math.Clamp(currentPage, 0, pages.Count - 1);
 
         this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.ItemsSource = pages;
+        
+        var test = this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!;
+        try
+        {
+            HotKeyManager.SetHotKey(this.Find<Button>(nameof(SearchButton))!, new KeyGesture(Key.F, KeyModifiers.Control));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
     }
 
     private void PageComboBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -141,11 +153,15 @@ public partial class EditProjectPanel : UserControl
     
     private void DisplayPage(int page)
     {
-        if (page < 0 || page >= this.Find<ComboBox>(nameof(PageComboBox))!.Items.Count || _project == null)
+        var comboBox = this.Find<ComboBox>(nameof(PageComboBox))!;
+        
+        if (page < 0 || page >= comboBox.Items.Count || _project == null || _previousPage == page)
             return;
 
         if (_serviceProvider == null)
             throw new InvalidOperationException("Unable to display track page");
+
+        comboBox.SelectedIndex = page;
 
         if (_currentPage is MsuTrackInfoPanel prevPage)
         {
@@ -193,6 +209,8 @@ public partial class EditProjectPanel : UserControl
             scrollViewerBorder.IsVisible = true;
             parentPageDockPanel.IsVisible = false;
         }
+
+        _previousPage = page;
     }
 
     private void TrackOverviewPanelOnOnSelectedTrack(object? sender, TrackEventArgs e)
@@ -708,7 +726,12 @@ public partial class EditProjectPanel : UserControl
 
     private void SearchButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _displaySearchBar = !_displaySearchBar;
+        ToggleSearchBar(!_displaySearchBar);
+    }
+
+    private void ToggleSearchBar(bool enabled)
+    {
+        _displaySearchBar = enabled;
         this.Find<ComboBox>(nameof(PageComboBox))!.IsVisible = !_displaySearchBar;
         this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.IsVisible = _displaySearchBar;
         if (_displaySearchBar)
@@ -718,10 +741,21 @@ public partial class EditProjectPanel : UserControl
             // Delay because setting focus the first time doesn't work for some reason
             Task.Run(() =>
             {
-                Thread.Sleep(50);
+                Thread.Sleep(100);
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.Focus();
+                });
+            });
+        }
+        else
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(100);
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
                 });
             });
         }
@@ -822,5 +856,10 @@ public partial class EditProjectPanel : UserControl
         this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
         var packageWindow = new PackageMsuWindow(_projectViewModel!);
         await packageWindow.ShowDialog(App.MainWindow!);
+    }
+
+    private void TrackSearchAutoCompleteBox_OnDropDownClosed(object? sender, EventArgs e)
+    {
+        ToggleSearchBar(false);
     }
 }

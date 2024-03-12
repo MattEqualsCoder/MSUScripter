@@ -39,6 +39,7 @@
                                  ItemsSource="{Binding Tracks}"
                                  IsVisible="False"
                                  FilterMode="Contains"
+                                 DropDownClosed="TrackSearchAutoCompleteBox_OnDropDownClosed"
                                  TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
                                  Populated="TrackSearchAutoCompleteBox_OnPopulated"
                 ></AutoCompleteBox>
