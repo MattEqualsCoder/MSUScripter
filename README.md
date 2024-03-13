@@ -22,7 +22,7 @@ A cross platform application built for creating MSUs and related files. The appl
 
 - Download the latest release via the GitHub Releases page
     - Windows - Run the installer exe file to install all pre-requisites and the MSU Scripter
-    - Linux - Make sure to have .net 7 installed. Either make the MSUScripter file executable and run it or run dotnet MSUScripter.dll
+    - Linux - Make sure to have .net 8 installed. Either make the MSUScripter file executable and run it or run dotnet MSUScripter.dll
 - Download [msupcm++](https://github.com/qwertymodo/msupcmplusplus) if generating pcms is desired
 - Install [PyMusicLooper](https://github.com/arkrow/PyMusicLooper) if automatic loop point detection is desired (make sure you can run it via a PowerShell or Terminal window)
 - Install [MSU Test Video Creator](https://github.com/MattEqualsCoder/MSUTestVideoCreator) for creating mp4 files to upload to YouTube to test for potential copyright strikes
