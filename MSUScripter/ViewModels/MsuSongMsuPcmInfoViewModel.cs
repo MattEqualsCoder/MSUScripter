@@ -113,6 +113,8 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         get => _lastModifiedDate;
         set => SetField(ref _lastModifiedDate, value);
     }
+
+    public bool CanDisplayTrimStartButton => OperatingSystem.IsWindows();
     
     private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subTracks = new ObservableCollection<MsuSongMsuPcmInfoViewModel>();
     public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubTracks

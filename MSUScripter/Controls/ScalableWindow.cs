@@ -16,7 +16,7 @@ public class ScalableWindow : Window
         set
         {
             _previousScaleFactor = _globalScaleFactor;
-            _globalScaleFactor = value;
+            _globalScaleFactor = Math.Clamp(value, 1.0m, 3.0m);
             _changeScaleFactor = _globalScaleFactor / _previousScaleFactor;
 
             if (_previousScaleFactor != _globalScaleFactor)
