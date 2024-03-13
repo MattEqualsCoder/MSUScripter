@@ -75,6 +75,13 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
         get => _msuProjectViewModel;
         set => SetField(ref _msuProjectViewModel, value);
     }
+    
+    private MsuSongMsuPcmInfoViewModel _msuSongMsuPcmInfoViewModel = new();
+    public MsuSongMsuPcmInfoViewModel MsuSongMsuPcmInfoViewModel
+    {
+        get => _msuSongMsuPcmInfoViewModel;
+        set => SetField(ref _msuSongMsuPcmInfoViewModel, value);
+    }
 
     private int _numPerPage = 8;
 

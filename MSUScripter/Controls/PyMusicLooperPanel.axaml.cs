@@ -83,7 +83,7 @@ public partial class PyMusicLooperPanel : UserControl
 
     public void RunPyMusicLooper()
     {
-        if (_pyMusicLooperService == null || string.IsNullOrEmpty(_model.MsuSongInfoViewModel.MsuPcmInfo.File))
+        if (_pyMusicLooperService == null || string.IsNullOrEmpty(_model.MsuSongMsuPcmInfoViewModel.File))
         {
             return;
         }
@@ -99,7 +99,7 @@ public partial class PyMusicLooperPanel : UserControl
         {
             _model.Message = "Running PyMusicLooper";
             
-            var inputFile = _model.MsuSongInfoViewModel.MsuPcmInfo.File!;
+            var inputFile = _model.MsuSongMsuPcmInfoViewModel.File!;
             var loopPoints = _pyMusicLooperService.GetLoopPoints(inputFile, out string message,
                 _model.MinDurationMultiplier,
                 _model.MinLoopDuration, _model.MaxLoopDuration,
@@ -138,7 +138,7 @@ public partial class PyMusicLooperPanel : UserControl
         {
             result.Status = "Generating Preview .pcm File";
             
-            if (!_msuPcmService.CreateTempPcm(_project, _model.MsuSongInfoViewModel.MsuPcmInfo.File!, out var outputPath,
+            if (!_msuPcmService.CreateTempPcm(_project, _model.MsuSongMsuPcmInfoViewModel.File!, out var outputPath,
                     out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: true))
             {
                 if (generated)
@@ -232,7 +232,7 @@ public partial class PyMusicLooperPanel : UserControl
             {
                 if (_msuPcmService != null)
                 {
-                    _msuPcmService.CreateTempPcm(_project, _model.MsuSongInfoViewModel.MsuPcmInfo.File!,
+                    _msuPcmService.CreateTempPcm(_project, _model.MsuSongMsuPcmInfoViewModel.File!,
                         out var outputPath,
                         out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: false);
                     if (generated)

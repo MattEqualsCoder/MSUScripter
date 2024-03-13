@@ -417,9 +417,15 @@ public class ProjectService(
         };
     }
 
-    public void CreateSmz3SplitScript(MsuProject smz3Project, Dictionary<string, string> convertedPaths)
+    public bool CreateSmz3SplitScript(MsuProject smz3Project, Dictionary<string, string> convertedPaths)
     {
-        var testTrack = smz3Project.Tracks.First(x => x.TrackNumber > 100 && x.Songs.Any()).TrackNumber;
+        var testTrack = smz3Project.Tracks.FirstOrDefault(x => x.TrackNumber > 100 && x.Songs.Any())?.TrackNumber;
+
+        if (testTrack == null)
+        {
+            return false;
+        }
+        
         var msu = new FileInfo(smz3Project.MsuPath);
         var folder = msu.DirectoryName ?? "";
         var testPath =Path.GetRelativePath(folder,  msu.FullName.Replace(msu.Extension, $"-{testTrack}.pcm"));
@@ -444,6 +450,8 @@ public class ProjectService(
         sbTotal.Append(")");
         
         File.WriteAllText(Path.Combine(folder, "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat"), sbTotal.ToString());
+
+        return true;
     }
 
     public void ImportMsuPcmTracksJson(MsuProject project, string jsonPath, string? msuPcmWorkingDirectory)
