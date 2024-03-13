@@ -58,11 +58,11 @@ public partial class AudioAnalysisWindow : Window
     {
         if (_audioAnalysisService == null || _project == null) return;
 
-        _ = Task.Run(() =>
+        _ = Task.Run(async () =>
         {
             var start = DateTime.Now;
             
-            _audioAnalysisService!.AnalyzePcmFiles(_project!, _rows, _cts.Token);
+            await _audioAnalysisService!.AnalyzePcmFiles(_project!, _rows, _cts.Token);
 
             var avg = GetAverageRms();
             var max = GetAveragePeak();
