@@ -27,11 +27,11 @@ public class AudioAnalysisService
         _logger = logger;
     }
 
-    public void AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
+    public async Task AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = _converterService.ConvertProject(projectViewModel);
         
-        Parallel.ForEachAsync(audioAnalysis.Rows,
+        await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
             async (song, token) =>
             {
