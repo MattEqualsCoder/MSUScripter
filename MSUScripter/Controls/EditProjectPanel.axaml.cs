@@ -43,6 +43,7 @@ public partial class EditProjectPanel : UserControl
     private DateTime? _lastAutoSave;
     private bool _displaySearchBar;
     private int _previousPage = -1;
+    private bool _isAddNewSongWindowOpen = false;
     
     public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null)
     {
@@ -135,14 +136,13 @@ public partial class EditProjectPanel : UserControl
 
         this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!.ItemsSource = pages;
         
-        var test = this.Find<AutoCompleteBox>(nameof(TrackSearchAutoCompleteBox))!;
         try
         {
             HotKeyManager.SetHotKey(this.Find<Button>(nameof(SearchButton))!, new KeyGesture(Key.F, KeyModifiers.Control));
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            // Do nothing
         }
     }
 
@@ -227,7 +227,7 @@ public partial class EditProjectPanel : UserControl
 
     private void PagePanelOnAddSongWindowButtonPressed(object? sender, TrackEventArgs e)
     {
-        OpenAddSongWindow(e.TrackNumber);
+        _ = OpenAddSongWindow(e.TrackNumber);
     }
 
     private void SongFileSelected(object? sender, SongFileEventArgs e)
@@ -716,25 +716,32 @@ public partial class EditProjectPanel : UserControl
 
     private void AddSongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        OpenAddSongWindow();
+        _ = OpenAddSongWindow();
     }
 
-    private void OpenAddSongWindow(int? trackNumber = null)
+    private async Task OpenAddSongWindow(int? trackNumber = null)
     {
         if (_serviceProvider == null || App.MainWindow == null || _projectViewModel == null)
         {
             return;
         }
         
+        _isAddNewSongWindowOpen = true;
         var addSongWindow = _serviceProvider.GetRequiredService<AddSongWindow>();
         addSongWindow.TrackNumber = trackNumber;
         addSongWindow.ProjectModel = _projectViewModel;
-        addSongWindow.ShowDialog(App.MainWindow);
+        await addSongWindow.ShowDialog(App.MainWindow);
+        _isAddNewSongWindowOpen = false;
     }
 
     private void SearchButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        ToggleSearchBar(!_displaySearchBar);
+        if (_isAddNewSongWindowOpen)
+        {
+            return;
+        }
+
+        ToggleSearchBar(!_displaySearchBar);    
     }
 
     private void ToggleSearchBar(bool enabled)

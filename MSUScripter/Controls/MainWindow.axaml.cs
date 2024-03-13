@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,6 +67,15 @@ public partial class MainWindow : ScalableWindow
             _msuPcmService?.ClearCache();
             _pyMusicLooperService?.ClearCache();
         });
+        
+        try
+        {
+            HotKeyManager.SetHotKey(this.Find<MenuItem>(nameof(SaveMenuItem))!, new KeyGesture(Key.S, KeyModifiers.Control));
+        }
+        catch (Exception e)
+        {
+            // Do nothing
+        }
     }
 
     public void SaveChanges()
