@@ -29,7 +29,7 @@ public partial class MusicLooperWindow : ScalableWindow
     
     public PyMusicLooperResultViewModel? Result { get; set; }
 
-    public void SetDetails(MsuProjectViewModel project, MsuSongInfoViewModel song)
+    public void SetDetails(MsuProjectViewModel project, MsuSongInfoViewModel song, MsuSongMsuPcmInfoViewModel pcmDetails)
     {
         if (_pyMusicLooperPanel == null)
         {
@@ -41,7 +41,8 @@ public partial class MusicLooperWindow : ScalableWindow
         _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel()
         {
             MsuProjectViewModel = project,
-            MsuSongInfoViewModel = song
+            MsuSongInfoViewModel = song,
+            MsuSongMsuPcmInfoViewModel = pcmDetails
         };
     }
     

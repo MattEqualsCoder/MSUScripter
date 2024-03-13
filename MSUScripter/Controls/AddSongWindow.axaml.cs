@@ -151,6 +151,10 @@ public partial class AddSongWindow : ScalableWindow
                 {
                     File = Model.FilePath
                 }
+            },
+            MsuSongMsuPcmInfoViewModel = new MsuSongMsuPcmInfoViewModel()
+            {
+                File = Model.FilePath
             }
         };
         var parentPanel = this.Find<Panel>(nameof(PyMusicLooperPanel))!;

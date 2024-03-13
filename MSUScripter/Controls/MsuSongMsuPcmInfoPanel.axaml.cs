@@ -123,4 +123,9 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             this.Find<Button>(nameof(StopButton))!.IsVisible = false;
         }
     }
+
+    private void MsuSongMsuPcmInfoPanel_OnPcmOptionSelected(object? sender, PcmEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(sender, e);
+    }
 }

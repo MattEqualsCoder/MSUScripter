@@ -568,7 +568,15 @@ public partial class EditProjectPanel : UserControl
             ShowError(error);
             return;
         }
-        _projectService.CreateSmz3SplitScript(_project, conversions);
+
+        if (_projectService.CreateSmz3SplitScript(_project, conversions))
+        {
+            UpdateStatusBarText("SMZ3 Split Script Created");
+        }
+        else
+        {
+            UpdateStatusBarText("Insufficient tracks");
+        }
     }
 
     private void ExportButton_OnClick(object? sender, RoutedEventArgs e)
@@ -671,7 +679,7 @@ public partial class EditProjectPanel : UserControl
         }
         
         var window = _serviceProvider.GetRequiredService<MusicLooperWindow>();
-        window.SetDetails(_projectViewModel!, songInfo);
+        window.SetDetails(_projectViewModel!, songInfo, pcmInfoViewModel);
         var loopResult = await window.ShowDialog();
         if (loopResult != null)
         {

@@ -115,7 +115,7 @@
                             <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubTrack_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"></controls:MsuSongMsuPcmInfoPanel>
+                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubTrack_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"></controls:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -138,7 +138,7 @@
                             <ItemsControl ItemsSource="{Binding SubChannels, Mode=OneWay}" Name="SubChannelssItemsControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"></controls:MsuSongMsuPcmInfoPanel>
+                                        <controls:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"></controls:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
