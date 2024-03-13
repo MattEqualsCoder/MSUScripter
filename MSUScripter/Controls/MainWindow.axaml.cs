@@ -24,18 +24,20 @@ public partial class MainWindow : ScalableWindow
     private SettingsService? _settingsService;
     private MsuPcmService? _msuPcmService;
     private PyMusicLooperService? _pyMusicLooperService;
+    private ProjectService? _projectService;
 
-    public MainWindow() : this(null, null, null, null, null)
+    public MainWindow() : this(null, null, null, null, null, null)
     {
     }
     
-    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService, MsuPcmService? msuPcmService, PyMusicLooperService? pyMusicLooperService)
+    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService, MsuPcmService? msuPcmService, PyMusicLooperService? pyMusicLooperService, ProjectService? projectService)
     {
         _services = services;
         _settings = settings;
         _settingsService = settingsService;
         _msuPcmService = msuPcmService;
         _pyMusicLooperService = pyMusicLooperService;
+        _projectService = projectService;
         InitializeComponent();
         DisplayNewPanel();
         Title = $"MSU Scripter v{App.GetAppVersion()}";
@@ -173,6 +175,24 @@ public partial class MainWindow : ScalableWindow
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_services == null || _settings?.PromptOnUpdate != true) return;
+        
+        if (!string.IsNullOrEmpty(Program.StartingProject) && _projectService != null)
+        {
+            var project = _projectService!.LoadMsuProject(Program.StartingProject, false);
+            
+            if (!string.IsNullOrEmpty(project!.BackupFilePath))
+            {
+                var backupProject = _projectService!.LoadMsuProject(project!.BackupFilePath, true);
+                if (backupProject != null && backupProject.LastSaveTime > project.LastSaveTime)
+                {
+                    var result = await new MessageWindow("A backup with unsaved changes was detected. Would you like to load from the backup instead?", MessageWindowType.YesNo, "Load Backup?").ShowDialog();
+                    if (result == MessageWindowResult.Yes)
+                        project = backupProject;
+                }
+            }
+
+            DisplayEditPanel(project);
+        }
         
         var newerGitHubRelease = await _services.GetRequiredService<IGitHubReleaseCheckerService>()
             .GetGitHubReleaseToUpdateToAsync("MattEqualsCoder", "MSUScripter", App.GetAppVersion(), _settings?.PromptOnPreRelease == true);

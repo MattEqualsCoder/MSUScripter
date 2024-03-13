@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
@@ -19,6 +20,8 @@ namespace MSUScripter;
 
 class Program
 {
+    internal static string? StartingProject { get; private set; }
+        
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -30,6 +33,11 @@ class Program
             .WriteTo.File(LogPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
             .WriteTo.Debug()
             .CreateLogger();
+
+        if (args.Length == 1 && args[0].EndsWith(".msup", StringComparison.OrdinalIgnoreCase) && File.Exists(args[0]))
+        {
+            StartingProject = args[0];
+        }
         
         try
         {
