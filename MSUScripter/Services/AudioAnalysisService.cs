@@ -101,6 +101,26 @@ public class AudioAnalysisService
 
         return generated;
     }
+
+    public void GetMp3StartingSample(string path)
+    {
+        var totalSampleCount = 0;
+        var samples = 0;
+        var readBuffer = new float[2000];
+        var mp3 = new Mp3FileReader(path);
+        var sampleProvider = mp3.ToSampleProvider();
+        do
+        {
+            samples = sampleProvider.Read(readBuffer, 0, readBuffer.Length);
+            for (var i = 0; i < samples; i++)
+            {
+                var decibel = ConvertToDecibel(Math.Pow(readBuffer[i], 2));
+                _logger.LogInformation("{Index}: {Amp}", i + totalSampleCount, decibel);
+            }
+            totalSampleCount += samples;
+        } while (samples == readBuffer.Length);
+
+    }
     
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
     {
@@ -114,7 +134,7 @@ public class AudioAnalysisService
         {
             return new AnalysisDataOutput();
         }
-        
+
         // Initialize the sample reader
         var readBuffer = new float[2000];
         using var fs = File.OpenRead(path);

@@ -50,6 +50,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             _services = Program.GetServiceProvider();
+            _services.GetRequiredService<AudioAnalysisService>().GetMp3StartingSample("/media/matt/Shared Data/SMZ3/msus/Fighting/26Wrecked Ship off.mp3");
             _logger = _services.GetRequiredService<ILogger<App>>();
             
             desktop.ShutdownRequested += DesktopOnShutdownRequested;
