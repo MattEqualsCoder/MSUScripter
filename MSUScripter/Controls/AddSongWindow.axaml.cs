@@ -17,7 +17,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
-public partial class AddSongWindow : Window
+public partial class AddSongWindow : ScalableWindow
 {
     private readonly ILogger<AddSongWindow> _logger = null!;
     private readonly PyMusicLooperPanel _pyMusicLooperPanel = null!;

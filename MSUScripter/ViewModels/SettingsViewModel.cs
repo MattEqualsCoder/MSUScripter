@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using MSUScripter.Configs;
 using MSUScripter.Models;
@@ -32,6 +35,15 @@ public class SettingsViewModel : INotifyPropertyChanged
         
         get => _volume;
         set => SetField(ref _volume, value);
+    }
+    
+    private decimal _uiScaling;
+    
+    public decimal UiScaling 
+    {
+        
+        get => _uiScaling;
+        set => SetField(ref _uiScaling, value);
     }
 
     private int _loopDuration = 5;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Controls;
 using MSUScripter.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -42,6 +43,8 @@ public class SettingsService
             .IgnoreUnmatchedProperties()
             .Build();
         Settings = deserializer.Deserialize<Settings>(yaml);
+
+        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
     }
 
     public void SaveSettings()
@@ -57,6 +60,8 @@ public class SettingsService
             Directory.CreateDirectory(directory);
         }
         File.WriteAllText(GetSettingsPath(), yaml);
+
+        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
     }
 
     public void AddRecentProject(MsuProject project)

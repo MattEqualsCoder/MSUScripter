@@ -13,7 +13,8 @@
         Unloaded="Control_OnUnloaded"
         Icon="/Assets/MSUScripterIcon.ico"
         >
-        <DockPanel>
+    <LayoutTransformControl Name="MainLayout">
+    <DockPanel>
             <ProgressBar Name="MsuPcmProgressBar" DockPanel.Dock="Top"
                          Minimum="0"
                          Maximum="{Binding TotalSongs}"
@@ -59,4 +60,5 @@
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
+    </LayoutTransformControl>
 </Window>

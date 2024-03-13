@@ -8,7 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
-public partial class MusicLooperWindow : Window
+public partial class MusicLooperWindow : ScalableWindow
 {
     private readonly PyMusicLooperPanel? _pyMusicLooperPanel;
     private readonly AudioControl? _audioControl = null!;
