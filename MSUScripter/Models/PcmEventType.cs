@@ -9,4 +9,5 @@ public enum PcmEventType
     LoopWindow,
     StopMusic,
     GenerateEmpty,
+    StartingSamples
 }

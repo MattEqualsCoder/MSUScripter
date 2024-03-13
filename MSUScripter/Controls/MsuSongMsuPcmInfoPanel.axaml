@@ -39,12 +39,14 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
-                        <NumericUpDown Grid.Column="1" Value="{Binding TrimStart}" ></NumericUpDown>
-                        <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
-                        <NumericUpDown Grid.Column="3" Value="{Binding TrimEnd}" ></NumericUpDown>
+                        <NumericUpDown Grid.Column="1" Value="{Binding TrimStart}"></NumericUpDown>
+                        <Button Grid.Column="2" Margin="5 0 0 0" IsVisible="{Binding CanDisplayTrimStartButton}" Click="GetTrimStartButton_OnClick">Get Trim Start</Button>
+                        <TextBlock Grid.Column="3" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
+                        <NumericUpDown Grid.Column="4" Value="{Binding TrimEnd}" ></NumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
                 

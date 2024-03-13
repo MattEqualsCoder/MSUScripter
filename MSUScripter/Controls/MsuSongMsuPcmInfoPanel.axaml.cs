@@ -128,4 +128,9 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     {
         PcmOptionSelected?.Invoke(sender, e);
     }
+
+    private void GetTrimStartButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StartingSamples, MsuPcmData));
+    }
 }

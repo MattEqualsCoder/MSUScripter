@@ -9,6 +9,8 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using NAudio.Wave;
+using TagLib.Mpeg;
+using File = System.IO.File;
 
 namespace MSUScripter.Services;
 
@@ -102,24 +104,49 @@ public class AudioAnalysisService
         return generated;
     }
 
-    public void GetMp3StartingSample(string path)
+    public int GetAudioStartingSample(string path)
     {
-        var totalSampleCount = 0;
-        var samples = 0;
-        var readBuffer = new float[2000];
-        var mp3 = new Mp3FileReader(path);
-        var sampleProvider = mp3.ToSampleProvider();
-        do
+        if (!OperatingSystem.IsWindows())
         {
-            samples = sampleProvider.Read(readBuffer, 0, readBuffer.Length);
-            for (var i = 0; i < samples; i++)
-            {
-                var decibel = ConvertToDecibel(Math.Pow(readBuffer[i], 2));
-                _logger.LogInformation("{Index}: {Amp}", i + totalSampleCount, decibel);
-            }
-            totalSampleCount += samples;
-        } while (samples == readBuffer.Length);
+            throw new InvalidOperationException("This is only supported on Windows");
+        }
 
+        try
+        {
+            var totalSampleCount = 0;
+            var samples = 0;
+            var readBuffer = new float[10000];
+            var quit = false;
+            var mp3 = new AudioFileReader(path);
+            do
+            {
+                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+            
+                for (var i = 0; i < samples; i++)
+                {
+                    if (Math.Abs(readBuffer[i]) > .005)
+                    {
+                        totalSampleCount += i;
+                        quit = true;
+                        break;
+                    }
+                }
+
+                if (!quit)
+                {
+                    totalSampleCount += samples;    
+                }
+            
+            } while (!quit && samples == readBuffer.Length);
+
+            return totalSampleCount / mp3.WaveFormat.Channels;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to get audio samples for file");
+            throw;
+        }
+        
     }
     
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)

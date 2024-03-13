@@ -35,6 +35,7 @@ public partial class EditProjectPanel : UserControl
     private readonly AudioControl? _audioControl;
     private readonly TrackListService? _trackListService;
     private readonly VideoCreatorService? _videoCreatorService;
+    private readonly AudioAnalysisService? _audioAnalysisService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
@@ -44,12 +45,12 @@ public partial class EditProjectPanel : UserControl
     private bool _displaySearchBar;
     private int _previousPage = -1;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorService? videoCreatorService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorService? videoCreatorService, AudioAnalysisService? audioAnalysisService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -60,6 +61,7 @@ public partial class EditProjectPanel : UserControl
         _audioControl = audioControl;
         _trackListService = trackListService;
         _videoCreatorService = videoCreatorService;
+        _audioAnalysisService = audioAnalysisService;
         InitializeComponent();
     }
 
@@ -278,6 +280,30 @@ public partial class EditProjectPanel : UserControl
         else if (e.Type == PcmEventType.StopMusic)
         {
             _ = StopSong();
+        }
+        else if (e is { Type: PcmEventType.StartingSamples, PcmInfo: not null } && OperatingSystem.IsWindows())
+        {
+            GetStartingSamples(e.PcmInfo);
+        }
+    }
+
+    public void GetStartingSamples(MsuSongMsuPcmInfoViewModel pcmInfoViewModel)
+    {
+        if (_audioAnalysisService == null || string.IsNullOrEmpty(pcmInfoViewModel.File) ||
+            !File.Exists(pcmInfoViewModel.File))
+        {
+            return;
+        }
+
+        try
+        {
+            var samples = _audioAnalysisService.GetAudioStartingSample(pcmInfoViewModel.File);
+            pcmInfoViewModel.TrimStart = samples;
+            UpdateStatusBarText("Starting samples retrieved");
+        }
+        catch (Exception e)
+        {
+            ShowError("Unable to get starting samples for file");
         }
     }
     
