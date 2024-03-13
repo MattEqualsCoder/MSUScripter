@@ -14,7 +14,7 @@ using MSUScripter.Tools;
 
 namespace MSUScripter.Controls;
 
-public partial class MainWindow : Window
+public partial class MainWindow : ScalableWindow
 {
     private readonly IServiceProvider? _services;
     private NewProjectPanel? _newProjectPanel;

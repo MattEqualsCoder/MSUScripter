@@ -8,7 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
-public partial class SettingsWindow : Window
+public partial class SettingsWindow : ScalableWindow
 {
     private readonly SettingsService? _settingsService;
     private readonly ConverterService? _converterService;

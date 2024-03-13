@@ -13,7 +13,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
-public partial class MsuPcmGenerationWindow : Window
+public partial class MsuPcmGenerationWindow : ScalableWindow
 {
     private readonly MsuPcmService? _msuPcmService;
     private readonly ConverterService? _converterService;

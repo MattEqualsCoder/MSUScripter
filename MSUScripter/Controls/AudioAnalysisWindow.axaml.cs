@@ -11,7 +11,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
-public partial class AudioAnalysisWindow : Window
+public partial class AudioAnalysisWindow : ScalableWindow
 {
     private readonly AudioAnalysisService? _audioAnalysisService;
     private MsuProjectViewModel? _project;

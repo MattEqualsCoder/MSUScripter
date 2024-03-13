@@ -11,20 +11,22 @@
         Icon="/Assets/MSUScripterIcon.ico"
         x:Class="MSUScripter.Controls.MusicLooperWindow"
         Title="PyMusicLooper - MSU Scripter">
-    <DockPanel Name="DockPanel">
-        
-        <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
-            <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Name="AcceptButton" Click="AcceptButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
-                    Select Loop Points
-                </Button>
-                <Button Name="CloseButton" Click="CloseButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
-                    Close
-                </Button>
-            </StackPanel>
-            <Panel Grid.Column="2" />
-        </Grid>
-        
-    </DockPanel>
+    <LayoutTransformControl Name="MainLayout">
+        <DockPanel Name="DockPanel">
+            
+            <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
+                <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Name="AcceptButton" Click="AcceptButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
+                        Select Loop Points
+                    </Button>
+                    <Button Name="CloseButton" Click="CloseButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
+                        Close
+                    </Button>
+                </StackPanel>
+                <Panel Grid.Column="2" />
+            </Grid>
+            
+        </DockPanel>
+    </LayoutTransformControl>
 </Window>

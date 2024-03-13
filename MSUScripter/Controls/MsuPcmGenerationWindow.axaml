@@ -9,25 +9,26 @@
         Icon="/Assets/MSUScripterIcon.ico"
         x:DataType="viewModels:MsuGenerationViewModel"
         Title="MSU Export - MSU Scripter">
-    <DockPanel>
-        <ProgressBar Name="MsuPcmProgressBar" DockPanel.Dock="Top"
-                     Minimum="0"
-                     Maximum="{Binding TotalSongs}"
-                     Value="{Binding SongsCompleted}"></ProgressBar>
-        <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="5">
-            <Button Name="CloseButton"
-                    Click="CloseButton_OnClick"
-                    Content="{Binding ButtonText}"></Button>
-        </StackPanel>
-        <DataGrid Name="AudioDataGrid" 
-                  ItemsSource="{Binding Rows}" 
-                  AutoGenerateColumns="False" 
-                  CanUserReorderColumns="False" 
-                  CanUserResizeColumns="True" 
-                  IsReadOnly="True"
-                  RowBackground="{DynamicResource CardBackground}"
-                  SelectionMode="Single"
-        >
+    <LayoutTransformControl Name="MainLayout">
+        <DockPanel>
+            <ProgressBar Name="MsuPcmProgressBar" DockPanel.Dock="Top"
+                         Minimum="0"
+                         Maximum="{Binding TotalSongs}"
+                         Value="{Binding SongsCompleted}"></ProgressBar>
+            <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="5">
+                <Button Name="CloseButton"
+                        Click="CloseButton_OnClick"
+                        Content="{Binding ButtonText}"></Button>
+            </StackPanel>
+            <DataGrid Name="AudioDataGrid" 
+                      ItemsSource="{Binding Rows}" 
+                      AutoGenerateColumns="False" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="True" 
+                      IsReadOnly="True"
+                      RowBackground="{DynamicResource CardBackground}"
+                      SelectionMode="Single"
+            >
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="">
                         <DataGridTemplateColumn.CellTemplate>
@@ -46,4 +47,5 @@
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
+    </LayoutTransformControl>
 </Window>
