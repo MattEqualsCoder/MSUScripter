@@ -26,6 +26,7 @@
         <entry key="MSUScripter/Controls/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/PyMusicLooperPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/SelectTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/TrackOverviewPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/VideoCreatorWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

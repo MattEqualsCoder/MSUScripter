@@ -17,10 +17,13 @@ namespace MSUScripter.Services;
 public class ConverterService
 {
     private readonly IMsuTypeService _msuTypeService;
+
+    public static ConverterService Instance { get; private set; } = null!;
     
     public ConverterService(IMsuTypeService msuTypeService)
     {
         _msuTypeService = msuTypeService;
+        Instance = this;
     }
     
     public bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()

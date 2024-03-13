@@ -104,4 +104,36 @@ public partial class MsuSongInfoPanel : UserControl
             this.Find<Button>(nameof(StopMusicButton))!.IsVisible = false;
         }
     }
+
+    private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        var contextMenu = button.ContextMenu;
+        if (contextMenu == null)
+        {
+            return;
+        }
+        
+        contextMenu.PlacementTarget = button;
+        contextMenu.Open();
+        e.Handled = true;
+    }
+
+    private void CopySongMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var window = new SelectTrackWindow();
+        window.ShowDialog(App.MainWindow!, Song.Project,
+            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, false);
+    }
+
+    private void MoveSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var window = new SelectTrackWindow();
+        window.ShowDialog(App.MainWindow!, Song.Project,
+            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, true);
+    }
 }

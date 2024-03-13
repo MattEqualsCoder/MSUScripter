@@ -19,13 +19,25 @@
                               IsChecked="{Binding IsComplete}"
                     ></CheckBox>
                     <Button 
-                        Name="RemoveButton"
                         Grid.Column="1" 
                         Padding="5 0"
                         Margin="0 0 0 0"
-                        Click="RemoveButton_OnClick"
+                        Click="MenuButton_OnClick"
                     >
-                        <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy Song"
+                                          Click="CopySongMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Move Song"
+                                          Click="MoveSongMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Remove Song" Name="RemoveButton"
+                                          Click="RemoveButton_OnClick" 
+                                ></MenuItem>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
                     </Button>
                 </StackPanel>
             </controls:CardControl.HeaderButtons>
