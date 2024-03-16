@@ -66,6 +66,7 @@
                   RowBackground="{DynamicResource CardBackground}"
                   SelectionMode="Single"
                   Margin="4"
+                  MinHeight="230"
                   IsVisible="{Binding DisplayResultsTable}"
         >
             <DataGrid.Columns>
