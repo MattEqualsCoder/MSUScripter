@@ -8,6 +8,7 @@
         <entry key="MSUScripter/Controls/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/CardControl.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Controls/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/FileControl.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Controls/GuidedWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

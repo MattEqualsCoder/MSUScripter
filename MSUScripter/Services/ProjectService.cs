@@ -39,6 +39,7 @@ public class ProjectService(
         
         if (!isBackup)
         {
+            project.BackupFilePath = GetProjectBackupFilePath(project.ProjectFilePath);
             settingsService.AddRecentProject(project);
             SaveMsuProject(project, true);
         }

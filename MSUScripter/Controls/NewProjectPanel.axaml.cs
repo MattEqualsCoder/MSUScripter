@@ -12,6 +12,7 @@ using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.ViewModels;
 
 namespace MSUScripter.Controls;
 
@@ -187,5 +188,48 @@ public partial class NewProjectPanel : UserControl
             }
         }
         OnProjectSelected?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void ImportProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = ImportProject();
+    }
+
+    private async Task ImportProject()
+    {
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null || _projectService == null) return;
+        
+        var file = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        {
+            Title = "Select MSU Scripter Project File",
+            FileTypeFilter = new List<FilePickerFileType>()
+            {
+                new("MSU Scripter Project File") { Patterns = new List<string>() { "*.msup" }}
+            },
+        });
+
+        if (string.IsNullOrEmpty(file.FirstOrDefault()?.Path.LocalPath))
+        {
+            return;
+        }
+
+        var oldProject = _projectService!.LoadMsuProject(file.First().Path.LocalPath, false);
+
+        if (oldProject == null)
+        {
+            return;
+        }
+        
+        var window = new CopyProjectWindow();
+        
+        Project = await window.ShowDialog((Window)topLevel, oldProject);
+
+        if (Project != null)
+        {
+            _projectService.SaveMsuProject(Project, false);
+            OnProjectSelected?.Invoke(this, EventArgs.Empty);
+        }
+        
     }
 }
