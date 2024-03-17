@@ -56,6 +56,12 @@
             Visit PyMusicLooper GitHub to download.
         </controls:LinkControl>
         
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 5" IsVisible="{Binding IsRunning}">
+            <Button Click="StopPyMusicLooperButton_OnClick">
+                Stop PyMusicLooper
+            </Button>
+        </StackPanel>
+        
         <DataGrid Name="AudioDataGrid" 
                   ItemsSource="{Binding CurrentPageResults}" 
                   AutoGenerateColumns="False" 

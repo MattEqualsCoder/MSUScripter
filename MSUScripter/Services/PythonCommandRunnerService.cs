@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
 
@@ -24,28 +25,28 @@ public class PythonCommandRunnerService
         return RunCommand(testCommand, out testResult, out testError);
     }
     
-    public bool RunCommand(string command, out string result, out string error, bool redirectOutput = true)
+    public bool RunCommand(string command, out string result, out string error, bool redirectOutput = true, CancellationToken? cancellationToken = null)
     {
         result = "";
         error = "Unknown error";
         
         switch (_runMethod)
         {
-            case RunMethod.Unknown when RunInternalDirect(command, out result, out error, redirectOutput):
+            case RunMethod.Unknown when RunInternalDirect(command, out result, out error, redirectOutput, cancellationToken):
                 _runMethod = RunMethod.Direct;
                 return true;
-            case RunMethod.Unknown when RunInternalPy(command, out result, out error, redirectOutput):
+            case RunMethod.Unknown when RunInternalPy(command, out result, out error, redirectOutput, cancellationToken):
                 _runMethod = RunMethod.Py;
                 return true;
-            case RunMethod.Unknown when RunInternalPython3(command, out result, out error, redirectOutput):
+            case RunMethod.Unknown when RunInternalPython3(command, out result, out error, redirectOutput, cancellationToken):
                 _runMethod = RunMethod.Python3;
                 return true;
             case RunMethod.Direct:
-                return RunInternalDirect(command, out result, out error, redirectOutput);
+                return RunInternalDirect(command, out result, out error, redirectOutput, cancellationToken);
             case RunMethod.Py:
-                return RunInternalPy(command, out result, out error, redirectOutput);
+                return RunInternalPy(command, out result, out error, redirectOutput, cancellationToken);
             case RunMethod.Python3:
-                return RunInternalPython3(command, out result, out error, redirectOutput);
+                return RunInternalPython3(command, out result, out error, redirectOutput, cancellationToken);
             default:
                 return false;
         }
@@ -66,19 +67,19 @@ public class PythonCommandRunnerService
         }
     }
 
-    private bool RunInternalDirect(string command, out string result, out string error, bool redirectOutput)
+    private bool RunInternalDirect(string command, out string result, out string error, bool redirectOutput, CancellationToken? cancellationToken = null)
     {
-        return RunInternal(_baseCommand, command, out result, out error, redirectOutput);
+        return RunInternal(_baseCommand, command, out result, out error, redirectOutput, cancellationToken);
     }
 
-    private bool RunInternalPy(string command, out string result, out string error, bool redirectOutput)
+    private bool RunInternalPy(string command, out string result, out string error, bool redirectOutput, CancellationToken? cancellationToken = null)
     {
-        return RunInternal("py", $"-m {_baseCommand} {command}", out result, out error, redirectOutput);
+        return RunInternal("py", $"-m {_baseCommand} {command}", out result, out error, redirectOutput, cancellationToken);
     }
 
-    private bool RunInternalPython3(string command, out string result, out string error, bool redirectOutput)
+    private bool RunInternalPython3(string command, out string result, out string error, bool redirectOutput, CancellationToken? cancellationToken = null)
     {
-        return RunInternal("python3", $"-m {_baseCommand} {command}", out result, out error, redirectOutput);
+        return RunInternal("python3", $"-m {_baseCommand} {command}", out result, out error, redirectOutput, cancellationToken);
     }
     
     private Process? RunInternalDirectAsync(string command, bool redirectOutput)
@@ -96,7 +97,7 @@ public class PythonCommandRunnerService
         return RunInternalAsync("python3", $"-m {_baseCommand} {command}", redirectOutput);
     }
     
-    private bool RunInternal(string command, string arguments, out string result, out string error, bool redirectOutput)
+    private bool RunInternal(string command, string arguments, out string result, out string error, bool redirectOutput, CancellationToken? cancellationToken = null)
     {
         try
         {
@@ -144,7 +145,31 @@ public class PythonCommandRunnerService
             process.Start();
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-            process.WaitForExit();
+            while (cancellationToken?.IsCancellationRequested != true)
+            {
+                if (process.WaitForExit(TimeSpan.FromMilliseconds(100)))
+                {
+                    break;
+                }
+                _logger.LogInformation("Waiting");
+            }
+
+            if (cancellationToken?.IsCancellationRequested == true)
+            {
+                try
+                {
+                    process.Kill();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+
+                result = "";
+                error = "";
+                return false;
+            }
+            
             result = resultBuilder.ToString().Trim();
             error = errorBuilder.ToString().Trim();
             
