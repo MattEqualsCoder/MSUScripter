@@ -81,18 +81,40 @@ public partial class CopyProjectWindow : ScalableWindow
             {
                 new($"{viewModel.Extension} File") { Patterns = new List<string>() { $"*{viewModel.Extension}" } }
             };
+
+
+        IStorageFile? file;
         
-        var file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+        if (viewModel.Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase) ||
+            viewModel.Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase))
         {
-            Title = "Select File",
-            FileTypeChoices = pattern,
-        });
+            file = await StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+            {
+                Title = $"Select Replacement File for {viewModel.BaseFileName}",
+                FileTypeChoices = pattern,
+            });
 
-        if (string.IsNullOrEmpty(file?.Path.LocalPath))
-        {
-            return;
+            if (string.IsNullOrEmpty(file?.Path.LocalPath))
+            {
+                return;
+            }
         }
+        else
+        {
+            var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                Title = $"Select Replacement File for {viewModel.BaseFileName}",
+                FileTypeFilter = pattern,
+            });
 
+            if (string.IsNullOrEmpty(files.FirstOrDefault()?.Path.LocalPath))
+            {
+                return;
+            }
+
+            file = files.First();
+        }
+        
         viewModel.NewPath = file.Path.LocalPath;
 
         var folderPath = (await file.GetParentAsync())!.Path.LocalPath;
