@@ -236,6 +236,7 @@ public partial class AddSongWindow : ScalableWindow
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         this.Find<Panel>(nameof(AudioPanelParent))!.Children.Add(_audioControl);
+        _ = StopSong();
     }
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)

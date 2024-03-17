@@ -158,6 +158,13 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanClickOnNext));
         }
     }
+    
+    private bool _isRunning;
+    public bool IsRunning
+    {
+        get => _isRunning;
+        set => SetField(ref _isRunning, value);
+    }
 
     public List<PyMusicLooperResultViewModel> CurrentPageResults =>
         _pyMusicLooperResults.Skip(_page * NumPerPage).Take(NumPerPage).ToList();

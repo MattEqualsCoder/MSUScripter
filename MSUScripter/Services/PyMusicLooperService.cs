@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
 using YamlDotNet.Serialization;
@@ -24,6 +25,7 @@ public class PyMusicLooperService
     private bool _canReturnMultipleResults;
     private readonly string _cachePath;
     private int _currentVersion;
+    private CancellationTokenSource? cts;
     
     private readonly ISerializer _serializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
@@ -66,7 +68,7 @@ public class PyMusicLooperService
         }
     }
 
-    public List<(int LoopStart, int LoopEnd, decimal Score)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null)
+    public List<(int LoopStart, int LoopEnd, decimal Score)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null, CancellationToken? cancellationToken = null)
     {
         if (!_hasValidated)
         {
@@ -104,11 +106,11 @@ public class PyMusicLooperService
 
         if (!_canReturnMultipleResults)
         {
-            loopPoints = GetLoopPointsSingle(arguments, out message);
+            loopPoints = GetLoopPointsSingle(arguments, out message, cancellationToken ?? CancellationToken.None);
         }
         else
         {
-            loopPoints = GetLoopPointsMulti(arguments, out message);
+            loopPoints = GetLoopPointsMulti(arguments, out message, cancellationToken ?? CancellationToken.None);
         }
 
         if (loopPoints != null)
@@ -128,11 +130,11 @@ public class PyMusicLooperService
         return loopPoints;
     }
 
-    private List<(int, int, decimal)>? GetLoopPointsSingle(string arguments, out string message)
+    private List<(int, int, decimal)>? GetLoopPointsSingle(string arguments, out string message, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Executing PyMusicLooper: {Command}", arguments);
-        
-        var successful = _python.RunCommand(arguments, out var result, out var error);
+
+        var successful = _python.RunCommand(arguments, out var result, out var error, true, cancellationToken);
 
         if (!successful || !result.Contains("LOOP_START: ") || !result.Contains("LOOP_END: "))
         {
@@ -169,13 +171,13 @@ public class PyMusicLooperService
         }
     }
     
-    private List<(int, int, decimal)>? GetLoopPointsMulti(string arguments, out string message)
+    private List<(int, int, decimal)>? GetLoopPointsMulti(string arguments, out string message, CancellationToken cancellationToken)
     {
         arguments += " --alt-export-top -1";
         
         _logger.LogInformation("Executing PyMusicLooper: {Command}", arguments);
-        
-        var successful = _python.RunCommand(arguments, out var result, out var error);
+
+        var successful = _python.RunCommand(arguments, out var result, out var error, true, cancellationToken);
 
         var regexValid = new Regex("^[0-9- .-nae\r\n]+$");
         if (!successful || !regexValid.IsMatch(result))
