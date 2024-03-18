@@ -820,6 +820,10 @@ public partial class EditProjectPanel : UserControl
         {
             ShowError(message);
         }
+        else
+        {
+            UpdateStatusBarText("YAML file validated successfully");
+        }
     }
 
     private void ExportButton_Video_OnClick(object? sender, RoutedEventArgs e)
