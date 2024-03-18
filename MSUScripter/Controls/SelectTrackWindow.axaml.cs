@@ -59,7 +59,7 @@ public partial class SelectTrackWindow : Window
             songInfo.MsuPcmInfo.IsAlt = songInfo.IsAlt;
 
             var msu = new FileInfo(_model.Project.MsuPath);
-            if (!_model.PreviousSong.IsAlt)
+            if (!songInfo.MsuPcmInfo.IsAlt)
             {
                 songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}.pcm");
             }
@@ -83,7 +83,7 @@ public partial class SelectTrackWindow : Window
             msuSongInfo.IsAlt = destinationTrack.Songs.Count > 0;
 
             var msu = new FileInfo(_model.Project.MsuPath);
-            if (!_model.PreviousSong.IsAlt)
+            if (!msuSongInfo.IsAlt)
             {
                 msuSongInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}.pcm");
             }
@@ -94,9 +94,9 @@ public partial class SelectTrackWindow : Window
                     msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}_{altSuffix}.pcm");
             }
             
-            var msuSongInfoCloned = new MsuSongInfo(); 
+            var msuSongInfoCloned = new MsuSongInfoViewModel(); 
             ConverterService.Instance.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
-            destinationTrack.Songs.Add(_model.PreviousSong);
+            destinationTrack.Songs.Add(msuSongInfoCloned);
         }
         
         Close();
