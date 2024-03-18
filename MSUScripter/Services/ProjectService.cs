@@ -103,6 +103,33 @@ public class ProjectService(
         }
         
         project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
+        
+        // Whoops, I screwed up. Fix up broken tracks.
+        var msuBasePath = project.MsuPath.Replace(".msu", "", StringComparison.OrdinalIgnoreCase);
+        foreach (var track in project.Tracks)
+        {
+            foreach (var song in track.Songs)
+            {
+                foreach (var duplicate in project.Tracks.SelectMany(x => x.Songs).Where(x => x != song && x.OutputPath == song.OutputPath))
+                {
+                    var duplicateTrack = project.Tracks.First(x => x.Songs.Contains(duplicate));
+                    duplicate.TrackNumber = duplicateTrack.TrackNumber;
+                    duplicate.TrackName = duplicateTrack.TrackName;
+                    var index = duplicateTrack.Songs.IndexOf(duplicate);
+                    if (index == 0)
+                    {
+                        duplicate.OutputPath = $"{msuBasePath}-{duplicateTrack.TrackNumber}.pcm";
+                        duplicate.IsAlt = false;
+                    }
+                    else
+                    {
+                        var altSuffix = index == 1 ? "alt" : $"alt{index}";
+                        duplicate.OutputPath = $"{msuBasePath}-{duplicateTrack.TrackNumber}_{altSuffix}.pcm";
+                        duplicate.IsAlt = true;
+                    }
+                }
+            }
+        }
 
         if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == msuTypeService.GetSMZ3MsuType())
         {
@@ -701,47 +728,56 @@ public class ProjectService(
         
     }
 
-    public void CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
+    public bool CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
     {
-        if (project.Tracks.All(x => x.Songs.Count <= 1)) return;
+        if (project.Tracks.All(x => x.Songs.Count <= 1)) return true;
         
         var msuPath = new FileInfo(project.MsuPath).DirectoryName;
 
-        if (string.IsNullOrEmpty(msuPath)) return;
+        if (string.IsNullOrEmpty(msuPath)) return true;
 
-        var sb = new StringBuilder();
-
-        var trackCombos = project.Tracks.Where(t => t.Songs.Count > 1)
-            .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
-
-        if (otherProjects != null)
+        try
         {
-            foreach (var otherProject in otherProjects)
+            var sb = new StringBuilder();
+
+            var trackCombos = project.Tracks.Where(t => t.Songs.Count > 1)
+                .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
+
+            if (otherProjects != null)
             {
-                trackCombos.AddRange(otherProject.Tracks.Where(t => t.Songs.Count > 1)
-                    .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
+                foreach (var otherProject in otherProjects)
+                {
+                    trackCombos.AddRange(otherProject.Tracks.Where(t => t.Songs.Count > 1)
+                        .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
+                }
             }
+
+            foreach (var combo in trackCombos)
+            {
+                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath);
+                var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
+                    $"-{combo.Item1.TrackNumber}_Original.pcm");
+                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath);
+
+                sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
+                sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");
+                sb.AppendLine($"\tRENAME \"{baseAltPath}\" \"{basePath}\"");
+                sb.AppendLine($") ELSE IF EXIST \"{altSongPath}\" (");
+                sb.AppendLine($"\tRENAME \"{basePath}\" \"{baseAltPath}\"");
+                sb.AppendLine($"\tRENAME \"{altSongPath}\" \"{basePath}\"");
+                sb.AppendLine($")");
+                sb.AppendLine();
+            }
+
+            var text = sb.ToString();
+            File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
+            return true;
         }
-        
-        foreach (var combo in trackCombos)
+        catch (Exception e)
         {
-            var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath);
-            var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
-                $"-{combo.Item1.TrackNumber}_Original.pcm");
-            var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath);
-
-            sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
-            sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");
-            sb.AppendLine($"\tRENAME \"{baseAltPath}\" \"{basePath}\"");
-            sb.AppendLine($") ELSE IF EXIST \"{altSongPath}\" (");
-            sb.AppendLine($"\tRENAME \"{basePath}\" \"{baseAltPath}\"");
-            sb.AppendLine($"\tRENAME \"{altSongPath}\" \"{basePath}\"");
-            sb.AppendLine($")");
-            sb.AppendLine();
+            logger.LogError("Unable to export AltSwapperFile");
+            return false;
         }
-
-        var text = sb.ToString();
-        File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
     }
 
     public bool ValidateProject(MsuProjectViewModel project, out string message)
@@ -757,8 +793,31 @@ public class ProjectService(
         
         var projectTracks = project.Tracks.SelectMany(x => x.Songs).ToList();
 
-        if (projectTracks.Count != msu.ValidTracks.Count)
+        var projectTrackNumbers = project.Tracks.SelectMany(x => x.Songs).Select(x => x.TrackNumber).Order().ToList();
+        var msuTrackNumbers = msu.Tracks.Select(x => x.Number).Order().ToList();
+        if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
         {
+            foreach (var trackNumber in projectTrackNumbers.Concat(msuTrackNumbers).Distinct())
+            {
+                var projPaths = project.Tracks.First(x => x.TrackNumber == trackNumber).Songs
+                    .Select(x => x.OutputPath)
+                    .ToList();
+                var msuPaths = msu.Tracks.Where(x => x.Number == trackNumber).Select(x => x.Path).ToList();
+
+                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).ToList();
+                if (missingMsuPaths.Any())
+                {
+                    message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    return false;
+                }
+                
+                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x ?? "")).ToList();
+                if (missingProjPaths.Any())
+                {
+                    message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
+                    return false;
+                }
+            }
             message = "Could not load all tracks from the YAML file.";
             return false;
         }
@@ -776,7 +835,7 @@ public class ProjectService(
             else if ((projectTrack.SongName ?? "") != msuTrack.SongName || (projectTrack.Album ?? "") != (msuTrack.Album ?? "") ||
                      (projectTrack.Artist ?? "") != (msuTrack.Artist ?? "") || (projectTrack.Url ?? "") != (msuTrack.Url ?? ""))
             {
-                message = $"Detail mismatch for song {projectTrack.SongName}.";
+                message = $"Detail mismatch for song {projectTrack.SongName} under track #{projectTrack.TrackNumber}.";
                 return false;
             }
         }
