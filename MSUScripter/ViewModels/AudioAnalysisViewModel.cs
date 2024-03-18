@@ -33,6 +33,14 @@ public class AudioAnalysisViewModel : INotifyPropertyChanged
         set => SetField(ref _songsCompleted, value);
     }
     
+    private string _bottomBar = "";
+
+    public string BottomBar
+    {
+        get => _bottomBar;
+        set => SetField(ref _bottomBar, value);
+    }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
