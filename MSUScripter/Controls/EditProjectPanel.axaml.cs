@@ -580,8 +580,11 @@ public partial class EditProjectPanel : UserControl
                 ShowError(error);
             }
         }
-        
-        _projectService.CreateAltSwapperFile(_project, extraProjects);
+
+        if (!_projectService.CreateAltSwapperFile(_project, extraProjects))
+        {
+            ShowError("Could not create alt swapper bat file. Project file may be corrupt. Verify output pcm file paths.", "Alt Swapper Error");
+        }
     }
 
     private void ExportButton_Smz3_OnClick(object? sender, RoutedEventArgs e)
@@ -627,7 +630,11 @@ public partial class EditProjectPanel : UserControl
         
         if (_project.BasicInfo.CreateAltSwapperScript)
         {
-            _projectService.CreateAltSwapperFile(_project, extraProjects);
+            if (!_projectService.CreateAltSwapperFile(_project, extraProjects))
+            {
+                ShowError("Could not create alt swapper bat file. Project file may be corrupt. Verify output pcm file paths.", "Alt Swapper Error");
+                return;
+            }
         }
 
         if (_project.BasicInfo.TrackList != TrackListType.Disabled)
