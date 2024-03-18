@@ -794,7 +794,7 @@ public class ProjectService(
         var projectTracks = project.Tracks.SelectMany(x => x.Songs).ToList();
 
         var projectTrackNumbers = project.Tracks.SelectMany(x => x.Songs).Select(x => x.TrackNumber).Order().ToList();
-        var msuTrackNumbers = msu.Tracks.Select(x => x.Number).Order().ToList();
+        var msuTrackNumbers = msu.Tracks.Where(x => !x.IsCopied).Select(x => x.Number).Order().ToList();
         if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
         {
             foreach (var trackNumber in projectTrackNumbers.Concat(msuTrackNumbers).Distinct())
