@@ -73,6 +73,8 @@ public partial class AudioAnalysisWindow : ScalableWindow
             {
                 CheckSongWarnings(row, avg, max);
             }
+            
+            UpdateBottomMessage();
 
             var end = DateTime.Now;
             var span = end - start;
@@ -102,6 +104,7 @@ public partial class AudioAnalysisWindow : ScalableWindow
         {
             await _audioAnalysisService!.AnalyzePcmFile(_project!, song);
             CheckSongWarnings(song, GetAverageRms(), GetAveragePeak());
+            UpdateBottomMessage();
         });
     }
 
@@ -124,5 +127,10 @@ public partial class AudioAnalysisWindow : ScalableWindow
     private void Control_OnUnloaded(object? sender, RoutedEventArgs e)
     {
         _cts.Cancel();
+    }
+
+    private void UpdateBottomMessage()
+    {
+        _rows.BottomBar = $"{GetAverageRms()} Total Average Decibals | {GetAveragePeak()} Average Peak Decibals";
     }
 }

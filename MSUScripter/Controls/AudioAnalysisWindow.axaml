@@ -5,7 +5,7 @@
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
-        Width="800"
+        Width="768" Height="1024"
         x:Class="MSUScripter.Controls.AudioAnalysisWindow"
         Title="Audio Analysis - MSU Scripter"
         x:DataType="viewModels:AudioAnalysisViewModel"
@@ -19,6 +19,7 @@
                          Minimum="0"
                          Maximum="{Binding TotalSongs}"
                          Value="{Binding SongsCompleted}"></ProgressBar>
+            <TextBlock DockPanel.Dock="Bottom" Text="{Binding BottomBar}" TextAlignment="Right" Margin="3" />
             <DataGrid Name="AudioDataGrid" 
                       ItemsSource="{Binding Rows}" 
                       AutoGenerateColumns="False" 
