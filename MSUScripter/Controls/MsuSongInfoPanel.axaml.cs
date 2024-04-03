@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -77,11 +78,31 @@ public partial class MsuSongInfoPanel : UserControl
     {
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel == null) return;
+
+        var folder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+        if (!string.IsNullOrEmpty(Song.MsuPcmInfo.File) && File.Exists(Song.MsuPcmInfo.File))
+        {
+            var file = new FileInfo(Song.MsuPcmInfo.File);
+            var settingsFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(file.Directory?.FullName ?? "");
+            if (settingsFolder != null)
+            {
+                folder = settingsFolder;
+            }
+        }
+        else if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
+        {
+            var settingsFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);
+            if (settingsFolder != null)
+            {
+                folder = settingsFolder;
+            }
+        }
         
         var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = "Select Audio File",
-            FileTypeFilter = new []{ new FilePickerFileType("All Files") { Patterns = new List<string>() {"*.*"}}}
+            FileTypeFilter = new []{ new FilePickerFileType("All Files") { Patterns = new List<string>() {"*.*"}}},
+            SuggestedStartLocation = folder
         });
 
         if (!string.IsNullOrEmpty(files.FirstOrDefault()?.Path.LocalPath))

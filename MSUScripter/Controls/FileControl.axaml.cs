@@ -165,13 +165,29 @@ public partial class FileControl : UserControl
 
         if (PreviousFolder == null)
         {
-            if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
+            if (!string.IsNullOrEmpty(FilePath))
             {
-                PreviousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);    
-            }
-            else
+                if (FileInputType != FileInputControlType.Folder && File.Exists(FilePath))
+                {
+                    var file = new FileInfo(FilePath);
+                    PreviousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(file.Directory?.FullName ?? ""); 
+                }
+                else if (FileInputType == FileInputControlType.Folder)
+                {
+                    PreviousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(FilePath);   
+                }
+            } 
+            
+            if (PreviousFolder == null)
             {
-                PreviousFolder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+                if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
+                {
+                    PreviousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);    
+                }
+                else
+                {
+                    PreviousFolder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+                }
             }
         }
 

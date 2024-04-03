@@ -74,12 +74,15 @@ public class ProjectService(
                 throw;
         }
 
+        if (!File.Exists(project.MsuPath))
+        {
+            using (File.Create(project.MsuPath)) {}
+        }
+
         if (!isBackup)
         {
             logger.LogInformation("Saved project");
         }
-        
-        
     }
 
     public MsuProject? LoadMsuProject(string path, bool isBackup)
@@ -697,6 +700,12 @@ public class ProjectService(
     {
         try
         {
+            var msuFileInfo = new FileInfo(project.MsuPath);
+            if (!Directory.Exists(msuFileInfo.DirectoryName) && !string.IsNullOrEmpty(msuFileInfo.DirectoryName))
+            {
+                Directory.CreateDirectory(msuFileInfo.DirectoryName);
+            }
+            
             if (!File.Exists(project.MsuPath))
             {
                 using (File.Create(project.MsuPath))
