@@ -77,6 +77,7 @@ public partial class SelectTrackWindow : Window
         {
             var msuSongInfo = new MsuSongInfo(); 
             ConverterService.Instance.ConvertViewModel(_model.PreviousSong, msuSongInfo);
+            ConverterService.Instance.ConvertViewModel(_model.PreviousSong.MsuPcmInfo, msuSongInfo.MsuPcmInfo);
             
             msuSongInfo.TrackNumber = destinationTrack.TrackNumber;
             msuSongInfo.TrackName = destinationTrack.TrackName;
@@ -96,6 +97,7 @@ public partial class SelectTrackWindow : Window
             
             var msuSongInfoCloned = new MsuSongInfoViewModel(); 
             ConverterService.Instance.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
+            ConverterService.Instance.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
             destinationTrack.Songs.Add(msuSongInfoCloned);
         }
         
