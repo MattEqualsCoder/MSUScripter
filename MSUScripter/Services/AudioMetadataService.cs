@@ -47,7 +47,11 @@ public class AudioMetadataService
                 toReturn.SongName = tagFile.Tag.Title;
             }
 
-            if (tagFile.Tag?.Performers?.Any() == true)
+            if (tagFile.Tag?.Composers?.Any() == true)
+            {
+                toReturn.Artist = string.Join(", ", tagFile.Tag.Composers);
+            }
+            else if (tagFile.Tag?.Performers?.Any() == true)
             {
                 toReturn.Artist = string.Join(", ", tagFile.Tag.Performers);
             }
