@@ -26,14 +26,14 @@
             <TextBlock Grid.Row="0" Grid.Column="2" Margin="2 2 5 2">Approximate Loop Time in Seconds</TextBlock>
             <NumericUpDown Grid.Row="1" Grid.Column="0" Margin="2 2 5 2" Value="{Binding MinDurationMultiplier}"></NumericUpDown>
             <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <NumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="160"></NumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="160"></controls:TimeNumericUpDown>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <NumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="160"></NumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="160"></controls:TimeNumericUpDown>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <NumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="160"></NumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="160"></controls:TimeNumericUpDown>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <NumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="160"></NumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="160"></controls:TimeNumericUpDown>
             </Grid>
             <Button Grid.Row="1" Grid.Column="3" 
                     HorizontalAlignment="Right" 
