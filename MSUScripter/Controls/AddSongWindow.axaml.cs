@@ -130,6 +130,8 @@ public partial class AddSongWindow : ScalableWindow
         Model.SongName = metadata.SongName ?? Model.SongName;
         Model.ArtistName = metadata.Artist ?? Model.ArtistName;
         Model.AlbumName = metadata.Album ?? Model.AlbumName;
+
+        Model.DisplayHertzWarning = _audioAnalysisService.GetAudioSampleRate(path) != 44100;
     }
 
     private void FileControl_OnOnUpdated(object? sender, BasicEventArgs _)

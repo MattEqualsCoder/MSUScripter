@@ -40,7 +40,19 @@
             
             <StackPanel Orientation="Vertical">
             
-                <controls:CardControl Margin="5" Name="MainGroupBox" HeaderText="Details" Padding="10" HorizontalAlignment="Stretch">
+                <controls:CardControl Margin="5" Name="MainGroupBox" HeaderText="Details" Padding="10" HorizontalAlignment="Stretch" DisplayHeaderButtons="True">
+                    <controls:CardControl.HeaderButtons>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10 0 5 0"
+                                    IsVisible="{Binding DisplayHertzWarning}"
+                                    ToolTip.Tip="This is a non-44100Hz track. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                        >
+                            <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                            <TextBlock VerticalAlignment="Center">
+                                Non-44100Hz Track
+                            </TextBlock>
+                        </StackPanel>
+                    </controls:CardControl.HeaderButtons>
                     <Grid ColumnDefinitions="* * * * * * * * * * * *" RowDefinitions="* * * * * * *">
                         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
                         <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>

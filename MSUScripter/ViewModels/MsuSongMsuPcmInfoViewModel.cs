@@ -11,6 +11,7 @@ namespace MSUScripter.ViewModels;
 
 public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
 {
+    
     private int? _loop;
     public int? Loop
     {
@@ -139,7 +140,6 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(CanEditSubTracks));
         }
     }
-
     
     private bool _hasFile;
 
@@ -148,6 +148,24 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     {
         get => _hasFile;
         set => SetField(ref _hasFile, value);
+    }
+    
+    private bool _displayHertzWarning;
+
+    [SkipConvert]
+    public bool DisplayHertzWarning
+    {
+        get => _displayHertzWarning;
+        set => SetField(ref _displayHertzWarning, value);
+    }
+    
+    private bool _displayMultiWarning;
+
+    [SkipConvert]
+    public bool DisplayMultiWarning
+    {
+        get => _displayMultiWarning;
+        set => SetField(ref _displayMultiWarning, value);
     }
 
     public void AddSubChannel()

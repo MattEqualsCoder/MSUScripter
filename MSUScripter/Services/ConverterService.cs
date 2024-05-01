@@ -17,12 +17,14 @@ namespace MSUScripter.Services;
 public class ConverterService
 {
     private readonly IMsuTypeService _msuTypeService;
+    private readonly AudioAnalysisService _audioAnalysisService;
 
     public static ConverterService Instance { get; private set; } = null!;
     
-    public ConverterService(IMsuTypeService msuTypeService)
+    public ConverterService(IMsuTypeService msuTypeService, AudioAnalysisService audioAnalysisService)
     {
         _msuTypeService = msuTypeService;
+        _audioAnalysisService = audioAnalysisService;
         Instance = this;
     }
     
@@ -106,6 +108,11 @@ public class ConverterService
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
                 songViewModel.MsuPcmInfo.IsAlt = songViewModel.IsAlt;
                 trackViewModel.Songs.Add(songViewModel);
+
+                songViewModel.MsuPcmInfo.DisplayHertzWarning =
+                    _audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File) != 44100;
+                songViewModel.MsuPcmInfo.DisplayMultiWarning = songViewModel.MsuPcmInfo.SubChannels.Any() ||
+                                                               songViewModel.MsuPcmInfo.SubTracks.Any();
             }
 
             viewModel.Tracks.Add(trackViewModel);

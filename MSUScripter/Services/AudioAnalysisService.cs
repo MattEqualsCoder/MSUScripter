@@ -18,20 +18,18 @@ public class AudioAnalysisService
 {
     private IAudioPlayerService _audioPlayerService;
     private MsuPcmService _msuPcmService;
-    private ConverterService _converterService;
     private ILogger<AudioAnalysisService> _logger;
 
-    public AudioAnalysisService(IAudioPlayerService audioPlayerService, MsuPcmService msuPcmService, ConverterService converterService, ILogger<AudioAnalysisService> logger)
+    public AudioAnalysisService(IAudioPlayerService audioPlayerService, MsuPcmService msuPcmService, ILogger<AudioAnalysisService> logger)
     {
         _audioPlayerService = audioPlayerService;
         _msuPcmService = msuPcmService;
-        _converterService = converterService;
         _logger = logger;
     }
 
     public async Task AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
-        var project = _converterService.ConvertProject(projectViewModel);
+        var project = ConverterService.Instance.ConvertProject(projectViewModel);
         
         await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
@@ -44,7 +42,7 @@ public class AudioAnalysisService
 
     public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
     {
-        var project = _converterService.ConvertProject(projectViewModel);
+        var project = ConverterService.Instance.ConvertProject(projectViewModel);
         await AnalyzePcmFile(project, song);
     }
     
@@ -88,8 +86,8 @@ public class AudioAnalysisService
     private bool GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
     {
         var song = new MsuSongInfo();
-        _converterService.ConvertViewModel(songModel, song);
-        _converterService.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
+        ConverterService.Instance.ConvertViewModel(songModel, song);
+        ConverterService.Instance.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
         _msuPcmService.CreatePcm(project, song, out var message, out var generated);
         if (!generated)
         {
@@ -102,6 +100,17 @@ public class AudioAnalysisService
         }
 
         return generated;
+    }
+
+    public int GetAudioSampleRate(string? path)
+    {
+        if (!OperatingSystem.IsWindows() || string.IsNullOrEmpty(path) || !File.Exists(path))
+        {
+            return 44100;
+        }
+        
+        var mp3 = new AudioFileReader(path);
+        return mp3.WaveFormat.SampleRate;
     }
 
     public int GetAudioStartingSample(string path)

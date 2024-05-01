@@ -11,17 +11,40 @@
              x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
     <Grid>
-        <controls:CardControl Name="MainGroupBox" HeaderText="MsuPcm++ Details" DisplayHeaderButtons="{Binding CanDelete}" Padding="10" Margin="0 0 0 5">
+        <controls:CardControl Name="MainGroupBox" HeaderText="MsuPcm++ Details" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
             <controls:CardControl.HeaderButtons>
-                <Button 
-                    Name="RemoveButton"
-                    Grid.Column="1" 
-                    Padding="5 0"
-                    Margin="0 0 0 0"
-                    Click="RemoveButton_OnClick"
-                >
-                    <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
-                </Button>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0 0 5 0"
+                                IsVisible="{Binding DisplayMultiWarning}"
+                                ToolTip.Tip="When there are multiple input files via sub tracks or sub channels, combined audio operations are in a 44100Hz sample rate."
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center">
+                            Multiple Input Files
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="10 0 5 0"
+                                IsVisible="{Binding DisplayHertzWarning}"
+                                ToolTip.Tip="This is a non-44100Hz track. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center">
+                            Non-44100Hz Track
+                        </TextBlock>
+                    </StackPanel>
+                    <Button 
+                        Name="RemoveButton"
+                        Grid.Column="1" 
+                        Padding="5 0"
+                        Margin="0 0 0 0"
+                        Click="RemoveButton_OnClick"
+                        IsVisible="{Binding CanDelete}"
+                    >
+                        <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
+                    </Button>
+                </StackPanel>
             </controls:CardControl.HeaderButtons>
             <StackPanel Orientation="Vertical">
                 

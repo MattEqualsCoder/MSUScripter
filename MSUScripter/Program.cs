@@ -135,6 +135,8 @@ class Program
         }
         
         _serviceProvider = serviceCollection.BuildServiceProvider();
+
+        _serviceProvider.GetRequiredService<ConverterService>();
         
         return _serviceProvider;
     }

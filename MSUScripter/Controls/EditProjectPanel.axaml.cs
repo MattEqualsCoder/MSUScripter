@@ -444,6 +444,10 @@ public partial class EditProjectPanel : UserControl
             songModel.Album = metadata.Album;
         if (force || (string.IsNullOrEmpty(songModel.Url) && !string.IsNullOrEmpty(metadata.Url)))
             songModel.Url = metadata.Url;
+
+        songModel.MsuPcmInfo.DisplayHertzWarning = _audioAnalysisService?.GetAudioSampleRate(file) != 44100;
+        songModel.MsuPcmInfo.DisplayMultiWarning =
+            songModel.MsuPcmInfo.SubChannels.Any() || songModel.MsuPcmInfo.SubTracks.Any();
     }
 
     public void SaveProject()
