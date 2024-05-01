@@ -18,14 +18,12 @@ namespace MSUScripter.Services;
 public class MsuPcmService
 {
     private readonly ILogger<MsuPcmService> _logger;
-    private readonly ConverterService _converterService;
     private readonly Settings _settings;
     private readonly string _cacheFolder;
 
-    public MsuPcmService(ILogger<MsuPcmService> logger, ConverterService converterService, Settings settings)
+    public MsuPcmService(ILogger<MsuPcmService> logger, Settings settings)
     {
         _logger = logger;
-        _converterService = converterService;
         _settings = settings;
         _cacheFolder = Path.Combine(Directories.CacheFolder, "msupcm");
         if (!Directory.Exists(_cacheFolder))
@@ -537,7 +535,7 @@ public class MsuPcmService
         
         foreach (var song in songs)
         {
-            if (_converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
+            if (ConverterService.Instance.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
             track.Output = song.OutputPath;
             track.Track_number = song.TrackNumber;
             track.Title = song.TrackName;

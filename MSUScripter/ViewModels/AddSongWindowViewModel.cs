@@ -63,6 +63,14 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
             SetField(ref _songName, value);
         }
     }
+
+    private bool _displayHertzWarning;
+
+    public bool DisplayHertzWarning
+    {
+        get => _displayHertzWarning;
+        set => SetField(ref _displayHertzWarning, value);
+    }
     
     private string? _artistName;
     public string? ArtistName
