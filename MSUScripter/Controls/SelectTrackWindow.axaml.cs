@@ -98,6 +98,7 @@ public partial class SelectTrackWindow : Window
             var msuSongInfoCloned = new MsuSongInfoViewModel(); 
             ConverterService.Instance.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
             ConverterService.Instance.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
+            msuSongInfoCloned.Project = _model.Project;
             destinationTrack.Songs.Add(msuSongInfoCloned);
         }
         
