@@ -173,8 +173,16 @@ public class AudioAnalysisService
 
         // Initialize the sample reader
         var readBuffer = new float[2000];
-        using var fs = File.OpenRead(path);
-        using var rs = new RawSourceWaveStream(fs, new WaveFormat(44100, 2));
+        await using var fs = File.OpenRead(path);
+
+        var duration = fs.Length;
+
+        if (duration < 50000)
+        {
+            return new AnalysisDataOutput();
+        }
+        
+        await using var rs = new RawSourceWaveStream(fs, new WaveFormat(44100, 2));
         var sampleProvider = rs.ToSampleProvider();
         sampleProvider.Read(readBuffer, 0, 8);
         
