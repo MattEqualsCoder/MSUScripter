@@ -74,7 +74,7 @@ public partial class MainWindow : ScalableWindow
         {
             HotKeyManager.SetHotKey(this.Find<MenuItem>(nameof(SaveMenuItem))!, new KeyGesture(Key.S, KeyModifiers.Control));
         }
-        catch (Exception e)
+        catch
         {
             // Do nothing
         }

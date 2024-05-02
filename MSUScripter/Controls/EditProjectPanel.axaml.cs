@@ -142,7 +142,7 @@ public partial class EditProjectPanel : UserControl
         {
             HotKeyManager.SetHotKey(this.Find<Button>(nameof(SearchButton))!, new KeyGesture(Key.F, KeyModifiers.Control));
         }
-        catch (Exception e)
+        catch
         {
             // Do nothing
         }
@@ -301,7 +301,7 @@ public partial class EditProjectPanel : UserControl
             pcmInfoViewModel.TrimStart = samples;
             UpdateStatusBarText("Starting samples retrieved");
         }
-        catch (Exception e)
+        catch
         {
             ShowError("Unable to get starting samples for file");
         }

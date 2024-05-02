@@ -25,7 +25,6 @@ public class PyMusicLooperService
     private bool _canReturnMultipleResults;
     private readonly string _cachePath;
     private int _currentVersion;
-    private CancellationTokenSource? cts;
     
     private readonly ISerializer _serializer = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)

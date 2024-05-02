@@ -784,7 +784,7 @@ public class ProjectService(
         }
         catch (Exception e)
         {
-            logger.LogError("Unable to export AltSwapperFile");
+            logger.LogError(e, "Unable to export AltSwapperFile");
             return false;
         }
     }

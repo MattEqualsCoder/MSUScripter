@@ -52,7 +52,7 @@ jobs:
       run: "./LinuxBuildZipper.ps1"
       shell: pwsh
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: ${{ github.event_name != 'pull_request' }}
       with:
         path: "setup/Output/*"
