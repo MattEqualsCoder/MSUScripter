@@ -86,8 +86,8 @@ public partial class AudioAnalysisWindow : ScalableWindow
         }, _cts.Token);
     }
 
-    private double GetAverageRms() => Math.Round(_rows.Rows.Average(x => x.AvgDecibals) ?? 0, 4);
-    private double GetAveragePeak() => Math.Round(_rows.Rows.Average(x => x.MaxDecibals) ?? 0, 4);
+    private double GetAverageRms() => Math.Round(_rows.Rows.Where(x => x.AvgDecibals != null).Average(x => x.AvgDecibals) ?? 0, 4);
+    private double GetAveragePeak() => Math.Round(_rows.Rows.Where(x => x.MaxDecibals != null).Average(x => x.MaxDecibals) ?? 0, 4);
 
     private void RefreshSongButton_OnClick(object? sender, RoutedEventArgs e)
     {
