@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -78,34 +79,24 @@ public partial class MsuPcmGenerationWindow : ScalableWindow
         _ = Task.Run(() =>
         {
             var start = DateTime.Now;
+
+            List<MsuGenerationSongViewModel> toRetry = [];
             
             Parallel.ForEach(_rows.Rows,
                 new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token },
                 songDetails =>
                 {
-                    if (_cts.IsCancellationRequested)
+                    if (!ProcessSong(songDetails, false))
                     {
-                        return;
+                        toRetry.Add(songDetails);
                     }
-                    
-                    var songViewModel = songDetails.OriginalViewModel;
-                    var song = new MsuSongInfo();
-                    _converterService!.ConvertViewModel(songViewModel, song);
-                    _converterService!.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
-                    if (!_msuPcmService!.CreatePcm(_project, song, out var error, out var generated))
-                    {
-                        songDetails.HasWarning = true;
-                        songDetails.Message = error ?? "Unknown error";
-                        _errors++;
-                    }
-                    else
-                    {
-                        songViewModel.LastGeneratedDate = DateTime.Now;
-                        songDetails.Message = "Success!";
-                    }
-                    
-                    _rows.SongsCompleted++;
                 });
+
+            // For retries, try again linearly
+            foreach (var songDetails in toRetry)
+            {
+                ProcessSong(songDetails, true);
+            }
             
             _hasFinished = true;
             _rows.ButtonText = "Close";
@@ -142,6 +133,42 @@ public partial class MsuPcmGenerationWindow : ScalableWindow
             });
 
         }, _cts.Token);
+    }
+
+    private bool ProcessSong(MsuGenerationSongViewModel songDetails, bool isRetry)
+    {
+        if (_cts.IsCancellationRequested)
+        {
+            return true;
+        }
+                    
+        var songViewModel = songDetails.OriginalViewModel;
+        var song = new MsuSongInfo();
+        _converterService!.ConvertViewModel(songViewModel, song);
+        _converterService!.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
+        if (!_msuPcmService!.CreatePcm(_project, song, out var error, out var generated))
+        {
+            if (!isRetry && error?.Contains("__sox_wrapper_temp") == true &&
+                error.Contains("Permission denied"))
+            {
+                return false;
+            }
+            else
+            {
+                songDetails.HasWarning = true;
+                songDetails.Message = error ?? "Unknown error";
+                _errors++;
+            }
+                        
+        }
+        else
+        {
+            songViewModel.LastGeneratedDate = DateTime.Now;
+            songDetails.Message = "Success!";
+        }
+                    
+        _rows.SongsCompleted++;
+        return true;
     }
     
     protected override void OnClosing(WindowClosingEventArgs e)
