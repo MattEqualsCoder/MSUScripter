@@ -7,6 +7,7 @@
         MaxHeight="125" MaxWidth="350"
         Height="125" Width="350"
         CanResize="False"
+        SizeToContent="Height"
         x:Class="MSUScripter.Controls.MessageWindow"
         Icon="/Assets/MSUScripterIcon.ico"
         Title="MessageWindow">

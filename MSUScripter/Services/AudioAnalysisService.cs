@@ -108,9 +108,26 @@ public class AudioAnalysisService
         {
             return 44100;
         }
+
+        List<string> incompatibleFileTypes = [".ogg"];
+
+        if (incompatibleFileTypes.Contains(new FileInfo(path).Extension.ToLower()))
+        {
+            _logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
+            return 44100;
+        }
         
-        var mp3 = new AudioFileReader(path);
-        return mp3.WaveFormat.SampleRate;
+        try
+        {
+            var mp3 = new AudioFileReader(path);
+            return mp3.WaveFormat.SampleRate;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Unable to retrieve audio sample rate");
+            return 44100;
+        }
+        
     }
 
     public int GetAudioStartingSample(string path)
@@ -120,6 +137,7 @@ public class AudioAnalysisService
             throw new InvalidOperationException("This is only supported on Windows");
         }
 
+        _logger.LogInformation("GetAudioStartingSample");
         try
         {
             var totalSampleCount = 0;

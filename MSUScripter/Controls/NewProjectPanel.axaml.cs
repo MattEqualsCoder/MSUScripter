@@ -8,6 +8,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
@@ -21,17 +22,19 @@ public partial class NewProjectPanel : UserControl
     private readonly IMsuTypeService? _msuTypeService;
     private readonly ProjectService? _projectService;
     private readonly Settings? _settings;
+    private readonly ILogger<NewProjectPanel>? _logger;
 
-    public NewProjectPanel() : this(null, null, null)
+    public NewProjectPanel() : this(null, null, null, null)
     {
         
     }
     
-    public NewProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, Settings? settings)
+    public NewProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, Settings? settings, ILogger<NewProjectPanel>? logger)
     {
         _msuTypeService = msuTypeService;
         _projectService = projectService;
         _settings = settings;
+        _logger = logger;
         InitializeComponent();
     }
     
@@ -130,7 +133,6 @@ public partial class NewProjectPanel : UserControl
             return;
         }
         
-        
         if (Project.MsuType == _msuTypeService!.GetSMZ3LegacyMSUType() && _msuTypeService.GetSMZ3MsuType() != null)
         {
             var result = await new MessageWindow("This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?", MessageWindowType.YesNo, "Swap Tracks?").ShowDialog();
@@ -176,18 +178,30 @@ public partial class NewProjectPanel : UserControl
 
     private async Task LoadProject(string path)
     {
-        Project = _projectService!.LoadMsuProject(path, false);
-        if (!string.IsNullOrEmpty(Project!.BackupFilePath))
+        try
         {
-            var backupProject = _projectService!.LoadMsuProject(Project!.BackupFilePath, true);
-            if (backupProject != null && backupProject.LastSaveTime > Project.LastSaveTime)
+            Project = _projectService!.LoadMsuProject(path, false);
+            if (!string.IsNullOrEmpty(Project!.BackupFilePath))
             {
-                var result = await new MessageWindow("A backup with unsaved changes was detected. Would you like to load from the backup instead?", MessageWindowType.YesNo, "Load Backup?").ShowDialog();
-                if (result == MessageWindowResult.Yes)
-                    Project = backupProject;
+                var backupProject = _projectService!.LoadMsuProject(Project!.BackupFilePath, true);
+                if (backupProject != null && backupProject.LastSaveTime > Project.LastSaveTime)
+                {
+                    var result =
+                        await new MessageWindow(
+                            "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                            MessageWindowType.YesNo, "Load Backup?").ShowDialog();
+                    if (result == MessageWindowResult.Yes)
+                        Project = backupProject;
+                }
             }
+
+            OnProjectSelected?.Invoke(this, EventArgs.Empty);
         }
-        OnProjectSelected?.Invoke(this, EventArgs.Empty);
+        catch (Exception e)
+        {
+            _logger?.LogError(e, "Error opening project");
+            await new MessageWindow("Error opening project. Please contact MattEqualsCoder or post an issue on GitHub", MessageWindowType.Error).ShowDialog();
+        }
     }
 
     private void ImportProjectButton_OnClick(object? sender, RoutedEventArgs e)

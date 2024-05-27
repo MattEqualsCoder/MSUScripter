@@ -29,7 +29,11 @@ public partial class MessageWindow : Window
         if (_message.Length > 120)
         {
            Width = MaxWidth = 450;
-           Height = MaxHeight = 175;
+        }
+
+        if (_message.Length > 1000)
+        {
+            _message = _message[..1000];
         }
         
         if (parent == null)

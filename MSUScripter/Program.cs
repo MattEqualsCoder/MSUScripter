@@ -30,6 +30,7 @@ class Program
     {
         Log.Logger = new LoggerConfiguration()
             .Enrich.FromLogContext()
+            .WriteTo.Console()
             .WriteTo.File(LogPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
             .WriteTo.Debug()
             .CreateLogger();
