@@ -4,8 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="300"
-        MaxHeight="125" MaxWidth="350"
-        Height="125" Width="350"
+        MaxWidth="350" Width="350"
         CanResize="False"
         SizeToContent="Height"
         x:Class="MSUScripter.Controls.MessageWindow"
@@ -37,6 +36,6 @@
             <avalonia:MaterialIcon Kind="Alert" Height="50" Width="50" Name="MessageIcon"></avalonia:MaterialIcon>
         </Border>
         
-        <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap"></TextBlock>
+        <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap" Margin="0 0 10 0"></TextBlock>
     </DockPanel>
 </Window>

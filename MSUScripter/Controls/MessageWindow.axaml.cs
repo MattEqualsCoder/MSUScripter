@@ -64,7 +64,6 @@ public partial class MessageWindow : Window
         if (_message.Length > 120)
         {
             Width = MaxWidth = 450;
-            Height = MaxHeight = 175;
         }
         
         var textBlock = this.Find<TextBlock>(nameof(MessageTextBlock));
