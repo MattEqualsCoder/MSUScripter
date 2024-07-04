@@ -87,6 +87,8 @@ public class SettingsViewModel : INotifyPropertyChanged
         get => _previousPath;
         set => SetField(ref _previousPath, value);
     }
+    
+    public bool HideSubTracksSubChannelsWarning { get; set; }
 
     private WindowRestoreDetails? _mainWindowRestoreDetails;
 

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
@@ -49,11 +51,45 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
     private void AddSubTrackButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        Dispatcher.UIThread.InvokeAsync(AddSubTrack);
+    }
+
+    private async Task AddSubTrack()
+    {
+        if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubChannels)
+        {
+            var result = await new MessageWindow("PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.", MessageWindowType.DoNotShowAgain, "Warning")
+                .ShowDialog();
+
+            if (result == MessageWindowResult.DontShow)
+            {
+                SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
+                SettingsService.Instance.SaveSettings();
+            }
+        }
+        
         MsuPcmData.AddSubTrack();
     }
 
     private void AddSubChannelButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        Dispatcher.UIThread.InvokeAsync(AddSubChannel);
+    }
+    
+    private async Task AddSubChannel()
+    {
+        if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubTracks)
+        {
+            var result = await new MessageWindow("PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.", MessageWindowType.DoNotShowAgain, "Warning")
+                .ShowDialog();
+
+            if (result == MessageWindowResult.DontShow)
+            {
+                SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
+                SettingsService.Instance.SaveSettings();
+            }
+        }
+        
         MsuPcmData.AddSubChannel();
     }
 

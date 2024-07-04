@@ -14,6 +14,7 @@
         <Border DockPanel.Dock="Bottom" Padding="10 0 10 10">
             <StackPanel Orientation="Vertical">
                 <CheckBox Name="IgnoreCheckBox" IsVisible="False" Margin="90 0 0 10"> Ignore future warnings for this song</CheckBox>
+                <CheckBox Name="DoNotShowAgainCheckBox" IsVisible="False" Margin="90 0 0 10"> Do not show this again</CheckBox>
                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
                     <Button Name="OkButton" Click="OkButton_OnClick" Margin="10 0">
                         OK

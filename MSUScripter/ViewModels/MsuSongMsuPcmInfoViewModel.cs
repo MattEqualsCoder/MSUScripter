@@ -125,7 +125,6 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         {
             SetField(ref _subTracks, value);
             OnPropertyChanged(nameof(CanEditFile));
-            OnPropertyChanged(nameof(CanEditSubChannels));
         }
     }
 
@@ -137,7 +136,6 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         {
             SetField(ref _subChannels, value);
             OnPropertyChanged(nameof(CanEditFile));
-            OnPropertyChanged(nameof(CanEditSubTracks));
         }
     }
     
@@ -171,28 +169,24 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     public void AddSubChannel()
     {
         SubChannels.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
-        OnPropertyChanged(nameof(CanEditSubTracks));
         LastModifiedDate = DateTime.Now;
     }
 
     public void RemoveSubChannel(MsuSongMsuPcmInfoViewModel model)
     {
         SubChannels.Remove(model);
-        OnPropertyChanged(nameof(CanEditSubTracks));
         LastModifiedDate = DateTime.Now;
     }
     
     public void AddSubTrack()
     {
         SubTracks.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
-        OnPropertyChanged(nameof(CanEditSubChannels));
         LastModifiedDate = DateTime.Now;
     }
 
     public void RemoveSubTrack(MsuSongMsuPcmInfoViewModel model)
     {
         SubTracks.Remove(model);
-        OnPropertyChanged(nameof(CanEditSubChannels));
         LastModifiedDate = DateTime.Now;
     }
 
@@ -212,9 +206,9 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
 
     public bool CanEditFile => !_subTracks.Any() && !_subChannels.Any();
 
-    public bool CanEditSubTracks => !_subChannels.Any();
+    public bool HasSubChannels => _subChannels.Any();
 
-    public bool CanEditSubChannels => !_subTracks.Any();
+    public bool HasSubTracks => _subTracks.Any();
 
     public bool HasChangesSince(DateTime time)
     {

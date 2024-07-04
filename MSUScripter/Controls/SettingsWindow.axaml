@@ -6,7 +6,7 @@
         xmlns:controls="clr-namespace:MSUScripter.Controls"
         xmlns:tools="clr-namespace:MSUScripter.Tools"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        Width="500" Height="200"
+        Width="650" Height="200"
         x:Class="MSUScripter.Controls.SettingsWindow"
         Icon="/Assets/MSUScripterIcon.ico"
         SizeToContent="Height"
@@ -31,6 +31,7 @@
                     Click="CancelButton_OnClick"
                 ></Button>
             </StackPanel>
+            
             <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
                 
                 <controls:LabeledControl Text="MsuPcm++ Path: ">
@@ -75,6 +76,16 @@
                 <controls:LabeledControl Text="Use Dark Theme:">
                     <ComboBox 
                         SelectedItem="{Binding DarkTheme, Converter={StaticResource BoolToStringConverter}}"
+                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
+                </controls:LabeledControl>
+                
+                <controls:LabeledControl Text="Hide Sub Track + Sub Channel Warning:" Hint="Hides the popup warning when you try to add a sub track and sub channel on the same level." DisplayHint="True">
+                    <ComboBox 
+                        Name="HideSubTracksSubChannelsWarning"
+                        SelectedItem="{Binding HideSubTracksSubChannelsWarning, Converter={StaticResource BoolToStringConverter}}"
                         ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"

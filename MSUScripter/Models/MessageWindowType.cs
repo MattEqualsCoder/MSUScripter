@@ -7,5 +7,6 @@ public enum MessageWindowType
     Error,
     Info,
     YesNo,
-    PcmWarning
+    PcmWarning,
+    DoNotShowAgain
 }

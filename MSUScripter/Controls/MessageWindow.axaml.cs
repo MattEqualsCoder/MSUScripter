@@ -95,6 +95,11 @@ public partial class MessageWindow : Window
             {
                 this.Find<CheckBox>(nameof(IgnoreCheckBox))!.IsVisible = true;
             }
+            
+            if (_type == MessageWindowType.DoNotShowAgain)
+            {
+                this.Find<CheckBox>(nameof(DoNotShowAgainCheckBox))!.IsVisible = true;
+            }
         }
         else
         {
@@ -126,6 +131,11 @@ public partial class MessageWindow : Window
     private void OkButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_type == MessageWindowType.PcmWarning && this.Find<CheckBox>(nameof(IgnoreCheckBox))?.IsChecked == true)
+        {
+            Result = MessageWindowResult.DontShow;
+        }
+        else if (_type == MessageWindowType.DoNotShowAgain &&
+                 this.Find<CheckBox>(nameof(DoNotShowAgainCheckBox))?.IsChecked == true)
         {
             Result = MessageWindowResult.DontShow;
         }

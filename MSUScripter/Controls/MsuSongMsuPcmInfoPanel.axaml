@@ -134,7 +134,7 @@
                     ></ComboBox>
                 </controls:LabeledControl>
                 
-                <controls:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True" IsVisible="{Binding CanEditSubTracks}">
+                <controls:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
@@ -151,13 +151,13 @@
                             HorizontalAlignment="Center"
                             Margin="0 5"
                             Padding="8 5"
-                            IsEnabled="{Binding CanEditSubTracks}"
                             Click="AddSubTrackButton_OnClick"
                         ></Button>
+                        <Separator Margin="0 10 0 8"></Separator>
                     </StackPanel>
                 </controls:LabeledControl>
                 
-                <controls:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl"  Hint="Files which will be mixed together to form the input to the parent track" DisplayHint="True" IsVisible="{Binding CanEditSubChannels}">
+                <controls:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl" Hint="Files which will be mixed together to form the input to the parent track" DisplayHint="True">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubChannelStackPanel"  Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding SubChannels, Mode=OneWay}" Name="SubChannelssItemsControl">
@@ -174,7 +174,6 @@
                             HorizontalAlignment="Center"
                             Margin="0 5"
                             Padding="8 5"
-                            IsEnabled="{Binding CanEditSubChannels}"
                             Click="AddSubChannelButton_OnClick"
                         ></Button>
                     </StackPanel>

@@ -15,4 +15,5 @@ public class Settings
     public double Volume { get; set; } = 1;
     public string? PreviousPath { get; set; }
     public WindowRestoreDetails? MainWindowRestoreDetails { get; set; }
+    public bool HideSubTracksSubChannelsWarning { get; set; }
 }

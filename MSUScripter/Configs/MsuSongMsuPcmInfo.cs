@@ -38,4 +38,14 @@ public class MsuSongMsuPcmInfo
 
         return files;
     }
+
+    public bool HasBothSubTracksAndSubChannels
+    {
+        get
+        {
+            return (SubTracks.Count > 0 && SubChannels.Count > 0) ||
+                   SubChannels.Any(x => x.HasBothSubTracksAndSubChannels) ||
+                   SubTracks.Any(x => x.HasBothSubTracksAndSubChannels);
+        }
+    }
 }
