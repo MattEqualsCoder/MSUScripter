@@ -62,11 +62,7 @@ public partial class MsuTrackInfoPanel : UserControl
         }
 
         songInfo.Project = _project!;
-        songInfo.MsuPcmInfo.Project = _project!;
-        songInfo.MsuPcmInfo.Song = songInfo;
-        songInfo.MsuPcmInfo.IsTopLevel = true;
-        songInfo.MsuPcmInfo.IsAlt = songInfo.IsAlt;
-
+        songInfo.MsuPcmInfo.ApplyCascadingSettings(_project, songInfo, songInfo.IsAlt, null, true);
         _trackInfo!.AddSong(songInfo);
     }
 

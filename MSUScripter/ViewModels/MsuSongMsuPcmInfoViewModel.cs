@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using MSUScripter.Models;
-using MSUScripter.Tools;
 
 namespace MSUScripter.ViewModels;
 
@@ -107,17 +106,16 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _output, value);
     }
 
-    public DateTime _lastModifiedDate;
+    private DateTime _lastModifiedDate;
     public DateTime LastModifiedDate
     {
-        
         get => _lastModifiedDate;
         set => SetField(ref _lastModifiedDate, value);
     }
 
     public bool CanDisplayTrimStartButton => OperatingSystem.IsWindows();
     
-    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subTracks = new ObservableCollection<MsuSongMsuPcmInfoViewModel>();
+    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subTracks = [];
     public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubTracks
     {
         get => _subTracks;
@@ -128,7 +126,7 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         }
     }
 
-    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subChannels = new ObservableCollection<MsuSongMsuPcmInfoViewModel>();
+    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subChannels = [];
     public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubChannels
     {
         get => _subChannels;
@@ -166,9 +164,19 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         set => SetField(ref _displayMultiWarning, value);
     }
 
-    public void AddSubChannel()
+    public void AddSubChannel(int? index = null)
     {
-        SubChannels.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
+        if (index is null or -1)
+        {
+            SubChannels.Add(new MsuSongMsuPcmInfoViewModel
+                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
+        }
+        else
+        {
+            SubChannels.Insert(index.Value, new MsuSongMsuPcmInfoViewModel
+                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
+        }
+        
         LastModifiedDate = DateTime.Now;
     }
 
@@ -178,9 +186,18 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         LastModifiedDate = DateTime.Now;
     }
     
-    public void AddSubTrack()
+    public void AddSubTrack(int? index = null)
     {
-        SubTracks.Add(new MsuSongMsuPcmInfoViewModel() { Project = Project, Song = Song });
+        if (index is null or -1)
+        {
+            SubTracks.Add(new MsuSongMsuPcmInfoViewModel
+                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
+        }
+        else
+        {
+            SubTracks.Insert(index.Value, new MsuSongMsuPcmInfoViewModel
+                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
+        }
         LastModifiedDate = DateTime.Now;
     }
 
@@ -197,10 +214,13 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     public MsuSongInfoViewModel Song { get; set; } = null!;
     
     [SkipConvert]
-    public bool IsTopLevel { get; set; }
+    public bool IsAlt { get; set; }
+
+    [SkipConvert] 
+    public bool IsTopLevel => ParentMsuPcmInfo == null;
     
     [SkipConvert]
-    public bool IsAlt { get; set; }
+    public MsuSongMsuPcmInfoViewModel? ParentMsuPcmInfo { get; set; }
 
     public bool CanDelete => !IsTopLevel;
 
@@ -230,6 +250,41 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         return fileCount + SubTracks.Sum(x => x.GetFileCount()) + SubChannels.Sum(x => x.GetFileCount());
     }
 
+    public void ApplyCascadingSettings(MsuProjectViewModel projectModel, MsuSongInfoViewModel songModel, bool isAlt, MsuSongMsuPcmInfoViewModel? parent, bool updateLastModified)
+    {
+        Project = projectModel;
+        Song = songModel;
+        IsAlt = isAlt;
+        ParentMsuPcmInfo = parent;
+
+        if (updateLastModified)
+        {
+            LastModifiedDate = DateTime.Now;
+        }
+
+        foreach (var subItem in _subChannels.Concat(_subTracks))
+        {
+            subItem.ApplyCascadingSettings(projectModel, songModel, isAlt, this, updateLastModified);
+        }
+    }
+
+    [SkipConvert]
+    public bool IsSubChannel => !IsTopLevel && ParentMsuPcmInfo?.SubChannels.Contains(this) == true;
+    
+    [SkipConvert]
+    public bool IsSubTrack => !IsTopLevel && ParentMsuPcmInfo?.SubTracks.Contains(this) == true;
+
+    [SkipConvert]
+    public string InsertText => IsSubChannel ? "Insert New Sub Channel Before This" : "Insert New Sub Track Before This";
+
+    [SkipConvert]
+    public string HeaderText =>
+        IsTopLevel ? "MsuPcm++ Details" : IsSubChannel ? "Sub Channel Details" : "Sub Track Details";
+    
+    [SkipConvert]
+    public string RemoveText =>
+        IsSubChannel ? "Remove Sub Channel" : "Remove Sub Track";
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)

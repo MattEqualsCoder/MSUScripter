@@ -10,8 +10,6 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using Newtonsoft.Json;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
@@ -24,15 +22,6 @@ public class ProjectService(
     SettingsService settingsService,
     ConverterService converterService)
 {
-    private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    private readonly IDeserializer _msuDetailsDeserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
         project.LastSaveTime = DateTime.Now;
@@ -44,10 +33,7 @@ public class ProjectService(
             SaveMsuProject(project, true);
         }
         
-        var serializer = new SerializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
-        var yaml = serializer.Serialize(project);
+        var yaml = YamlService.Instance.ToYaml(project, false);
 
         if (isBackup && !Directory.Exists(GetBackupDirectory()))
         {
@@ -93,11 +79,10 @@ public class ProjectService(
         }
         
         var yaml = File.ReadAllText(path);
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-        var project = deserializer.Deserialize<MsuProject>(yaml);
+        if (!YamlService.Instance.FromYaml<MsuProject>(yaml, out var project, out _, false) || project == null)
+        {
+            return null;
+        }
         
         if (!isBackup)
         {
@@ -600,12 +585,16 @@ public class ProjectService(
 
         var msu = new FileInfo(project.MsuPath);
         var yamlPath = msu.FullName.Replace(msu.Extension, ".yml");
-        MsuDetails msuDetails;
+        MsuDetails? msuDetails;
         
         try
         {
             var yamlText = File.ReadAllText(yamlPath);
-            msuDetails = _msuDetailsDeserializer.Deserialize<MsuDetails>(yamlText);
+            if (!YamlService.Instance.FromYaml(yamlText, out msuDetails, out _, true) || msuDetails == null)
+            {
+                error = $"Could not retrieve MSU Details from {yamlPath}";
+                return false;
+            }
         }
         catch (Exception e)
         {
@@ -636,7 +625,7 @@ public class ProjectService(
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
-                var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
+                var outYaml = YamlService.Instance.ToYaml(newMsuType, true);
                 File.WriteAllText(newYamlPath, outYaml);
             }
             catch (Exception e)

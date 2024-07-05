@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace MSUScripter.Configs;
 
@@ -24,6 +25,15 @@ public class MsuSongMsuPcmInfo
     public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();
     public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = new();
 
+    public void ClearLastModifiedDate()
+    {
+        LastModifiedDate = new DateTime();
+        foreach (var subItem in SubChannels.Concat(SubTracks))
+        {
+            subItem.ClearLastModifiedDate();
+        }
+    }
+
     public List<string> GetFiles()
     {
         List<string> files = new List<string>();
@@ -39,6 +49,7 @@ public class MsuSongMsuPcmInfo
         return files;
     }
 
+    [YamlIgnore]
     public bool HasBothSubTracksAndSubChannels
     {
         get

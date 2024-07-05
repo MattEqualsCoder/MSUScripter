@@ -84,10 +84,7 @@ public class VideoCreatorService
             { "Files", pcmPaths }
         };
         
-        var serializer = new SerializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
-        var yaml = serializer.Serialize(pcmFilesData);
+        var yaml = YamlService.Instance.ToYaml(pcmFilesData, false);
         var path = Path.Combine(Directories.TempFolder, "video-creator-list.yml");
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

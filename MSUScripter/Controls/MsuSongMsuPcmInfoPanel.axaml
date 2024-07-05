@@ -11,7 +11,7 @@
              x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
     <Grid>
-        <controls:CardControl Name="MainGroupBox" HeaderText="MsuPcm++ Details" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
+        <controls:CardControl Name="MainGroupBox" HeaderText="{Binding HeaderText}" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
             <controls:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal"
@@ -35,14 +35,28 @@
                         </TextBlock>
                     </StackPanel>
                     <Button 
-                        Name="RemoveButton"
                         Grid.Column="1" 
                         Padding="5 0"
                         Margin="0 0 0 0"
-                        Click="RemoveButton_OnClick"
-                        IsVisible="{Binding CanDelete}"
+                        Click="MenuButton_OnClick"
                     >
-                        <avalonia:MaterialIcon Kind="Delete"></avalonia:MaterialIcon>
+                        <Button.ContextMenu>
+                            <ContextMenu Opening="ContextMenu_OnOpening">
+                                <MenuItem Header="{Binding InsertText}" Name="Insert" IsVisible="{Binding !IsTopLevel}"
+                                          Click="Insert_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Copy MsuPcm++ Details" Name="Copy"
+                                          Click="Copy_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Paste and Overwrite MsuPcm++ Details" Name="PasteMenuItem"
+                                          Click="PasteMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="{Binding RemoveText}" Name="RemoveButton" IsVisible="{Binding CanDelete}"
+                                          Click="RemoveButton_OnClick" 
+                                ></MenuItem>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
                     </Button>
                 </StackPanel>
             </controls:CardControl.HeaderButtons>

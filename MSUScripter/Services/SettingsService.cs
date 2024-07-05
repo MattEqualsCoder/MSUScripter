@@ -1,13 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Controls;
 using MSUScripter.Models;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Settings = MSUScripter.Configs.Settings;
 
 namespace MSUScripter.Services;
@@ -15,14 +12,16 @@ namespace MSUScripter.Services;
 public class SettingsService
 {
     private ILogger<SettingsService> _logger;
+    private YamlService _yamlService;
 
     public static SettingsService Instance { get; private set; } = null!;
 
     public Settings Settings { get; set; } = null!;
 
-    public SettingsService(ILogger<SettingsService> logger)
+    public SettingsService(ILogger<SettingsService> logger, YamlService yamlService)
     {
         _logger = logger;
+        _yamlService = yamlService;
         LoadSettings();
         Instance = this;
     }
@@ -38,21 +37,23 @@ public class SettingsService
         }
 
         var yaml = File.ReadAllText(settingsPath);
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-        Settings = deserializer.Deserialize<Settings>(yaml);
+        
+        if (!YamlService.Instance.FromYaml<Settings>(yaml, out var settingsObject, out _, false) ||
+            settingsObject == null)
+        {
+            Settings = new Settings();
+        }
+        else
+        {
+            Settings = settingsObject;
+        }
 
         ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
     }
 
     public void SaveSettings()
     {
-        var serializer = new SerializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
-        var yaml = serializer.Serialize(Settings);
+        var yaml = YamlService.Instance.ToYaml(Settings, false);
         var path = GetSettingsPath();
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

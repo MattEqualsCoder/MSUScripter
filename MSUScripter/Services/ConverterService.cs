@@ -8,7 +8,6 @@ using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Track = MSUScripter.Configs.Track;
 
@@ -77,7 +76,7 @@ public class ConverterService
 
         return updated;
     }
-
+    
     public MsuProjectViewModel ConvertProject(MsuProject project)
     {
         var viewModel = new MsuProjectViewModel();
@@ -97,16 +96,11 @@ public class ConverterService
                 var songViewModel = new MsuSongInfoViewModel
                 {
                     Project = viewModel,
-                    MsuPcmInfo =
-                    {
-                        Project = viewModel,
-                        IsTopLevel = true,
-                    }
                 };
-                songViewModel.MsuPcmInfo.Song = songViewModel;
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
-                songViewModel.MsuPcmInfo.IsAlt = songViewModel.IsAlt;
+                songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false);
+                
                 trackViewModel.Songs.Add(songViewModel);
 
                 songViewModel.MsuPcmInfo.DisplayHertzWarning =

@@ -305,22 +305,20 @@ public partial class AddSongWindow : ScalableWindow
             IsAlt = isAlt,
             LastModifiedDate = DateTime.Now,
             Project = ProjectModel,
-            MsuPcmInfo = new MsuSongMsuPcmInfoViewModel()
+            MsuPcmInfo = new MsuSongMsuPcmInfoViewModel
             {
                 Loop = Model.LoopPoint,
                 TrimStart = Model.TrimStart,
                 TrimEnd = Model.TrimEnd,
                 Normalization = Model.Normalization,
                 File = Model.FilePath,
-                IsTopLevel = true,
-                IsAlt = isAlt,
+                IsAlt = isAlt
             }
         };
 
-        song.MsuPcmInfo.Song = song;
         track.AddSong(song);
         
-        _pyMusicLooperPanel.Model = new();
+        _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel();
         Model.Clear();
 
         if (closeAfter)

@@ -26,15 +26,6 @@ public class PyMusicLooperService
     private readonly string _cachePath;
     private int _currentVersion;
     
-    private readonly ISerializer _serializer = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    private readonly IDeserializer _deserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-
     public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python)
     {
         _logger = logger;
@@ -91,7 +82,8 @@ public class PyMusicLooperService
             try
             {
                 message = "";
-                return _deserializer.Deserialize<List<(int, int, decimal)>>(ymlText);
+                YamlService.Instance.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true);
+                return result;
             }
             catch
             {
@@ -116,7 +108,7 @@ public class PyMusicLooperService
         {
             try
             {
-                var ymlText = _serializer.Serialize(loopPoints);
+                var ymlText = YamlService.Instance.ToYaml(loopPoints, true);
                 File.WriteAllText(path, ymlText);
             }
             catch (Exception e)

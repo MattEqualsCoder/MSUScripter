@@ -102,6 +102,7 @@ class Program
             .AddMsuRandomizerServices()
             .AddGitHubReleaseCheckerServices()
             .AddSingleton<SettingsService>()
+            .AddSingleton<YamlService>()
             .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<SettingsService>().Settings)
             .AddSingleton<MsuPcmService>()
             .AddSingleton<AudioMetadataService>()
@@ -138,6 +139,7 @@ class Program
         _serviceProvider = serviceCollection.BuildServiceProvider();
 
         _serviceProvider.GetRequiredService<ConverterService>();
+        _serviceProvider.GetRequiredService<YamlService>();
         
         return _serviceProvider;
     }
