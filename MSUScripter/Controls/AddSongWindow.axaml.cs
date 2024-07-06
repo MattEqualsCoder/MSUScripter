@@ -48,9 +48,15 @@ public partial class AddSongWindow : ScalableWindow
         DataContext = Model;
         InitializeComponent();
         _pyMusicLooperPanel.OnUpdated += PyMusicLooperPanelOnOnUpdated;
+        Model.OnTrimStartModified += ModelOnOnTrimStartModified;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         
         AddHandler(DragDrop.DropEvent, DropFile);
+    }
+
+    private void ModelOnOnTrimStartModified(object? sender, EventArgs e)
+    {
+        _pyMusicLooperPanel.Model.FilterStart = Model.TrimStart;
     }
 
     private AddSongWindowViewModel Model { get; set; } = new();

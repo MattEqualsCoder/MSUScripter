@@ -50,9 +50,15 @@ public partial class PyMusicLooperPanel : UserControl
                 _project = _converterService!.ConvertProject(Model.MsuProjectViewModel);
             }
             
+            _model.FilteredResultsUpdated += ModelOnFilteredResultsUpdated;
         }
     }
-    
+
+    private void ModelOnFilteredResultsUpdated(object? sender, EventArgs e)
+    {
+        RunMsuPcm(false);
+    }
+
     public event EventHandler? OnUpdated;
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
@@ -125,7 +131,7 @@ public partial class PyMusicLooperPanel : UserControl
             {
                 _model.PyMusicLooperResults =
                     loopPoints.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
-                _model.SelectedResult = _model.PyMusicLooperResults.First();
+                _model.SelectedResult = _model.FilteredResults.First();
                 _model.SelectedResult.IsSelected = true;
                 _model.Message = "Generating Preview Files";
                 RunMsuPcm();
@@ -151,20 +157,23 @@ public partial class PyMusicLooperPanel : UserControl
         }, _cts.Token);
     }
 
-    private void RunMsuPcm()
+    private void RunMsuPcm(bool fullReload = true)
     {
-        if (_converterService == null || _msuPcmService == null)
+        if (_converterService == null || _msuPcmService == null || _model.CurrentPageResults.All(x => x.Generated))
         {
             return;
         }
 
         _model.GeneratingPcms = true;
 
-        _msuPcmService.DeleteTempPcms();
+        if (fullReload)
+        {
+            _msuPcmService.DeleteTempPcms();
+        }
 
         try
         {
-            Parallel.ForEach(_model.CurrentPageResults, new ParallelOptions()
+            Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated), new ParallelOptions()
                 {
                     CancellationToken = _cts?.Token ?? CancellationToken.None
                 },
@@ -308,7 +317,7 @@ public partial class PyMusicLooperPanel : UserControl
 
         _model.SelectedResult = result;
         
-        foreach (var otherResult in _model.PyMusicLooperResults.Where(x => x != result))
+        foreach (var otherResult in _model.FilteredResults.Where(x => x != result))
         {
             otherResult.IsSelected = false;
         }

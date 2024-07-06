@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,6 +8,8 @@ namespace MSUScripter.ViewModels;
 
 public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
 {
+    public event EventHandler? FilteredResultsUpdated;
+    
     private double _minDurationMultiplier = 0.25;
     public double MinDurationMultiplier
     {
@@ -42,6 +45,28 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
         set => SetField(ref _approximateEnd, value);
     }
     
+    private int? _filterStart;
+    public int? FilterStart
+    {
+        get => _filterStart;
+        set
+        {
+            SetField(ref _filterStart, value);
+            FilterResults();
+        }
+    }
+
+    private int? _filterEnd;
+    public int? FilterEnd
+    {
+        get => _filterEnd;
+        set
+        {
+            SetField(ref _filterEnd, value);
+            FilterResults();
+        }
+    }
+    
     private List<PyMusicLooperResultViewModel> _pyMusicLooperResults = new();
     public List<PyMusicLooperResultViewModel> PyMusicLooperResults
     {
@@ -49,8 +74,19 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
         set 
         { 
             SetField(ref _pyMusicLooperResults, value);
+            FilterResults();
+        }
+    }
+
+    private List<PyMusicLooperResultViewModel> _filteredResults = new();
+    public List<PyMusicLooperResultViewModel> FilteredResults
+    {
+        get => _filteredResults;
+        set
+        {
+            SetField(ref _filteredResults, value);
             Page = 0;
-            LastPage = (_pyMusicLooperResults.Count - 1) / NumPerPage;
+            LastPage = (_filteredResults.Count - 1) / NumPerPage;
         }
     }
 
@@ -167,7 +203,7 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
     }
 
     public List<PyMusicLooperResultViewModel> CurrentPageResults =>
-        _pyMusicLooperResults.Skip(_page * NumPerPage).Take(NumPerPage).ToList();
+        _filteredResults.Skip(_page * NumPerPage).Take(NumPerPage).ToList();
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -182,5 +218,22 @@ public class PyMusicLooperPanelViewModel : INotifyPropertyChanged
         field = value;
         OnPropertyChanged(propertyName);
         return true;
+    }
+
+    private void FilterResults()
+    {
+        if (_filterStart == null && _filterEnd == null)
+        {
+            FilteredResults = PyMusicLooperResults;
+        }
+        else
+        {
+            FilteredResults = PyMusicLooperResults.Where(x =>
+                    (FilterStart == null || x.LoopStart >= FilterStart) &&
+                    (FilterEnd == null || x.LoopEnd <= FilterEnd))
+                .ToList();
+        }
+        
+        FilteredResultsUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

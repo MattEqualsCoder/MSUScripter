@@ -20,22 +20,28 @@
             </controls:LinkControl>
         </StackPanel>
         
-        <Grid ColumnDefinitions="Auto * * Auto" RowDefinitions="Auto Auto" Margin="2">
+        <Grid ColumnDefinitions="Auto * * * Auto" RowDefinitions="Auto Auto" Margin="2">
             <TextBlock Grid.Row="0" Grid.Column="0" Margin="2 2 5 2">Min Duration Multiplier</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="1" Margin="2 2 5 2">Duration Limit in Seconds</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="2" Margin="2 2 5 2">Approximate Loop Time in Seconds</TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="3" Margin="2 2 5 2">Filter Samples</TextBlock>
             <NumericUpDown Grid.Row="1" Grid.Column="0" Margin="2 2 5 2" Value="{Binding MinDurationMultiplier}"></NumericUpDown>
             <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="160"></controls:TimeNumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="100"></controls:TimeNumericUpDown>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="160"></controls:TimeNumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="100"></controls:TimeNumericUpDown>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="160"></controls:TimeNumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="100"></controls:TimeNumericUpDown>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="160"></controls:TimeNumericUpDown>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="100"></controls:TimeNumericUpDown>
             </Grid>
-            <Button Grid.Row="1" Grid.Column="3" 
+            <Grid Grid.Row="1" Grid.Column="3" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding FilterStart}" Watermark="Start" MinWidth="100"></controls:TimeNumericUpDown>
+                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
+                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding FilterEnd}" Watermark="End" MinWidth="100"></controls:TimeNumericUpDown>
+            </Grid>
+            <Button Grid.Row="1" Grid.Column="4" 
                     HorizontalAlignment="Right" 
                     Margin="2"
                     Name="RunPyMusicLooperButton"

@@ -42,7 +42,8 @@ public partial class MusicLooperWindow : ScalableWindow
         {
             MsuProjectViewModel = project,
             MsuSongInfoViewModel = song,
-            MsuSongMsuPcmInfoViewModel = pcmDetails
+            MsuSongMsuPcmInfoViewModel = pcmDetails,
+            FilterStart = pcmDetails.TrimStart
         };
     }
     

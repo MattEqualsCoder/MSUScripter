@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -6,6 +7,9 @@ namespace MSUScripter.ViewModels;
 
 public class AddSongWindowViewModel : INotifyPropertyChanged
 {
+
+    public event EventHandler OnTrimStartModified;
+    
     private string _filePath = "";
     public string FilePath
     {
@@ -110,7 +114,9 @@ public class AddSongWindowViewModel : INotifyPropertyChanged
             {
                 HasModified = true;
             }
+            
             SetField(ref _trimStart, value);
+            OnTrimStartModified?.Invoke(this, EventArgs.Empty);
         }
     }
     
