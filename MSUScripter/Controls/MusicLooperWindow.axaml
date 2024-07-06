@@ -18,7 +18,7 @@
                 <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Name="AcceptButton" Click="AcceptButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
-                        Select Loop Points
+                        Select Loop Point
                     </Button>
                     <Button Name="CloseButton" Click="CloseButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
                         Close

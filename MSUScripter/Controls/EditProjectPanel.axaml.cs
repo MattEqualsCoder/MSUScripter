@@ -710,7 +710,7 @@ public partial class EditProjectPanel : UserControl
 
         if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
         {
-            var result = await ShowYesNoWindow("Either the trim end or loop points have a value. Are you sure you want to overwrite them?");
+            var result = await ShowYesNoWindow("Either the trim end or loop point have a value. Are you sure you want to overwrite them?");
             if (result != MessageWindowResult.Yes)
                 return;
         }
