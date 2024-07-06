@@ -92,6 +92,16 @@
                     ></ComboBox>
                 </controls:LabeledControl>
                 
+                <controls:LabeledControl Text="Automatically Run PyMusicLooper:" Hint="Automatically run PyMusicLooper in the PyMusicLooper window and Add Song Window." DisplayHint="True">
+                    <ComboBox 
+                        Name="AutomaticallyRunPyMusicLooperComboBox"
+                        SelectedItem="{Binding AutomaticallyRunPyMusicLooper, Converter={StaticResource BoolToStringConverter}}"
+                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
+                </controls:LabeledControl>
+                
                 <controls:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
                     <Grid ColumnDefinitions="*, Auto">
                         <Slider Grid.Column="0" x:Name="slider" 

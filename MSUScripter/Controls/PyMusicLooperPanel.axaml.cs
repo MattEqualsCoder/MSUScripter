@@ -80,7 +80,10 @@ public partial class PyMusicLooperPanel : UserControl
             _model.DisplayOldVersionWarning = true;
         }
 
-        RunPyMusicLooper();
+        if (SettingsService.Instance.Settings.AutomaticallyRunPyMusicLooper)
+        {
+            RunPyMusicLooper();
+        }
     }
 
     public void RunPyMusicLooper()

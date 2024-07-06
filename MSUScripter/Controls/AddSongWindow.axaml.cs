@@ -169,7 +169,11 @@ public partial class AddSongWindow : ScalableWindow
         else
         {
             Model.RunningPyMusicLooper = true;
-            _pyMusicLooperPanel.RunPyMusicLooper();
+
+            if (SettingsService.Instance.Settings.AutomaticallyRunPyMusicLooper)
+            {
+                _pyMusicLooperPanel.RunPyMusicLooper();
+            }
         }
     }
     

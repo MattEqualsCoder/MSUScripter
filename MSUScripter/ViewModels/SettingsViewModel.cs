@@ -88,6 +88,14 @@ public class SettingsViewModel : INotifyPropertyChanged
         set => SetField(ref _previousPath, value);
     }
     
+    private bool _automaticallyRunPyMusicLooper;
+    public bool AutomaticallyRunPyMusicLooper
+    {
+        
+        get => _automaticallyRunPyMusicLooper;
+        set => SetField(ref _automaticallyRunPyMusicLooper, value);
+    }
+    
     public bool HideSubTracksSubChannelsWarning { get; set; }
 
     private WindowRestoreDetails? _mainWindowRestoreDetails;

@@ -16,4 +16,5 @@ public class Settings
     public string? PreviousPath { get; set; }
     public WindowRestoreDetails? MainWindowRestoreDetails { get; set; }
     public bool HideSubTracksSubChannelsWarning { get; set; }
+    public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
 }
