@@ -77,7 +77,7 @@
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">
-                    <NumericUpDown Value="{Binding Normalization}" ></NumericUpDown>
+                    <controls:NoScrollNumericUpDown Value="{Binding Normalization}" ></controls:NoScrollNumericUpDown>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Trim:" Hint="Trim the start and/or end of the current track at the specified sample" DisplayHint="True">
@@ -90,16 +90,16 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
-                        <NumericUpDown Grid.Column="1" Value="{Binding TrimStart}"></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding TrimStart}"></controls:NoScrollNumericUpDown>
                         <Button Grid.Column="2" Margin="5 0 0 0" IsVisible="{Binding CanDisplayTrimStartButton}" Click="GetTrimStartButton_OnClick">Get Trim Start</Button>
                         <TextBlock Grid.Column="3" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
-                        <NumericUpDown Grid.Column="4" Value="{Binding TrimEnd}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="4" Value="{Binding TrimEnd}" ></controls:NoScrollNumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" DisplayHint="True">
                     <Grid ColumnDefinitions="*,Auto">
-                        <NumericUpDown Value="{Binding Loop}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Value="{Binding Loop}" ></controls:NoScrollNumericUpDown>
                         <Button Grid.Column="1" 
                                 Name="LoopWindowButton"
                                 Margin="5 0 0 0 "
@@ -121,11 +121,11 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">In:</TextBlock>
-                        <NumericUpDown Grid.Column="1" Value="{Binding FadeIn}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding FadeIn}" ></controls:NoScrollNumericUpDown>
                         <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">Out:</TextBlock>
-                        <NumericUpDown Grid.Column="3" Value="{Binding FadeOut}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="3" Value="{Binding FadeOut}" ></controls:NoScrollNumericUpDown>
                         <TextBlock Grid.Column="4" Margin="15 0 5 0" VerticalAlignment="Center">Cross:</TextBlock>
-                        <NumericUpDown Grid.Column="5" Value="{Binding CrossFade}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="5" Value="{Binding CrossFade}" ></controls:NoScrollNumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
                 
@@ -138,14 +138,14 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
-                        <NumericUpDown Grid.Column="1" Value="{Binding PadStart}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding PadStart}" ></controls:NoScrollNumericUpDown>
                         <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
-                        <NumericUpDown Grid.Column="3" Value="{Binding PadEnd}" ></NumericUpDown>
+                        <controls:NoScrollNumericUpDown Grid.Column="3" Value="{Binding PadEnd}" ></controls:NoScrollNumericUpDown>
                     </Grid>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
-                    <NumericUpDown Value="{Binding Tempo}" ></NumericUpDown>
+                    <controls:NoScrollNumericUpDown Value="{Binding Tempo}" ></controls:NoScrollNumericUpDown>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">

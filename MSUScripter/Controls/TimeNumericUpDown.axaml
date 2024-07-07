@@ -6,11 +6,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.TimeNumericUpDown"
              x:Name="TimeNumericUpDownControl">
-    <NumericUpDown 
+    <controls:NoScrollNumericUpDown 
         x:Name="NumericUpDownControl"
         KeyUp="NumericUpDownControl_OnKeyUp"
         LostFocus="NumericUpDownControl_OnLostFocus"
         Value="{Binding ElementName=TimeNumericUpDownControl, Path=Value}" 
         Watermark="{Binding ElementName=TimeNumericUpDownControl, Path=Watermark}"
-    ></NumericUpDown>
+    ></controls:NoScrollNumericUpDown>
 </UserControl>

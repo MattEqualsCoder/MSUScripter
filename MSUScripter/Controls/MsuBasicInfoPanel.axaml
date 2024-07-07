@@ -121,12 +121,12 @@
         <controls:CardControl HeaderText="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" IsVisible="{Binding IsMsuPcmProject}" Padding="10">
             <StackPanel Orientation="Vertical">
                 <controls:LabeledControl Text="Normalization:" Hint="The default RMS normalization level, in dBFS, to be applied to the entire pack" DisplayHint="True">
-                    <NumericUpDown
+                    <controls:NoScrollNumericUpDown
                         Name="NormalizationTextBox"
                         Value="{Binding Path=Normalization, Mode=TwoWay }"
                         Increment="0.1"
                     >
-                    </NumericUpDown>
+                    </controls:NoScrollNumericUpDown>
                 </controls:LabeledControl>
                 <controls:LabeledControl Text="Dither:" Hint="Whether or not to apply audio dither to the final output" DisplayHint="True">
                     <ComboBox 
