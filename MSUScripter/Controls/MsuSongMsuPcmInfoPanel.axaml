@@ -145,7 +145,7 @@
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
-                    <controls:NoScrollNumericUpDown Value="{Binding Tempo}" ></controls:NoScrollNumericUpDown>
+                    <controls:NoScrollNumericUpDown Value="{Binding Tempo}" Increment="0.005" ></controls:NoScrollNumericUpDown>
                 </controls:LabeledControl>
                 
                 <controls:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
