@@ -103,10 +103,9 @@ public class ConverterService
                 
                 trackViewModel.Songs.Add(songViewModel);
 
-                songViewModel.MsuPcmInfo.DisplayHertzWarning =
-                    _audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File) != 44100;
-                songViewModel.MsuPcmInfo.DisplayMultiWarning = songViewModel.MsuPcmInfo.SubChannels.Any() ||
-                                                               songViewModel.MsuPcmInfo.SubTracks.Any();
+                songViewModel.MsuPcmInfo.UpdateHertzWarning(_audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File));
+                songViewModel.MsuPcmInfo.UpdateMultiWarning();
+                songViewModel.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
             }
 
             viewModel.Tracks.Add(trackViewModel);

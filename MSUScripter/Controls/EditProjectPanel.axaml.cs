@@ -285,6 +285,11 @@ public partial class EditProjectPanel : UserControl
         {
             GetStartingSamples(e.PcmInfo);
         }
+        else if (e.Type == PcmEventType.AddedSubChannelOrSubTrack)
+        {
+            e.Song.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
+            e.Song.MsuPcmInfo.UpdateMultiWarning();
+        }
     }
 
     public void GetStartingSamples(MsuSongMsuPcmInfoViewModel pcmInfoViewModel)
@@ -445,9 +450,8 @@ public partial class EditProjectPanel : UserControl
         if (force || (string.IsNullOrEmpty(songModel.Url) && !string.IsNullOrEmpty(metadata.Url)))
             songModel.Url = metadata.Url;
 
-        songModel.MsuPcmInfo.DisplayHertzWarning = _audioAnalysisService?.GetAudioSampleRate(file) != 44100;
-        songModel.MsuPcmInfo.DisplayMultiWarning =
-            songModel.MsuPcmInfo.SubChannels.Any() || songModel.MsuPcmInfo.SubTracks.Any();
+        songModel.MsuPcmInfo.UpdateHertzWarning(_audioAnalysisService?.GetAudioSampleRate(file));
+        songModel.MsuPcmInfo.UpdateMultiWarning();
     }
 
     public void SaveProject()

@@ -163,6 +163,15 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
         get => _displayMultiWarning;
         set => SetField(ref _displayMultiWarning, value);
     }
+    
+    private bool _displaySubTrackSubChannelWarning;
+
+    [SkipConvert]
+    public bool DisplaySubTrackSubChannelWarning
+    {
+        get => _displaySubTrackSubChannelWarning;
+        set => SetField(ref _displaySubTrackSubChannelWarning, value);
+    }
 
     public void AddSubChannel(int? index = null)
     {
@@ -287,6 +296,50 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    public void UpdateHertzWarning(int? sampleRate)
+    {
+        DisplayHertzWarning = sampleRate > 44100;
+    }
+    
+    public void UpdateMultiWarning()
+    {
+        DisplayMultiWarning = GetFiles().Distinct().Count() > 1;
+        
+    }
+
+    public void UpdateSubTrackSubChannelWarning()
+    {
+        DisplaySubTrackSubChannelWarning = HasBothSubTracksAndChannels;
+    }
+
+    private List<string> GetFiles()
+    {
+        List<string> toReturn = [];
+
+        if (!string.IsNullOrEmpty(_file))
+        {
+            toReturn.Add(_file);
+        }
+
+        toReturn.AddRange(_subChannels.Concat(_subTracks).SelectMany(x => x.GetFiles()));
+
+        return toReturn;
+    }
+
+    private bool HasBothSubTracksAndChannels
+    {
+        get
+        {
+            if (HasSubChannels && HasSubTracks)
+            {
+                return true;
+            }
+
+            return _subChannels.Concat(_subTracks).Any(x => x.HasBothSubTracksAndChannels);
+        }
+            
+    }
+    
     protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

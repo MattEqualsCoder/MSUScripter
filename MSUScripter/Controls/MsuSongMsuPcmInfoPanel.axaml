@@ -16,6 +16,16 @@
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal"
                                 Margin="0 0 5 0"
+                                IsVisible="{Binding DisplaySubTrackSubChannelWarning}"
+                                ToolTip.Tip="There is at least one sub channel and sub track on the same level, which is not supported by msupcm++."
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center">
+                            Simultaneous Sub Channel and Sub Track
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal"
+                                Margin="10 0 5 0"
                                 IsVisible="{Binding DisplayMultiWarning}"
                                 ToolTip.Tip="When there are multiple input files via sub tracks or sub channels, combined audio operations are in a 44100Hz sample rate."
                     >

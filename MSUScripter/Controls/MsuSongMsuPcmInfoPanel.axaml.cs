@@ -72,6 +72,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
         
         MsuPcmData.AddSubTrack();
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.AddedSubChannelOrSubTrack));;
     }
 
     private void AddSubChannelButton_OnClick(object? sender, RoutedEventArgs e)
@@ -94,6 +95,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
         
         MsuPcmData.AddSubChannel();
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.AddedSubChannelOrSubTrack));;
     }
 
     private void MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete(object? sender, EventArgs e)
@@ -110,7 +112,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
     private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song));
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.Play));
     }
 
     private void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)

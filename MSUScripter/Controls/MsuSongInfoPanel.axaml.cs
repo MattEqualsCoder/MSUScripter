@@ -56,7 +56,7 @@ public partial class MsuSongInfoPanel : UserControl
 
     private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song));
+        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.AddedSubChannelOrSubTrack));
     }
 
     private void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
