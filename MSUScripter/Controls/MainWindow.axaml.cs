@@ -6,12 +6,15 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter.Controls;
 
@@ -40,7 +43,7 @@ public partial class MainWindow : ScalableWindow
         _projectService = projectService;
         InitializeComponent();
         DisplayNewPanel();
-        Title = $"MSU Scripter v{App.GetAppVersion()}";
+        Title = $"MSU Scripter v{App.Version}";
 
         if (settings?.MainWindowRestoreDetails != null)
         {
@@ -185,8 +188,15 @@ public partial class MainWindow : ScalableWindow
                 var backupProject = _projectService!.LoadMsuProject(project!.BackupFilePath, true);
                 if (backupProject != null && backupProject.LastSaveTime > project.LastSaveTime)
                 {
-                    var result = await new MessageWindow("A backup with unsaved changes was detected. Would you like to load from the backup instead?", MessageWindowType.YesNo, "Load Backup?").ShowDialog();
-                    if (result == MessageWindowResult.Yes)
+                    var messageWindow = new MessageWindow(new MessageWindowRequest
+                    {
+                        Message = "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                        Icon = MessageWindowIcon.Question,
+                        Title = "Load Backup?",
+                        Buttons = MessageWindowButtons.YesNo
+                    });
+                    messageWindow.ShowDialog();
+                    if (messageWindow.DialogResult?.PressedAcceptButton == true)
                         project = backupProject;
                 }
             }
@@ -195,19 +205,19 @@ public partial class MainWindow : ScalableWindow
         }
         
         var newerGitHubRelease = await _services.GetRequiredService<IGitHubReleaseCheckerService>()
-            .GetGitHubReleaseToUpdateToAsync("MattEqualsCoder", "MSUScripter", App.GetAppVersion(), _settings?.PromptOnPreRelease == true);
+            .GetGitHubReleaseToUpdateToAsync("MattEqualsCoder", "MSUScripter", App.Version, _settings?.PromptOnPreRelease == true);
 
         if (newerGitHubRelease != null)
         {
-            var response =
-                await new MessageWindow(
-                    "A new update was found for the MSU Scripter. Do you want to open the GitHub page to download it?", MessageWindowType.YesNo, $"Update Available").ShowDialog(this);
-
-            if (response == MessageWindowResult.Yes)
+            var window = new MessageWindow(new MessageWindowRequest
             {
-                var url = newerGitHubRelease.Url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
-            }
+                Message = "A new update was found for the MSU Scripter is now available.",
+                Buttons = MessageWindowButtons.OK,
+                LinkText = "Go to GitHub Release Page",
+                LinkUrl = newerGitHubRelease.Url
+            });
+
+            _ = window.ShowDialog(this);
         }
     }
 

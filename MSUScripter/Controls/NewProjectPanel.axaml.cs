@@ -8,12 +8,15 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter.Controls;
 
@@ -94,13 +97,23 @@ public partial class NewProjectPanel : UserControl
 
         if (string.IsNullOrEmpty(msuPath))
         {
-            await new MessageWindow("Please enter a MSU path", MessageWindowType.Warning).ShowDialog();
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = "Please enter a MSU path",
+                Icon = MessageWindowIcon.Warning,
+                Buttons = MessageWindowButtons.OK,
+            }).ShowDialog(this);
             return;
         }
 
         if (msuType == null)
         {
-            await new MessageWindow("Please enter a valid MSU type", MessageWindowType.Warning).ShowDialog();
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = "Please enter a valid MSU type",
+                Icon = MessageWindowIcon.Warning,
+                Buttons = MessageWindowButtons.OK,
+            }).ShowDialog(this);
             return;
         }
         
@@ -129,15 +142,28 @@ public partial class NewProjectPanel : UserControl
         }
         catch (Exception exception)
         {
-            await new MessageWindow(exception.Message, MessageWindowType.Error).ShowDialog();
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = exception.Message,
+                Icon = MessageWindowIcon.Error,
+                Buttons = MessageWindowButtons.OK,
+            }).ShowDialog(this);
             return;
         }
         
         if (Project.MsuType == _msuTypeService!.GetSMZ3LegacyMSUType() && _msuTypeService.GetSMZ3MsuType() != null)
         {
-            var result = await new MessageWindow("This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?", MessageWindowType.YesNo, "Swap Tracks?").ShowDialog();
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = "This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?",
+                Title = "Swap Tracks?",
+                Icon = MessageWindowIcon.Question,
+                Buttons = MessageWindowButtons.YesNo,
+            });
 
-            if (result == MessageWindowResult.Yes)
+            await window.ShowDialog(this);
+
+            if (window.DialogResult?.PressedAcceptButton == true)
             {
                 _projectService.ConvertProjectMsuType(Project, _msuTypeService.GetSMZ3MsuType()!, true);
                 _projectService.SaveMsuProject(Project, false);
@@ -186,12 +212,20 @@ public partial class NewProjectPanel : UserControl
                 var backupProject = _projectService!.LoadMsuProject(Project!.BackupFilePath, true);
                 if (backupProject != null && backupProject.LastSaveTime > Project.LastSaveTime)
                 {
-                    var result =
-                        await new MessageWindow(
-                            "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
-                            MessageWindowType.YesNo, "Load Backup?").ShowDialog();
-                    if (result == MessageWindowResult.Yes)
+                    var window = new MessageWindow(new MessageWindowRequest
+                    {
+                        Message = "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                        Title = "Load Backup?",
+                        Icon = MessageWindowIcon.Question,
+                        Buttons = MessageWindowButtons.YesNo,
+                    });
+
+                    await window.ShowDialog(this);
+
+                    if (window.DialogResult?.PressedAcceptButton == true)
+                    {
                         Project = backupProject;
+                    }
                 }
             }
 
@@ -200,7 +234,12 @@ public partial class NewProjectPanel : UserControl
         catch (Exception e)
         {
             _logger?.LogError(e, "Error opening project");
-            await new MessageWindow("Error opening project. Please contact MattEqualsCoder or post an issue on GitHub", MessageWindowType.Error).ShowDialog();
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub",
+                Icon = MessageWindowIcon.Error,
+                Buttons = MessageWindowButtons.OK,
+            }).ShowDialog(this);
         }
     }
 

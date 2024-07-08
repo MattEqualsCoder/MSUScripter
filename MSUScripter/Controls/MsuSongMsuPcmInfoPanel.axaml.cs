@@ -7,11 +7,15 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using AvaloniaControls;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 using Newtonsoft.Json;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter.Controls;
 
@@ -44,10 +48,17 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
     private async void RemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var result = await new MessageWindow("Are you sure you want to delete these msupcm++ details?", MessageWindowType.YesNo, "Delete details?")
-            .ShowDialog();
+        var window = new MessageWindow(new MessageWindowRequest
+        {
+            Message = "Are you sure you want to delete these msupcm++ details?",
+            Title = "Delete details?",
+            Icon = MessageWindowIcon.Question,
+            Buttons = MessageWindowButtons.YesNo
+        });
 
-        if (result != MessageWindowResult.Yes) return;
+        await window.ShowDialog(this);
+        
+        if (window.DialogResult?.PressedAcceptButton != true) return;
         
         OnDelete?.Invoke(this, new RoutedEventArgs(e.RoutedEvent, this));
     }
@@ -61,10 +72,18 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     {
         if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubChannels)
         {
-            var result = await new MessageWindow("PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.", MessageWindowType.DoNotShowAgain, "Warning")
-                .ShowDialog();
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = "PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.",
+                Title = "Warning",
+                Icon = MessageWindowIcon.Warning,
+                Buttons = MessageWindowButtons.OK,
+                CheckBoxText = "Don't show this again"
+            });
 
-            if (result == MessageWindowResult.DontShow)
+            await window.ShowDialog(this);
+        
+            if (window.DialogResult?.CheckedBox == true)
             {
                 SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
                 SettingsService.Instance.SaveSettings();
@@ -84,10 +103,18 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     {
         if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubTracks)
         {
-            var result = await new MessageWindow("PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.", MessageWindowType.DoNotShowAgain, "Warning")
-                .ShowDialog();
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = "PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.",
+                Title = "Warning",
+                Icon = MessageWindowIcon.Warning,
+                Buttons = MessageWindowButtons.OK,
+                CheckBoxText = "Don't show this again"
+            });
 
-            if (result == MessageWindowResult.DontShow)
+            await window.ShowDialog(this);
+        
+            if (window.DialogResult?.CheckedBox == true)
             {
                 SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
                 SettingsService.Instance.SaveSettings();
@@ -128,11 +155,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     private void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
     {
         PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.Generate));
-    }
-
-    private void FileControl_OnOnUpdated(object? sender, BasicEventArgs e)
-    {
-        FileUpdated?.Invoke(this, new BasicEventArgs(e.Data));
     }
 
     private void MsuSongMsuPcmInfoPanel_OnFileUpdated(object? sender, BasicEventArgs e)
@@ -218,8 +240,14 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
             if (!YamlService.Instance.FromYaml<MsuSongMsuPcmInfo>(yamlText, out var yamlMsuPcmDetails, out _, false) || yamlMsuPcmDetails == null)
             {
-                _ = await new MessageWindow("Invalid msupcm++ track details", MessageWindowType.Error, "Error")
-                    .ShowDialog();
+                await new MessageWindow(new MessageWindowRequest
+                {
+                    Message = "Invalid msupcm++ track details",
+                    Title = "Error",
+                    Icon = MessageWindowIcon.Error,
+                    Buttons = MessageWindowButtons.OK,
+                }).ShowDialog(this);
+                
                 return;
             }
 
@@ -230,8 +258,13 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             
             if (!ConverterService.Instance.ConvertViewModel(yamlMsuPcmDetails, MsuPcmData))
             {
-                _ = await new MessageWindow("Invalid msupcm++ track details", MessageWindowType.Error, "Error")
-                    .ShowDialog();
+                await new MessageWindow(new MessageWindowRequest
+                {
+                    Message = "Invalid msupcm++ track details",
+                    Title = "Error",
+                    Icon = MessageWindowIcon.Error,
+                    Buttons = MessageWindowButtons.OK,
+                }).ShowDialog(this);
             }
             
             MsuPcmData.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, true);
@@ -303,5 +336,10 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             var index = MsuPcmData.ParentMsuPcmInfo.SubTracks.IndexOf(MsuPcmData);
             MsuPcmData.ParentMsuPcmInfo.AddSubTrack(index);
         }
+    }
+
+    private void FileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
+    {
+        FileUpdated?.Invoke(this, new BasicEventArgs(e.Path));
     }
 }

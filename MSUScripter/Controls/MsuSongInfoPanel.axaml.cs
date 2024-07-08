@@ -7,11 +7,14 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Tmds.DBus.Protocol;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter.Controls;
 
@@ -46,10 +49,17 @@ public partial class MsuSongInfoPanel : UserControl
 
     private async void RemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var result = await new MessageWindow("Are you sure you want to delete this song?", MessageWindowType.YesNo, "Delete song?")
-            .ShowDialog();
+        var window = new MessageWindow(new MessageWindowRequest
+        {
+            Message = "Are you sure you want to delete this song?",
+            Title = "Delete song?",
+            Icon = MessageWindowIcon.Question,
+            Buttons = MessageWindowButtons.YesNo
+        });
 
-        if (result != MessageWindowResult.Yes) return;
+        await window.ShowDialog(this);
+
+        if (window.DialogResult?.PressedAcceptButton != true) return;
         
         OnDelete?.Invoke(this, new RoutedEventArgs(e.RoutedEvent, this));
     }

@@ -5,6 +5,7 @@
         xmlns:controls="clr-namespace:MSUScripter.Controls"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         Width="1000" Height="700"
         MinWidth="1000" MinHeight="700"
@@ -40,8 +41,8 @@
             
             <StackPanel Orientation="Vertical">
             
-                <controls:CardControl Margin="5" Name="MainGroupBox" HeaderText="Details" Padding="10" HorizontalAlignment="Stretch" DisplayHeaderButtons="True">
-                    <controls:CardControl.HeaderButtons>
+                <controls1:CardControl Margin="5" Name="MainGroupBox" HeaderText="Details" Padding="10" HorizontalAlignment="Stretch" DisplayHeaderButtons="True">
+                    <controls1:CardControl.HeaderButtons>
                         <StackPanel Orientation="Horizontal"
                                     Margin="10 0 5 0"
                                     IsVisible="{Binding DisplayHertzWarning}"
@@ -52,7 +53,7 @@
                                 Non-44100Hz Track
                             </TextBlock>
                         </StackPanel>
-                    </controls:CardControl.HeaderButtons>
+                    </controls1:CardControl.HeaderButtons>
                     <Grid ColumnDefinitions="* * * * * * * * * * * *" RowDefinitions="* * * * * * *">
                         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
                         <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>
@@ -92,14 +93,14 @@
                             ></avalonia:MaterialIcon>
                         </Grid>
                             
-                        <controls:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
+                        <controls1:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
                                               Name="FileControl" 
                                               Filter="All Files:*"
                                               Margin="3 0 0 0"
                                               FilePath="{Binding FilePath, Mode=TwoWay}" 
                                               IsEnabled="{Binding !RunningPyMusicLooper}"
                                               OnUpdated="FileControl_OnOnUpdated"
-                        ></controls:FileControl>
+                        ></controls1:FileControl>
                         
                         <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Song Name</TextBlock>
                         <TextBlock Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Artist</TextBlock>
@@ -128,25 +129,25 @@
                         <TextBlock Grid.Column="6" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Loop Point</TextBlock>
                         <TextBlock Grid.Column="9" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Normalization</TextBlock>
                         
-                        <controls:NoScrollNumericUpDown Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" 
                                                         Margin="0 0 3 0"
                                                         Text="{Binding TrimStart}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls:NoScrollNumericUpDown Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
                                                         Text="{Binding TrimEnd}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls:NoScrollNumericUpDown Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
                                                         Text="{Binding LoopPoint}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls:NoScrollNumericUpDown Grid.Row="5" Grid.Column="9" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="9" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
                                                         Text="{Binding Normalization}"
                                                         IsEnabled="{Binding CanEditMainFields}"
@@ -202,14 +203,14 @@
                         </StackPanel>
                         
                     </Grid>
-                </controls:CardControl>
+                </controls1:CardControl>
                 
-                <controls:CardControl Margin="5 0 5 5" Name="PyMusicLooperBox" HeaderText="PyMusicLooper" Padding="10" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditMainFields}">
+                <controls1:CardControl Margin="5 0 5 5" Name="PyMusicLooperBox" HeaderText="PyMusicLooper" Padding="10" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditMainFields}">
                     <Panel>
                         <Panel Name="PyMusicLooperPanel" IsVisible="{Binding CanEditMainFields}"></Panel>
                         <TextBlock IsVisible="{Binding !CanEditMainFields}" HorizontalAlignment="Center">Select an audio file</TextBlock>
                     </Panel>
-                </controls:CardControl>
+                </controls1:CardControl>
                 
             </StackPanel>
         </DockPanel>

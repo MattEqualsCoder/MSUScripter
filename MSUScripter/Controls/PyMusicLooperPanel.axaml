@@ -5,6 +5,7 @@
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.PyMusicLooperPanel"
              x:DataType="viewModels:PyMusicLooperPanelViewModel"
@@ -14,10 +15,10 @@
             <TextBlock Margin="2 5">
                 You are currently on an old version of PyMusicLooper.
             </TextBlock>
-            <controls:LinkControl Margin="2 5"
+            <controls1:LinkControl Margin="2 5"
                                   Click="GitHubLink_OnClick">
                 Visit PyMusicLooper GitHub for how to update.
-            </controls:LinkControl>
+            </controls1:LinkControl>
         </StackPanel>
         
         <Grid ColumnDefinitions="Auto * * * Auto" RowDefinitions="Auto Auto" Margin="2">
@@ -25,21 +26,21 @@
             <TextBlock Grid.Row="0" Grid.Column="1" Margin="2 2 5 2">Duration Limit in Seconds</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="2" Margin="2 2 5 2">Approximate Loop Time in Seconds</TextBlock>
             <TextBlock Grid.Row="0" Grid.Column="3" Margin="2 2 5 2">Filter Samples</TextBlock>
-            <controls:NoScrollNumericUpDown Grid.Row="1" Grid.Column="0" Margin="2 2 5 2" Value="{Binding MinDurationMultiplier}"></controls:NoScrollNumericUpDown>
+            <controls1:NumericUpDownNoScroll Grid.Row="1" Grid.Column="0" Margin="2 2 5 2" Value="{Binding MinDurationMultiplier}"></controls1:NumericUpDownNoScroll>
             <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="100"></controls1:NumericUpDownTime>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="100"></controls1:NumericUpDownTime>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="100"></controls1:NumericUpDownTime>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="100"></controls1:NumericUpDownTime>
             </Grid>
             <Grid Grid.Row="1" Grid.Column="3" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="0" Value="{Binding FilterStart}" Watermark="Start" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding FilterStart}" Watermark="Start" MinWidth="100"></controls1:NumericUpDownTime>
                 <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls:TimeNumericUpDown Grid.Row="0" Grid.Column="2" Value="{Binding FilterEnd}" Watermark="End" MinWidth="100"></controls:TimeNumericUpDown>
+                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding FilterEnd}" Watermark="End" MinWidth="100"></controls1:NumericUpDownTime>
             </Grid>
             <Button Grid.Row="1" Grid.Column="4" 
                     HorizontalAlignment="Right" 
@@ -55,12 +56,12 @@
                    Margin="10">
         </TextBlock>
         
-        <controls:LinkControl Name="GitHubLink" 
+        <controls1:LinkControl Name="GitHubLink" 
                               IsVisible="{Binding DisplayGitHubLink}" 
                               HorizontalAlignment="Center"
                               Click="GitHubLink_OnClick">
             Visit PyMusicLooper GitHub to download.
-        </controls:LinkControl>
+        </controls1:LinkControl>
         
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 5" IsVisible="{Binding IsRunning}">
             <Button Click="StopPyMusicLooperButton_OnClick">

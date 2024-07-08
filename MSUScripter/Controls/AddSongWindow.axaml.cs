@@ -8,12 +8,16 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using AvaloniaControls;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter.Controls;
 
@@ -138,12 +142,6 @@ public partial class AddSongWindow : ScalableWindow
         Model.AlbumName = metadata.Album ?? Model.AlbumName;
 
         Model.DisplayHertzWarning = _audioAnalysisService.GetAudioSampleRate(path) != 44100;
-    }
-
-    private void FileControl_OnOnUpdated(object? sender, BasicEventArgs _)
-    {
-        var path = (sender as FileControl)?.FilePath;
-        FilePathUpdated(path);
     }
 
     private void UpdatePyMusicLooper()
@@ -273,16 +271,26 @@ public partial class AddSongWindow : ScalableWindow
 
         if (!generated)
         {
-            var window = new MessageWindow(message ?? "Unknown error", MessageWindowType.Error, "MSU Scripter", this);
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = message ?? "Unknown error",
+                Buttons = MessageWindowButtons.OK,
+                Icon = MessageWindowIcon.Error
+            });
             _ = window.ShowDialog(this);
             return;
         }
         
         if (!successful)
         {
-            var window = new MessageWindow($"{message}\r\nDo you want to continue adding this song?", MessageWindowType.YesNo, "MSU Scripter", this);
-            var result = await window.ShowDialog(this);
-            if (result != MessageWindowResult.Yes)
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = $"{message}\r\nDo you want to continue adding this song?",
+                Buttons = MessageWindowButtons.YesNo,
+                Icon = MessageWindowIcon.Error
+            });
+            await window.ShowDialog(this);
+            if (window.DialogResult?.PressedAcceptButton != true)
             {
                 return;
             }
@@ -357,9 +365,14 @@ public partial class AddSongWindow : ScalableWindow
         
         if (Model.HasModified)
         {
-            var window = new MessageWindow("You currently have unsaved changes. Are you sure you want to close this window?", MessageWindowType.YesNo, "MSU Scripter", this);
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = "You currently have unsaved changes. Are you sure you want to close this window?",
+                Buttons = MessageWindowButtons.YesNo,
+                Icon = MessageWindowIcon.Question
+            });
             _ = window.ShowDialog(this);
-            window.OnButtonClick += MessageWindowButtonClick;
+            window.Closed += MessageWindowButtonClick;
             e.Cancel = true;
         }
     }
@@ -367,7 +380,7 @@ public partial class AddSongWindow : ScalableWindow
     private void MessageWindowButtonClick(object? sender, EventArgs e)
     {
         var window = sender as MessageWindow;
-        if (window?.Result == MessageWindowResult.Yes)
+        if (window?.DialogResult?.PressedAcceptButton == true)
         {
             _forceClosing = true;
             Close();
@@ -487,5 +500,10 @@ public partial class AddSongWindow : ScalableWindow
             Model.TrackDescription =
                 "Once a track is selected, this tooltip will offer additional details about the track if any exists.";
         }
+    }
+
+    private void FileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
+    {
+        FilePathUpdated(e.Path);
     }
 }

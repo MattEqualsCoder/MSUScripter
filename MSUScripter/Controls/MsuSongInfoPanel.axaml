@@ -6,13 +6,14 @@
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuSongInfoPanel"
              x:DataType="viewModels:MsuSongInfoViewModel">
     <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
-        <controls:CardControl Margin="0 0 0 5" Name="MainGroupBox" HeaderText="Basic Details" DisplayHeaderButtons="True" Padding="10" HorizontalAlignment="Stretch">
-            <controls:CardControl.HeaderButtons>
+        <controls1:CardControl Margin="0 0 0 5" Name="MainGroupBox" HeaderText="Basic Details" DisplayHeaderButtons="True" Padding="10" HorizontalAlignment="Stretch">
+            <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Content="Song Finished" 
                               Margin="0 0 15 0"
@@ -40,33 +41,33 @@
                         <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
                     </Button>
                 </StackPanel>
-            </controls:CardControl.HeaderButtons>
+            </controls1:CardControl.HeaderButtons>
             <StackPanel Orientation="Vertical">
-                <controls:LabeledControl Text="Song Name:" Hint="The name of the song" DisplayHint="True">
+                <controls1:LabeledControl Text="Song Name:" Hint="The name of the song" DisplayHint="True">
                     <TextBox 
                         Name="SongNameTextBox"
                         Text="{Binding Path=SongName, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Artist:" Hint="The name of the artist(s) who created the song" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Artist:" Hint="The name of the artist(s) who created the song" DisplayHint="True">
                     <TextBox 
                         Name="ArtistTextBox"
                         Text="{Binding Path=Artist, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Album:" Hint="The name of the album that the song is fromt" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Album:" Hint="The name of the album that the song is fromt" DisplayHint="True">
                     <TextBox 
                         Name="AlbumTextBox"
                         Text="{Binding Path=Album, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Url:" Hint="The original url for users to find the songs" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Url:" Hint="The original url for users to find the songs" DisplayHint="True">
                     <TextBox 
                         Name="UrlTextBox"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
                     <ComboBox 
                         Name="CheckCopyrightComboBox"
                         SelectedItem="{Binding CheckCopyright, Converter={StaticResource BoolToStringConverter}}"
@@ -74,16 +75,16 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
-                    <controls:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
+                    <controls1:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
                                           ShowClearButton="False"
                                           FileInputType="SaveFile"
                                           IsEnabled="{Binding IsAlt}"
                                           Filter="PCM Files:*.pcm"
                                           ForceExtension="pcm"
-                    ></controls:FileControl>
-                </controls:LabeledControl>
+                    ></controls1:FileControl>
+                </controls1:LabeledControl>
                 <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel">
                     <Separator Margin="0 5"></Separator>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -122,7 +123,7 @@
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
-        </controls:CardControl>
+        </controls1:CardControl>
         <controls:MsuSongMsuPcmInfoPanel 
             DataContext="{Binding MsuPcmInfo}" 
             MsuPcmData="{Binding }" 

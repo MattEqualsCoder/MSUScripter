@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using AvaloniaControls.Controls;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Controls;
@@ -48,7 +49,7 @@ public class SettingsService
             Settings = settingsObject;
         }
 
-        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
+        ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
     }
 
     public void SaveSettings()
@@ -62,7 +63,7 @@ public class SettingsService
         }
         File.WriteAllText(GetSettingsPath(), yaml);
 
-        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
+        ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
     }
 
     public void AddRecentProject(MsuProject project)

@@ -5,6 +5,7 @@
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         xmlns:controls="clr-namespace:MSUScripter.Controls"
         xmlns:tools="clr-namespace:MSUScripter.Tools"
+        xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="650" Height="200"
         x:Class="MSUScripter.Controls.SettingsWindow"
@@ -34,13 +35,13 @@
             
             <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True" Margin="5">
                 
-                <controls:LabeledControl Text="MsuPcm++ Path: ">
+                <controls1:LabeledControl Text="MsuPcm++ Path: ">
                     <Grid ColumnDefinitions="*,Auto">
-                        <controls:FileControl
+                        <controls1:FileControl
                             Grid.Column="0"
                             FilePath="{Binding MsuPcmPath, Mode=TwoWay}"
                             FileInputType="OpenFile"
-                        ></controls:FileControl>
+                        ></controls1:FileControl>
                         <Button Grid.Column="1"
                                 Name="ValidateMsuPcmButton"
                                 Margin="5 0 0 0"
@@ -50,9 +51,9 @@
                         </Button>
                     </Grid>
                     
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." DisplayHint="True">
+                <controls1:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." DisplayHint="True">
                     <ComboBox 
                         Name="PromptOnUpdateComboBox"
                         SelectedItem="{Binding PromptOnUpdate, Converter={StaticResource BoolToStringConverter}}"
@@ -60,9 +61,9 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Include Pre-Releases:" Hint="When checking for new updates, alert on pre-release versions in addition to full releases." DisplayHint="True">
+                <controls1:LabeledControl Text="Include Pre-Releases:" Hint="When checking for new updates, alert on pre-release versions in addition to full releases." DisplayHint="True">
                     <ComboBox 
                         Name="PromptOnPreReleaseComboBox"
                         SelectedItem="{Binding PromptOnPreRelease, Converter={StaticResource BoolToStringConverter}}"
@@ -71,18 +72,18 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Use Dark Theme:">
+                <controls1:LabeledControl Text="Use Dark Theme:">
                     <ComboBox 
                         SelectedItem="{Binding DarkTheme, Converter={StaticResource BoolToStringConverter}}"
                         ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Hide Sub Track + Sub Channel Warning:" Hint="Hides the popup warning when you try to add a sub track and sub channel on the same level." DisplayHint="True">
+                <controls1:LabeledControl Text="Hide Sub Track + Sub Channel Warning:" Hint="Hides the popup warning when you try to add a sub track and sub channel on the same level." DisplayHint="True">
                     <ComboBox 
                         Name="HideSubTracksSubChannelsWarning"
                         SelectedItem="{Binding HideSubTracksSubChannelsWarning, Converter={StaticResource BoolToStringConverter}}"
@@ -90,9 +91,9 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Automatically Run PyMusicLooper:" Hint="Automatically run PyMusicLooper in the PyMusicLooper window and Add Song Window." DisplayHint="True">
+                <controls1:LabeledControl Text="Automatically Run PyMusicLooper:" Hint="Automatically run PyMusicLooper in the PyMusicLooper window and Add Song Window." DisplayHint="True">
                     <ComboBox 
                         Name="AutomaticallyRunPyMusicLooperComboBox"
                         SelectedItem="{Binding AutomaticallyRunPyMusicLooper, Converter={StaticResource BoolToStringConverter}}"
@@ -100,9 +101,9 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
+                <controls1:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
                     <Grid ColumnDefinitions="*, Auto">
                         <Slider Grid.Column="0" x:Name="slider" 
                                 Value="{Binding LoopDuration}" 
@@ -115,9 +116,9 @@
                                  IsReadOnly="True"
                                  IsEnabled="False"/>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="UI Scaling (Experimental):">
+                <controls1:LabeledControl Text="UI Scaling (Experimental):">
                     <Grid ColumnDefinitions="*,Auto">
                         <Slider Grid.Column="0" 
                                 Minimum="1" 
@@ -134,7 +135,7 @@
                                  IsEnabled="False"
                         ></TextBox>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
             </StackPanel>
         </DockPanel>

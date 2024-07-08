@@ -11,6 +11,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using Microsoft.Extensions.DependencyInjection;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
@@ -18,6 +20,7 @@ using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 using Timer = System.Timers.Timer;
 
 namespace MSUScripter.Controls;
@@ -389,22 +392,26 @@ public partial class EditProjectPanel : UserControl
 
                 if (!_projectViewModel!.IgnoreWarnings.Contains(song.OutputPath))
                 {
-                    Task<MessageWindowResult?>? task = null;
-                
                     Dispatcher.UIThread.Invoke(() =>
                     {
-                        var window = new MessageWindow(message ?? "Unknown error with msupcm++",
-                            MessageWindowType.PcmWarning, "msupcm++ Warning");
-                        task = window.ShowDialog();
+                        var window = new MessageWindow(new MessageWindowRequest
+                        {
+                            Message = message ?? "Unknown error with msupcm++",
+                            Buttons = MessageWindowButtons.YesNo,
+                            Icon = MessageWindowIcon.Warning,
+                            CheckBoxText = "Ignore future warnings for this song"
+                        });
+
+                        window.Closed += (sender, args) =>
+                        {
+                            if (window.DialogResult?.CheckedBox == true)
+                            {
+                                _projectViewModel!.IgnoreWarnings.Add(song.OutputPath);
+                            }
+                        };
+                        
+                        _ = window.ShowDialog(App.MainWindow!);
                     });
-
-                    task?.Wait();
-                    var result = task?.Result;
-
-                    if (result == MessageWindowResult.DontShow)
-                    {
-                        _projectViewModel!.IgnoreWarnings.Add(song.OutputPath);
-                    }
                 }
                 
                 songModel.LastGeneratedDate = DateTime.Now;
@@ -476,7 +483,7 @@ public partial class EditProjectPanel : UserControl
     {
         if (!HasPendingChanges()) return;
         var result = await ShowYesNoWindow("You currently have unsaved changes. Do you want to save your changes?");
-        if (result == MessageWindowResult.Yes)
+        if (result)
         {
             SaveProject();
         }
@@ -536,25 +543,36 @@ public partial class EditProjectPanel : UserControl
             Dispatcher.UIThread.Invoke(() => { ShowError(message, title); });
             return;
         }
-        
-        _ = new MessageWindow(message, MessageWindowType.Error, title).ShowDialog();
+
+        _ = new MessageWindow(new MessageWindowRequest
+        {
+            Message = message,
+            Icon = MessageWindowIcon.Error,
+            Title = title
+        }).ShowDialog(App.MainWindow!);
     }
     
-    private async Task<MessageWindowResult?> ShowYesNoWindow(string message, string title = "MSU Scripter")
+    private async Task<bool> ShowYesNoWindow(string message, string title = "MSU Scripter")
     {
         if (!Dispatcher.UIThread.CheckAccess())
         {
-            MessageWindowResult? result = null;
+            var result = false;
             await Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                var window = new MessageWindow(message, MessageWindowType.YesNo, title);
-                result = await window.ShowDialog();
+                result = await ShowYesNoWindow(message, title);
             });
             return result;
         }
 
-        var window = new MessageWindow(message, MessageWindowType.YesNo, title);
-        return await window.ShowDialog();
+        var window = new MessageWindow(new MessageWindowRequest
+        {
+            Message = message,
+            Title = title,
+            Buttons = MessageWindowButtons.YesNo,
+            Icon = MessageWindowIcon.Question
+        });
+        await window.ShowDialog(App.MainWindow!);
+        return window.DialogResult?.PressedAcceptButton == true;
     }
 
     private void ExportButton_Json_OnClick(object? sender, RoutedEventArgs e)
@@ -715,7 +733,7 @@ public partial class EditProjectPanel : UserControl
         if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
         {
             var result = await ShowYesNoWindow("Either the trim end or loop point have a value. Are you sure you want to overwrite them?");
-            if (result != MessageWindowResult.Yes)
+            if (result)
                 return;
         }
         
@@ -907,7 +925,7 @@ public partial class EditProjectPanel : UserControl
         if (_projectViewModel.BasicInfo.IsMsuPcmProject && _projectViewModel.Tracks.SelectMany(x => x.Songs).Any(x => x.HasChangesSince(x.LastGeneratedDate)))
         {
             var result = await ShowYesNoWindow("One or more PCM file is out of date. It is recommended to export the MSU first before packaging. Do you want to continue?");
-            if (result != MessageWindowResult.Yes)
+            if (result)
             {
                 return;
             }

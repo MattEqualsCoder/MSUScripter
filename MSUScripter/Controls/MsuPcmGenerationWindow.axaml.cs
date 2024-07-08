@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
@@ -108,8 +110,12 @@ public partial class MsuPcmGenerationWindow : ScalableWindow
                 
                 if (_splitSmz3 && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
                 {
-                    _ = new MessageWindow($"Error generating SMZ3 YAML: {error}", MessageWindowType.Error,
-                        "Error").ShowDialog(this);
+                    _ = new MessageWindow(new MessageWindowRequest
+                    {
+                        Message = $"Error generating SMZ3 YAML: {error}",
+                        Icon = MessageWindowIcon.Error,
+                        Buttons = MessageWindowButtons.OK
+                    }).ShowDialog(this);
                 }
             }
             
@@ -122,13 +128,22 @@ public partial class MsuPcmGenerationWindow : ScalableWindow
                 if (_errors > 0)
                 {
                     var errorString = _errors == 1 ? "was 1 error" : $"were {_errors} errors";
-                    _ = new MessageWindow($"MSU Generation Complete. There {errorString} when running MsuPcm++", MessageWindowType.Error,
-                        "Error").ShowDialog(this);
+                    _ = new MessageWindow(new MessageWindowRequest
+                    {
+                        Message = $"MSU Generation Complete. There {errorString} when running MsuPcm++",
+                        Icon = MessageWindowIcon.Error,
+                        Buttons = MessageWindowButtons.OK
+                    }).ShowDialog(this);
                 }
                 else
                 {
-                    _ = new MessageWindow($"MSU Generation Completed Successfully", MessageWindowType.Info,
-                        "MSU Scripter").ShowDialog(this);
+                    _ = new MessageWindow(new MessageWindowRequest
+                    {
+                        Message = $"MSU Generation Completed Successfully",
+                        Icon = MessageWindowIcon.Info,
+                        Title = "MSU Scripter",
+                        Buttons = MessageWindowButtons.OK
+                    }).ShowDialog(this);
                 }
             });
 

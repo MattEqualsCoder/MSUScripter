@@ -6,50 +6,51 @@
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
              xmlns:configs="clr-namespace:MSUScripter.Configs"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuBasicInfoPanel"
              x:DataType="viewModels:MsuBasicInfoViewModel">
     <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
         
-        <controls:CardControl HeaderText="Basic Details" Padding="10" HorizontalAlignment="Stretch">
+        <controls1:CardControl HeaderText="Basic Details" Padding="10" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Vertical">
-                <controls:LabeledControl Text="Pack Name:" Hint="A friendly display name of the MSU pack" DisplayHint="True">
+                <controls1:LabeledControl Text="Pack Name:" Hint="A friendly display name of the MSU pack" DisplayHint="True">
                     <TextBox 
                         Name="PackNameTextBox"
                         Text="{Binding Path=PackName, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Pack Creator:" Hint="Who created the MSU pack" DisplayHint="True" >
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Pack Creator:" Hint="Who created the MSU pack" DisplayHint="True" >
                     <TextBox 
                         Name="PackCreatorTextBox"
                         Text="{Binding Path=PackCreator, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Pack Version:" Hint="The current version number of the MSU pack" DisplayHint="True" >
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Pack Version:" Hint="The current version number of the MSU pack" DisplayHint="True" >
                     <TextBox 
                         Name="PackVersionTextBox"
                         Text="{Binding Path=PackVersion, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Default Artist:" Hint="The default artist to be applied to songs if one is not specified for a song" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Default Artist:" Hint="The default artist to be applied to songs if one is not specified for a song" DisplayHint="True">
                     <TextBox 
                         Name="ArtistTextBox"
                         Text="{Binding Path=Artist, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Default Album:" Hint="The default album to be applied to songs if one is not specified for a song" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Default Album:" Hint="The default album to be applied to songs if one is not specified for a song" DisplayHint="True">
                     <TextBox 
                         Name="AlbumTextBox"
                         Text="{Binding Path=Album, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Default Url:" Hint="The default url for users to find the songs if one is not specified for a song" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Default Url:" Hint="The default url for users to find the songs if one is not specified for a song" DisplayHint="True">
                     <TextBox 
                         Name="UrlTextBox"
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Create YAML File:" Hint="Create MSU Randomizer YAML file(s)" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Create YAML File:" Hint="Create MSU Randomizer YAML file(s)" DisplayHint="True">
                     <ComboBox 
                         Name="WriteYamlComboBox"
                         SelectedItem="{Binding WriteYamlFile, Converter={StaticResource BoolToStringConverter}}"
@@ -57,8 +58,8 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Track List Format:" Hint='Create a text file with the track details in either a list with the format "%album% - %song% (%artist%)" or in a table view' DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Track List Format:" Hint='Create a text file with the track details in either a list with the format "%album% - %song% (%artist%)" or in a table view' DisplayHint="True">
                     <ComboBox 
                         Name="WriteTrackListComboBox"
                         SelectedItem="{Binding TrackList}"
@@ -66,8 +67,8 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Enable MsuPcm:" Hint="If this is a project for modifying the MsuPcm++ data" DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Enable MsuPcm:" Hint="If this is a project for modifying the MsuPcm++ data" DisplayHint="True">
                     <ComboBox 
                         Name="IsMsuPcmProjectComboBox"
                         SelectedItem="{Binding IsMsuPcmProject, Converter={StaticResource BoolToStringConverter}}"
@@ -75,8 +76,8 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Create Alt Swap File:" Hint="Creates a .bat file to swap between base and alt tracks. Only works between the original song and first track." DisplayHint="True">
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Create Alt Swap File:" Hint="Creates a .bat file to swap between base and alt tracks. Only works between the original song and first track." DisplayHint="True">
                     <ComboBox 
                         Name="CreateAltSwapperComboBox"
                         SelectedItem="{Binding CreateAltSwapper, Converter={StaticResource BoolToStringConverter}}"
@@ -84,8 +85,8 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Create SMZ3 Split Script:" 
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Create SMZ3 Split Script:" 
                                       Hint="Creates a .bat file to switch between combined SMZ3 and split SM and Z3 MSUs" 
                                       DisplayHint="True"
                                       IsVisible="{Binding IsSmz3Project}"
@@ -97,38 +98,38 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Metroid MSU Path:" 
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Metroid MSU Path:" 
                                       IsVisible="{Binding CreateSplitSmz3Script, Mode=TwoWay}"
                 >
-                    <controls:FileControl 
+                    <controls1:FileControl 
                         FileInputType="SaveFile" 
                         FilePath="{Binding MetroidMsuPath, Mode=TwoWay}" 
                         Filter="MSU Files:*.msu" WarnOnOverwrite="False"
                     />
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Zelda MSU Path:" 
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Zelda MSU Path:" 
                                       IsVisible="{Binding CreateSplitSmz3Script, Mode=TwoWay}"
                 >
-                    <controls:FileControl 
+                    <controls1:FileControl 
                         FileInputType="SaveFile" 
                         FilePath="{Binding ZeldaMsuPath, Mode=TwoWay}" 
                         Filter="MSU Files:*.msu" WarnOnOverwrite="False"
                     />
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
             </StackPanel>
-        </controls:CardControl>
-        <controls:CardControl HeaderText="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" IsVisible="{Binding IsMsuPcmProject}" Padding="10">
+        </controls1:CardControl>
+        <controls1:CardControl HeaderText="MsuPcm++ Details" Margin="0 5 0 0" Name="MsuPcmDetailsGroupBox" IsVisible="{Binding IsMsuPcmProject}" Padding="10">
             <StackPanel Orientation="Vertical">
-                <controls:LabeledControl Text="Normalization:" Hint="The default RMS normalization level, in dBFS, to be applied to the entire pack" DisplayHint="True">
-                    <controls:NoScrollNumericUpDown
+                <controls1:LabeledControl Text="Normalization:" Hint="The default RMS normalization level, in dBFS, to be applied to the entire pack" DisplayHint="True">
+                    <controls1:NumericUpDownNoScroll
                         Name="NormalizationTextBox"
                         Value="{Binding Path=Normalization, Mode=TwoWay }"
                         Increment="0.1"
                     >
-                    </controls:NoScrollNumericUpDown>
-                </controls:LabeledControl>
-                <controls:LabeledControl Text="Dither:" Hint="Whether or not to apply audio dither to the final output" DisplayHint="True">
+                    </controls1:NumericUpDownNoScroll>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Dither:" Hint="Whether or not to apply audio dither to the final output" DisplayHint="True">
                     <ComboBox 
                         Name="Dither"
                         SelectedItem="{Binding Dither, Converter={StaticResource NullableBoolToStringConverter}}"
@@ -136,8 +137,8 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
             </StackPanel>
-        </controls:CardControl>
+        </controls1:CardControl>
     </StackPanel>
 </UserControl>

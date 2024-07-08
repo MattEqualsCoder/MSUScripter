@@ -2,6 +2,8 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Models;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
@@ -50,18 +52,22 @@ public partial class SettingsWindow : ScalableWindow
         var isSuccessful = _msuPcmService?.ValidateMsuPcmPath(_model.MsuPcmPath!, out var error);
         if (isSuccessful != true)
         {
-            await new MessageWindow(
-                    "There was an error verifying msupcm++. Please verify that the application runs independently.",
-                    MessageWindowType.Error)
-                .ShowDialog(this);
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = "There was an error verifying msupcm++. Please verify that the application runs independently.",
+                Icon = MessageWindowIcon.Error,
+                Buttons = MessageWindowButtons.OK,
+            }).ShowDialog(this);
         }
         else
         {
-            await new MessageWindow(
-                    "msupcm++ verification successful!",
-                    MessageWindowType.Info,
-                    "Success")
-                .ShowDialog(this);
+            await new MessageWindow(new MessageWindowRequest
+            {
+                Message = "msupcm++ verification successful!",
+                Icon = MessageWindowIcon.Info,
+                Buttons = MessageWindowButtons.OK,
+                Title = "Success"
+            }).ShowDialog(this);
         }
     }
 }

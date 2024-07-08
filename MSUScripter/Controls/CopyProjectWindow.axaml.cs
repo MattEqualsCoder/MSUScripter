@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using AvaloniaControls.Controls;
 using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;

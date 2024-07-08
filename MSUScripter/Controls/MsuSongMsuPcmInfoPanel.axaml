@@ -6,13 +6,14 @@
              xmlns:controls="clr-namespace:MSUScripter.Controls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Controls.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
     <Grid>
-        <controls:CardControl Name="MainGroupBox" HeaderText="{Binding HeaderText}" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
-            <controls:CardControl.HeaderButtons>
+        <controls1:CardControl Name="MainGroupBox" HeaderText="{Binding HeaderText}" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
+            <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal"
                                 Margin="0 0 5 0"
@@ -69,18 +70,18 @@
                         <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
                     </Button>
                 </StackPanel>
-            </controls:CardControl.HeaderButtons>
+            </controls1:CardControl.HeaderButtons>
             <StackPanel Orientation="Vertical">
                 
-                <controls:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" DisplayHint="True">
-                    <controls:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated"></controls:FileControl>
-                </controls:LabeledControl>
+                <controls1:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" DisplayHint="True">
+                    <controls1:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated"></controls1:FileControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">
-                    <controls:NoScrollNumericUpDown Value="{Binding Normalization}" ></controls:NoScrollNumericUpDown>
-                </controls:LabeledControl>
+                <controls1:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">
+                    <controls1:NumericUpDownNoScroll Value="{Binding Normalization}" ></controls1:NumericUpDownNoScroll>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Trim:" Hint="Trim the start and/or end of the current track at the specified sample" DisplayHint="True">
+                <controls1:LabeledControl Text="Trim:" Hint="Trim the start and/or end of the current track at the specified sample" DisplayHint="True">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -90,16 +91,16 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding TrimStart}"></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="1" Value="{Binding TrimStart}"></controls1:NumericUpDownNoScroll>
                         <Button Grid.Column="2" Margin="5 0 0 0" IsVisible="{Binding CanDisplayTrimStartButton}" Click="GetTrimStartButton_OnClick">Get Trim Start</Button>
                         <TextBlock Grid.Column="3" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="4" Value="{Binding TrimEnd}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="4" Value="{Binding TrimEnd}" ></controls1:NumericUpDownNoScroll>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" DisplayHint="True">
+                <controls1:LabeledControl Text="Loop:" Hint="The loop point of the current track, relative to this track/sub-track/sub-channel, in samples" DisplayHint="True">
                     <Grid ColumnDefinitions="*,Auto">
-                        <controls:NoScrollNumericUpDown Value="{Binding Loop}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Value="{Binding Loop}" ></controls1:NumericUpDownNoScroll>
                         <Button Grid.Column="1" 
                                 Name="LoopWindowButton"
                                 Margin="5 0 0 0 "
@@ -108,9 +109,9 @@
                             Run PyMusicLooper
                         </Button>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Fade:" Hint="Apply a fade in or out effect to the current track lasting a specified number of samples. The cross fade will apply from the end of the current track to its loop point lasting a specified number of samples" DisplayHint="True">
+                <controls1:LabeledControl Text="Fade:" Hint="Apply a fade in or out effect to the current track lasting a specified number of samples. The cross fade will apply from the end of the current track to its loop point lasting a specified number of samples" DisplayHint="True">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -121,15 +122,15 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">In:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding FadeIn}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="1" Value="{Binding FadeIn}" ></controls1:NumericUpDownNoScroll>
                         <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">Out:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="3" Value="{Binding FadeOut}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="3" Value="{Binding FadeOut}" ></controls1:NumericUpDownNoScroll>
                         <TextBlock Grid.Column="4" Margin="15 0 5 0" VerticalAlignment="Center">Cross:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="5" Value="{Binding CrossFade}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="5" Value="{Binding CrossFade}" ></controls1:NumericUpDownNoScroll>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Padding:" Hint="Pad the beginning and/or ending of the current track with a specified number of silent samples" DisplayHint="True">
+                <controls1:LabeledControl Text="Padding:" Hint="Pad the beginning and/or ending of the current track with a specified number of silent samples" DisplayHint="True">
                     <Grid Margin="0 0 0 0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -138,17 +139,17 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="1" Value="{Binding PadStart}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="1" Value="{Binding PadStart}" ></controls1:NumericUpDownNoScroll>
                         <TextBlock Grid.Column="2" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
-                        <controls:NoScrollNumericUpDown Grid.Column="3" Value="{Binding PadEnd}" ></controls:NoScrollNumericUpDown>
+                        <controls1:NumericUpDownNoScroll Grid.Column="3" Value="{Binding PadEnd}" ></controls1:NumericUpDownNoScroll>
                     </Grid>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
-                    <controls:NoScrollNumericUpDown Value="{Binding Tempo}" Increment="0.005" ></controls:NoScrollNumericUpDown>
-                </controls:LabeledControl>
+                <controls1:LabeledControl Text="Tempo:" Hint="Alter the tempo of the current track by a specified ratio" DisplayHint="True">
+                    <controls1:NumericUpDownNoScroll Value="{Binding Tempo}" Increment="0.005" ></controls1:NumericUpDownNoScroll>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
+                <controls1:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
                     <ComboBox 
                         Name="CompressionComboBox"
                         SelectedItem="{Binding Compression, Converter={StaticResource NullableBoolToStringConverter}}"
@@ -156,9 +157,9 @@
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Stretch"
                     ></ComboBox>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True">
+                <controls1:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
@@ -179,9 +180,9 @@
                         ></Button>
                         <Separator Margin="0 10 0 8"></Separator>
                     </StackPanel>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
-                <controls:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl" Hint="Files which will be mixed together to form the input to the parent track" DisplayHint="True">
+                <controls1:LabeledControl Text="Sub Channels:" x:Name="SubChannelLabeledControl" Hint="Files which will be mixed together to form the input to the parent track" DisplayHint="True">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubChannelStackPanel"  Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding SubChannels, Mode=OneWay}" Name="SubChannelssItemsControl">
@@ -201,7 +202,7 @@
                             Click="AddSubChannelButton_OnClick"
                         ></Button>
                     </StackPanel>
-                </controls:LabeledControl>
+                </controls1:LabeledControl>
                 
                 <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel" IsVisible="{Binding IsTopLevel}">
                     <Separator Margin="0 5"></Separator>
@@ -259,6 +260,6 @@
                 </StackPanel>
                 
             </StackPanel>
-        </controls:CardControl>
+        </controls1:CardControl>
     </Grid>
 </UserControl>

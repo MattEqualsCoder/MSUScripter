@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using AvaloniaControls.Controls;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 

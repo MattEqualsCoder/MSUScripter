@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:MSUScripter.Controls"
+        xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
         mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="125"
         MaxHeight="125" MaxWidth="350"
         Height="125" Width="350"
@@ -28,12 +29,12 @@
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap" TextAlignment="Center">Select video file to create</TextBlock>
             
-            <controls:LinkControl Name="GitHubLink" 
+            <controls1:LinkControl Name="GitHubLink" 
                                   HorizontalAlignment="Center"
                                   IsVisible="False"
                                   Click="GitHubLink_OnClick">
                 Download MSU Test Video Creator from GitHub
-            </controls:LinkControl>
+            </controls1:LinkControl>
         </StackPanel>
         
     </DockPanel>
