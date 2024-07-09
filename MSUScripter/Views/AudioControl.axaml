@@ -1,0 +1,54 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="40"
+             x:Class="MSUScripter.Views.AudioControl"
+             x:DataType="viewModels:AudioControlViewModel">
+    <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto,Auto,Auto" IsVisible="{Binding CanPlayMusic}">
+        
+        <Button Grid.Column="0" Padding="5" IsEnabled="{Binding CanPlayPause}" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+            <StackPanel>
+                <avalonia:MaterialIcon Kind="{Binding Icon}" />
+            </StackPanel>
+        </Button>
+        
+        <Slider Grid.Column="1"
+                IsEnabled="{Binding CanPlayPause}"
+                IsVisible="{Binding CanSetMusicPosition}"
+                Margin="4 4 0 0"
+                Name="PositionSlider"
+                Minimum="0"
+                Maximum="100"
+                Value="{Binding Position, Mode=TwoWay}"
+                ValueChanged="PositionSlider_OnValueChanged"
+        />
+        
+        <TextBlock Grid.Column="2"
+                   Width="85"
+                   VerticalAlignment="Center"
+                   Name="TimestampTextBlock"
+                   IsVisible="{Binding CanSetMusicPosition}"
+                   Text="{Binding Timestamp}"
+        />
+        
+        <avalonia:MaterialIcon Grid.Column="3" 
+                               Kind="VolumeHigh" 
+                               Margin="0 2 0 0" 
+                               IsVisible="{Binding CanChangeVolume}"
+                               Name="VolumeIcon" />
+        
+        <Slider Grid.Column="4" 
+                Width="80" 
+                Margin="4 4 0 0" 
+                Name="VolumeSlider" 
+                Minimum="0" 
+                Maximum="100"
+                IsVisible="{Binding CanChangeVolume}"
+                Value="{Binding Volume}"
+                ValueChanged="VolumeSlider_OnValueChanged"
+        />
+    </Grid>
+</UserControl>

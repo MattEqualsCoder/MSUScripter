@@ -4,9 +4,9 @@ using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class ViewModelBase : ReactiveObject
+public abstract class ViewModelBase : ReactiveObject
 {
-    public ViewModelBase()
+    protected ViewModelBase()
     {
         this.LinkProperties();
         
@@ -18,6 +18,10 @@ public class ViewModelBase : ReactiveObject
             }
         };
     }
+
+    public abstract ViewModelBase DesignerExample();
     
     [Reactive] public bool HasBeenModified { get; set; }
+    
+    
 }

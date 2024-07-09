@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="MSUScripter.Views.MainWindow"
+        Icon="/Assets/MSUScripterIcon.ico"
+        MinWidth="1024"
+        MinHeight="768"
+        Width="1024"
+        Height="768"
+        Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
+        Title="MSUScripter">
+    <LayoutTransformControl Name="MainLayout">
+        <Grid Name="MainGrid" RowDefinitions="Auto,*" IsSharedSizeScope="True">
+            
+            <Border Grid.Row="0"
+                    BorderThickness="0,0,0,1">
+                <Menu>
+                    <MenuItem 
+                        Header="_New"
+                        Name="NewMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="NewMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_Save" 
+                        Name="SaveMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="SaveMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="S_ettings" 
+                        Name="SettingsMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="SettingsMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_MSU Details" 
+                        Name="MsuDetailsMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        IsVisible="False"
+                        Click="MsuDetailsMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_Track Overview" 
+                        Name="TrackOverviewMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        IsVisible="False"
+                        Click="TrackOverviewMenuItem_OnClick"
+                    ></MenuItem>
+                </Menu>
+            </Border>
+            
+            <DockPanel Grid.Row="1" Name="MainPanel"></DockPanel>
+            
+        </Grid>
+    </LayoutTransformControl>
+</Window>

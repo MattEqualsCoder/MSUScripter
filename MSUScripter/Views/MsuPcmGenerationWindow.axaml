@@ -1,0 +1,51 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="MSUScripter.Views.MsuPcmGenerationWindow"
+        Icon="/Assets/MSUScripterIcon.ico"
+        x:DataType="viewModels:MsuGenerationViewModel"
+        Title="MSU Export - MSU Scripter">
+    <LayoutTransformControl Name="MainLayout">
+        <DockPanel>
+            <ProgressBar Name="MsuPcmProgressBar" DockPanel.Dock="Top"
+                         Minimum="0"
+                         Maximum="{Binding TotalSongs}"
+                         Value="{Binding SongsCompleted}"></ProgressBar>
+            <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="5">
+                <Button Name="CloseButton"
+                        Click="CloseButton_OnClick"
+                        Content="{Binding ButtonText}"></Button>
+            </StackPanel>
+            <DataGrid Name="AudioDataGrid" 
+                      ItemsSource="{Binding Rows}" 
+                      AutoGenerateColumns="False" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="True" 
+                      IsReadOnly="True"
+                      RowBackground="{DynamicResource CardBackground}"
+                      SelectionMode="Single"
+            >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <avalonia:MaterialIcon Kind="Alert" 
+                                                       Foreground="Goldenrod" 
+                                                       IsVisible="{Binding HasWarning}" 
+                                ></avalonia:MaterialIcon>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
+                    <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
+                    <DataGridTextColumn Header="File"  Binding="{Binding SongName}"/>
+                    <DataGridTextColumn Header="Message"  Binding="{Binding Message}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </LayoutTransformControl>
+</Window>

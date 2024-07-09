@@ -12,9 +12,9 @@ using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MSURandomizerLibrary;
-using MSUScripter.Controls;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Views;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
 

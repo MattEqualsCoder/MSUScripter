@@ -4,7 +4,6 @@ using System.Linq;
 using AvaloniaControls.Controls;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
-using MSUScripter.Controls;
 using MSUScripter.Models;
 using Settings = MSUScripter.Configs.Settings;
 

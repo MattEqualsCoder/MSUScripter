@@ -1,0 +1,136 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:tools1="clr-namespace:MSUScripter.Tools"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             Loaded="Control_OnLoaded"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Views.MsuSongInfoPanel"
+             x:DataType="viewModels:MsuSongInfoViewModel">
+    <StackPanel Orientation="Vertical" Grid.IsSharedSizeScope="True">
+        <controls1:CardControl Margin="0 0 0 5" Name="MainGroupBox" HeaderText="Basic Details" DisplayHeaderButtons="True" Padding="10" HorizontalAlignment="Stretch">
+            <controls1:CardControl.HeaderButtons>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Content="Song Finished" 
+                              Margin="0 0 15 0"
+                              IsChecked="{Binding IsComplete}"
+                    ></CheckBox>
+                    <Button 
+                        Grid.Column="1" 
+                        Padding="5 0"
+                        Margin="0 0 0 0"
+                        Click="MenuButton_OnClick"
+                    >
+                        <Button.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy Song"
+                                          Click="CopySongMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Move Song"
+                                          Click="MoveSongMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Remove Song" Name="RemoveButton"
+                                          Click="RemoveButton_OnClick" 
+                                ></MenuItem>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
+                    </Button>
+                </StackPanel>
+            </controls1:CardControl.HeaderButtons>
+            <StackPanel Orientation="Vertical">
+                <controls1:LabeledControl Text="Song Name:" Hint="The name of the song" DisplayHint="True">
+                    <TextBox 
+                        Name="SongNameTextBox"
+                        Text="{Binding Path=SongName, Mode=TwoWay}"
+                    ></TextBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Artist:" Hint="The name of the artist(s) who created the song" DisplayHint="True">
+                    <TextBox 
+                        Name="ArtistTextBox"
+                        Text="{Binding Path=Artist, Mode=TwoWay}"
+                    ></TextBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Album:" Hint="The name of the album that the song is fromt" DisplayHint="True">
+                    <TextBox 
+                        Name="AlbumTextBox"
+                        Text="{Binding Path=Album, Mode=TwoWay}"
+                    ></TextBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Url:" Hint="The original url for users to find the songs" DisplayHint="True">
+                    <TextBox 
+                        Name="UrlTextBox"
+                        Text="{Binding Path=Url, Mode=TwoWay}"
+                    ></TextBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
+                    <ComboBox 
+                        Name="CheckCopyrightComboBox"
+                        SelectedItem="{Binding CheckCopyright, Converter={StaticResource BoolToStringConverter}}"
+                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                    ></ComboBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
+                    <controls1:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
+                                          ShowClearButton="False"
+                                          FileInputType="SaveFile"
+                                          IsEnabled="{Binding IsAlt}"
+                                          Filter="PCM Files:*.pcm"
+                                          ForceExtension="pcm"
+                    ></controls1:FileControl>
+                </controls1:LabeledControl>
+                <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel">
+                    <Separator Margin="0 5"></Separator>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button
+                            Name="PlaySongButton"
+                            Content="Play Song"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="PlaySongButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="TestLoopButton"
+                            Content="Test Loop"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="TestLoopButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="StopMusicButton"
+                            Content="Stop Music"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="StopMusicButton_OnClick"
+                        ></Button>
+                        <Button
+                            Name="ImportSongMetadataButton"
+                            Content="Import Audio File Metadata"
+                            HorizontalAlignment="Center"
+                            Margin="5 5"
+                            Padding="8 5"
+                            Click="ImportSongMetadataButton_OnClick"
+                        ></Button>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </controls1:CardControl>
+        <views:MsuSongMsuPcmInfoPanel 
+            DataContext="{Binding MsuPcmInfo}" 
+            MsuPcmData="{Binding }" 
+            IsVisible="{Binding Project.BasicInfo.IsMsuPcmProject}"
+            PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"
+            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"
+        ></views:MsuSongMsuPcmInfoPanel>
+        <Separator Margin="0 10"></Separator>
+    </StackPanel>
+</UserControl>

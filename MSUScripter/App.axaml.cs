@@ -15,9 +15,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Models;
 using MSURandomizerLibrary.Services;
-using MSUScripter.Controls;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Views;
 using MessageWindowResult = MSUScripter.Models.MessageWindowResult;
 
 namespace MSUScripter;

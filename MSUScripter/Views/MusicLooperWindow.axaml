@@ -1,0 +1,32 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+        MinHeight="380" MinWidth="1000"
+        Height="380" Width="1000"
+        CanResize="False"
+        Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
+        Icon="/Assets/MSUScripterIcon.ico"
+        x:Class="MSUScripter.Views.MusicLooperWindow"
+        Title="PyMusicLooper - MSU Scripter">
+    <LayoutTransformControl Name="MainLayout">
+        <DockPanel Name="DockPanel">
+            
+            <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
+                <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Name="AcceptButton" Click="AcceptButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
+                        Select Loop Point
+                    </Button>
+                    <Button Name="CloseButton" Click="CloseButton_OnClick" Margin="10 0" HorizontalAlignment="Center">
+                        Close
+                    </Button>
+                </StackPanel>
+                <Panel Grid.Column="2" />
+            </Grid>
+            
+        </DockPanel>
+    </LayoutTransformControl>
+</Window>
