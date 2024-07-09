@@ -37,18 +37,13 @@ public partial class CopyProjectWindow : ScalableWindow
         return _model.NewProject;
     }
 
-    private void UpdatePathButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void UpdatePathButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button { Tag: CopyProjectViewModel viewModel })
         {
             return;
         }
-
-        _ = UpdatePath(viewModel);
-    }
-
-    private async Task UpdatePath(CopyProjectViewModel viewModel)
-    {
+        
         var file = await CrossPlatformTools.OpenFileDialogAsync(
             parentWindow: this,
             type: viewModel.IsSongFile ? FileInputControlType.OpenFile : FileInputControlType.SaveFile,
