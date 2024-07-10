@@ -79,16 +79,11 @@ public class PyMusicLooperService
         if (File.Exists(path))
         {
             var ymlText = File.ReadAllText(path);
-            try
+
+            if (YamlService.Instance.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true))
             {
                 message = "";
-                YamlService.Instance.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true);
                 return result;
-            }
-            catch
-            {
-                message = "Could not parse cached PyMusicLooper results";
-                return null;
             }
         }
         
@@ -229,6 +224,7 @@ public class PyMusicLooperService
             return false;
         }
         
+        _logger.LogInformation("{Version} found", result);
         var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
         _currentVersion = ConvertVersionNumber(version[0], version[1], version[2]);
         _hasValidated = _currentVersion >= GetMinVersionNumber();

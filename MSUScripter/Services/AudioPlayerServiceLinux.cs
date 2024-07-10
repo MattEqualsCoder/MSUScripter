@@ -28,6 +28,7 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
         if (_python.SetBaseCommand("pcm_player", "--version", out var result, out var error) &&
             result.StartsWith("pcm_player "))
         {
+            logger.LogInformation("{Version} found", result);
             var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
             var versionValue = ConvertVersionNumber(version[0], version[1], version[2]);
             var minVersionValue = GetMinVersionNumberForSetLoop();

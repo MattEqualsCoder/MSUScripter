@@ -32,6 +32,7 @@ public class VideoCreatorService
         if (_python.SetBaseCommand("msu_test_video_creator", "--version", out var result, out var error) &&
             result.StartsWith("msu_test_video_creator "))
         {
+            logger.LogInformation("{Version} found", result);
             var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
             var currentVersionNumber = ConvertVersionNumber(version[0], version[1], version[2]);
             var minVersion = digitsOnly.Replace(MinVersion, "").Split(".").Select(int.Parse).ToList();

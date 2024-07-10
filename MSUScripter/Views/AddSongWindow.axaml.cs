@@ -13,6 +13,7 @@ using AvaloniaControls.Controls;
 using AvaloniaControls.Models;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Events;
 using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
@@ -57,7 +58,7 @@ public partial class AddSongWindow : ScalableWindow
 
     private void ModelOnOnTrimStartModified(object? sender, EventArgs e)
     {
-        _pyMusicLooperPanel.Model.FilterStart = Model.TrimStart;
+        _pyMusicLooperPanel.UpdateFilterStart(Model.TrimStart);
     }
 
     private AddSongWindowViewModel Model { get; set; } = new();
@@ -144,10 +145,8 @@ public partial class AddSongWindow : ScalableWindow
     private void UpdatePyMusicLooper()
     {
         if (!Model.CanEditMainFields) return;
-        _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel
-        {
-            MsuProjectViewModel = _projectModel,
-            MsuSongInfoViewModel = new MsuSongInfoViewModel()
+        
+        _pyMusicLooperPanel.UpdateModel(_projectModel, new MsuSongInfoViewModel()
             {
                 TrackNumber = _projectModel.Tracks.First().TrackNumber,
                 MsuPcmInfo = new MsuSongMsuPcmInfoViewModel()
@@ -155,11 +154,11 @@ public partial class AddSongWindow : ScalableWindow
                     File = Model.FilePath
                 }
             },
-            MsuSongMsuPcmInfoViewModel = new MsuSongMsuPcmInfoViewModel()
+            new MsuSongMsuPcmInfoViewModel()
             {
                 File = Model.FilePath
-            }
-        };
+            });
+        
         var parentPanel = this.Find<Panel>(nameof(PyMusicLooperPanel))!;
 
         if (!parentPanel.Children.Any())
@@ -170,25 +169,20 @@ public partial class AddSongWindow : ScalableWindow
         else
         {
             Model.RunningPyMusicLooper = true;
-
-            if (SettingsService.Instance.Settings.AutomaticallyRunPyMusicLooper)
-            {
-                _pyMusicLooperPanel.RunPyMusicLooper();
-            }
         }
     }
     
-    private void PyMusicLooperPanelOnOnUpdated(object? sender, EventArgs e)
+    private void PyMusicLooperPanelOnOnUpdated(object? sender, PyMusicLooperPanelUpdatedArgs e)
     {
         Model.RunningPyMusicLooper = false;
         
-        if (_pyMusicLooperPanel.Model.SelectedResult == null)
+        if (e.Result == null)
         {
             return;
         }
         
-        Model.TrimEnd = _pyMusicLooperPanel.Model.SelectedResult.LoopEnd;
-        Model.LoopPoint = _pyMusicLooperPanel.Model.SelectedResult.LoopStart;
+        Model.TrimEnd = e.Result.LoopEnd;
+        Model.LoopPoint = e.Result.LoopStart;
     }
 
     private void TestAudioLevelButton_OnClick(object? sender, RoutedEventArgs e)
@@ -332,8 +326,9 @@ public partial class AddSongWindow : ScalableWindow
         };
 
         track.AddSong(song);
+
+        _pyMusicLooperPanel.UpdateModel(ProjectModel, song, song.MsuPcmInfo);
         
-        _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel();
         Model.Clear();
 
         if (closeAfter)

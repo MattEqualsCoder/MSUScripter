@@ -7,8 +7,7 @@
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
              x:Class="MSUScripter.Views.PyMusicLooperPanel"
-             x:DataType="viewModels:PyMusicLooperPanelViewModel"
-             Loaded="Control_OnLoaded">
+             x:DataType="viewModels:PyMusicLooperPanelViewModel">
     <StackPanel Orientation="Vertical">
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding DisplayOldVersionWarning}">
             <TextBlock Margin="2 5">

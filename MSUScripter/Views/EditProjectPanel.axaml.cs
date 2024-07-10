@@ -730,7 +730,7 @@ public partial class EditProjectPanel : UserControl
         if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
         {
             var result = await ShowYesNoWindow("Either the trim end or loop point have a value. Are you sure you want to overwrite them?");
-            if (result)
+            if (!result)
                 return;
         }
         
@@ -922,7 +922,7 @@ public partial class EditProjectPanel : UserControl
         if (_projectViewModel.BasicInfo.IsMsuPcmProject && _projectViewModel.Tracks.SelectMany(x => x.Songs).Any(x => x.HasChangesSince(x.LastGeneratedDate)))
         {
             var result = await ShowYesNoWindow("One or more PCM file is out of date. It is recommended to export the MSU first before packaging. Do you want to continue?");
-            if (result)
+            if (!result)
             {
                 return;
             }

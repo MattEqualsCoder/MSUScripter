@@ -39,13 +39,7 @@ public partial class MusicLooperWindow : ScalableWindow
 
         Result = null;
 
-        _pyMusicLooperPanel.Model = new PyMusicLooperPanelViewModel()
-        {
-            MsuProjectViewModel = project,
-            MsuSongInfoViewModel = song,
-            MsuSongMsuPcmInfoViewModel = pcmDetails,
-            FilterStart = pcmDetails.TrimStart
-        };
+        _pyMusicLooperPanel.UpdateModel(project, song, pcmDetails);
     }
     
     public async Task<PyMusicLooperResultViewModel?> ShowDialog()
@@ -69,7 +63,7 @@ public partial class MusicLooperWindow : ScalableWindow
     
     private void AcceptButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        Result = _pyMusicLooperPanel?.Model.SelectedResult;
+        Result = _pyMusicLooperPanel?.SelectedResult;
         Close();
     }
 
