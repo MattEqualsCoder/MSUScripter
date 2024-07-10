@@ -734,7 +734,7 @@ public partial class EditProjectPanel : UserControl
                 return;
         }
         
-        var window = _serviceProvider.GetRequiredService<MusicLooperWindow>();
+        var window = _serviceProvider.GetRequiredService<PyMusicLooperWindow>();
         window.SetDetails(_projectViewModel!, songInfo, pcmInfoViewModel);
         var loopResult = await window.ShowDialog();
         if (loopResult != null)

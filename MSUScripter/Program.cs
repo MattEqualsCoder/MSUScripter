@@ -128,7 +128,7 @@ class Program
             .AddTransient<AudioControl>()
             .AddTransient<SettingsWindow>()
             .AddTransient<AudioAnalysisWindow>()
-            .AddTransient<MusicLooperWindow>()
+            .AddTransient<PyMusicLooperWindow>()
             .AddTransient<AddSongWindow>()
             .AddTransient<PythonCommandRunnerService>()
             .AddTransient<VideoCreatorService>()

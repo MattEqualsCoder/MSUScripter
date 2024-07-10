@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using System.Threading.Tasks;
+using System.Timers;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -25,6 +26,11 @@ public partial class AudioControl : UserControl
         }
         
         InitializeComponent();
+    }
+
+    public Task<bool> StopAsync()
+    {
+        return _service?.StopAsync() ?? Task.FromResult(true);
     }
     
     private void PlayPauseButton_OnClick(object? sender, RoutedEventArgs e)

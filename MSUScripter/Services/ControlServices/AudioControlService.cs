@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using System.Timers;
 using AvaloniaControls.ControlServices;
 using Material.Icons;
@@ -28,6 +29,11 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
         return _model;
     }
 
+    public Task<bool> StopAsync()
+    {
+        return audioService.StopSongAsync();
+    }
+    
     public void PlayPause()
     {
         audioService.PlayPause();
