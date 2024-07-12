@@ -5,7 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.TrackOverviewPanel"
-             x:DataType="viewModels:TrackOverviewViewModel">
+             x:DataType="viewModels:TrackOverviewPanelViewModel">
     <DockPanel>
         
         <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" RowDefinitions="Auto, Auto">
@@ -28,7 +28,11 @@
                 <DataGridTemplateColumn Header="Finished" SortMemberPath="SongInfo.IsComplete">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <CheckBox Name="IsCompleteCheckBox" IsVisible="{Binding HasSong}" IsChecked="{Binding SongInfo.IsComplete}" IsCheckedChanged="IsCompleteCheckBox_OnIsCheckedChanged"></CheckBox>
+                            <CheckBox Name="IsCompleteCheckBox" 
+                                      IsVisible="{Binding HasSong}" 
+                                      IsChecked="{Binding SongInfo.IsComplete}" 
+                                      Tag="{Binding}"
+                                      IsCheckedChanged="IsCompleteCheckBox_OnIsCheckedChanged"></CheckBox>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>

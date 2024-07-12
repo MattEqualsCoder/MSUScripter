@@ -191,7 +191,7 @@ public partial class EditProjectPanel : UserControl
         }
         else if (page == 1)
         {
-            var trackOverviewPanel = new TrackOverviewPanel(_projectViewModel!.Tracks);
+            var trackOverviewPanel = new TrackOverviewPanel(_projectViewModel);
             _currentPage = trackOverviewPanel;
             parentPageDockPanel.Children.Add(_currentPage);
             scrollViewerBorder.IsVisible = false;

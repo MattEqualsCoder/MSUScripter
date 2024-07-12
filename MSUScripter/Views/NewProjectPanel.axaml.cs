@@ -38,6 +38,7 @@ public partial class NewProjectPanel : UserControl
         InitializeComponent();
     }
     
+    
     public MsuProject? Project { get; set; }
 
     private void PopulateMsuTypeComboBox()

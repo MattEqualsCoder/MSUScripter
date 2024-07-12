@@ -9,7 +9,7 @@ using MSUScripter.Models;
 
 namespace MSUScripter.Services;
 
-public class ApplicationInitializationService(SettingsService settingsService, ILogger<ApplicationInitializationService> logger)
+public class ApplicationInitializationService(ILogger<ApplicationInitializationService> logger)
 {
     public void Initialize(string[] args)
     {

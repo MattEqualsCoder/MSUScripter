@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
+using AvaloniaControls.Extensions;
 using MSUScripter.Models;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -14,53 +12,28 @@ namespace MSUScripter.Views;
 public partial class TrackOverviewPanel : UserControl
 {
 
+    private TrackOverviewPanelService? _service;
+
     public TrackOverviewPanel()
     {
         InitializeComponent();
+        DataContext = new TrackOverviewPanelViewModel().DesignerExample();
     }
-    
-    public TrackOverviewPanel(List<MsuTrackInfoViewModel> tracks)
+
+    public TrackOverviewPanel(MsuProjectViewModel? project)
     {
         InitializeComponent();
         
-        foreach (var track in tracks.OrderBy(x => x.TrackNumber))
+        if (project == null)
         {
-            if (!track.Songs.Any())
-            {
-                Model.Rows.Add(new TrackOverviewViewModel.TrackOverviewRow()
-                {
-                    TrackNumber = track.TrackNumber,
-                    TrackName = track.TrackName
-                });
-            }
-            else
-            {
-                Model.Rows.AddRange(track.Songs.Select(x => new TrackOverviewViewModel.TrackOverviewRow()
-                {
-                    HasSong = true,
-                    SongInfo = x,
-                    TrackNumber = track.TrackNumber,
-                    TrackName = track.TrackName + (x.IsAlt ? " (Alt)" : ""),
-                    Name = x.SongName ?? "",
-                    Artist = x.Artist ?? "",
-                    Album = x.Album ?? "",
-                    File = !x.MsuPcmInfo.HasFiles() ? ""
-                        : x.MsuPcmInfo.GetFileCount() == 1
-                            ? x.MsuPcmInfo.File!
-                            : $"{x.MsuPcmInfo.GetFileCount()} files"
-                }));
-            }
+            DataContext = new TrackOverviewPanelViewModel();
+            return;
         }
 
-        var numTracks = tracks.Count;
-        var numCompletedTracks = tracks.Count(x => x.Songs.Any(y => y.HasFiles()));
-        Model.CompletedTrackDetails = $"{numCompletedTracks} out of {numTracks} tracks have songs with audio files";
-        
-        DataContext = Model;
+        _service = this.GetControlService<TrackOverviewPanelService>();
+        DataContext = _service?.InitializeModel(project);
     }
-
-    public TrackOverviewViewModel Model { get; set; } = new();
-
+    
     public event EventHandler<TrackEventArgs>? OnSelectedTrack;
 
     private void AudioDataGrid_OnDoubleTapped(object? sender, TappedEventArgs e)
@@ -75,33 +48,24 @@ public partial class TrackOverviewPanel : UserControl
         {
             return;
         }
-        
-        var row = selectedItems[0] as TrackOverviewViewModel.TrackOverviewRow;
 
-        if (row == null)
+        if (selectedItems[0] is not TrackOverviewPanelViewModel.TrackOverviewRow row)
         {
             return;
         }
+        
         OnSelectedTrack?.Invoke(this, new TrackEventArgs(row.TrackNumber));
     }
 
     private void IsCompleteCheckBox_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
-        Task.Run(() =>
+        if (sender is not CheckBox { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row} || row.SongInfo == null )
         {
-            Task.Delay(TimeSpan.FromSeconds(0.2));
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                GetFinishedSongText();
-            });
-        });
+            return;
+        }
 
-    }
+        row.SongInfo.IsComplete = !row.SongInfo.IsComplete; 
+        _service?.UpdateCompletedTrackDetails();
 
-    private void GetFinishedSongText()
-    {
-        var numSongs = Model.Rows.Count(x => x.HasSong);
-        var numFinishedSongs = Model.Rows.Count(x => x.HasSong && x.SongInfo?.IsComplete == true);
-        Model.CompletedSongDetails = $"{numFinishedSongs} out of {numSongs} songs are marked as finished";
     }
 }

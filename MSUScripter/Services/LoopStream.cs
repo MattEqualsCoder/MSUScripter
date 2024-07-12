@@ -6,25 +6,12 @@ namespace MSUScripter.Services;
 /// <summary>
 /// Stream for looping playback
 /// </summary>
-public class LoopStream : WaveStream
+public class LoopStream (WaveStream sourceStream) : WaveStream
 {
-    readonly WaveStream sourceStream;
-
-    /// <summary>
-    /// Creates a new Loop stream
-    /// </summary>
-    /// <param name="sourceStream">The stream to read from. Note: the Read method of this stream should return 0 when it reaches the end
-    /// or else we will not loop to the start again.</param>
-    public LoopStream(WaveStream sourceStream)
-    {
-        this.sourceStream = sourceStream;
-        EnableLooping = true;
-    }
-
     /// <summary>
     /// Use this to turn looping on or off
     /// </summary>
-    public bool EnableLooping { get; set; }
+    public bool EnableLooping { get; set; } = true;
 
     /// <summary>
     /// Return source stream's wave format
@@ -49,13 +36,13 @@ public class LoopStream : WaveStream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        int totalBytesRead = 0;
+        var totalBytesRead = 0;
 
         while (totalBytesRead < count)
         {
             try
             {
-                int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                var bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
                 if (bytesRead == 0)
                 {
                     
