@@ -30,16 +30,25 @@ public class TrackOverviewPanelViewModel : ViewModelBase
         CompletedTrackDetails = $"{CompletedTrackCount} out of {TotalTrackCount} tracks have songs with audio files";
     }
     
-    public class TrackOverviewRow
+    public class TrackOverviewRow(int trackNumber, string trackName, MsuSongInfoViewModel? song = null)
     {
-        public bool HasSong { get; set; }
-        public MsuSongInfoViewModel? SongInfo { get; set; }
-        public required int TrackNumber { get; set; }
-        public required string TrackName { get; set; }
-        public string Name { get; set; } = "";
-        public string Artist { get; set; } = "";
-        public string Album { get; set; } = "";
-        public string File { get; set; } = "";
+        public int TrackNumber => trackNumber;
+        public string TrackName => trackName;
+        public MsuSongInfoViewModel? SongInfo => song;
+        
+        public bool HasSong => SongInfo != null;
+        public string Name => SongInfo?.SongName ?? "";
+        public string Artist => SongInfo?.Artist ?? "";
+        public string Album => SongInfo?.Album ?? "";
+
+        public string File =>
+            SongInfo == null
+                ? ""
+                : !SongInfo.MsuPcmInfo.HasFiles()
+                    ? ""
+                    : SongInfo.MsuPcmInfo.GetFileCount() == 1
+                        ? SongInfo.MsuPcmInfo.File!
+                        : $"{SongInfo.MsuPcmInfo.GetFileCount()} files";
     }
     
     public override ViewModelBase DesignerExample()

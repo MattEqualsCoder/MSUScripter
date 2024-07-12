@@ -23,28 +23,13 @@ public class TrackOverviewPanelService : ControlService
         {
             if (!track.Songs.Any())
             {
-                _model.Rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow()
-                {
-                    TrackNumber = track.TrackNumber,
-                    TrackName = track.TrackName
-                });
+                _model.Rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber, track.TrackName));
             }
             else
             {
-                _model.Rows.AddRange(track.Songs.Select(x => new TrackOverviewPanelViewModel.TrackOverviewRow()
-                {
-                    HasSong = true,
-                    SongInfo = x,
-                    TrackNumber = track.TrackNumber,
-                    TrackName = track.TrackName + (x.IsAlt ? " (Alt)" : ""),
-                    Name = x.SongName ?? "",
-                    Artist = x.Artist ?? "",
-                    Album = x.Album ?? "",
-                    File = !x.MsuPcmInfo.HasFiles() ? ""
-                        : x.MsuPcmInfo.GetFileCount() == 1
-                            ? x.MsuPcmInfo.File!
-                            : $"{x.MsuPcmInfo.GetFileCount()} files"
-                }));
+                _model.Rows.AddRange(track.Songs.Select(x =>
+                    new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber,
+                        track.TrackName + (x.IsAlt ? " (Alt)" : ""), x)));
             }
         }
 

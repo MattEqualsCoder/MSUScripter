@@ -1,4 +1,5 @@
 using AvaloniaControls.Extensions;
+using MSUScripter.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -21,7 +22,7 @@ public abstract class ViewModelBase : ReactiveObject
 
     public abstract ViewModelBase DesignerExample();
     
-    [Reactive] public bool HasBeenModified { get; set; }
+    [Reactive, SkipConvert] public bool HasBeenModified { get; set; }
     
     
 }

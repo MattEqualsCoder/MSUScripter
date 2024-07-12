@@ -11,7 +11,7 @@
         Icon="/Assets/MSUScripterIcon.ico"
         SizeToContent="Height"
         Title="Settings - MSU Scripter"
-        x:DataType="viewModels:SettingsViewModel">
+        x:DataType="viewModels:SettingsWindowViewModel">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>
             

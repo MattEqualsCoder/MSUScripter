@@ -10,12 +10,13 @@ using AvaloniaControls.Models;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
 
 namespace MSUScripter.Views;
 
-public partial class MainWindow : ScalableWindow
+public partial class MainWindow : RestorableWindow
 {
     private readonly IServiceProvider? _services;
     private NewProjectPanel? _newProjectPanel;
@@ -41,26 +42,6 @@ public partial class MainWindow : ScalableWindow
         InitializeComponent();
         DisplayNewPanel();
         Title = $"MSU Scripter v{App.Version}";
-
-        if (settings?.MainWindowRestoreDetails != null)
-        {
-            var screen = Screens.ScreenFromPoint(settings.MainWindowRestoreDetails.GetPosition() +
-                                                 new PixelPoint((int)settings.MainWindowRestoreDetails.Width / 2, (int)settings.MainWindowRestoreDetails.Height / 2));
-            if (screen == null)
-            {
-                Width = 1024;
-                Height = 768;
-            }
-            else
-            {
-                Position = settings.MainWindowRestoreDetails.GetPosition();
-                Width = settings.MainWindowRestoreDetails.Width;
-                Height = settings.MainWindowRestoreDetails.Height;
-                WindowStartupLocation = WindowStartupLocation.Manual;
-                WindowState = settings.MainWindowRestoreDetails.IsMaximized ? WindowState.Maximized : WindowState.Normal;
-            }
-            
-        }
 
         Task.Run(() =>
         {
@@ -225,8 +206,6 @@ public partial class MainWindow : ScalableWindow
             return;
         }
         
-        var details = this.GetWindowRestoreDetails();
-        _settings.MainWindowRestoreDetails = details;
         _settingsService.SaveSettings();
 
         _msuPcmService?.DeleteTempPcms();
@@ -242,4 +221,8 @@ public partial class MainWindow : ScalableWindow
     {
         _editProjectPanel?.DisplayTrackOverview();
     }
+
+    protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
+    protected override int DefaultWidth => 1024;
+    protected override int DefaultHeight => 768;
 }

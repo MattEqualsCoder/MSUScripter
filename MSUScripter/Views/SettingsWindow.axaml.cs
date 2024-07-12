@@ -1,42 +1,34 @@
-﻿using Avalonia;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Styling;
 using AvaloniaControls.Controls;
-using AvaloniaControls.Models;
-using MSUScripter.Services;
+using AvaloniaControls.Extensions;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
 public partial class SettingsWindow : ScalableWindow
 {
-    private readonly SettingsService? _settingsService;
-    private readonly ConverterService? _converterService;
-    private readonly SettingsViewModel _model = new();
-    private readonly MsuPcmService? _msuPcmService;
+    private readonly SettingsWindowService? _service;
 
-    public SettingsWindow() : this(null, null, null)
+    public SettingsWindow()
     {
-        
+        InitializeComponent();
+
+        if (Design.IsDesignMode)
+        {
+            DataContext = new SettingsWindowViewModel().DesignerExample();
+        }
+        else
+        {
+            _service = this.GetControlService<SettingsWindowService>();
+            DataContext = _service?.InitializeModel();
+        }
     }
     
-    public SettingsWindow(SettingsService? settingsService, ConverterService? converterService, MsuPcmService? msuPcmService)
-    {
-        _settingsService = settingsService;
-        _converterService = converterService;
-        _msuPcmService = msuPcmService;
-        InitializeComponent();
-        if (_converterService == null || _settingsService == null) return;
-        _converterService.ConvertViewModel(_settingsService.Settings, _model);
-        DataContext = _model;
-    }
-
     private void SaveButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_converterService == null || _settingsService == null) return;
-        _converterService.ConvertViewModel(_model, _settingsService.Settings);
-        _settingsService.SaveSettings();
-        Application.Current!.RequestedThemeVariant = _settingsService.Settings.DarkTheme ? ThemeVariant.Dark : ThemeVariant.Light;
+        _service?.SaveSettings();
         Close();
     }
 
@@ -47,25 +39,16 @@ public partial class SettingsWindow : ScalableWindow
 
     private async void ValidateMsuPcmButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var isSuccessful = _msuPcmService?.ValidateMsuPcmPath(_model.MsuPcmPath!, out var error);
+        var isSuccessful = _service?.ValidateMsuPcm();
         if (isSuccessful != true)
         {
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = "There was an error verifying msupcm++. Please verify that the application runs independently.",
-                Icon = MessageWindowIcon.Error,
-                Buttons = MessageWindowButtons.OK,
-            }).ShowDialog(this);
+            await MessageWindow.ShowErrorDialog(
+                "There was an error verifying msupcm++. Please verify that the application runs independently.",
+                "msupcm++ Error", this);
         }
         else
         {
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = "msupcm++ verification successful!",
-                Icon = MessageWindowIcon.Info,
-                Buttons = MessageWindowButtons.OK,
-                Title = "Success"
-            }).ShowDialog(this);
+            await MessageWindow.ShowInfoDialog("msupcm++ verification successful!", "Success", this);
         }
     }
 }
