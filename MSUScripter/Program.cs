@@ -14,6 +14,7 @@ using Microsoft.Extensions.Hosting;
 using MSURandomizerLibrary;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.Views;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
@@ -131,7 +132,7 @@ class Program
             .AddTransient<PyMusicLooperWindow>()
             .AddTransient<AddSongWindow>()
             .AddTransient<PythonCommandRunnerService>()
-            .AddTransient<VideoCreatorService>()
+            .AddTransient<VideoCreatorWindowService>()
             .AddTransient<VideoCreatorWindow>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();

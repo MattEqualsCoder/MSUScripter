@@ -3,6 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="125"
         MaxHeight="125" MaxWidth="350"
         Height="125" Width="350"
@@ -10,30 +11,36 @@
         x:Class="MSUScripter.Views.VideoCreatorWindow"
         Icon="/Assets/MSUScripterIcon.ico"
         Title="Copyright Test Video Creator"
+        x:DataType="viewModels:VideoCreatorWindowViewModel"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing">
     <DockPanel>
+        
         <Border DockPanel.Dock="Bottom" Padding="10 0 10 10">
             <StackPanel Orientation="Vertical">
-                <CheckBox Name="IgnoreCheckBox" IsVisible="False" Margin="90 0 0 10"> Ignore future warnings for this song</CheckBox>
                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                    <Button Name="OkButton" Click="OkButton_OnClick" Margin="10 0">
-                        Cancel
-                    </Button>
+                    <Button Name="OkButton" Click="OkButton_OnClick" Margin="10 0" Content="{Binding CloseButtonText}" />
                 </StackPanel>
             </StackPanel>
-            
         </Border>
         
         <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock VerticalAlignment="Center" Name="MessageTextBlock" Padding="10" TextWrapping="Wrap" TextAlignment="Center">Select video file to create</TextBlock>
+            
+            <TextBlock VerticalAlignment="Center" 
+                       Name="MessageTextBlock" 
+                       Padding="10" 
+                       TextWrapping="Wrap" 
+                       TextAlignment="Center" 
+                       Text="{Binding DisplayText}" />
             
             <controls1:LinkControl Name="GitHubLink" 
                                   HorizontalAlignment="Center"
-                                  IsVisible="False"
-                                  Click="GitHubLink_OnClick">
+                                  IsVisible="{Binding DisplayGitHubLink}"
+                                  Click="GitHubLink_OnClick"
+            >
                 Download MSU Test Video Creator from GitHub
             </controls1:LinkControl>
+            
         </StackPanel>
         
     </DockPanel>

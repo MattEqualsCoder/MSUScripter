@@ -17,6 +17,7 @@ using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 using Timer = System.Timers.Timer;
 
@@ -34,7 +35,7 @@ public partial class EditProjectPanel : UserControl
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
     private readonly TrackListService? _trackListService;
-    private readonly VideoCreatorService? _videoCreatorService;
+    private readonly VideoCreatorWindowService? _videoCreatorService;
     private readonly AudioAnalysisService? _audioAnalysisService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
@@ -51,7 +52,7 @@ public partial class EditProjectPanel : UserControl
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorService? videoCreatorService, AudioAnalysisService? audioAnalysisService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorWindowService? videoCreatorService, AudioAnalysisService? audioAnalysisService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -856,8 +857,7 @@ public partial class EditProjectPanel : UserControl
         }
 
         this.Find<ComboBox>(nameof(PageComboBox))!.Focus();
-        var window = _serviceProvider.GetRequiredService<VideoCreatorWindow>();
-        window.Project = _projectViewModel;
+        var window = new VideoCreatorWindow(_projectViewModel);
         window.ShowDialog(App.MainWindow!);
     }
 
