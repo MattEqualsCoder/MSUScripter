@@ -712,10 +712,11 @@ public partial class EditProjectPanel : UserControl
 
     private void AnalysisButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (_audioAnalysisWindow != null) return;
         var topLevel = TopLevel.GetTopLevel(this) as Window;
         if (_serviceProvider == null || _projectViewModel == null || topLevel == null) return;
-        _audioAnalysisWindow = _serviceProvider.GetRequiredService<AudioAnalysisWindow>();
-        _audioAnalysisWindow.SetProject(_projectViewModel);
+        _audioAnalysisWindow = new AudioAnalysisWindow(_projectViewModel);
+        _audioAnalysisWindow.Closed += (_, _) => _audioAnalysisWindow = null; 
         _audioAnalysisWindow.Show();
     }
 

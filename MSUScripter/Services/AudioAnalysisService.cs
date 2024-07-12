@@ -9,7 +9,6 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using NAudio.Wave;
-using TagLib.Mpeg;
 using File = System.IO.File;
 
 namespace MSUScripter.Services;
@@ -50,19 +49,16 @@ public class AudioAnalysisService
     {
         if (string.IsNullOrEmpty(song.Path))
         {
-            song.HasWarning = true;
             song.WarningMessage = "No output path for the song";
             return;
         }
         else if (!project.BasicInfo.IsMsuPcmProject && !File.Exists(song.Path))
         {
-            song.HasWarning = true;
             song.WarningMessage = "PCM file missing";
             return;
         }
         else if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel?.HasFiles() != true && !File.Exists(song.Path))
         {
-            song.HasWarning = true;
             song.WarningMessage = "No input files specified for PCM file";
             return;
         }
@@ -73,7 +69,6 @@ public class AudioAnalysisService
             _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
             if (!GeneratePcmFile(project, song.OriginalViewModel))
             {
-                song.HasWarning = true;
                 song.WarningMessage = "Could not generate new PCM file";
             }
         }
