@@ -7,9 +7,9 @@
         Width="400"
         WindowStartupLocation="CenterOwner"
         SizeToContent="Height"
-        x:Class="MSUScripter.Views.SelectTrackWindow"
+        x:Class="MSUScripter.Views.CopyMoveTrackWindow"
         Title="SelectTrackWindow"
-        x:DataType="viewModels:SelectTrackWindowViewModel"
+        x:DataType="viewModels:CopyMoveTrackWindowViewModel"
         >
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="5" Orientation="Horizontal">
@@ -24,11 +24,11 @@
         </StackPanel>
         
         <StackPanel Orientation="Vertical" Margin="10">
-            <TextBlock>Select a track to copy/move to</TextBlock>
+            <TextBlock Text="{Binding MainText}" />
             <ComboBox
                 Name="TrackComboBox"
-                ItemsSource="{Binding TrackNames}"
-                SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+                ItemsSource="{Binding Tracks}"
+                SelectedValue="{Binding TargetTrack, Mode=TwoWay}"
             ></ComboBox>
         </StackPanel>
         

@@ -83,6 +83,6 @@ public class MsuTrackInfoViewModel : INotifyPropertyChanged
 
     public override string ToString()
     {
-        return TrackNumber.ToString();
+        return $"Track #{TrackNumber} - {TrackName}";
     }
 }

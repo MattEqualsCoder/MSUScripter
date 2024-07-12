@@ -1,49 +1,37 @@
 using System.IO;
 using System.Linq;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
+using AvaloniaControls.ControlServices;
 using MSUScripter.Configs;
-using MSUScripter.Services;
 using MSUScripter.ViewModels;
 
-namespace MSUScripter.Views;
+namespace MSUScripter.Services.ControlServices;
 
-public partial class SelectTrackWindow : Window
+public class CopyMoveTrackWindowService (ConverterService converterService) : ControlService
 {
+    private readonly CopyMoveTrackWindowViewModel _model = new();
 
-    private SelectTrackWindowViewModel _model = new();
-    
-    public SelectTrackWindow()
-    {
-        InitializeComponent();
-        DataContext = _model;
-    }
-
-    public void ShowDialog(Window window, MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
+    public CopyMoveTrackWindowViewModel InitializeModel(MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
         MsuSongInfoViewModel msuSongInfoViewModel, bool isMove)
     {
         _model.Project = msuProjectViewModel;
         _model.PreviousTrack = trackViewModel;
         _model.PreviousSong = msuSongInfoViewModel;
         _model.IsMove = isMove;
-        _model.TrackNames = msuProjectViewModel.Tracks
-            .OrderBy(x => x.TrackNumber)
-            .Select(x => $"Track #{x.TrackNumber} - {x.TrackName}")
-            .ToList();
         _model.Tracks = msuProjectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList();
-        _model.SelectedIndex = _model.Tracks.IndexOf(_model.PreviousTrack);
-        this.Find<ComboBox>(nameof(TrackComboBox))!.SelectedIndex = _model.SelectedIndex;
-        ShowDialog(window);
+        _model.TargetTrack = _model.PreviousTrack;
+        
+        return _model;
     }
 
-    private void OkButton_OnClick(object? sender, RoutedEventArgs e)
+    public void RunCopyMove()
     {
         if (_model.PreviousTrack == null || _model.PreviousSong == null || _model.Project == null)
         {
             return;
         }
+
+        var destinationTrack = _model.TargetTrack;
         
-        var destinationTrack = _model.Tracks[_model.SelectedIndex];
         if (_model.IsMove)
         {
             if (destinationTrack.TrackNumber == _model.PreviousTrack.TrackNumber)
@@ -76,8 +64,8 @@ public partial class SelectTrackWindow : Window
         else
         {
             var msuSongInfo = new MsuSongInfo(); 
-            ConverterService.Instance.ConvertViewModel(_model.PreviousSong, msuSongInfo);
-            ConverterService.Instance.ConvertViewModel(_model.PreviousSong.MsuPcmInfo, msuSongInfo.MsuPcmInfo);
+            converterService.ConvertViewModel(_model.PreviousSong, msuSongInfo);
+            converterService.ConvertViewModel(_model.PreviousSong.MsuPcmInfo, msuSongInfo.MsuPcmInfo);
             
             msuSongInfo.TrackNumber = destinationTrack.TrackNumber;
             msuSongInfo.TrackName = destinationTrack.TrackName;
@@ -96,17 +84,10 @@ public partial class SelectTrackWindow : Window
             }
             
             var msuSongInfoCloned = new MsuSongInfoViewModel(); 
-            ConverterService.Instance.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
-            ConverterService.Instance.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
+            converterService.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
+            converterService.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
             msuSongInfoCloned.Project = _model.Project;
             destinationTrack.Songs.Add(msuSongInfoCloned);
         }
-        
-        Close();
-    }
-
-    private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        Close();
     }
 }

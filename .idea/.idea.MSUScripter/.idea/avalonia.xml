@@ -48,6 +48,7 @@
         <entry key="MSUScripter/Views/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/PyMusicLooperPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/PyMusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/SelectTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/Test.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/TrackOverviewPanel.axaml" value="MSUScripter/MSUScripter.csproj" />

@@ -153,15 +153,15 @@ public partial class MsuSongInfoPanel : UserControl
 
     private void CopySongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new SelectTrackWindow();
-        window.ShowDialog(App.MainWindow!, Song.Project,
+        var window = new CopyMoveTrackWindow(Song.Project,
             Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, false);
+        window.ShowDialog(App.MainWindow!);
     }
 
     private void MoveSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new SelectTrackWindow();
-        window.ShowDialog(App.MainWindow!, Song.Project,
+        var window = new CopyMoveTrackWindow(Song.Project,
             Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, true);
+        window.ShowDialog(App.MainWindow!);
     }
 }
