@@ -21,28 +21,31 @@ public class PyMusicLooperPanelService(
     private CancellationTokenSource? _cts;
     private Settings Settings => settingsService.Settings;
     public event EventHandler<PyMusicLooperPanelUpdatedArgs>? OnUpdated;
-    public event EventHandler? FilteredResultsUpdated;
 
     public PyMusicLooperPanelViewModel InitializeModel()
     {
-        _model.PropertyChanged += (sender, args) =>
+        _model.FilteredResultsUpdated += (sender, args) =>
         {
-            if (args.PropertyName is nameof(_model.FilterStart) or nameof(_model.FilterEnd) && _model.PyMusicLooperResults.Count > 0)
+            if (_model.PyMusicLooperResults.Count <= 0) return;
+            FilterResults();
+
+            _ = Task.Run(() =>
             {
-                FilterResults();
-            }
+                RunMsuPcm(false);
+            });
+
         };
         
         return _model;
     }
     
-    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
+    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel)
     {
         _model.MsuProjectViewModel = msuProjectViewModel;
         _model.MsuProject = converterService.ConvertProject(_model.MsuProjectViewModel);
         _model.MsuSongInfoViewModel = msuSongInfoViewModel;
-        _model.MsuSongMsuPcmInfoViewModel = msuSongMsuPcmInfoViewModel;
-        _model.FilterStart = msuSongMsuPcmInfoViewModel?.TrimStart;
+        _model.MsuSongMsuPcmInfoViewModel = msuSongInfoViewModel.MsuPcmInfo;
+        _model.FilterStart = msuSongInfoViewModel.MsuPcmInfo.TrimStart;
 
         if (Settings.AutomaticallyRunPyMusicLooper)
         {
@@ -136,8 +139,6 @@ public class PyMusicLooperPanelService(
             _model.Page = 0;
             _model.LastPage = _model.FilteredResults.Count / _model.NumPerPage;
         }
-        
-        FilteredResultsUpdated?.Invoke(this, EventArgs.Empty);
     }
     
     public void TestPyMusicLooper()

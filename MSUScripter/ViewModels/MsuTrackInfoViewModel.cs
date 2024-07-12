@@ -80,4 +80,9 @@ public class MsuTrackInfoViewModel : INotifyPropertyChanged
         OnPropertyChanged(propertyName);
         return true;
     }
+
+    public override string ToString()
+    {
+        return TrackNumber.ToString();
+    }
 }

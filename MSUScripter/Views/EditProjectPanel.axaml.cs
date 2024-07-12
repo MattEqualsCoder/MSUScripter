@@ -735,7 +735,7 @@ public partial class EditProjectPanel : UserControl
         }
         
         var window = _serviceProvider.GetRequiredService<PyMusicLooperWindow>();
-        window.SetDetails(_projectViewModel!, songInfo, pcmInfoViewModel);
+        window.SetDetails(_projectViewModel!, songInfo);
         var loopResult = await window.ShowDialog();
         if (loopResult != null)
         {
@@ -783,9 +783,7 @@ public partial class EditProjectPanel : UserControl
         }
         
         _isAddNewSongWindowOpen = true;
-        var addSongWindow = _serviceProvider.GetRequiredService<AddSongWindow>();
-        addSongWindow.TrackNumber = trackNumber;
-        addSongWindow.ProjectModel = _projectViewModel;
+        var addSongWindow = new AddSongWindow(_projectViewModel, trackNumber);
         await addSongWindow.ShowDialog(App.MainWindow);
         _isAddNewSongWindowOpen = false;
     }

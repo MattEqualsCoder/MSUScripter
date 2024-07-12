@@ -5,6 +5,7 @@
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+        xmlns:views="clr-namespace:MSUScripter.Views"
         mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
         Width="1000" Height="700"
         MinWidth="1000" MinHeight="700"
@@ -19,7 +20,7 @@
         <DockPanel>
             
             <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
-                <Panel Grid.Column="0" Name="AudioPanelParent"></Panel>
+                <views:AudioControl Grid.Column="0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Margin="5, 0" 
                             IsEnabled="{Binding CanAddSong}"
@@ -57,41 +58,15 @@
                         <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
                         <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>
                         
-                        <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" 
-                              Margin="0 0 3 0"
-                              ColumnDefinitions="* Auto Auto"
-                        >
-                            <ComboBox Grid.Column="0"
-                                Name="MsuTypeComboBox"
-                                ItemsSource="{Binding Tracks}"
-                                SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
-                                IsVisible="{Binding !EnableSearchBox}"
-                                SelectionChanged="MsuTypeComboBox_OnSelectionChanged"
-                            />
-                            
-                            <AutoCompleteBox Grid.Column="0" 
-                                             Name="TrackSearchAutoCompleteBox"
-                                             ItemsSource="{Binding Tracks}" 
-                                             IsVisible="{Binding EnableSearchBox}" 
-                                             FilterMode="Contains"
-                                             Populated="TrackSearchAutoCompleteBox_OnPopulated"
-                                             TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
-                            ></AutoCompleteBox>
-                            
-                            <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
-                                <avalonia:MaterialIcon Kind="Search" Height="18" Width="18" Name="SearchIcon"></avalonia:MaterialIcon>
-                            </Button>
-                            
-                            <avalonia:MaterialIcon 
-                                Grid.Column="2"
-                                Kind="Information"
-                                ToolTip.Tip="{Binding TrackDescription}"
-                                Margin="3 -5 0 0"
-                                Width="16" Height="16"
-                                IsEnabled="{Binding HasDescription}"
-                            ></avalonia:MaterialIcon>
-                        </Grid>
-                            
+                        <controls1:ComboBoxAndSearchControl 
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="6"
+                            Margin="0 0 3 0"
+                            Items="{Binding TrackSearchItems}"
+                            Value="{Binding SelectedTrack, Mode=TwoWay}"
+                        ></controls1:ComboBoxAndSearchControl>
+                        
                         <controls1:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
                                               Name="FileControl" 
                                               Filter="All Files:*"
@@ -205,10 +180,14 @@
                 </controls1:CardControl>
                 
                 <controls1:CardControl Margin="5 0 5 5" Name="PyMusicLooperBox" HeaderText="PyMusicLooper" Padding="10" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditMainFields}">
-                    <Panel>
-                        <Panel Name="PyMusicLooperPanel" IsVisible="{Binding CanEditMainFields}"></Panel>
-                        <TextBlock IsVisible="{Binding !CanEditMainFields}" HorizontalAlignment="Center">Select an audio file</TextBlock>
-                    </Panel>
+                    <StackPanel Orientation="Vertical">
+                        <Panel IsVisible="{Binding ShowPyMusicLooper}">
+                            <views:PyMusicLooperPanel x:Name="PyMusicLooperPanel" OnUpdated="PyMusicLooperPanel_OnOnUpdated"/>
+                        </Panel>
+                        <Panel IsVisible="{Binding !ShowPyMusicLooper}">
+                            <TextBlock HorizontalAlignment="Center">Select an audio file</TextBlock>
+                        </Panel>
+                    </StackPanel>
                 </controls1:CardControl>
                 
             </StackPanel>

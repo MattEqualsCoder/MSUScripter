@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
+#pragma warning disable CS0067 // Event is never used
 
 namespace MSUScripter.ViewModels;
 
@@ -22,10 +24,10 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
     [Reactive] public bool DisplayGitHubLink { get; set; }
     [Reactive] public bool DisplayOldVersionWarning { get; set; }
     
-    [Reactive, ReactiveLinkedProperties(nameof(FilteredResults))]
+    [Reactive, ReactiveLinkedProperties(nameof(FilteredResults)), ReactiveLinkedEvent(nameof(FilteredResultsUpdated))]
     public int? FilterStart { get; set; }
 
-    [Reactive, ReactiveLinkedProperties(nameof(FilteredResults))]
+    [Reactive, ReactiveLinkedProperties(nameof(FilteredResults)), ReactiveLinkedEvent(nameof(FilteredResultsUpdated))]
     public int? FilterEnd { get; set; }
     
     [Reactive, ReactiveLinkedProperties(nameof(CanClickOnPrev), nameof(CanClickOnNext))]
@@ -50,6 +52,8 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
     public bool CanClickOnPrev => Page > 0 && !GeneratingPcms;
     public bool CanClickOnNext => Page < LastPage && !GeneratingPcms;
     public int NumPerPage => 8;
+
+    public event EventHandler? FilteredResultsUpdated;
     
     public List<PyMusicLooperResultViewModel> CurrentPageResults =>
         FilteredResults.Skip(Page * NumPerPage).Take(NumPerPage).ToList();
@@ -59,6 +63,30 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
         FilteredResults =
         [
             new PyMusicLooperResultViewModel(10000, 500000, new decimal(0.95))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
+            {
+                Duration = "1:00"
+            },
+            new PyMusicLooperResultViewModel(12000, 502000, new decimal(0.94))
             {
                 Duration = "1:00"
             },
