@@ -11,7 +11,7 @@
         Icon="/Assets/MSUScripterIcon.ico"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
-        x:DataType="viewModels:PackageMsuViewModel">
+        x:DataType="viewModels:PackageMsuWindowViewModel">
     <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="5">
             <Button Name="CloseButton"
@@ -19,7 +19,6 @@
                     Content="{Binding ButtonText}"></Button>
         </StackPanel>
         
-        <TextBox IsReadOnly="True" Text="{Binding Response}">
-        </TextBox>
+        <TextBox IsReadOnly="True" Text="{Binding Response}" />
     </DockPanel>
 </Window>
