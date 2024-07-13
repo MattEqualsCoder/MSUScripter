@@ -41,8 +41,10 @@
         <entry key="MSUScripter/Views/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

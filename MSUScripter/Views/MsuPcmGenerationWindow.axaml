@@ -7,7 +7,8 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="MSUScripter.Views.MsuPcmGenerationWindow"
         Icon="/Assets/MSUScripterIcon.ico"
-        x:DataType="viewModels:MsuGenerationViewModel"
+        Loaded="Control_OnLoaded"
+        x:DataType="viewModels:MsuPcmGenerationViewModel"
         Title="MSU Export - MSU Scripter">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>

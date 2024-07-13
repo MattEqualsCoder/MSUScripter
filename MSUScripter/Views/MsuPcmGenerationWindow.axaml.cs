@@ -1,202 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.IO;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using AvaloniaControls.Controls;
-using AvaloniaControls.Models;
-using MSUScripter.Configs;
-using MSUScripter.Services;
+using AvaloniaControls.Extensions;
+using MSUScripter.Models;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
-public partial class MsuPcmGenerationWindow : ScalableWindow
+public partial class MsuPcmGenerationWindow : RestorableWindow
 {
-    private readonly MsuPcmService? _msuPcmService;
-    private readonly ConverterService? _converterService;
-    private readonly MsuGenerationViewModel _rows;
-    private readonly CancellationTokenSource _cts = new();
-    private readonly ProjectService? _projectService;
+    private readonly MsuPcmGenerationWindowService? _service;
     
-    private int _errors;
-    private bool _hasFinished;
-    private bool _exportYaml;
-    private bool _splitSmz3;
-    
-    public MsuProjectViewModel _projectViewModel { get; set; } = new();
-    public MsuProject _project { get; set; } = new();
-    
-    public MsuPcmGenerationWindow() : this(null, null, null)
+    public MsuPcmGenerationWindow()
     {
-        
-    }
-    
-    public MsuPcmGenerationWindow(MsuPcmService? msuPcmService, ConverterService? converterService, ProjectService? projectService)
-    {
-        _msuPcmService = msuPcmService;
-        _converterService = converterService;
-        _projectService = projectService;
         InitializeComponent();
-        DataContext = _rows = new MsuGenerationViewModel(); 
+        DataContext = new MsuPcmGenerationViewModel().DesignerExample();
     }
     
-    public void SetProject(MsuProjectViewModel project, bool exportYaml, bool splitSmz3)
+    public MsuPcmGenerationWindow(MsuProjectViewModel project, bool exportYaml)
     {
-        if (_converterService == null || _msuPcmService == null) return;
-        
-        _projectViewModel = project;
-        _project = _converterService.ConvertProject(project);
-        _exportYaml = exportYaml;
-        _splitSmz3 = splitSmz3;
+        InitializeComponent();
+        _service = this.GetControlService<MsuPcmGenerationWindowService>();
+        DataContext = _service?.InitializeModel(project, exportYaml);
 
-        var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
-        if (string.IsNullOrEmpty(msuDirectory)) return;
-        
-        var songs = project.Tracks.SelectMany(x => x.Songs)
-            .OrderBy(x => x.TrackNumber)
-            .Select(x => new MsuGenerationSongViewModel()
-            {
-                SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
-                TrackName = x.TrackName,
-                TrackNumber = x.TrackNumber,
-                Path = x.OutputPath!,
-                OriginalViewModel = x
-            })
-            .ToList();
-        
-        _rows.Rows = songs;
-        _rows.TotalSongs = songs.Count;
-    }
-
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        
-        _ = Task.Run(() =>
+        if (_service != null)
         {
-            var start = DateTime.Now;
-
-            List<MsuGenerationSongViewModel> toRetry = [];
-            
-            Parallel.ForEach(_rows.Rows,
-                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token },
-                songDetails =>
+            _service.PcmGenerationComplete += (sender, args) =>
+            {
+                var model = args.Data;
+                Dispatcher.UIThread.Invoke(() =>
                 {
-                    if (!ProcessSong(songDetails, false))
+                    Title = $"MSU Export - MSU Scripter (Completed in {model.GenerationSeconds} seconds)";
+                    if (model.GenerationErrors.Count > 0)
                     {
-                        toRetry.Add(songDetails);
+                        var errorText = string.Join("\r\n", model.GenerationErrors);
+                        MessageWindow.ShowErrorDialog($"MSU generation completed with errors:\r\n{errorText}", "MSU Scripter", this);
+                    }
+                    else
+                    {
+                        MessageWindow.ShowInfoDialog("MSU Generation Completed Successfully", "MSU Scripter", this);
                     }
                 });
-
-            // For retries, try again linearly
-            foreach (var songDetails in toRetry)
-            {
-                ProcessSong(songDetails, true);
-            }
-            
-            _hasFinished = true;
-            _rows.ButtonText = "Close";
-            _rows.SongsCompleted = _rows.Rows.Count;
-
-            if (_exportYaml && _projectService != null)
-            {
-                _projectService.ExportMsuRandomizerYaml(_project, out var error);
-                
-                if (_splitSmz3 && !_projectService.CreateSMZ3SplitRandomizerYaml(_project, out error))
-                {
-                    _ = new MessageWindow(new MessageWindowRequest
-                    {
-                        Message = $"Error generating SMZ3 YAML: {error}",
-                        Icon = MessageWindowIcon.Error,
-                        Buttons = MessageWindowButtons.OK
-                    }).ShowDialog(this);
-                }
-            }
-            
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                var end = DateTime.Now;
-                var duration = end - start;
-                Title = $"MSU Export - MSU Scripter (Completed in {Math.Round(duration.TotalSeconds, 2)} seconds)";
-                
-                if (_errors > 0)
-                {
-                    var errorString = _errors == 1 ? "was 1 error" : $"were {_errors} errors";
-                    _ = new MessageWindow(new MessageWindowRequest
-                    {
-                        Message = $"MSU Generation Complete. There {errorString} when running MsuPcm++",
-                        Icon = MessageWindowIcon.Error,
-                        Buttons = MessageWindowButtons.OK
-                    }).ShowDialog(this);
-                }
-                else
-                {
-                    _ = new MessageWindow(new MessageWindowRequest
-                    {
-                        Message = $"MSU Generation Completed Successfully",
-                        Icon = MessageWindowIcon.Info,
-                        Title = "MSU Scripter",
-                        Buttons = MessageWindowButtons.OK
-                    }).ShowDialog(this);
-                }
-            });
-
-        }, _cts.Token);
-    }
-
-    private bool ProcessSong(MsuGenerationSongViewModel songDetails, bool isRetry)
-    {
-        if (_cts.IsCancellationRequested)
-        {
-            return true;
+            };
         }
-                    
-        var songViewModel = songDetails.OriginalViewModel;
-        var song = new MsuSongInfo();
-        _converterService!.ConvertViewModel(songViewModel, song);
-        _converterService!.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
-        if (!_msuPcmService!.CreatePcm(_project, song, out var error, out var generated))
-        {
-            if (!isRetry && error?.Contains("__sox_wrapper_temp") == true &&
-                error.Contains("Permission denied"))
-            {
-                return false;
-            }
-            else
-            {
-                songDetails.HasWarning = true;
-                songDetails.Message = error ?? "Unknown error";
-                _errors++;
-            }
-                        
-        }
-        else
-        {
-            songViewModel.LastGeneratedDate = DateTime.Now;
-            songDetails.Message = "Success!";
-        }
-                    
-        _rows.SongsCompleted++;
-        return true;
     }
     
     protected override void OnClosing(WindowClosingEventArgs e)
     {
+        _service?.Cancel();
         base.OnClosing(e);
-        
-        if (!_hasFinished)
-        {
-            _cts.Cancel();    
-        }
     }
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Close();
     }
+
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        _service?.RunGeneration();
+    }
+
+    protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "msu-pcm-generation-window.json");
+    protected override int DefaultWidth => 1024;
+    protected override int DefaultHeight => 768;
 }

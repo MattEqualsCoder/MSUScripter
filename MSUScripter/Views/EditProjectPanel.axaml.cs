@@ -691,8 +691,7 @@ public partial class EditProjectPanel : UserControl
 
         Dispatcher.UIThread.Invoke(() =>
         {
-            var msuPcmGenerationWindow = _serviceProvider.GetRequiredService<MsuPcmGenerationWindow>();
-            msuPcmGenerationWindow.SetProject(_projectViewModel, exportYaml, _project!.BasicInfo.CreateSplitSmz3Script);
+            var msuPcmGenerationWindow = new MsuPcmGenerationWindow(_projectViewModel, exportYaml);
             msuPcmGenerationWindow.ShowDialog(App.MainWindow!);
             UpdateStatusBarText("MSU Generated");
         });
