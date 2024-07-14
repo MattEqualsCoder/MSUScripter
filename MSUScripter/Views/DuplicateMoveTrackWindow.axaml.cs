@@ -6,17 +6,17 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
-public partial class CopyMoveTrackWindow : Window
+public partial class DuplicateMoveTrackWindow : Window
 {
     private CopyMoveTrackWindowService? _service;
     
-    public CopyMoveTrackWindow()
+    public DuplicateMoveTrackWindow()
     {
         InitializeComponent();
         DataContext = new CopyMoveTrackWindowViewModel().DesignerExample();
     }
     
-    public CopyMoveTrackWindow(MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
+    public DuplicateMoveTrackWindow(MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
         MsuSongInfoViewModel msuSongInfoViewModel, bool isMove)
     {
         InitializeComponent();

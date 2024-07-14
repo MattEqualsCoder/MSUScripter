@@ -7,7 +7,7 @@
         Width="400"
         WindowStartupLocation="CenterOwner"
         SizeToContent="Height"
-        x:Class="MSUScripter.Views.CopyMoveTrackWindow"
+        x:Class="MSUScripter.Views.DuplicateMoveTrackWindow"
         Title="SelectTrackWindow"
         x:DataType="viewModels:CopyMoveTrackWindowViewModel"
         >

@@ -4,10 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:tools1="clr-namespace:MSUScripter.Tools"
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:views="clr-namespace:MSUScripter.Views"
-             Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.MsuSongInfoPanel"
              x:DataType="viewModels:MsuSongInfoViewModel">
@@ -19,16 +17,15 @@
                               Margin="0 0 15 0"
                               IsChecked="{Binding IsComplete}"
                     ></CheckBox>
-                    <Button 
-                        Grid.Column="1" 
+                    <Button
                         Padding="5 0"
                         Margin="0 0 0 0"
                         Click="MenuButton_OnClick"
                     >
                         <Button.ContextMenu>
                             <ContextMenu>
-                                <MenuItem Header="Copy Song"
-                                          Click="CopySongMenuItem_OnClick" 
+                                <MenuItem Header="Duplicate Song"
+                                          Click="DuplicateSongMenuItem_OnClick" 
                                 ></MenuItem>
                                 <MenuItem Header="Move Song"
                                           Click="MoveSongMenuItem_OnClick" 
@@ -68,13 +65,10 @@
                     ></TextBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
-                    <ComboBox 
-                        Name="CheckCopyrightComboBox"
-                        SelectedItem="{Binding CheckCopyright, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools1:BoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox
+                        Value="{Binding CheckCopyright}"
+                        AllowNulls="False"
+                    ></controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
                     <controls1:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
@@ -94,6 +88,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="PlaySongButton_OnClick"
                         ></Button>
                         <Button
@@ -102,6 +97,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="TestLoopButton_OnClick"
                         ></Button>
                         <Button
@@ -110,6 +106,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="StopMusicButton_OnClick"
                         ></Button>
                         <Button
@@ -128,7 +125,6 @@
             DataContext="{Binding MsuPcmInfo}"
             MsuPcmData="{Binding}"
             IsVisible="{Binding Project.BasicInfo.IsMsuPcmProject}"
-            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"
         ></views:MsuSongMsuPcmInfoPanel>
         <Separator Margin="0 10"></Separator>
     </StackPanel>

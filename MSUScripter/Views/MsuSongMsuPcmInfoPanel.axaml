@@ -163,7 +163,6 @@
                                         <views:MsuSongMsuPcmInfoPanel 
                                             DataContext="{Binding}"
                                             MsuPcmData="{Binding}" 
-                                            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" 
                                         ></views:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -190,7 +189,6 @@
                                         <views:MsuSongMsuPcmInfoPanel 
                                             DataContext="{Binding}" 
                                             MsuPcmData="{Binding}"
-                                            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"
                                         ></views:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

@@ -1,24 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
+using AvaloniaControls;
 using AvaloniaControls.Controls;
-using AvaloniaControls.Models;
-using MSUScripter.Models;
-using MSUScripter.Services;
+using AvaloniaControls.Extensions;
+using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using FileInputControlType = AvaloniaControls.FileInputControlType;
 
 namespace MSUScripter.Views;
 
 public partial class MsuSongInfoPanel : UserControl
 {
     public static readonly StyledProperty<MsuSongInfoViewModel> SongProperty = AvaloniaProperty.Register<MsuSongInfoPanel, MsuSongInfoViewModel>(
-        "Song");
+        nameof(Song));
+
+    private MsuSongInfoPanelService? _service;
 
     public MsuSongInfoViewModel Song
     {
@@ -29,15 +30,25 @@ public partial class MsuSongInfoPanel : UserControl
     public MsuSongInfoPanel()
     {
         InitializeComponent();
+        
+        if (Design.IsDesignMode)
+        {
+            DataContext = new MsuSongMsuPcmInfoViewModel().DesignerExample();
+        }
+        else
+        {
+            _service = this.GetControlService<MsuSongInfoPanelService>();
+        }
+        
+        SongProperty.Changed.Subscribe(x =>
+        {
+            if (x.Sender != this || (MsuSongInfoViewModel?)x.NewValue.Value == null)
+            {
+                return;
+            }
+            _service?.InitializeModel(x.NewValue.Value);
+        });
     }
-
-    public event EventHandler? OnDelete;
-    
-    public event EventHandler<PcmEventArgs>? PcmOptionSelected; 
-    
-    public event EventHandler<SongFileEventArgs>? FileUpdated;
-    
-    public event EventHandler<SongFileEventArgs>? MetaDataFileSelected;
 
     private void InitializeComponent()
     {
@@ -46,91 +57,57 @@ public partial class MsuSongInfoPanel : UserControl
 
     private async void RemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new MessageWindow(new MessageWindowRequest
+        var response = await MessageWindow.ShowYesNoDialog("Are you sure you want to delete this song?", "Delete song?",
+            TopLevel.GetTopLevel(this) as Window);
+        if (response)
         {
-            Message = "Are you sure you want to delete this song?",
-            Title = "Delete song?",
-            Icon = MessageWindowIcon.Question,
-            Buttons = MessageWindowButtons.YesNo
-        });
-
-        await window.ShowDialog(this);
-
-        if (window.DialogResult?.PressedAcceptButton != true) return;
-        
-        OnDelete?.Invoke(this, new RoutedEventArgs(e.RoutedEvent, this));
+            _service?.DeleteSong();
+        }
     }
 
-    private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.AddedSubChannelOrSubTrack));
+        if (_service == null) return;
+        var errorMessage = await _service.PlaySong(false);
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
     }
 
-    private void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.PlayLoop));
-    }
-
-    private void MsuSongMsuPcmInfoPanel_OnPcmOptionSelected(object? sender, PcmEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(sender, e);
-    }
-
-    private void MsuSongMsuPcmInfoPanel_OnFileUpdated(object? sender, BasicEventArgs e)
-    {
-        FileUpdated?.Invoke(sender, new SongFileEventArgs(Song, e.Data ?? "", false));
+        if (_service == null) return;
+        var errorMessage = await _service.PlaySong(true);
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
     }
 
     private async void ImportSongMetadataButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        var directory = _service?.GetOpenMusicFilePath() ?? await this.GetDocumentsFolderPath();
+        if (string.IsNullOrEmpty(directory))
+        {
+            return;
+        }
+
+        var file = await CrossPlatformTools.OpenFileDialogAsync(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!,
+            FileInputControlType.OpenFile, filter: "All Files:*.*", path: directory, title: "Select Audio File");
         var topLevel = TopLevel.GetTopLevel(this);
         if (topLevel == null) return;
-
-        var folder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
-        if (!string.IsNullOrEmpty(Song.MsuPcmInfo.File) && File.Exists(Song.MsuPcmInfo.File))
-        {
-            var file = new FileInfo(Song.MsuPcmInfo.File);
-            var settingsFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(file.Directory?.FullName ?? "");
-            if (settingsFolder != null)
-            {
-                folder = settingsFolder;
-            }
-        }
-        else if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
-        {
-            var settingsFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);
-            if (settingsFolder != null)
-            {
-                folder = settingsFolder;
-            }
-        }
         
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        if (!string.IsNullOrEmpty(file?.Path.LocalPath))
         {
-            Title = "Select Audio File",
-            FileTypeFilter = new []{ new FilePickerFileType("All Files") { Patterns = new List<string>() {"*.*"}}},
-            SuggestedStartLocation = folder
-        });
-
-        if (!string.IsNullOrEmpty(files.FirstOrDefault()?.Path.LocalPath))
-        {
-            MetaDataFileSelected?.Invoke(this, new SongFileEventArgs(Song, files.FirstOrDefault()?.Path.LocalPath ?? "", true));
+            _service?.ImportAudioMetadata(file.Path.LocalPath);
         }
     }
 
-    private void StopMusicButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void StopMusicButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(Song, PcmEventType.StopMusic));
-    }
-
-    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        if (IAudioPlayerService.CanPlaySongs != true)
-        {
-            this.Find<Button>(nameof(PlaySongButton))!.IsVisible = false;
-            this.Find<Button>(nameof(TestLoopButton))!.IsVisible = false;
-            this.Find<Button>(nameof(StopMusicButton))!.IsVisible = false;
-        }
+        if (_service == null) return;
+        await _service.StopSong();
     }
 
     private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
@@ -151,16 +128,16 @@ public partial class MsuSongInfoPanel : UserControl
         e.Handled = true;
     }
 
-    private void CopySongMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    private void DuplicateSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new CopyMoveTrackWindow(Song.Project,
+        var window = new DuplicateMoveTrackWindow(Song.Project,
             Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, false);
         window.ShowDialog(App.MainWindow!);
     }
 
     private void MoveSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new CopyMoveTrackWindow(Song.Project,
+        var window = new DuplicateMoveTrackWindow(Song.Project,
             Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, true);
         window.ShowDialog(App.MainWindow!);
     }

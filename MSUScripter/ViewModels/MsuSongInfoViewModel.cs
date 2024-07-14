@@ -1,101 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.Tools;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuSongInfoViewModel : INotifyPropertyChanged
+public class MsuSongInfoViewModel : ViewModelBase
 {
-    private int _trackNumber;
-    public int TrackNumber
+    public MsuSongInfoViewModel()
     {
-        get => _trackNumber;
-        set => SetField(ref _trackNumber, value);
-    }
-
-    private string _trackName = "";
-    public string TrackName
-    {
-        get => _trackName;
-        set => SetField(ref _trackName, value);
-    }
-
-    private string? _songName;
-    public string? SongName
-    {
-        get => _songName;
-        set => SetField(ref _songName, value);
-    }
-
-    private string? _artist;
-    public string? Artist
-    {
-        get => _artist;
-        set => SetField(ref _artist, value);
-    }
-
-    private string? _album;
-    public string? Album
-    {
-        get => _album;
-        set => SetField(ref _album, value);
-    }
-
-    private string? _url;
-    public string? Url
-    {
-        get => _url;
-        set => SetField(ref _url, value);
-    }
-
-    private string? _outputPath = "";
-    public string? OutputPath
-    {
-        get => _outputPath;
-        set => SetField(ref _outputPath, value);
-    }
-
-    private bool _isAlt;
-    public bool IsAlt
-    {
-        get => _isAlt;
-        set => SetField(ref _isAlt, value);
+        PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName != nameof(LastModifiedDate) && args.PropertyName != nameof(HasBeenModified))
+            {
+                LastModifiedDate = DateTime.Now;
+            }
+        };
     }
     
-    private bool _isComplete;
-    public bool IsComplete
-    {
-        get => _isComplete;
-        set => SetField(ref _isComplete, value);
-    }
-    
-    private bool _checkCopyright = true;
-    public bool CheckCopyright
-    {
-        get => _checkCopyright;
-        set => SetField(ref _checkCopyright, value);
-    }
-    
-    private DateTime _lastModifiedDate;
-    public DateTime LastModifiedDate
-    {
-        
-        get => _lastModifiedDate;
-        set => SetField(ref _lastModifiedDate, value);
-    }
-    
-    private DateTime _lastGeneratedDate;
-    public DateTime LastGeneratedDate
-    {
-        get => _lastGeneratedDate;
-        set => SetField(ref _lastGeneratedDate, value);
-    }
+    public int TrackNumber { get; set; }
 
-    [SkipConvert]
-    public MsuProjectViewModel Project { get; set; } = null!;
+    public string TrackName { get; set; } = "";
+
+    [Reactive] public string? SongName { get; set; }
+
+    [Reactive] public string? Artist { get; set; }
+
+    [Reactive] public string? Album { get; set; }
+
+    [Reactive] public string? Url { get; set; }
+
+    [Reactive] public string? OutputPath { get; set; }
+
+    [Reactive] public bool IsAlt { get; set; }
+    
+    [Reactive] public bool IsComplete { get; set; }
+    
+    [Reactive] public bool CheckCopyright { get; set; }
+    
+    [Reactive] public DateTime LastModifiedDate { get; set; }
+    
+    [Reactive] public DateTime LastGeneratedDate { get; set; }
+
+    [SkipConvert] public MsuProjectViewModel Project { get; set; } = null!;
+    
+    [SkipConvert] public MsuTrackInfoViewModel Track { get; set; } = null!;
+    
+    [SkipConvert] public bool CanPlaySongs { get; set; }
     
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
     
@@ -109,22 +60,21 @@ public class MsuSongInfoViewModel : INotifyPropertyChanged
         return MsuPcmInfo.HasFiles();
     }
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    public void ApplyAudioMetadata(AudioMetadata metadata, bool force)
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (metadata.HasData != true) return;
+        if (force || string.IsNullOrEmpty(SongName) || SongName.StartsWith("Track #"))
+            SongName = metadata.SongName;
+        if (force || (string.IsNullOrEmpty(Artist) && !string.IsNullOrEmpty(metadata.Artist)))
+            Artist = metadata.Artist;
+        if (force || (string.IsNullOrEmpty(Album) && !string.IsNullOrEmpty(metadata.Album)))
+            Album = metadata.Album;
+        if (force || (string.IsNullOrEmpty(Url) && !string.IsNullOrEmpty(metadata.Url)))
+            Url = metadata.Url;
     }
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    public override ViewModelBase DesignerExample()
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        if (propertyName != nameof(LastModifiedDate) && propertyName != nameof(LastGeneratedDate))
-        {
-            LastModifiedDate = DateTime.Now;
-        }
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        return this;
     }
 }

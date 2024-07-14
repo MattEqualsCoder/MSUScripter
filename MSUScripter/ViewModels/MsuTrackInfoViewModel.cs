@@ -43,7 +43,7 @@ public class MsuTrackInfoViewModel : INotifyPropertyChanged
     public MsuProjectViewModel Project { get; set; } = new();
     
     [SkipConvert]
-    public ObservableCollection<MsuSongInfoViewModel> Songs { get; set; } = new ObservableCollection<MsuSongInfoViewModel>();
+    public ObservableCollection<MsuSongInfoViewModel> Songs { get; set; } = [];
     
     public bool HasChangesSince(DateTime time)
     {

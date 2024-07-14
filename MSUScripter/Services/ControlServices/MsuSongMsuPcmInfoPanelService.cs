@@ -13,10 +13,10 @@ public class MsuSongMsuPcmInfoPanelService(
     Settings settings,
     SettingsService settingsService,
     IAudioPlayerService audioPlayerService,
-    MsuPcmService msuPcmService,
     ConverterService converterService,
     AudioAnalysisService audioAnalysisService,
-    StatusBarService statusBarService,
+    SharedPcmService sharedPcmService,
+    AudioMetadataService audioMetadataService,
     YamlService yamlService) : ControlService
 {
     private MsuSongMsuPcmInfoViewModel _model = new();
@@ -120,19 +120,7 @@ public class MsuSongMsuPcmInfoPanelService(
 
     public async Task<string?> PlaySong(bool testLoop)
     {
-        await audioPlayerService.StopSongAsync(null, true);
-        
-        if (!GeneratePcmFile(false, false, out var error, out _))
-            return error;
-        
-        if (string.IsNullOrEmpty(_model.Song.OutputPath) || !File.Exists(_model.Song.OutputPath))
-        {
-            return "No pcm file detected";
-        }
-        
-        // UpdateStatusBarText("Playing Song");
-        await audioPlayerService.PlaySongAsync(_model.Song.OutputPath, testLoop);
-        return null;
+        return await sharedPcmService.PlaySong(_model.Song, testLoop);
     }
 
     public void IgnoreMsuPcmError()
@@ -143,73 +131,7 @@ public class MsuSongMsuPcmInfoPanelService(
     
     public bool GeneratePcmFile(bool asPrimary, bool asEmpty, out string error, out bool msuPcmError)
     {
-        error = "";
-        msuPcmError = false;
-        
-        if (msuPcmService.IsGeneratingPcm) return false;
-
-        if (asEmpty)
-        {
-            var emptySong = new MsuSongInfo();
-            converterService.ConvertViewModel(_model.Song, emptySong);
-            var successful = msuPcmService.CreateEmptyPcm(emptySong);
-            if (!successful)
-            {
-                error = "Could not generate empty pcm file";
-                return false;
-            }
-            //UpdateStatusBarText("PCM Generated");
-            return true;
-        }
-        
-        if (!_model.HasFiles())
-        {
-            error = "No files specified to generate into a pcm file";
-            return false;
-        }
-        
-        //UpdateStatusBarText("Generating PCM");
-        var song = new MsuSongInfo();
-        converterService.ConvertViewModel(_model.Song, song);
-        converterService.ConvertViewModel(_model, song.MsuPcmInfo);
-        var tempProject = converterService.ConvertProject(_model.Project);
-
-        if (asPrimary)
-        {
-            var msu = new FileInfo(_model.Project.MsuPath);
-            var path = msu.FullName.Replace(msu.Extension, $"-{song.TrackNumber}.pcm");
-            song.OutputPath = path;
-        }
-        
-        if (!msuPcmService.CreatePcm(tempProject, song, out var msuPcmMessage, out var generated, false))
-        {
-            if (generated)
-            {
-                //UpdateStatusBarText("PCM Generated with Warning");
-
-                if (!_model.Project.IgnoreWarnings.Contains(song.OutputPath))
-                {
-                    msuPcmError = true;
-                    error = msuPcmMessage ?? "Unknown error with msupcm++";
-                }
-                
-                _model.Song.LastGeneratedDate = DateTime.Now;
-                return true;
-            }
-            else
-            {
-                //UpdateStatusBarText("msupcm++ Error");
-                error = msuPcmMessage ?? "Unknown error with msupcm++";
-                return false;
-            }
-        }
-        
-        _model.Song.LastGeneratedDate = DateTime.Now;
-
-        //var hasAlts = tempProject.Tracks.First(x => x.TrackNumber == songModel.TrackNumber).Songs.Count > 1;
-        
-        //UpdateStatusBarText(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
-        return true;
+        return sharedPcmService.GeneratePcmFile(_model.Song, asPrimary, asEmpty, out error, out msuPcmError);
     }
 
     public string? GetCopyDetailsString()
@@ -258,7 +180,7 @@ public class MsuSongMsuPcmInfoPanelService(
 
     public async Task StopSong()
     {
-        await audioPlayerService.StopSongAsync(null, true);
+        await sharedPcmService.StopSong();
     }
     
     public string? GetStartingSamples()
@@ -273,11 +195,30 @@ public class MsuSongMsuPcmInfoPanelService(
             var samples = audioAnalysisService.GetAudioStartingSample(_model.File);
             _model.TrimStart = samples;
             return null;
-            //UpdateStatusBarText("Starting samples retrieved");
         }
         catch
         {
             return "Unable to get starting samples for file";
         }
+    }
+
+    public void ImportAudioMetadata()
+    {
+        if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
+        {
+            return;
+        }
+        
+        var metadata =  audioMetadataService.GetAudioMetadata(_model.File);
+        _model.Song.ApplyAudioMetadata(metadata, false);
+
+        var topLevelPcmInfo = _model;
+        while (topLevelPcmInfo.ParentMsuPcmInfo != null)
+        {
+            topLevelPcmInfo = topLevelPcmInfo.ParentMsuPcmInfo;
+        }
+        
+        topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File));
+        topLevelPcmInfo.UpdateMultiWarning();
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AvaloniaControls.Models;
+using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;

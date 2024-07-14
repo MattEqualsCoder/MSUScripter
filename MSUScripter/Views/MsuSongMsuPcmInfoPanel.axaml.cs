@@ -54,7 +54,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             }
             _service?.InitializeModel(x.NewValue.Value);
         });
-        
     }
 
     private void InitializeComponent()
@@ -126,7 +125,17 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
     private async void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _service?.PlaySong(true);
+        if (_service == null)
+        {
+            return;
+        }
+        
+        var errorMessage = await _service.PlaySong(true);
+        
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
     }
 
     private async Task GeneratePcm(bool asPrimary, bool asEmpty)
@@ -164,11 +173,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     private async void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
     {
         await GeneratePcm(false, false);
-    }
-
-    private void MsuSongMsuPcmInfoPanel_OnFileUpdated(object? sender, BasicEventArgs e)
-    {
-        FileUpdated?.Invoke(sender, e);
     }
 
     private async void LoopWindowButton_OnClick(object? sender, RoutedEventArgs e)
@@ -293,6 +297,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
     private void FileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
     {
-        FileUpdated?.Invoke(this, new BasicEventArgs(e.Path));
+        _service?.ImportAudioMetadata();
     }
 }

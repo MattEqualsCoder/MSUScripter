@@ -135,6 +135,7 @@ class Program
             .AddTransient<PythonCommandRunnerService>()
             .AddTransient<VideoCreatorWindowService>()
             .AddTransient<VideoCreatorWindow>()
+            .AddTransient<SharedPcmService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
 
