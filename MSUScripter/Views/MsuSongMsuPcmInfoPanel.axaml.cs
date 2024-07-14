@@ -9,16 +9,21 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
+using AvaloniaControls.Extensions;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
+using Tmds.DBus.Protocol;
 
 namespace MSUScripter.Views;
 
 public partial class MsuSongMsuPcmInfoPanel : UserControl
 {
+    private readonly MsuSongMsuPcmInfoPanelService? _service;
+    
     public static readonly StyledProperty<MsuSongMsuPcmInfoViewModel> MsuPcmDataProperty = AvaloniaProperty.Register<MsuSongMsuPcmInfoPanel, MsuSongMsuPcmInfoViewModel>(
         "MsuPcmData");
 
@@ -31,6 +36,25 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     public MsuSongMsuPcmInfoPanel()
     {
         InitializeComponent();
+
+        if (Design.IsDesignMode)
+        {
+            DataContext = new MsuSongMsuPcmInfoViewModel().DesignerExample();
+        }
+        else
+        {
+            _service = this.GetControlService<MsuSongMsuPcmInfoPanelService>();
+        }
+        
+        MsuPcmDataProperty.Changed.Subscribe(x =>
+        {
+            if (x.Sender != this || (MsuSongMsuPcmInfoViewModel?)x.NewValue.Value == null)
+            {
+                return;
+            }
+            _service?.InitializeModel(x.NewValue.Value);
+        });
+        
     }
 
     private void InitializeComponent()
@@ -38,37 +62,34 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         AvaloniaXamlLoader.Load(this);
     }
     
-    public event EventHandler? OnDelete;
-    
-    public event EventHandler<PcmEventArgs>? PcmOptionSelected;
-
     public event EventHandler<BasicEventArgs>? FileUpdated;
 
     private async void RemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var window = new MessageWindow(new MessageWindowRequest
+        if (!await MessageWindow.ShowYesNoDialog("Are you sure you want to delete these msupcm++ details?",
+                "Delete details"))
         {
-            Message = "Are you sure you want to delete these msupcm++ details?",
-            Title = "Delete details?",
-            Icon = MessageWindowIcon.Question,
-            Buttons = MessageWindowButtons.YesNo
-        });
+            return;
+        }
 
-        await window.ShowDialog(this);
-        
-        if (window.DialogResult?.PressedAcceptButton != true) return;
-        
-        OnDelete?.Invoke(this, new RoutedEventArgs(e.RoutedEvent, this));
+        _service?.Delete();
     }
 
-    private void AddSubTrackButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void AddSubTrackButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        Dispatcher.UIThread.InvokeAsync(AddSubTrack);
+        await ShowSubTracksSubChannelsWarningPopup(true, false);
+        _service?.AddSubTrack();
     }
 
-    private async Task AddSubTrack()
+    private async void AddSubChannelButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubChannels)
+        await ShowSubTracksSubChannelsWarningPopup(false, true);
+        _service?.AddSubChannel();
+    }
+
+    private async Task ShowSubTracksSubChannelsWarningPopup(bool newSubTrack, bool newSubChannel)
+    {
+        if (_service?.ShouldShowSubTracksSubChannelsWarningPopup(newSubTrack, newSubChannel) == true)
         {
             var window = new MessageWindow(new MessageWindowRequest
             {
@@ -83,76 +104,66 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         
             if (window.DialogResult?.CheckedBox == true)
             {
-                SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
-                SettingsService.Instance.SaveSettings();
+                _service?.HideSubTracksSubChannelsWarning();
             }
         }
-        
-        MsuPcmData.AddSubTrack();
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.AddedSubChannelOrSubTrack));;
-    }
-
-    private void AddSubChannelButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        Dispatcher.UIThread.InvokeAsync(AddSubChannel);
     }
     
-    private async Task AddSubChannel()
+    private async void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (!SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning && MsuPcmData.HasSubTracks)
+        if (_service == null)
+        {
+            return;
+        }
+        
+        var errorMessage = await _service.PlaySong(false);
+
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+    }
+
+    private async void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.PlaySong(true);
+    }
+
+    private async Task GeneratePcm(bool asPrimary, bool asEmpty)
+    {
+        if (_service == null) return;
+        
+        var successful = _service.GeneratePcmFile(asPrimary, asEmpty, out var error, out var msuPcmError);
+        if (!successful)
+        {
+            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+        else if (msuPcmError)
         {
             var window = new MessageWindow(new MessageWindowRequest
             {
-                Message = "PCM files can't be generated with both a sub track and a sub channel at the same level. Before generating the PCM, you'll need to make sure it has one or the other.",
-                Title = "Warning",
-                Icon = MessageWindowIcon.Warning,
+                Message = error,
                 Buttons = MessageWindowButtons.OK,
-                CheckBoxText = "Don't show this again"
+                Icon = MessageWindowIcon.Warning,
+                CheckBoxText = "Ignore future warnings for this song"
             });
 
-            await window.ShowDialog(this);
-        
-            if (window.DialogResult?.CheckedBox == true)
+            await window.ShowDialog(TopLevel.GetTopLevel(this) as Control ?? this);
+
+            if (window.DialogResult is { PressedAcceptButton: true, CheckedBox: true })
             {
-                SettingsService.Instance.Settings.HideSubTracksSubChannelsWarning = true;
-                SettingsService.Instance.SaveSettings();
+                _service.IgnoreMsuPcmError();
             }
         }
-        
-        MsuPcmData.AddSubChannel();
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.AddedSubChannelOrSubTrack));;
+    }
+    private async void GenerateAsMainPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await GeneratePcm(true, false);
     }
 
-    private void MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete(object? sender, EventArgs e)
+    private async void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not MsuSongMsuPcmInfoPanel panel) return;
-        MsuPcmData.RemoveSubChannel(panel.MsuPcmData);
-    }
-    
-    private void MsuSongMsuPcmInfoPanelSubTrack_OnOnDelete(object? sender, EventArgs e)
-    {
-        if (sender is not MsuSongMsuPcmInfoPanel panel) return;
-        MsuPcmData.RemoveSubTrack(panel.MsuPcmData);
-    }
-
-    private void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.Play));
-    }
-
-    private void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.PlayLoop));
-    }
-
-    private void GenerateAsMainPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.GenerateAsPrimary));
-    }
-
-    private void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.Generate));
+        await GeneratePcm(false, false);
     }
 
     private void MsuSongMsuPcmInfoPanel_OnFileUpdated(object? sender, BasicEventArgs e)
@@ -160,39 +171,44 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         FileUpdated?.Invoke(sender, e);
     }
 
-    private void LoopWindowButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void LoopWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.LoopWindow, MsuPcmData));
+        if (_service?.HasLoopDetails() == true)
+        {
+            var result = await MessageWindow.ShowYesNoDialog(
+                "Either the trim end or loop point have a value. Are you sure you want to overwrite them?",
+                "Override Loop Data?", TopLevel.GetTopLevel(this) as Window);
+            if (!result)
+                return;
+        }
+        
+        var window = new PyMusicLooperWindow(); 
+        window.SetDetails(MsuPcmData.Project, MsuPcmData.Song, MsuPcmData);
+        var loopResult = await window.ShowDialog();
+        if (loopResult != null)
+        {
+            _service?.UpdateLoopSettings(loopResult);
+        }
     }
 
     private void StopButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StopMusic));
+        _service?.StopSong();
+        //PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StopMusic));
     }
 
-    private void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.GenerateEmpty));
+        await GeneratePcm(false, true);
     }
 
-    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private async void GetTrimStartButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (IAudioPlayerService.CanPlaySongs != true)
+        var response = _service?.GetStartingSamples();
+        if (!string.IsNullOrEmpty(response))
         {
-            this.Find<Button>(nameof(PlaySongButton))!.IsVisible = false;
-            this.Find<Button>(nameof(TestLoopButton))!.IsVisible = false;
-            this.Find<Button>(nameof(StopButton))!.IsVisible = false;
+            await MessageWindow.ShowErrorDialog(response, "Error", TopLevel.GetTopLevel(this) as Window);
         }
-    }
-
-    private void MsuSongMsuPcmInfoPanel_OnPcmOptionSelected(object? sender, PcmEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(sender, e);
-    }
-
-    private void GetTrimStartButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StartingSamples, MsuPcmData));
     }
 
     private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
@@ -213,107 +229,45 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         e.Handled = true;
     }
 
-    private void Copy_OnClick(object? sender, RoutedEventArgs e)
+    private async void Copy_OnClick(object? sender, RoutedEventArgs e)
     {
-        Dispatcher.UIThread.InvokeAsync(CopyMsuPcmDetails);
-    }
-
-    private void PasteMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-
-            if (clipboard == null)
-            {
-                return;
-            }
+        var yaml = _service?.GetCopyDetailsString();
         
-            var yamlText = await clipboard.GetTextAsync();
+        if (string.IsNullOrEmpty(yaml))
+        {
+            return;
+        }
 
-            if (string.IsNullOrEmpty(yamlText))
-            {
-                return;
-            }
-
-            if (!YamlService.Instance.FromYaml<MsuSongMsuPcmInfo>(yamlText, out var yamlMsuPcmDetails, out _, false) || yamlMsuPcmDetails == null)
-            {
-                await new MessageWindow(new MessageWindowRequest
-                {
-                    Message = "Invalid msupcm++ track details",
-                    Title = "Error",
-                    Icon = MessageWindowIcon.Error,
-                    Buttons = MessageWindowButtons.OK,
-                }).ShowDialog(this);
-                
-                return;
-            }
-
-            var originalProject = MsuPcmData.Project;
-            var originalSong = MsuPcmData.Song;
-            var originalIsAlt = MsuPcmData.IsAlt;
-            var originalParent = MsuPcmData.ParentMsuPcmInfo;
-            
-            if (!ConverterService.Instance.ConvertViewModel(yamlMsuPcmDetails, MsuPcmData))
-            {
-                await new MessageWindow(new MessageWindowRequest
-                {
-                    Message = "Invalid msupcm++ track details",
-                    Title = "Error",
-                    Icon = MessageWindowIcon.Error,
-                    Buttons = MessageWindowButtons.OK,
-                }).ShowDialog(this);
-            }
-            
-            MsuPcmData.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, true);
-            MsuPcmData.LastModifiedDate = DateTime.Now;
-        });
+        await this.SetClipboardAsync(yaml);
     }
 
-    private void ContextMenu_OnOpening(object? sender, CancelEventArgs e)
+    private async void PasteMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var yamlText = await this.GetClipboardAsync();
+
+        if (yamlText == null)
+        {
+            return;
+        }
+        
+        var error = _service?.CopyDetailsFromString(yamlText);
+
+        if (!string.IsNullOrEmpty(error))
+        {
+            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+    }
+
+    private async void ContextMenu_OnOpening(object? sender, CancelEventArgs e)
     {
         if (sender is not ContextMenu contextMenu)
         {
             return;
         }
-        
-        var pasteMenuItem = contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) as MenuItem;
-        var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
 
-        if (pasteMenuItem == null || clipboard == null)
+        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
         {
-            return;
-        }
-
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            pasteMenuItem.IsEnabled = !string.IsNullOrWhiteSpace(await clipboard.GetTextAsync());
-        });
-    }
-
-    private async Task<bool> CopyMsuPcmDetails()
-    {
-        MsuSongMsuPcmInfo output = new();
-        if (!ConverterService.Instance.ConvertViewModel(MsuPcmData, output))
-        {
-            return false;
-        }
-        output.ClearLastModifiedDate();
-
-        try
-        {
-            var yamlText = YamlService.Instance.ToYaml(output, false);
-            var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-            if (clipboard == null)
-            {
-                return false;
-            }
-            await clipboard.SetTextAsync(yamlText);
-            return true;
-        }
-        catch (Exception)
-        {
-            return false;
+            pasteMenuItem.IsEnabled = !string.IsNullOrWhiteSpace(await this.GetClipboardAsync());    
         }
     }
 
@@ -326,13 +280,14 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
         if (MsuPcmData.IsSubChannel)
         {
+            
             var index = MsuPcmData.ParentMsuPcmInfo.SubChannels.IndexOf(MsuPcmData);
-            MsuPcmData.ParentMsuPcmInfo.AddSubChannel(index);
+            _service?.AddSubChannel(index, true);
         }
         else if (MsuPcmData.IsSubTrack)
         {
             var index = MsuPcmData.ParentMsuPcmInfo.SubTracks.IndexOf(MsuPcmData);
-            MsuPcmData.ParentMsuPcmInfo.AddSubTrack(index);
+            _service?.AddSubTrack(index, true);
         }
     }
 

@@ -59,13 +59,15 @@ public class AddSongWindowService(
     {
         if (panel == null || !_model.CanEditMainFields) return;
 
+        var pcmData = new MsuSongMsuPcmInfoViewModel
+        {
+            File = _model.FilePath
+        };
+        
         panel.UpdateModel(_model.MsuProjectViewModel, new MsuSongInfoViewModel
         {
-            MsuPcmInfo = new MsuSongMsuPcmInfoViewModel
-            {
-                File = _model.FilePath
-            }
-        });
+            MsuPcmInfo = pcmData
+        }, pcmData);
     }
     
     public async Task PlaySong(bool fromEnd)

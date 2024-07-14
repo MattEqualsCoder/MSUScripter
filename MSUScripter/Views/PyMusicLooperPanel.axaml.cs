@@ -36,9 +36,9 @@ public partial class PyMusicLooperPanel : UserControl
     
     public event EventHandler<PyMusicLooperPanelUpdatedArgs>? OnUpdated;
 
-    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel)
+    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
     {
-        _service?.UpdateModel(msuProjectViewModel, msuSongInfoViewModel);
+        _service?.UpdateModel(msuProjectViewModel, msuSongInfoViewModel, msuSongMsuPcmInfoViewModel);
     }
 
     public void UpdateFilterStart(int? filterStart)

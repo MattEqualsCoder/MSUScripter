@@ -13,19 +13,12 @@ using File = System.IO.File;
 
 namespace MSUScripter.Services;
 
-public class AudioAnalysisService
+public class AudioAnalysisService(
+    IAudioPlayerService audioPlayerService,
+    MsuPcmService msuPcmService,
+    StatusBarService statusBarService,
+    ILogger<AudioAnalysisService> logger)
 {
-    private IAudioPlayerService _audioPlayerService;
-    private MsuPcmService _msuPcmService;
-    private ILogger<AudioAnalysisService> _logger;
-
-    public AudioAnalysisService(IAudioPlayerService audioPlayerService, MsuPcmService msuPcmService, ILogger<AudioAnalysisService> logger)
-    {
-        _audioPlayerService = audioPlayerService;
-        _msuPcmService = msuPcmService;
-        _logger = logger;
-    }
-
     public async Task AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = ConverterService.Instance.ConvertProject(projectViewModel);
@@ -66,7 +59,7 @@ public class AudioAnalysisService
         // Regenerate the pcm file if it has updates that have been made to it
         if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
         {
-            _logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
+            logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
             if (!GeneratePcmFile(project, song.OriginalViewModel))
             {
                 song.WarningMessage = "Could not generate new PCM file";
@@ -75,7 +68,7 @@ public class AudioAnalysisService
             
         var data = await AnalyzeAudio(song.Path);
         song.ApplyAudioAnalysis(data);
-        _logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
+        logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
     
     private bool GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
@@ -83,15 +76,15 @@ public class AudioAnalysisService
         var song = new MsuSongInfo();
         ConverterService.Instance.ConvertViewModel(songModel, song);
         ConverterService.Instance.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
-        _msuPcmService.CreatePcm(project, song, out var message, out var generated);
+        msuPcmService.CreatePcm(project, song, out var message, out var generated);
         if (!generated)
         {
-            _logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, message);
+            logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, message);
         }
         else
         {
             songModel.LastGeneratedDate = DateTime.Now;
-            _logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
+            logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
         }
 
         return generated;
@@ -108,7 +101,7 @@ public class AudioAnalysisService
 
         if (incompatibleFileTypes.Contains(new FileInfo(path).Extension.ToLower()))
         {
-            _logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
+            logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
             return 44100;
         }
         
@@ -119,7 +112,7 @@ public class AudioAnalysisService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to retrieve audio sample rate");
+            logger.LogError(e, "Unable to retrieve audio sample rate");
             return 44100;
         }
         
@@ -132,7 +125,7 @@ public class AudioAnalysisService
             throw new InvalidOperationException("This is only supported on Windows");
         }
 
-        _logger.LogInformation("GetAudioStartingSample");
+        logger.LogInformation("GetAudioStartingSample");
         try
         {
             var totalSampleCount = 0;
@@ -161,11 +154,12 @@ public class AudioAnalysisService
             
             } while (!quit && samples == readBuffer.Length);
 
+            statusBarService.UpdateStatusBar("Retrieved Starting Stamples");
             return totalSampleCount / mp3.WaveFormat.Channels;
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to get audio samples for file");
+            logger.LogError(e, "Unable to get audio samples for file");
             throw;
         }
         
@@ -173,7 +167,7 @@ public class AudioAnalysisService
     
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
     {
-        await _audioPlayerService.StopSongAsync(path, true);
+        await audioPlayerService.StopSongAsync(path, true);
         
         try
         {

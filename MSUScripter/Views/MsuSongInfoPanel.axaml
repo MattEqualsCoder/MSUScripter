@@ -125,10 +125,9 @@
             </StackPanel>
         </controls1:CardControl>
         <views:MsuSongMsuPcmInfoPanel 
-            DataContext="{Binding MsuPcmInfo}" 
-            MsuPcmData="{Binding }" 
+            DataContext="{Binding MsuPcmInfo}"
+            MsuPcmData="{Binding}"
             IsVisible="{Binding Project.BasicInfo.IsMsuPcmProject}"
-            PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"
             FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"
         ></views:MsuSongMsuPcmInfoPanel>
         <Separator Margin="0 10"></Separator>

@@ -39,13 +39,13 @@ public class PyMusicLooperPanelService(
         return _model;
     }
     
-    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel)
+    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
     {
         _model.MsuProjectViewModel = msuProjectViewModel;
         _model.MsuProject = converterService.ConvertProject(_model.MsuProjectViewModel);
         _model.MsuSongInfoViewModel = msuSongInfoViewModel;
-        _model.MsuSongMsuPcmInfoViewModel = msuSongInfoViewModel.MsuPcmInfo;
-        _model.FilterStart = msuSongInfoViewModel.MsuPcmInfo.TrimStart;
+        _model.MsuSongMsuPcmInfoViewModel = msuSongMsuPcmInfoViewModel;
+        _model.FilterStart = msuSongMsuPcmInfoViewModel.TrimStart;
 
         if (Settings.AutomaticallyRunPyMusicLooper)
         {
@@ -57,7 +57,7 @@ public class PyMusicLooperPanelService(
     {
         _model.FilterStart = filterStart;
     }
-    
+
     public async Task ChangePage(int mod)
     {
         if (_model.Page + mod < 0 || _model.Page + mod > _model.LastPage)

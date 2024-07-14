@@ -14,7 +14,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, ConverterService converterService, ProjectService projectService) : ControlService
+public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, ConverterService converterService, ProjectService projectService, StatusBarService statusBarService) : ControlService
 {
     private MsuPcmGenerationViewModel _model = new();
     
@@ -82,11 +82,6 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
                 {
                     _model.GenerationErrors.Add($"- YAML file generation failed: {error}");
                 }
-
-                if (_model.SplitSmz3 && !projectService.CreateSMZ3SplitRandomizerYaml(_model.MsuProject, out error))
-                {
-                    _model.GenerationErrors.Add($"- SMZ3 split YAML file generation failed: {error}");
-                }
             }
 
             if (_model.NumErrors > 0)
@@ -101,6 +96,7 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
             _model.IsFinished = true;
             _model.ButtonText = "Close";
             _model.SongsCompleted = _model.Rows.Count;
+            statusBarService.UpdateStatusBar("MSU Generated");
             PcmGenerationComplete?.Invoke(this, new ValueEventArgs<MsuPcmGenerationViewModel>(_model));
 
         }, _cts.Token);

@@ -16,10 +16,10 @@ public partial class PyMusicLooperWindow : ScalableWindow
 
     private PyMusicLooperResultViewModel? Result { get; set; }
 
-    public void SetDetails(MsuProjectViewModel project, MsuSongInfoViewModel song)
+    public void SetDetails(MsuProjectViewModel project, MsuSongInfoViewModel song, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
     {
         Result = null;
-        this.Find<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.UpdateModel(project, song);
+        this.Find<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.UpdateModel(project, song, msuSongMsuPcmInfoViewModel);
     }
     
     public async Task<PyMusicLooperResultViewModel?> ShowDialog()

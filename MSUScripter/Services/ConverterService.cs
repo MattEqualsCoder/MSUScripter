@@ -50,9 +50,7 @@ public class ConverterService
                 if (recursive)
                 {
                     IList<A>? aValue = propA.GetValue(input) as IList<A>;
-                    IList<B> bValue = new List<B>();
-                    if (propB.PropertyType == typeof(ObservableCollection<B>))
-                        bValue = new ObservableCollection<B>();
+                    IList<B> bValue = propB.GetValue(output) as IList<B> ?? (propB.PropertyType == typeof(ObservableCollection<B>) ? new ObservableCollection<B>() : new List<B>());
                     if (aValue != null)
                     {
                         foreach (var aSubItem in aValue)

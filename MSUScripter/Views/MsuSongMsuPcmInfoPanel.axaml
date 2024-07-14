@@ -4,10 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:tools1="clr-namespace:MSUScripter.Tools"
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:views="clr-namespace:MSUScripter.Views"
-             Loaded="Control_OnLoaded"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
@@ -150,13 +148,10 @@
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
-                    <ComboBox 
-                        Name="CompressionComboBox"
-                        SelectedItem="{Binding Compression, Converter={StaticResource NullableBoolToStringConverter}}"
-                        ItemsSource="{x:Static tools1:NullableBoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox
+                        Value="{Binding Compression}"
+                        AllowNulls="True"
+                    ></controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True">
@@ -165,7 +160,11 @@
                             <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <views:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubTrack_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"></views:MsuSongMsuPcmInfoPanel>
+                                        <views:MsuSongMsuPcmInfoPanel 
+                                            DataContext="{Binding}"
+                                            MsuPcmData="{Binding}" 
+                                            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" 
+                                        ></views:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -188,7 +187,11 @@
                             <ItemsControl ItemsSource="{Binding SubChannels, Mode=OneWay}" Name="SubChannelssItemsControl">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <views:MsuSongMsuPcmInfoPanel DataContext="{Binding}" MsuPcmData="{Binding}" OnDelete="MsuSongMsuPcmInfoPanelSubChannel_OnOnDelete" FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated" PcmOptionSelected="MsuSongMsuPcmInfoPanel_OnPcmOptionSelected"></views:MsuSongMsuPcmInfoPanel>
+                                        <views:MsuSongMsuPcmInfoPanel 
+                                            DataContext="{Binding}" 
+                                            MsuPcmData="{Binding}"
+                                            FileUpdated="MsuSongMsuPcmInfoPanel_OnFileUpdated"
+                                        ></views:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -213,6 +216,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="PlaySongButton_OnClick"
                         ></Button>
                         <Button
@@ -221,6 +225,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="TestLoopButton_OnClick"
                         ></Button>
                         <Button
@@ -229,6 +234,7 @@
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"
+                            IsVisible="{Binding CanPlaySongs}"
                             Click="StopButton_OnClick"
                         ></Button>
                         <Button

@@ -47,12 +47,12 @@ public partial class EditProjectPanel : UserControl
     private int _previousPage = -1;
     private bool _isAddNewSongWindowOpen = false;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorWindowService? videoCreatorService, AudioAnalysisService? audioAnalysisService)
+    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorWindowService? videoCreatorService, AudioAnalysisService? audioAnalysisService, StatusBarService? statusBarService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
@@ -65,6 +65,14 @@ public partial class EditProjectPanel : UserControl
         _videoCreatorService = videoCreatorService;
         _audioAnalysisService = audioAnalysisService;
         InitializeComponent();
+
+        if (statusBarService != null)
+        {
+            statusBarService.StatusBarTextUpdated += (_, args) =>
+            {
+                UpdateStatusBarText(args.Data);
+            };
+        }
     }
 
     public void SetProject(MsuProject project)
@@ -305,7 +313,6 @@ public partial class EditProjectPanel : UserControl
         {
             var samples = _audioAnalysisService.GetAudioStartingSample(pcmInfoViewModel.File);
             pcmInfoViewModel.TrimStart = samples;
-            UpdateStatusBarText("Starting samples retrieved");
         }
         catch
         {
@@ -331,16 +338,13 @@ public partial class EditProjectPanel : UserControl
             return;
         }
         
-        UpdateStatusBarText("Playing Song");
         await _audioService.PlaySongAsync(songModel.OutputPath, fromEnd);
     }
     
     public async Task StopSong()
     {
         if (_audioService == null) return;
-        UpdateStatusBarText("Stopping Song");
         await _audioService.StopSongAsync(null, true);
-        UpdateStatusBarText("Stopped Song");
     }
     
     public bool GeneratePcmFile(MsuSongInfoViewModel songModel, bool asPrimary, bool asEmpty)
@@ -359,7 +363,6 @@ public partial class EditProjectPanel : UserControl
                 ShowError("Could not generate empty pcm file");
                 return false;
             }
-            UpdateStatusBarText("PCM Generated");
             return true;
         }
         
@@ -369,7 +372,6 @@ public partial class EditProjectPanel : UserControl
             return false;
         }
         
-        UpdateStatusBarText("Generating PCM");
         var song = new MsuSongInfo();
         _converterService!.ConvertViewModel(songModel, song);
         _converterService!.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
@@ -386,8 +388,7 @@ public partial class EditProjectPanel : UserControl
         {
             if (generated)
             {
-                UpdateStatusBarText("PCM Generated with Warning");
-
+                
                 if (!_projectViewModel!.IgnoreWarnings.Contains(song.OutputPath))
                 {
                     Dispatcher.UIThread.Invoke(() =>
@@ -417,7 +418,6 @@ public partial class EditProjectPanel : UserControl
             }
             else
             {
-                UpdateStatusBarText("msupcm++ Error");
                 ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
                 return false;
             }
@@ -466,7 +466,6 @@ public partial class EditProjectPanel : UserControl
         _projectService.SaveMsuProject(_project, false);
         _projectViewModel.LastSaveTime = _project.LastSaveTime;
         _lastAutoSave = _project.LastSaveTime;
-        UpdateStatusBarText("Project Saved");
     }
 
     public bool HasPendingChanges()
@@ -514,7 +513,6 @@ public partial class EditProjectPanel : UserControl
         if (_projectViewModel == null || _projectService == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
         ExportYaml(_project);
-        UpdateStatusBarText("YAML File Written");
     }
 
     private void ExportYaml(MsuProject project)
@@ -524,13 +522,6 @@ public partial class EditProjectPanel : UserControl
         if (!string.IsNullOrEmpty(error))
         {
             ShowError(error);
-            return;
-        }
-        
-        // Try to create the extra SMZ3 YAML files
-        if (project.BasicInfo.CreateSplitSmz3Script && !_projectService.CreateSMZ3SplitRandomizerYaml(project, out error))
-        {
-            ShowError(error ?? "Unknown error creating YAML file");
         }
     }
 
@@ -578,7 +569,6 @@ public partial class EditProjectPanel : UserControl
         if (_msuPcmService == null || _projectViewModel == null) return;
         _project = _converterService!.ConvertProject(_projectViewModel);
         _msuPcmService.ExportMsuPcmTracksJson(_project);
-        UpdateStatusBarText("Json File Written");
     }
 
     private void ExportButton_Msu_OnClick(object? sender, RoutedEventArgs e)
@@ -622,14 +612,7 @@ public partial class EditProjectPanel : UserControl
             return;
         }
 
-        if (_projectService.CreateSmz3SplitScript(_project, conversions))
-        {
-            UpdateStatusBarText("SMZ3 Split Script Created");
-        }
-        else
-        {
-            UpdateStatusBarText("Insufficient tracks");
-        }
+        _projectService.CreateSmz3SplitScript(_project, conversions);
     }
 
     private void ExportButton_OnClick(object? sender, RoutedEventArgs e)
@@ -684,16 +667,13 @@ public partial class EditProjectPanel : UserControl
         
         if (_audioService != null)
         {
-            UpdateStatusBarText("Stopping Song");
             await _audioService.StopSongAsync(null, true);
-            UpdateStatusBarText("Stopped Song");
         }
 
         Dispatcher.UIThread.Invoke(() =>
         {
             var msuPcmGenerationWindow = new MsuPcmGenerationWindow(_projectViewModel, exportYaml);
             msuPcmGenerationWindow.ShowDialog(App.MainWindow!);
-            UpdateStatusBarText("MSU Generated");
         });
         
     }
@@ -736,7 +716,7 @@ public partial class EditProjectPanel : UserControl
         }
         
         var window = _serviceProvider.GetRequiredService<PyMusicLooperWindow>();
-        window.SetDetails(_projectViewModel!, songInfo);
+        window.SetDetails(_projectViewModel!, songInfo, pcmInfoViewModel);
         var loopResult = await window.ShowDialog();
         if (loopResult != null)
         {
@@ -841,10 +821,6 @@ public partial class EditProjectPanel : UserControl
         if (!_projectService.ValidateProject(_projectViewModel, out var message))
         {
             ShowError(message);
-        }
-        else
-        {
-            UpdateStatusBarText("YAML file validated successfully");
         }
     }
 

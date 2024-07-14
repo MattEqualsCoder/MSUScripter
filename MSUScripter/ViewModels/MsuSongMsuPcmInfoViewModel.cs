@@ -1,220 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
+using AvaloniaControls.Models;
 using MSUScripter.Models;
+using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
+public class MsuSongMsuPcmInfoViewModel : ViewModelBase
 {
-    
-    private int? _loop;
-    public int? Loop
-    {
-        get => _loop;
-        set => SetField(ref _loop, value);
-    }
 
-    private int? _trimStart;
-    public int? TrimStart
+    public MsuSongMsuPcmInfoViewModel()
     {
-        get => _trimStart;
-        set => SetField(ref _trimStart, value);
-    }
-
-    private int? _trimEnd;
-    public int? TrimEnd
-    {
-        get => _trimEnd;
-        set => SetField(ref _trimEnd, value);
-    }
-
-    private int? _fadeIn;
-    public int? FadeIn
-    {
-        get => _fadeIn;
-        set => SetField(ref _fadeIn, value);
-    }
-
-    private int? _fadeOut;
-    public int? FadeOut
-    {
-        get => _fadeOut;
-        set => SetField(ref _fadeOut, value);
-    }
-
-    private int? _crossFade;
-    public int? CrossFade
-    {
-        get => _crossFade;
-        set => SetField(ref _crossFade, value);
-    }
-
-    private int? _padStart;
-    public int? PadStart
-    {
-        get => _padStart;
-        set => SetField(ref _padStart, value);
-    }
-
-    private int? _padEnd;
-    public int? PadEnd
-    {
-        get => _padEnd;
-        set => SetField(ref _padEnd, value);
-    }
-
-    private double? _tempo;
-    public double? Tempo
-    {
-        get => _tempo;
-        set => SetField(ref _tempo, value);
-    }
-
-    private double? _normalization;
-    public double? Normalization
-    {
-        get => _normalization;
-        set => SetField(ref _normalization, value);
-    }
-
-    private bool? _compression;
-    public bool? Compression
-    {
-        get => _compression;
-        set => SetField(ref _compression, value);
-    }
-
-    private string? _file;
-    public string? File
-    {
-        get => _file;
-        set
+        PropertyChanged += (sender, args) =>
         {
-            SetField(ref _file, value);
-            HasFile = !string.IsNullOrEmpty(_file) && System.IO.File.Exists(_file);
-        }
-    }
-    
-    private string? _output;
-    public string? Output
-    {
-        get => _output;
-        set => SetField(ref _output, value);
-    }
+            if (args.PropertyName != nameof(LastModifiedDate) && args.PropertyName != nameof(HasBeenModified))
+            {
+                LastModifiedDate = DateTime.Now;
+            }
+        };
 
-    private DateTime _lastModifiedDate;
-    public DateTime LastModifiedDate
-    {
-        get => _lastModifiedDate;
-        set => SetField(ref _lastModifiedDate, value);
-    }
-
-    public bool CanDisplayTrimStartButton => OperatingSystem.IsWindows();
-    
-    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subTracks = [];
-    public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubTracks
-    {
-        get => _subTracks;
-        set
+        SubTracks.CollectionChanged += (sender, args) =>
         {
-            SetField(ref _subTracks, value);
-            OnPropertyChanged(nameof(CanEditFile));
-        }
-    }
-
-    private ObservableCollection<MsuSongMsuPcmInfoViewModel> _subChannels = [];
-    public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubChannels
-    {
-        get => _subChannels;
-        set
-        {
-            SetField(ref _subChannels, value);
-            OnPropertyChanged(nameof(CanEditFile));
-        }
-    }
-    
-    private bool _hasFile;
-
-    [SkipConvert]
-    public bool HasFile
-    {
-        get => _hasFile;
-        set => SetField(ref _hasFile, value);
-    }
-    
-    private bool _displayHertzWarning;
-
-    [SkipConvert]
-    public bool DisplayHertzWarning
-    {
-        get => _displayHertzWarning;
-        set => SetField(ref _displayHertzWarning, value);
-    }
-    
-    private bool _displayMultiWarning;
-
-    [SkipConvert]
-    public bool DisplayMultiWarning
-    {
-        get => _displayMultiWarning;
-        set => SetField(ref _displayMultiWarning, value);
-    }
-    
-    private bool _displaySubTrackSubChannelWarning;
-
-    [SkipConvert]
-    public bool DisplaySubTrackSubChannelWarning
-    {
-        get => _displaySubTrackSubChannelWarning;
-        set => SetField(ref _displaySubTrackSubChannelWarning, value);
-    }
-
-    public void AddSubChannel(int? index = null)
-    {
-        if (index is null or -1)
-        {
-            SubChannels.Add(new MsuSongMsuPcmInfoViewModel
-                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
-        }
-        else
-        {
-            SubChannels.Insert(index.Value, new MsuSongMsuPcmInfoViewModel
-                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
-        }
+            this.RaisePropertyChanged(nameof(SubTracks));
+        };
         
-        LastModifiedDate = DateTime.Now;
-    }
-
-    public void RemoveSubChannel(MsuSongMsuPcmInfoViewModel model)
-    {
-        SubChannels.Remove(model);
-        LastModifiedDate = DateTime.Now;
+        SubChannels.CollectionChanged += (sender, args) =>
+        {
+            this.RaisePropertyChanged(nameof(SubChannels));
+        };
     }
     
-    public void AddSubTrack(int? index = null)
-    {
-        if (index is null or -1)
-        {
-            SubTracks.Add(new MsuSongMsuPcmInfoViewModel
-                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
-        }
-        else
-        {
-            SubTracks.Insert(index.Value, new MsuSongMsuPcmInfoViewModel
-                { Project = Project, Song = Song, IsAlt = IsAlt, ParentMsuPcmInfo = this });
-        }
-        LastModifiedDate = DateTime.Now;
-    }
+    [Reactive] public int? Loop { get; set; }
 
-    public void RemoveSubTrack(MsuSongMsuPcmInfoViewModel model)
-    {
-        SubTracks.Remove(model);
-        LastModifiedDate = DateTime.Now;
-    }
+    [Reactive] public int? TrimStart { get; set; }
+
+    [Reactive] public int? TrimEnd { get; set; }
+
+    [Reactive] public int? FadeIn { get; set; }
+
+    [Reactive] public int? FadeOut { get; set; }
+
+    [Reactive] public int? CrossFade { get; set; }
+
+    [Reactive] public int? PadStart { get; set; }
+
+    [Reactive] public int? PadEnd { get; set; }
+
+    [Reactive] public double? Tempo { get; set; }
+
+    [Reactive] public double? Normalization { get; set; }
+
+    [Reactive] public bool? Compression { get; set; }
+
+    [Reactive] public string? Output { get; set; }
+
+    [Reactive] public DateTime LastModifiedDate { get; set; }
+
+    [Reactive] public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubTracks { get; init; } = [];
+
+    [Reactive] public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubChannels { get; init; } = [];
+    
+    [SkipConvert] public bool HasFile => !string.IsNullOrEmpty(File) && System.IO.File.Exists(File);
+    
+    [SkipConvert, Reactive]
+    public bool DisplayHertzWarning { get; set; }
+
+    [SkipConvert, Reactive]
+    public bool DisplayMultiWarning { get; set; }
+
+    [SkipConvert, Reactive]
+    public bool DisplaySubTrackSubChannelWarning { get; set; }
+    
+    [Reactive, ReactiveLinkedProperties(nameof(HasFile))] 
+    public string? File { get; set; }
+    
+    public bool CanDisplayTrimStartButton => OperatingSystem.IsWindows();
 
     [SkipConvert]
     public MsuProjectViewModel Project { get; set; } = null!;
@@ -233,11 +96,11 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
 
     public bool CanDelete => !IsTopLevel;
 
-    public bool CanEditFile => !_subTracks.Any() && !_subChannels.Any();
+    public bool CanEditFile => !SubTracks.Any() && !SubChannels.Any();
 
-    public bool HasSubChannels => _subChannels.Any();
+    public bool HasSubChannels => SubChannels.Any();
 
-    public bool HasSubTracks => _subTracks.Any();
+    public bool HasSubTracks => SubTracks.Any();
 
     public bool HasChangesSince(DateTime time)
     {
@@ -271,7 +134,7 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
             LastModifiedDate = DateTime.Now;
         }
 
-        foreach (var subItem in _subChannels.Concat(_subTracks))
+        foreach (var subItem in SubChannels.Concat(SubTracks))
         {
             subItem.ApplyCascadingSettings(projectModel, songModel, isAlt, this, updateLastModified);
         }
@@ -293,9 +156,9 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     [SkipConvert]
     public string RemoveText =>
         IsSubChannel ? "Remove Sub Channel" : "Remove Sub Track";
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
 
+    [SkipConvert] public bool CanPlaySongs { get; set; }
+    
     public void UpdateHertzWarning(int? sampleRate)
     {
         DisplayHertzWarning = sampleRate > 44100;
@@ -304,7 +167,6 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     public void UpdateMultiWarning()
     {
         DisplayMultiWarning = GetFiles().Distinct().Count() > 1;
-        
     }
 
     public void UpdateSubTrackSubChannelWarning()
@@ -316,12 +178,12 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
     {
         List<string> toReturn = [];
 
-        if (!string.IsNullOrEmpty(_file))
+        if (!string.IsNullOrEmpty(File))
         {
-            toReturn.Add(_file);
+            toReturn.Add(File);
         }
 
-        toReturn.AddRange(_subChannels.Concat(_subTracks).SelectMany(x => x.GetFiles()));
+        toReturn.AddRange(SubChannels.Concat(SubTracks).SelectMany(x => x.GetFiles()));
 
         return toReturn;
     }
@@ -335,25 +197,13 @@ public class MsuSongMsuPcmInfoViewModel : INotifyPropertyChanged
                 return true;
             }
 
-            return _subChannels.Concat(_subTracks).Any(x => x.HasBothSubTracksAndChannels);
+            return SubChannels.Concat(SubTracks).Any(x => x.HasBothSubTracksAndChannels);
         }
             
     }
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    public override ViewModelBase DesignerExample()
     {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        if (propertyName != nameof(LastModifiedDate))
-        {
-            LastModifiedDate = DateTime.Now;
-        }
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        return this;
     }
 }

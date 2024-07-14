@@ -20,7 +20,8 @@ public class ProjectService(
     ILogger<ProjectService> logger,
     AudioMetadataService audioMetadataService,
     SettingsService settingsService,
-    ConverterService converterService)
+    ConverterService converterService,
+    StatusBarService statusBarService)
 {
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
@@ -68,6 +69,7 @@ public class ProjectService(
         if (!isBackup)
         {
             logger.LogInformation("Saved project");
+            statusBarService?.UpdateStatusBar("Project Saved");
         }
     }
 
@@ -128,6 +130,8 @@ public class ProjectService(
         {
             settingsService.AddRecentProject(project);    
         }
+        
+        statusBarService?.UpdateStatusBar("Project Loaded");
         
         return project;
     }
@@ -439,6 +443,7 @@ public class ProjectService(
 
         if (testTrack == null)
         {
+            statusBarService.UpdateStatusBar("Insufficient tracks");
             return false;
         }
         
@@ -467,6 +472,8 @@ public class ProjectService(
         
         File.WriteAllText(Path.Combine(folder, "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat"), sbTotal.ToString());
 
+        statusBarService.UpdateStatusBar("SMZ3 Split Script Created");
+        
         return true;
     }
 
@@ -575,7 +582,7 @@ public class ProjectService(
         }
     }
 
-    public bool CreateSMZ3SplitRandomizerYaml(MsuProject project, out string? error)
+    public bool CreateSmz3SplitRandomizerYaml(MsuProject project, out string? error)
     {
         var data = new List<(MsuType?, string?)>()
         {
@@ -593,6 +600,7 @@ public class ProjectService(
             if (!YamlService.Instance.FromYaml(yamlText, out msuDetails, out _, true) || msuDetails == null)
             {
                 error = $"Could not retrieve MSU Details from {yamlPath}";
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
         }
@@ -600,6 +608,7 @@ public class ProjectService(
         {
             logger.LogError(e, "Could not retrieve MSU Details from {YamlPath}", yamlPath);
             error = $"Could not retrieve MSU Details from {yamlPath}";
+            statusBarService.UpdateStatusBar("YAML File Write Error");
             return false;
         }
         
@@ -611,12 +620,14 @@ public class ProjectService(
             if (msuType == null)
             {
                 error = "Invalid MSU Type";
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
 
             if (string.IsNullOrEmpty(msuPath))
             {
                 error = $"Invalid MSU path for {msuType.Name}";
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
 
@@ -626,12 +637,14 @@ public class ProjectService(
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
                 var outYaml = YamlService.Instance.ToYaml(newMsuType, true);
+                statusBarService.UpdateStatusBar("YAML File Written");
                 File.WriteAllText(newYamlPath, outYaml);
             }
             catch (Exception e)
             {
                 logger.LogError(e, "Unable to convert MSU YAML");
                 error = "Unable to convert MSU YAML";
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
             
@@ -683,6 +696,16 @@ public class ProjectService(
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
         msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
+
+        if (project.BasicInfo.CreateSplitSmz3Script && !CreateSmz3SplitRandomizerYaml(project, out error))
+        {
+            statusBarService.UpdateStatusBar("YAML File Written");    
+        }
+        else
+        {
+            statusBarService.UpdateStatusBar("YAML File Failed");
+        }
+        
     }
 
     public bool CreateMsuFiles(MsuProject project)
@@ -786,6 +809,7 @@ public class ProjectService(
         if (msu == null)
         {
             message = "Could not load MSU.";
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
         
@@ -806,6 +830,7 @@ public class ProjectService(
                 if (missingMsuPaths.Any())
                 {
                     message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
                 
@@ -813,10 +838,12 @@ public class ProjectService(
                 if (missingProjPaths.Any())
                 {
                     message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
             }
             message = "Could not load all tracks from the YAML file.";
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
 
@@ -828,17 +855,20 @@ public class ProjectService(
             if (msuTrack == null)
             {
                 message = $"Could not find track for song {projectTrack.SongName} in the YAML file.";
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
             else if ((projectTrack.SongName ?? "") != msuTrack.SongName || (projectTrack.Album ?? "") != (msuTrack.Album ?? "") ||
                      (projectTrack.Artist ?? "") != (msuTrack.Artist ?? "") || (projectTrack.Url ?? "") != (msuTrack.Url ?? ""))
             {
                 message = $"Detail mismatch for song {projectTrack.SongName} under track #{projectTrack.TrackNumber}.";
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
         }
             
         message = "";
+        statusBarService.UpdateStatusBar("YAML File Validated Successfully");
         return true;
     }
 
