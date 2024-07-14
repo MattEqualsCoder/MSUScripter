@@ -6,10 +6,10 @@ public static class TrackListType
     public const string Table = "Table";
     public const string Disabled = "Disabled";
 
-    public static readonly string[] ItemsSource = new[]
-    {
+    public static readonly string[] ItemsSource =
+    [
         List,
         Table,
         Disabled
-    };
+    ];
 }

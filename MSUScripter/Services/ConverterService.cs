@@ -80,6 +80,7 @@ public class ConverterService
         var viewModel = new MsuProjectViewModel();
         ConvertViewModel(project, viewModel);
         ConvertViewModel(project.BasicInfo, viewModel.BasicInfo);
+        viewModel.BasicInfo.Project = viewModel;
         
         foreach (var track in project.Tracks)
         {
