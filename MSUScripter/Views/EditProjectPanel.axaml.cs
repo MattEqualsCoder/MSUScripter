@@ -13,11 +13,9 @@ using Avalonia.Threading;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Models;
 using Microsoft.Extensions.DependencyInjection;
-using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services;
-using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 using Timer = System.Timers.Timer;
 
@@ -30,13 +28,10 @@ public partial class EditProjectPanel : UserControl
     private readonly ProjectService? _projectService;
     private readonly MsuPcmService? _msuPcmService;
     private readonly IAudioPlayerService? _audioService;
-    private readonly AudioMetadataService? _audioMetadataService;
     private readonly ConverterService? _converterService;
     private readonly IServiceProvider? _serviceProvider;
     private readonly AudioControl? _audioControl;
     private readonly TrackListService? _trackListService;
-    private readonly VideoCreatorWindowService? _videoCreatorService;
-    private readonly AudioAnalysisService? _audioAnalysisService;
     private readonly Timer _backupTimer = new Timer(TimeSpan.FromSeconds(60));
     private MsuProject? _project;
     private MsuProjectViewModel? _projectViewModel; 
@@ -47,23 +42,20 @@ public partial class EditProjectPanel : UserControl
     private int _previousPage = -1;
     private bool _isAddNewSongWindowOpen = false;
     
-    public EditProjectPanel() : this(null, null, null, null, null, null, null, null, null, null, null, null)
+    public EditProjectPanel() : this(null, null, null, null, null, null, null, null)
     {
         
     }
     
-    public EditProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, AudioMetadataService? audioMetadataService, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, VideoCreatorWindowService? videoCreatorService, AudioAnalysisService? audioAnalysisService, StatusBarService? statusBarService)
+    public EditProjectPanel(ProjectService? projectService, MsuPcmService? msuPcmService, IAudioPlayerService? audioService, IServiceProvider? serviceProvider, ConverterService? converterService, AudioControl? audioControl, TrackListService? trackListService, StatusBarService? statusBarService)
     {
         _projectService = projectService;
         _msuPcmService = msuPcmService;
         _audioService = audioService;
         _serviceProvider = serviceProvider;
-        _audioMetadataService = audioMetadataService;
         _converterService = converterService;
         _audioControl = audioControl;
         _trackListService = trackListService;
-        _videoCreatorService = videoCreatorService;
-        _audioAnalysisService = audioAnalysisService;
         InitializeComponent();
 
         if (statusBarService != null)
@@ -174,13 +166,6 @@ public partial class EditProjectPanel : UserControl
 
         comboBox.SelectedIndex = page;
 
-        if (_currentPage is MsuTrackInfoPanel prevPage)
-        {
-            prevPage.PcmOptionSelected -= PagePanelOnPcmOptionSelected;
-            prevPage.MetaDataFileSelected -= SongFileSelected;
-            prevPage.FileUpdated -= SongFileSelected; 
-        }
-        
         var parentPagePanel = this.Find<Panel>(nameof(PagePanel))!;
         var parentPageDockPanel = this.Find<Panel>(nameof(PageDockPanel))!;
         var scrollViewer = this.Find<ScrollViewer>(nameof(ScrollViewer))!;
@@ -211,10 +196,6 @@ public partial class EditProjectPanel : UserControl
             var track = _projectViewModel!.Tracks.OrderBy(x => x.TrackNumber).ToList()[page-2];
             var pagePanel = _serviceProvider.GetRequiredService<MsuTrackInfoPanel>();
             pagePanel.SetTrackInfo(_projectViewModel, track);
-            pagePanel.PcmOptionSelected += PagePanelOnPcmOptionSelected;
-            pagePanel.MetaDataFileSelected += SongFileSelected;
-            pagePanel.FileUpdated += SongFileSelected;
-            pagePanel.AddSongWindowButtonPressed += PagePanelOnAddSongWindowButtonPressed;
             _currentPage = pagePanel;
             parentPagePanel.Children.Add(_currentPage);
             scrollViewerBorder.IsVisible = true;
@@ -236,201 +217,6 @@ public partial class EditProjectPanel : UserControl
         }
     }
 
-    private void PagePanelOnAddSongWindowButtonPressed(object? sender, TrackEventArgs e)
-    {
-        _ = OpenAddSongWindow(e.TrackNumber);
-    }
-
-    private void SongFileSelected(object? sender, SongFileEventArgs e)
-    {
-        ImportAudioMetadata(e.SongViewModel, e.FilePath, e.Force);
-    }
-
-    private void PagePanelOnPcmOptionSelected(object? sender, PcmEventArgs e)
-    {
-        if (_audioService == null) return;
-
-        if (e.Type == PcmEventType.Play)
-        {
-            Task.Run(() => PlaySong(e.Song, false));
-        }
-        else if (e.Type == PcmEventType.PlayLoop)
-        {
-            Task.Run(() => PlaySong(e.Song, true));
-        }
-        else if (e.Type == PcmEventType.Generate)
-        {
-            Task.Run(async () =>
-            {
-                await StopSong();
-                return GeneratePcmFile(e.Song, false, false);
-            });
-        }
-        else if (e.Type == PcmEventType.GenerateAsPrimary)
-        {
-            Task.Run(async () =>
-            {
-                await StopSong();
-                return GeneratePcmFile(e.Song, true, false);
-            });
-        }
-        else if (e.Type == PcmEventType.GenerateEmpty)
-        {
-            Task.Run(async () =>
-            {
-                await StopSong();
-                return GeneratePcmFile(e.Song, false, true);
-            });
-        }
-        else if (e.Type == PcmEventType.LoopWindow && _serviceProvider != null && _projectViewModel != null)
-        {
-            LoopCheck(e.Song, e.PcmInfo);
-        }
-        else if (e.Type == PcmEventType.StopMusic)
-        {
-            _ = StopSong();
-        }
-        else if (e is { Type: PcmEventType.StartingSamples, PcmInfo: not null } && OperatingSystem.IsWindows())
-        {
-            GetStartingSamples(e.PcmInfo);
-        }
-        else if (e.Type == PcmEventType.AddedSubChannelOrSubTrack)
-        {
-            e.Song.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
-            e.Song.MsuPcmInfo.UpdateMultiWarning();
-        }
-    }
-
-    public void GetStartingSamples(MsuSongMsuPcmInfoViewModel pcmInfoViewModel)
-    {
-        if (_audioAnalysisService == null || string.IsNullOrEmpty(pcmInfoViewModel.File) ||
-            !File.Exists(pcmInfoViewModel.File))
-        {
-            return;
-        }
-
-        try
-        {
-            var samples = _audioAnalysisService.GetAudioStartingSample(pcmInfoViewModel.File);
-            pcmInfoViewModel.TrimStart = samples;
-        }
-        catch
-        {
-            ShowError("Unable to get starting samples for file");
-        }
-    }
-    
-    public async Task PlaySong(MsuSongInfoViewModel songModel, bool fromEnd)
-    {
-        if (_audioService == null || _projectViewModel == null)
-            return;
-
-        // Stop the song if it is currently playing
-        await StopSong();
-        
-        // Regenerate the pcm file if it has updates that have been made to it
-        if (!GeneratePcmFile(songModel, false, false))
-            return;
-        
-        if (string.IsNullOrEmpty(songModel.OutputPath) || !File.Exists(songModel.OutputPath))
-        {
-            ShowError("No pcm file detected");
-            return;
-        }
-        
-        await _audioService.PlaySongAsync(songModel.OutputPath, fromEnd);
-    }
-    
-    public async Task StopSong()
-    {
-        if (_audioService == null) return;
-        await _audioService.StopSongAsync(null, true);
-    }
-    
-    public bool GeneratePcmFile(MsuSongInfoViewModel songModel, bool asPrimary, bool asEmpty)
-    {
-        if (_msuPcmService == null || _project == null) return false;
-        
-        if (_msuPcmService.IsGeneratingPcm) return false;
-
-        if (asEmpty)
-        {
-            var emptySong = new MsuSongInfo();
-            _converterService!.ConvertViewModel(songModel, emptySong);
-            var successful = _msuPcmService.CreateEmptyPcm(emptySong);
-            if (!successful)
-            {
-                ShowError("Could not generate empty pcm file");
-                return false;
-            }
-            return true;
-        }
-        
-        if (!songModel.HasFiles())
-        {
-            ShowError("No files specified to generate into a pcm file");
-            return false;
-        }
-        
-        var song = new MsuSongInfo();
-        _converterService!.ConvertViewModel(songModel, song);
-        _converterService!.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
-        var tempProject = _converterService!.ConvertProject(_projectViewModel!);
-
-        if (asPrimary)
-        {
-            var msu = new FileInfo(_project.MsuPath);
-            var path = msu.FullName.Replace(msu.Extension, $"-{song.TrackNumber}.pcm");
-            song.OutputPath = path;
-        }
-        
-        if (!_msuPcmService.CreatePcm(tempProject, song, out var message, out var generated, false))
-        {
-            if (generated)
-            {
-                
-                if (!_projectViewModel!.IgnoreWarnings.Contains(song.OutputPath))
-                {
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        var window = new MessageWindow(new MessageWindowRequest
-                        {
-                            Message = message ?? "Unknown error with msupcm++",
-                            Buttons = MessageWindowButtons.YesNo,
-                            Icon = MessageWindowIcon.Warning,
-                            CheckBoxText = "Ignore future warnings for this song"
-                        });
-
-                        window.Closed += (sender, args) =>
-                        {
-                            if (window.DialogResult?.CheckedBox == true)
-                            {
-                                _projectViewModel!.IgnoreWarnings.Add(song.OutputPath);
-                            }
-                        };
-                        
-                        _ = window.ShowDialog(App.MainWindow!);
-                    });
-                }
-                
-                songModel.LastGeneratedDate = DateTime.Now;
-                return true;
-            }
-            else
-            {
-                ShowError(message ?? "Unknown error with msupcm++", "msupcm++ Error");
-                return false;
-            }
-        }
-        
-        songModel.LastGeneratedDate = DateTime.Now;
-
-        var hasAlts = tempProject.Tracks.First(x => x.TrackNumber == songModel.TrackNumber).Songs.Count > 1;
-        
-        UpdateStatusBarText(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
-        return true;
-    }
-
     public void UpdateStatusBarText(string message)
     {
         if (!CheckAccess())
@@ -442,23 +228,6 @@ public partial class EditProjectPanel : UserControl
         this.Find<TextBlock>(nameof(StatusMessage))!.Text = message;
     }
     
-    public void ImportAudioMetadata(MsuSongInfoViewModel songModel, string file, bool force = false)
-    {
-        var metadata =  _audioMetadataService?.GetAudioMetadata(file);
-        if (metadata?.HasData != true) return;
-        if (force || string.IsNullOrEmpty(songModel.SongName) || songModel.SongName.StartsWith("Track #"))
-            songModel.SongName = metadata.SongName;
-        if (force || (string.IsNullOrEmpty(songModel.Artist) && !string.IsNullOrEmpty(metadata.Artist)))
-            songModel.Artist = metadata.Artist;
-        if (force || (string.IsNullOrEmpty(songModel.Album) && !string.IsNullOrEmpty(metadata.Album)))
-            songModel.Album = metadata.Album;
-        if (force || (string.IsNullOrEmpty(songModel.Url) && !string.IsNullOrEmpty(metadata.Url)))
-            songModel.Url = metadata.Url;
-
-        songModel.MsuPcmInfo.UpdateHertzWarning(_audioAnalysisService?.GetAudioSampleRate(file));
-        songModel.MsuPcmInfo.UpdateMultiWarning();
-    }
-
     public void SaveProject()
     {
         if (_projectViewModel == null || _projectService == null) return;
@@ -698,32 +467,6 @@ public partial class EditProjectPanel : UserControl
         _audioAnalysisWindow = new AudioAnalysisWindow(_projectViewModel);
         _audioAnalysisWindow.Closed += (_, _) => _audioAnalysisWindow = null; 
         _audioAnalysisWindow.Show();
-    }
-
-    private async void LoopCheck(MsuSongInfoViewModel songInfo, MsuSongMsuPcmInfoViewModel? pcmInfoViewModel)
-    {
-        if (_audioService == null || _serviceProvider == null) return;
-
-        await _audioService.StopSongAsync();
-
-        pcmInfoViewModel ??= songInfo.MsuPcmInfo;
-
-        if (pcmInfoViewModel.TrimEnd > 0 || pcmInfoViewModel.Loop > 0)
-        {
-            var result = await ShowYesNoWindow("Either the trim end or loop point have a value. Are you sure you want to overwrite them?");
-            if (!result)
-                return;
-        }
-        
-        var window = _serviceProvider.GetRequiredService<PyMusicLooperWindow>();
-        window.SetDetails(_projectViewModel!, songInfo, pcmInfoViewModel);
-        var loopResult = await window.ShowDialog();
-        if (loopResult != null)
-        {
-            pcmInfoViewModel.Loop = loopResult.LoopStart;
-            pcmInfoViewModel.TrimEnd = loopResult.LoopEnd;
-        }
-        
     }
 
     private void Control_OnUnloaded(object? sender, RoutedEventArgs e)

@@ -170,6 +170,7 @@ public class AddSongWindowService(
         {
             TrackNumber = track.TrackNumber,
             TrackName = track.TrackName,
+            Track = track,
             SongName = _model.SongName,
             Artist = _model.ArtistName,
             Album = _model.AlbumName,
@@ -188,7 +189,7 @@ public class AddSongWindowService(
             }
         };
 
-        track.AddSong(song);
+        track.Songs.Add(song);
 
         _model.AddSongButtonText = "Added Song";
         _ = Task.Run(() =>

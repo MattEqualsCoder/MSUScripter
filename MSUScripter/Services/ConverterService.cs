@@ -83,18 +83,24 @@ public class ConverterService
         
         foreach (var track in project.Tracks)
         {
-            var trackViewModel = new MsuTrackInfoViewModel();
-            ConvertViewModel(track, trackViewModel);
-
             var msuTypeTrack = project.MsuType.Tracks.First(x => x.Number == track.TrackNumber);
-            trackViewModel.Description = msuTypeTrack.Description;
+
+            var trackViewModel = new MsuTrackInfoViewModel()
+            {
+                Project = viewModel,
+                Description = msuTypeTrack.Description
+            };
+            
+            ConvertViewModel(track, trackViewModel);
 
             foreach (var song in track.Songs)
             {
                 var songViewModel = new MsuSongInfoViewModel
                 {
                     Project = viewModel,
+                    Track = trackViewModel
                 };
+                
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
                 songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false);
