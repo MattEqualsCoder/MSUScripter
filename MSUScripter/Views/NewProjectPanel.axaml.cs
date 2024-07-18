@@ -1,22 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Platform.Storage;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using AvaloniaControls.Models;
-using Microsoft.Extensions.Logging;
-using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Events;
-using MSUScripter.Services;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
@@ -26,11 +17,7 @@ namespace MSUScripter.Views;
 public partial class NewProjectPanel : UserControl
 {
     private readonly NewProjectPanelService? _service;
-    private readonly IMsuTypeService? _msuTypeService;
-    private readonly ProjectService? _projectService;
-    private readonly Settings? _settings;
-    private readonly ILogger<NewProjectPanel>? _logger;
-
+    
     public NewProjectPanel()
     {
         InitializeComponent();
@@ -60,6 +47,18 @@ public partial class NewProjectPanel : UserControl
     public void ResetModel()
     {
         _service?.ResetModel();
+    }
+
+    public async Task LoadProject(MsuProject project, MsuProject? backupProject)
+    {
+        if (backupProject != null && await MessageWindow.ShowYesNoDialog(
+                "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                "Load Backup?", ParentWindow))
+        {
+            project = backupProject;
+        }
+            
+        OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
     }
     
     private async void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)
@@ -122,14 +121,7 @@ public partial class NewProjectPanel : UserControl
         
         if (_service.LoadProject(path, out var project, out var backupProject, out var error) && project != null)
         {
-            if (backupProject != null && await MessageWindow.ShowYesNoDialog(
-                    "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
-                    "Load Backup?", ParentWindow))
-            {
-                project = backupProject;
-            }
-            
-            OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
+            await LoadProject(project, backupProject);
         }
         else
         {
@@ -175,5 +167,11 @@ public partial class NewProjectPanel : UserControl
         return path?.Path.LocalPath;
     }
 
-    private Window ParentWindow => TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!;
+    private Window ParentWindow => TopLevel.GetTopLevel(this) as Window ?? App.MainWindow;
+
+    private async void MenuButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var window = new SettingsWindow();
+        await window.ShowDialog(ParentWindow);
+    }
 }

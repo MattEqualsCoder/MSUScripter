@@ -5,13 +5,29 @@
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:views="clr-namespace:MSUScripter.Views"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.NewProjectPanel"
              x:DataType="viewModels:NewProjectPanelViewModel">
     
     <StackPanel>
         
-        <TextBlock Margin="10 10 10 5">Welcome to the MSU Scripter! You can use this for creating YAML files for the MSU Randomizer and for creating JSON files for msupcm++.</TextBlock>
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Margin="10 10 10 5">Welcome to the MSU Scripter! You can use this for creating YAML files for the MSU Randomizer and for creating JSON files for msupcm++.</TextBlock>
+            <Button Grid.Column="1" Margin="0 5 5 0" Name="MenuButton" Click="MenuButton_OnClick">
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Background" Value="Transparent"></Setter>
+                        <Setter Property="BorderBrush" Value="Transparent"></Setter>
+                        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                            <Setter Property="Background" Value="Gray" />
+                        </Style>
+                    </Style>
+
+                </Button.Styles>
+                <avalonia:MaterialIcon Kind="Settings" Width="25" Height="25"/>
+            </Button>
+        </Grid>
         
         <controls1:CardControl HeaderText="New Project" Padding="10" Margin="5">
             <StackPanel Orientation="Vertical">

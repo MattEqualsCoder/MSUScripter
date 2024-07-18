@@ -141,7 +141,7 @@ public class MsuSongMsuPcmInfoPanelService(
             return null;
         }
         output.ClearLastModifiedDate();
-        return yamlService.ToYaml(output, false);
+        return yamlService.ToYaml(output, false, true);
     }
 
     public string? CopyDetailsFromString(string yamlText)

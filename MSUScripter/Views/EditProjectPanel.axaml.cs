@@ -6,7 +6,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -17,13 +16,13 @@ public partial class EditProjectPanel : UserControl
 {
     private readonly EditProjectPanelService? _service;
     
-    public static readonly StyledProperty<MsuProject?> ProjectProperty = AvaloniaProperty.Register<EditProjectPanel, MsuProject?>(
-        nameof(Project));
+    public static readonly StyledProperty<MainWindowViewModel?> ParentDataContextProperty = AvaloniaProperty.Register<EditProjectPanel, MainWindowViewModel?>(
+        nameof(ParentDataContext));
 
-    public MsuProject? Project
+    public MainWindowViewModel? ParentDataContext
     {
-        get => GetValue(ProjectProperty);
-        set => SetValue(ProjectProperty, value);
+        get => GetValue(ParentDataContextProperty);
+        set => SetValue(ParentDataContextProperty, value);
     }
 
     public EditProjectPanelViewModel Model { get; private set;  } = new();
@@ -41,13 +40,21 @@ public partial class EditProjectPanel : UserControl
             _service = this.GetControlService<EditProjectPanelService>()!;
         }
         
-        ProjectProperty.Changed.Subscribe(x =>
+        ParentDataContextProperty.Changed.Subscribe(x =>
         {
             if (x.Sender != this || x.NewValue.Value == null || _service == null)
             {
                 return;
             }
-            DataContext = Model = _service.InitializeModel(x.NewValue.Value);
+
+            x.NewValue.Value.CurrentMsuProjectChanged += (sender, args) =>
+            {
+                if (x.NewValue.Value.CurrentMsuProject != null)
+                {
+                    DataContext = Model = _service.InitializeModel(x.NewValue.Value.CurrentMsuProject);
+                }
+            };
+            
         });
         
         try
@@ -61,6 +68,8 @@ public partial class EditProjectPanel : UserControl
     }
 
     public event EventHandler? OnCloseProject;
+
+    public bool HasPendingChanges => _service?.HasPendingChanges() == true;
 
     private void PrevButton_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -97,10 +106,7 @@ public partial class EditProjectPanel : UserControl
     {
         if (_service?.HasPendingChanges() == true)
         {
-            if (await DisplayPendingChangesWindow())
-            {
-                _service.SaveProject();
-            }
+            await DisplayPendingChangesWindow();
         }
 
         _service?.Disable();
@@ -217,10 +223,13 @@ public partial class EditProjectPanel : UserControl
         _ = packageWindow.ShowDialog(ParentWindow);
     }
 
-    private async Task<bool> DisplayPendingChangesWindow()
+    public async Task DisplayPendingChangesWindow()
     {
-        return await MessageWindow.ShowYesNoDialog("You currently have unsaved changes. Do you want to save your changes?",
-            "Save Changes?", ParentWindow);
+        if (await MessageWindow.ShowYesNoDialog("You currently have unsaved changes. Do you want to save your changes?",
+                "Save Changes?", ParentWindow))
+        {
+            _service?.SaveProject();
+        }
     }
 
     private Window ParentWindow => TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!;

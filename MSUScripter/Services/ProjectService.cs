@@ -34,7 +34,7 @@ public class ProjectService(
             SaveMsuProject(project, true);
         }
         
-        var yaml = YamlService.Instance.ToYaml(project, false);
+        var yaml = YamlService.Instance.ToYaml(project, false, false);
 
         if (isBackup && !Directory.Exists(GetBackupDirectory()))
         {
@@ -636,7 +636,7 @@ public class ProjectService(
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
-                var outYaml = YamlService.Instance.ToYaml(newMsuType, true);
+                var outYaml = YamlService.Instance.ToYaml(newMsuType, true, false);
                 statusBarService.UpdateStatusBar("YAML File Written");
                 File.WriteAllText(newYamlPath, outYaml);
             }

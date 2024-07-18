@@ -9,8 +9,12 @@ public class YamlService
 {
     public static YamlService Instance = null!;
     
-    private readonly ISerializer _underscoreSerializer = new SerializerBuilder()
+    private readonly ISerializer _underscoreSerializerIgnoreDefaults = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .Build();
+    
+    private readonly ISerializer _underscoreSerializerAll = new SerializerBuilder()
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
         .Build();
     
@@ -19,8 +23,12 @@ public class YamlService
         .IgnoreUnmatchedProperties()
         .Build();
     
-    private readonly ISerializer _pascalSerializer = new SerializerBuilder()
+    private readonly ISerializer _pascalSerializerIgnoreDefaults = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+        .WithNamingConvention(PascalCaseNamingConvention.Instance)
+        .Build();
+    
+    private readonly ISerializer _pascalSerializerAll = new SerializerBuilder()
         .WithNamingConvention(PascalCaseNamingConvention.Instance)
         .Build();
     
@@ -37,9 +45,16 @@ public class YamlService
         _logger = logger;
     }
 
-    public string ToYaml(object obj, bool isUnderscoreFormat)
+    public string ToYaml(object obj, bool isUnderscoreFormat, bool ignoreDefaults)
     {
-        return isUnderscoreFormat ? _underscoreSerializer.Serialize(obj) : _pascalSerializer.Serialize(obj);
+        if (ignoreDefaults)
+        {
+            return isUnderscoreFormat ? _underscoreSerializerIgnoreDefaults.Serialize(obj) : _pascalSerializerIgnoreDefaults.Serialize(obj);    
+        }
+        else
+        {
+            return isUnderscoreFormat ? _underscoreSerializerAll.Serialize(obj) : _pascalSerializerAll.Serialize(obj);
+        }
     }
 
     public bool FromYaml<T>(string yaml, out T? createdObject, out string? error, bool isUnderscoreFormat)

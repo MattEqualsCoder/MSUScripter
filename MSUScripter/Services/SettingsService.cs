@@ -11,16 +11,14 @@ namespace MSUScripter.Services;
 
 public class SettingsService
 {
-    private ILogger<SettingsService> _logger;
-    private YamlService _yamlService;
+    private readonly YamlService _yamlService;
 
     public static SettingsService Instance { get; private set; } = null!;
 
     public Settings Settings { get; set; } = null!;
 
-    public SettingsService(ILogger<SettingsService> logger, YamlService yamlService)
+    public SettingsService(YamlService yamlService)
     {
-        _logger = logger;
         _yamlService = yamlService;
         LoadSettings();
         Instance = this;
@@ -31,14 +29,14 @@ public class SettingsService
         var settingsPath = GetSettingsPath();
         if (!File.Exists(settingsPath))
         {
-            Settings = new();
+            Settings = new Settings();
             SaveSettings();
             return;
         }
 
         var yaml = File.ReadAllText(settingsPath);
         
-        if (!YamlService.Instance.FromYaml<Settings>(yaml, out var settingsObject, out _, false) ||
+        if (!_yamlService.FromYaml<Settings>(yaml, out var settingsObject, out _, false) ||
             settingsObject == null)
         {
             Settings = new Settings();
@@ -53,7 +51,7 @@ public class SettingsService
 
     public void SaveSettings()
     {
-        var yaml = YamlService.Instance.ToYaml(Settings, false);
+        var yaml = _yamlService.ToYaml(Settings, false, false);
         var path = GetSettingsPath();
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

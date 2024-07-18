@@ -1,174 +1,105 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaControls.Controls;
-using AvaloniaControls.Models;
-using GitHubReleaseChecker;
-using Microsoft.Extensions.DependencyInjection;
+using AvaloniaControls.Extensions;
 using MSUScripter.Configs;
 using MSUScripter.Events;
 using MSUScripter.Models;
-using MSUScripter.Services;
-using MSUScripter.Tools;
+using MSUScripter.Services.ControlServices;
+using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
 public partial class MainWindow : RestorableWindow
 {
-    private readonly IServiceProvider? _services;
-    // private EditProjectPanelOld? _editProjectPanel;
-    private Settings? _settings;
-    private SettingsService? _settingsService;
-    private MsuPcmService? _msuPcmService;
-    private PyMusicLooperService? _pyMusicLooperService;
-    private ProjectService? _projectService;
-
-    public MainWindow() : this(null, null, null, null, null, null)
-    {
-    }
+    private readonly MainWindowService? _service;
+    private NewProjectPanel? _newProjectPanel;
+    private EditProjectPanel? _editProjectPanel;
+    private bool _forceClose;
+    private readonly MainWindowViewModel _model;
     
-    public MainWindow(IServiceProvider? services, Settings? settings, SettingsService? settingsService, MsuPcmService? msuPcmService, PyMusicLooperService? pyMusicLooperService, ProjectService? projectService)
+    public MainWindow()
     {
-        _services = services;
-        _settings = settings;
-        _settingsService = settingsService;
-        _msuPcmService = msuPcmService;
-        _pyMusicLooperService = pyMusicLooperService;
-        _projectService = projectService;
         InitializeComponent();
-        DisplayNewPanel();
-        Title = $"MSU Scripter v{App.Version}";
 
-        Task.Run(() =>
+        if (Design.IsDesignMode)
         {
-            _msuPcmService?.DeleteTempPcms();
-            _msuPcmService?.DeleteTempJsonFiles();
-            _msuPcmService?.ClearCache();
-            _pyMusicLooperService?.ClearCache();
-        });
-    }
-
-    public void SaveChanges()
-    {
-        // _editProjectPanel?.SaveProject();
-    }
-    
-    private void DisplayNewPanel()
-    {
-        if (_services == null) return;
-        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.ResetModel();
-        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.IsVisible = true;
-        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.IsVisible = false;
-        UpdateTitle(null);
-    }
-    
-    private void DisplayEditPanel(MsuProject project)
-    {
-        if (_services == null) return;
-        
-        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.IsVisible = false;
-        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.Project = project;
-        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.IsVisible = true;
-        
-        
-        UpdateTitle(project);
-    }
-    
-    private void UpdateTitle(MsuProject? project)
-    {
-        if (project == null)
-        {
-            Title = "MSU Scripter";
+            DataContext = _model = (MainWindowViewModel)new MainWindowViewModel().DesignerExample();
         }
         else
         {
-            Title = string.IsNullOrEmpty(project.BasicInfo.PackName)
-                ? $"{new FileInfo(project.ProjectFilePath).Name} - MSU Scripter"
-                : $"{project.BasicInfo.PackName} - MSU Scripter";
+            _service = this.GetControlService<MainWindowService>();
+            DataContext = _model = _service?.InitializeModel() ?? new MainWindowViewModel();
         }
-    }
-
-    public bool CheckPendingChanges()
-    {
-        // if (_editProjectPanel == null) return false;
-        // return _editProjectPanel.HasPendingChanges();
-        return false;
     }
 
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_services == null || _settings?.PromptOnUpdate != true) return;
-        
-        if (!string.IsNullOrEmpty(Program.StartingProject) && _projectService != null)
+        if (_model.InitProjectError)
         {
-            var project = _projectService!.LoadMsuProject(Program.StartingProject, false);
-            
-            if (!string.IsNullOrEmpty(project!.BackupFilePath))
-            {
-                var backupProject = _projectService!.LoadMsuProject(project!.BackupFilePath, true);
-                if (backupProject != null && backupProject.LastSaveTime > project.LastSaveTime)
-                {
-                    var messageWindow = new MessageWindow(new MessageWindowRequest
-                    {
-                        Message = "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
-                        Icon = MessageWindowIcon.Question,
-                        Title = "Load Backup?",
-                        Buttons = MessageWindowButtons.YesNo
-                    });
-                    messageWindow.ShowDialog();
-                    if (messageWindow.DialogResult?.PressedAcceptButton == true)
-                        project = backupProject;
-                }
-            }
-
-            DisplayEditPanel(project);
+            await MessageWindow.ShowErrorDialog("There was an error in loading the requested project");
         }
-        
-        var newerGitHubRelease = await _services.GetRequiredService<IGitHubReleaseCheckerService>()
-            .GetGitHubReleaseToUpdateToAsync("MattEqualsCoder", "MSUScripter", App.Version, _settings?.PromptOnPreRelease == true);
-
-        if (newerGitHubRelease != null)
+        else if (_model.InitProject != null)
         {
-            var window = new MessageWindow(new MessageWindowRequest
-            {
-                Message = "A new update was found for the MSU Scripter is now available.",
-                Buttons = MessageWindowButtons.OK,
-                LinkText = "Go to GitHub Release Page",
-                LinkUrl = newerGitHubRelease.Url
-            });
-
-            _ = window.ShowDialog(this);
+            await GetNewProjectPanel().LoadProject(_model.InitProject, _model.InitBackupProject);
         }
     }
 
-    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    private async void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
-        if (_settings == null || _settingsService == null)
-        {
-            return;
-        }
+        _service?.Shutdown();
         
-        _settingsService.SaveSettings();
-
-        _msuPcmService?.DeleteTempPcms();
-        _msuPcmService?.DeleteTempJsonFiles();
+        if (_forceClose || _service?.IsEditPanelDisplayed != true || !GetEditProjectPanel().HasPendingChanges) return;
+        
+        e.Cancel = true;
+        await GetEditProjectPanel().DisplayPendingChangesWindow();
+        _forceClose = true;
+        Close();
     }
 
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
     protected override int DefaultWidth => 1024;
     protected override int DefaultHeight => 768;
-
+    
+    private NewProjectPanel GetNewProjectPanel()
+    {
+        if (_newProjectPanel != null) return _newProjectPanel;
+        _newProjectPanel ??= this.FindControl<NewProjectPanel>(nameof(NewProjectPanel))!;
+        return _newProjectPanel;
+    }
+    
+    private EditProjectPanel GetEditProjectPanel()
+    {
+        if (_editProjectPanel != null) return _editProjectPanel;
+        _editProjectPanel ??= this.FindControl<EditProjectPanel>(nameof(EditProjectPanel))!;
+        return _editProjectPanel;
+    }
+    
     private void EditProjectPanel_OnOnCloseProject(object? sender, EventArgs e)
     {
-        DisplayNewPanel();
+        GetNewProjectPanel().ResetModel();
+        _service?.CloseEditProjectPanel();
     }
 
     private void NewProjectPanel_OnOnProjectSelected(object? sender, ValueEventArgs<MsuProject> e)
     {
-        DisplayEditPanel(e.Data);
+        _service?.OpenEditProjectPanel(e.Data);
+    }
+
+    private void GitHubUrlLink_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.OpenGitHubReleasePage();
+    }
+
+    private void CloseUpdateButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.CloseNewReleaseBanner(false);
+    }
+
+    private void DisableUpdatesLink_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.CloseNewReleaseBanner(true);
     }
 }

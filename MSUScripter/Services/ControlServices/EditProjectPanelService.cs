@@ -12,7 +12,7 @@ namespace MSUScripter.Services.ControlServices;
 
 public class EditProjectPanelService(ProjectService projectService, MsuPcmService msuPcmService, IAudioPlayerService audioService, ConverterService converterService, TrackListService trackListService, StatusBarService statusBarService) : ControlService
 {
-    private EditProjectPanelViewModel _model = null!;
+    private EditProjectPanelViewModel _model = new();
     private bool _isFirstInit = true;
     private readonly Timer _backupTimer = new(TimeSpan.FromSeconds(60));
     

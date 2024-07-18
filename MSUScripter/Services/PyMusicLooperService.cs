@@ -109,7 +109,7 @@ public class PyMusicLooperService
         {
             try
             {
-                var ymlText = YamlService.Instance.ToYaml(loopPoints, true);
+                var ymlText = YamlService.Instance.ToYaml(loopPoints, true, false);
                 File.WriteAllText(path, ymlText);
             }
             catch (Exception e)
