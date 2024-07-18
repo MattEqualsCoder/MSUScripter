@@ -8,279 +8,172 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform.Storage;
+using AvaloniaControls;
 using AvaloniaControls.Controls;
+using AvaloniaControls.Extensions;
 using AvaloniaControls.Models;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Events;
 using MSUScripter.Services;
+using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
+using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
 public partial class NewProjectPanel : UserControl
 {
+    private readonly NewProjectPanelService? _service;
     private readonly IMsuTypeService? _msuTypeService;
     private readonly ProjectService? _projectService;
     private readonly Settings? _settings;
     private readonly ILogger<NewProjectPanel>? _logger;
 
-    public NewProjectPanel() : this(null, null, null, null)
+    public NewProjectPanel()
     {
-        
-    }
-    
-    public NewProjectPanel(IMsuTypeService? msuTypeService, ProjectService? projectService, Settings? settings, ILogger<NewProjectPanel>? logger)
-    {
-        _msuTypeService = msuTypeService;
-        _projectService = projectService;
-        _settings = settings;
-        _logger = logger;
         InitializeComponent();
+
+        if (Design.IsDesignMode)
+        {
+            DataContext = new NewProjectPanelViewModel().DesignerExample();
+        }
+        else
+        {
+            _service = this.GetControlService<NewProjectPanelService>();
+            DataContext = _service?.InitializeModel() ?? new NewProjectPanelViewModel();
+            _service?.ResetModel();
+        }
     }
-    
     
     public MsuProject? Project { get; set; }
 
-    private void PopulateMsuTypeComboBox()
-    {
-        if (_msuTypeService == null) return;
-        var msuTypeNames =  _msuTypeService.MsuTypes
-            .Where(x => x.Selectable)
-            .OrderBy(x => x.DisplayName)
-            .Select(x => x.DisplayName);
-        var comboBox = this.Find<ComboBox>("MsuTypeComboBox");
-        if (comboBox != null)
-            comboBox.ItemsSource = msuTypeNames;
-    }
-    
-    public EventHandler? OnProjectSelected;
+
+    public event EventHandler<ValueEventArgs<MsuProject>>? OnProjectSelected;
 
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
     }
-    
-    public ICollection<RecentProject> RecentProjects { get; set; } = new List<RecentProject>();
 
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    public void ResetModel()
     {
-        base.OnAttachedToVisualTree(e);
-        PopulateMsuTypeComboBox();
-        
-        var recentProjectsTextBlock = this.Find<TextBlock>(nameof(RecentProjectsTextBlock));
-        if (recentProjectsTextBlock != null)
-        {
-            recentProjectsTextBlock.IsVisible =
-                _settings?.RecentProjects.Any(x => File.Exists(x.ProjectPath)) == true;
-        }
-            
-        var recentProjectsList = this.Find<ItemsControl>(nameof(RecentProjectsList));
-        if (recentProjectsList != null)
-        {
-            recentProjectsList.ItemsSource = _settings?.RecentProjects.Where(x => File.Exists(x.ProjectPath))
-                .OrderByDescending(x => x.Time).ToList();
-        }
+        _service?.ResetModel();
     }
-
+    
     private async void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null || _projectService == null || _msuTypeService == null) return;
+        if (_service == null) return;
         
-        var msuTypeName = this.Find<ComboBox>(nameof(MsuTypeComboBox))?.SelectedItem as string;
-        var msuPath = this.Find<FileControl>(nameof(MsuPath))?.FilePath;
-        var tracksJsonPath = this.Find<FileControl>(nameof(MsuPcmJsonFile))?.FilePath;
-        var msuPcmWorking = this.Find<FileControl>(nameof(MsuPcmWorkingDirectory))?.FilePath;
-        var msuType = _msuTypeService?.GetMsuType(msuTypeName);
+        var path = await OpenMsuProjectFilePicker(true);
 
-        if (string.IsNullOrEmpty(msuPath))
+        if (string.IsNullOrEmpty(path))
         {
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = "Please enter a MSU path",
-                Icon = MessageWindowIcon.Warning,
-                Buttons = MessageWindowButtons.OK,
-            }).ShowDialog(this);
-            return;
-        }
-
-        if (msuType == null)
-        {
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = "Please enter a valid MSU type",
-                Icon = MessageWindowIcon.Warning,
-                Buttons = MessageWindowButtons.OK,
-            }).ShowDialog(this);
             return;
         }
         
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        if (!_service.CreateNewProject(path, out var newProject, out var isLegacySmz3, out var error) || newProject == null)
         {
-            Title = "Select MSU Scripter Project File",
-            FileTypeChoices = new List<FilePickerFileType>()
-            {
-                new("MSU Scripter Project File") { Patterns = new List<string>() { "*.msup" }}
-            },
-            ShowOverwritePrompt = true
-        });
-
-        if (string.IsNullOrEmpty(file?.Path.LocalPath)) return;
-        
-        var projectPath = file.Path.LocalPath;
-
-        if (!projectPath.EndsWith(".msup"))
-        {
-            projectPath += ".msup";
-        }
-
-        try
-        {
-            Project = _projectService.NewMsuProject(projectPath, msuType, msuPath, tracksJsonPath, msuPcmWorking);
-        }
-        catch (Exception exception)
-        {
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = exception.Message,
-                Icon = MessageWindowIcon.Error,
-                Buttons = MessageWindowButtons.OK,
-            }).ShowDialog(this);
+            await MessageWindow.ShowErrorDialog(error ?? "Error creating new project", "Error", ParentWindow);
             return;
         }
-        
-        if (Project.MsuType == _msuTypeService!.GetSMZ3LegacyMSUType() && _msuTypeService.GetSMZ3MsuType() != null)
+
+        if (isLegacySmz3)
         {
-            var window = new MessageWindow(new MessageWindowRequest
-            {
-                Message = "This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?",
-                Title = "Swap Tracks?",
-                Icon = MessageWindowIcon.Question,
-                Buttons = MessageWindowButtons.YesNo,
-            });
+            var result = await MessageWindow.ShowYesNoDialog(
+                "This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?",
+                "Update MSU Type?", ParentWindow);
 
-            await window.ShowDialog(this);
-
-            if (window.DialogResult?.PressedAcceptButton == true)
+            if (result && _service.UpdateLegacySmz3Msu(newProject) == false)
             {
-                _projectService.ConvertProjectMsuType(Project, _msuTypeService.GetSMZ3MsuType()!, true);
-                _projectService.SaveMsuProject(Project, false);
+                await MessageWindow.ShowErrorDialog("There was an error updating the classic SMZ3 MSU.", "Error", ParentWindow);
+                return;
             }
         }
-        
-        OnProjectSelected?.Invoke(this, EventArgs.Empty);
+
+        OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(newProject));
     }
 
-    private void RecentProject_OnClick(object? sender, RoutedEventArgs e)
+    private async void RecentProject_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_projectService == null) return;
+        if (_service == null) return;
         if (sender is not LinkControl { Tag: string projectPath }) return;
-        _ = LoadProject(projectPath);
+        await LoadProject(projectPath);
     }
 
     private async void SelectProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null || _projectService == null) return;
-        
-        var file = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
-        {
-            Title = "Select MSU Scripter Project File",
-            FileTypeFilter = new List<FilePickerFileType>()
-            {
-                new("MSU Scripter Project File") { Patterns = new List<string>() { "*.msup" }}
-            },
-        });
+        if (_service == null) return;
 
-        if (string.IsNullOrEmpty(file.FirstOrDefault()?.Path.LocalPath))
+        var path = await OpenMsuProjectFilePicker(false);
+
+        if (string.IsNullOrEmpty(path))
         {
             return;
         }
-        
-        _ = LoadProject(file.First().Path.LocalPath);
+
+        await LoadProject(path);
     }
 
     private async Task LoadProject(string path)
     {
-        try
-        {
-            Project = _projectService!.LoadMsuProject(path, false);
-            if (!string.IsNullOrEmpty(Project!.BackupFilePath))
-            {
-                var backupProject = _projectService!.LoadMsuProject(Project!.BackupFilePath, true);
-                if (backupProject != null && backupProject.LastSaveTime > Project.LastSaveTime)
-                {
-                    var window = new MessageWindow(new MessageWindowRequest
-                    {
-                        Message = "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
-                        Title = "Load Backup?",
-                        Icon = MessageWindowIcon.Question,
-                        Buttons = MessageWindowButtons.YesNo,
-                    });
-
-                    await window.ShowDialog(this);
-
-                    if (window.DialogResult?.PressedAcceptButton == true)
-                    {
-                        Project = backupProject;
-                    }
-                }
-            }
-
-            OnProjectSelected?.Invoke(this, EventArgs.Empty);
-        }
-        catch (Exception e)
-        {
-            _logger?.LogError(e, "Error opening project");
-            await new MessageWindow(new MessageWindowRequest
-            {
-                Message = "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub",
-                Icon = MessageWindowIcon.Error,
-                Buttons = MessageWindowButtons.OK,
-            }).ShowDialog(this);
-        }
-    }
-
-    private void ImportProjectButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _ = ImportProject();
-    }
-
-    private async Task ImportProject()
-    {
-        var topLevel = TopLevel.GetTopLevel(this);
-        if (topLevel == null || _projectService == null) return;
+        if (_service == null) return;
         
-        var file = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+        if (_service.LoadProject(path, out var project, out var backupProject, out var error) && project != null)
         {
-            Title = "Select MSU Scripter Project File",
-            FileTypeFilter = new List<FilePickerFileType>()
+            if (backupProject != null && await MessageWindow.ShowYesNoDialog(
+                    "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                    "Load Backup?", ParentWindow))
             {
-                new("MSU Scripter Project File") { Patterns = new List<string>() { "*.msup" }}
-            },
-        });
+                project = backupProject;
+            }
+            
+            OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
+        }
+        else
+        {
+            await MessageWindow.ShowErrorDialog(
+                error ?? "Could not open MSU Project. Please contact MattEqualsCoder on GitHub",
+                "Error Loading Project");
+        }
+    }
 
-        if (string.IsNullOrEmpty(file.FirstOrDefault()?.Path.LocalPath))
+    private async void ImportProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_service == null) return;
+        
+        var path = await OpenMsuProjectFilePicker(false);
+
+        if (string.IsNullOrEmpty(path))
         {
             return;
         }
 
-        var oldProject = _projectService!.LoadMsuProject(file.First().Path.LocalPath, false);
-
-        if (oldProject == null)
+        if (!_service.LoadProject(path, out var oldProject, out _, out var error) || oldProject == null)
         {
+            await MessageWindow.ShowErrorDialog(error ?? "Could not load previous project file", "Error", ParentWindow);
             return;
         }
         
         var window = new CopyProjectWindow();
         
-        Project = await window.ShowDialog((Window)topLevel, oldProject);
+        var project = await window.ShowDialog(ParentWindow, oldProject);
 
-        if (Project != null)
+        if (project != null)
         {
-            _projectService.SaveMsuProject(Project, false);
-            OnProjectSelected?.Invoke(this, EventArgs.Empty);
+            _service.SaveProject(project);
+            OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
         }
-        
     }
+
+    private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
+    {
+        var documentsFolder = await this.GetDocumentsFolderPath();
+        var path = await CrossPlatformTools.OpenFileDialogAsync(ParentWindow, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
+            "MSU Scripter Project File:*.msup", documentsFolder);
+        return path?.Path.LocalPath;
+    }
+
+    private Window ParentWindow => TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!;
 }

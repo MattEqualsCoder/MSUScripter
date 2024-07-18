@@ -4,9 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:views="clr-namespace:MSUScripter.Views"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.NewProjectPanel"
-             x:DataType="views:NewProjectPanel">
+             x:DataType="viewModels:NewProjectPanelViewModel">
     
     <StackPanel>
         
@@ -24,23 +25,42 @@
                 </TextBlock>
                 
                 <controls1:LabeledControl Text="MSU Type:">
-                    <ComboBox x:Name="MsuTypeComboBox" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch"></ComboBox>
+                    <ComboBox x:Name="MsuTypeComboBox" 
+                              HorizontalContentAlignment="Stretch" 
+                              HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding MsuTypes}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              SelectedItem="{Binding SelectedMsuType, Mode=TwoWay}"
+                    ></ComboBox>
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="MSU Path:">
-                    <controls1:FileControl FileInputType="SaveFile" Filter="MSU Files:*.msu" WarnOnOverwrite="False" Name="MsuPath" ForceExtension="msu"></controls1:FileControl>
+                    <controls1:FileControl FileInputType="SaveFile" 
+                                           Filter="MSU Files:*.msu" 
+                                           WarnOnOverwrite="False" 
+                                           Name="MsuPath" 
+                                           ForceExtension="msu"
+                                           FilePath="{Binding MsuPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
                 </controls1:LabeledControl>
                     
                 <controls1:LabeledControl Text="Import msupcm++ Json File (optional):" DisplayHint="True" Hint="The tracks.json file used by msupcm++">
-                    <controls1:FileControl FileInputType="OpenFile" Filter="msupcm++ Json Files:*.json" Name="MsuPcmJsonFile"></controls1:FileControl>
+                    <controls1:FileControl FileInputType="OpenFile" 
+                                           Filter="msupcm++ Json Files:*.json" 
+                                           Name="MsuPcmJsonFile"
+                                           FilePath="{Binding MsuPcmTracksJsonPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="msupcm++ Working Directory (optional):" DisplayHint="True" Hint="The folder you previously ran msupcm++ from for it to translate relative pcm and song paths">
-                    <controls1:FileControl FileInputType="Folder" Name="MsuPcmWorkingDirectory"></controls1:FileControl>
+                    <controls1:FileControl FileInputType="Folder" 
+                                           Name="MsuPcmWorkingDirectory"
+                                           FilePath="{Binding MsuPcmWorkingDirectoryPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
                 </controls1:LabeledControl>
                 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Name="NewProjectButton" HorizontalAlignment="Center" Margin="5 10 5 0" Click="NewProjectButton_OnClick">Create New Project</Button>
+                    <Button Name="NewProjectButton" HorizontalAlignment="Center" Margin="5 10 5 0" Click="NewProjectButton_OnClick" IsEnabled="{Binding CanCreateNewProject}">Create New Project</Button>
                     <Button Name="ImportProjectButton" HorizontalAlignment="Center" Margin="5 10 5 0" Click="ImportProjectButton_OnClick">Clone Project</Button>
                 </StackPanel>
                 
@@ -49,19 +69,21 @@
             
         <controls1:CardControl HeaderText="Open Project" Padding="5" Margin="5 0 5 5">
             <StackPanel Orientation="Vertical">
-                <TextBlock Name="RecentProjectsTextBlock">Recent Projects</TextBlock>
-                <ItemsControl ItemsSource="{Binding  Path=RecentProjects, Mode=Default}" Name="RecentProjectsList">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Margin="0 5 0 0">
-                                - <controls1:LinkControl Click="RecentProject_OnClick" Tag="{Binding ProjectPath}" Content="{Binding ProjectName}"></controls1:LinkControl>
-                                <TextBlock Margin="5 0 0 0" Foreground="{DynamicResource FadedTextColor}">
-                                    (<TextBlock Text="{Binding ProjectPath}" Foreground="{DynamicResource FadedTextColor}"></TextBlock>)
+                <StackPanel IsVisible="{Binding AnyRecentProjects}">
+                    <TextBlock Name="RecentProjectsTextBlock">Recent Projects</TextBlock>
+                    <ItemsControl ItemsSource="{Binding  Path=RecentProjects, Mode=Default}" Name="RecentProjectsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="0 5 0 0">
+                                    - <controls1:LinkControl Click="RecentProject_OnClick" Tag="{Binding ProjectPath}" Content="{Binding ProjectName}"></controls1:LinkControl>
+                                    <TextBlock Margin="5 0 0 0" Foreground="{DynamicResource FadedTextColor}">
+                                        (<TextBlock Text="{Binding ProjectPath}" Foreground="{DynamicResource FadedTextColor}"></TextBlock>)
+                                    </TextBlock>
                                 </TextBlock>
-                            </TextBlock>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
                 <Button Name="SelectProjectButton" HorizontalAlignment="Center" Margin="10 5 10 5" Click="SelectProjectButton_OnClick">Select Project File</Button>
             </StackPanel>
         </controls1:CardControl>

@@ -10,6 +10,7 @@ using AvaloniaControls.Models;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
+using MSUScripter.Events;
 using MSUScripter.Models;
 using MSUScripter.Services;
 using MSUScripter.Tools;
@@ -19,7 +20,6 @@ namespace MSUScripter.Views;
 public partial class MainWindow : RestorableWindow
 {
     private readonly IServiceProvider? _services;
-    private NewProjectPanel? _newProjectPanel;
     // private EditProjectPanelOld? _editProjectPanel;
     private Settings? _settings;
     private SettingsService? _settingsService;
@@ -60,42 +60,21 @@ public partial class MainWindow : RestorableWindow
     private void DisplayNewPanel()
     {
         if (_services == null) return;
-        
-        if (_newProjectPanel?.OnProjectSelected != null)
-        {
-            _newProjectPanel.OnProjectSelected -= OnProjectSelected;    
-        }
-
+        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.ResetModel();
+        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.IsVisible = true;
         this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.IsVisible = false;
-        MainPanel.Children.Clear();
-        _newProjectPanel = _services.GetRequiredService<NewProjectPanel>();
-        MainPanel.Children.Add(_newProjectPanel);
-        _newProjectPanel.OnProjectSelected += OnProjectSelected;
         UpdateTitle(null);
     }
     
-    private void OnProjectSelected(object? sender, EventArgs e)
-    {
-        if (_newProjectPanel?.Project == null) return;
-        var project = _newProjectPanel.Project;
-        DisplayEditPanel(project);
-    }
-
     private void DisplayEditPanel(MsuProject project)
     {
         if (_services == null) return;
         
-        if (_newProjectPanel?.OnProjectSelected != null)
-        {
-            _newProjectPanel.OnProjectSelected -= OnProjectSelected;    
-        }
+        this.Find<NewProjectPanel>(nameof(NewProjectPanel))!.IsVisible = false;
+        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.Project = project;
+        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.IsVisible = true;
         
-        _newProjectPanel = null;
-        MainPanel.Children.Clear();
-
-        var editPanel = this.Find<EditProjectPanel>(nameof(EditProjectPanel))!;
-        editPanel.Project = project;
-        editPanel.IsVisible = true;
+        
         UpdateTitle(project);
     }
     
@@ -186,5 +165,10 @@ public partial class MainWindow : RestorableWindow
     private void EditProjectPanel_OnOnCloseProject(object? sender, EventArgs e)
     {
         DisplayNewPanel();
+    }
+
+    private void NewProjectPanel_OnOnProjectSelected(object? sender, ValueEventArgs<MsuProject> e)
+    {
+        DisplayEditPanel(e.Data);
     }
 }

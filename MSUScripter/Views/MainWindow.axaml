@@ -16,12 +16,12 @@
     <LayoutTransformControl Name="MainLayout">
         <Grid Name="MainGrid" RowDefinitions="Auto,*" IsSharedSizeScope="True">
             
-            <DockPanel Grid.Row="1" Name="MainPanel">
-                
+            <DockPanel Grid.Row="1">
+                <views:NewProjectPanel Name="NewProjectPanel" OnProjectSelected="NewProjectPanel_OnOnProjectSelected"></views:NewProjectPanel>
             </DockPanel>
             
-            <DockPanel Grid.Row="1" Name="EditParent">
-                <views:EditProjectPanel Name="EditProjectPanel" OnCloseProject="EditProjectPanel_OnOnCloseProject"></views:EditProjectPanel>
+            <DockPanel Grid.Row="1">
+                <views:EditProjectPanel Name="EditProjectPanel" IsVisible="False" OnCloseProject="EditProjectPanel_OnOnCloseProject"></views:EditProjectPanel>
             </DockPanel>
             
         </Grid>

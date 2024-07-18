@@ -131,7 +131,7 @@ public class ProjectService(
             settingsService.AddRecentProject(project);    
         }
         
-        statusBarService?.UpdateStatusBar("Project Loaded");
+        statusBarService.UpdateStatusBar("Project Loaded");
         
         return project;
     }
