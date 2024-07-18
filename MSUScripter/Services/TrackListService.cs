@@ -10,7 +10,7 @@ using MSUScripter.Tools;
 
 namespace MSUScripter.Services;
 
-public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService msuTypeService)
+public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService msuTypeService, StatusBarService statusBarService)
 {
     public void WriteTrackListFile(MsuProject project)
     {
@@ -128,10 +128,12 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         try
         {
             File.WriteAllText(tracklistPath, sb.ToString());
+            statusBarService.UpdateStatusBar("Track list written");
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to write tracklist file");
+            statusBarService.UpdateStatusBar("Failed to write track list");
         }
     }
 

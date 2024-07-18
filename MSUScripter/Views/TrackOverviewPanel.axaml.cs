@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -11,27 +12,36 @@ namespace MSUScripter.Views;
 
 public partial class TrackOverviewPanel : UserControl
 {
-
     private TrackOverviewPanelService? _service;
 
+    public static readonly StyledProperty<EditProjectPanelViewModel> ProjectProperty = AvaloniaProperty.Register<MsuSongInfoPanel, EditProjectPanelViewModel>(
+        nameof(Project));
+
+    public EditProjectPanelViewModel Project
+    {
+        get => GetValue(ProjectProperty);
+        set => SetValue(ProjectProperty, value);
+    }
+    
     public TrackOverviewPanel()
     {
-        InitializeComponent();
-        DataContext = new TrackOverviewPanelViewModel().DesignerExample();
-    }
-
-    public TrackOverviewPanel(MsuProjectViewModel? project)
-    {
-        InitializeComponent();
-        
-        if (project == null)
+        if (Design.IsDesignMode)
         {
-            DataContext = new TrackOverviewPanelViewModel();
+            DataContext = new TrackOverviewPanelViewModel().DesignerExample();
             return;
         }
 
-        _service = this.GetControlService<TrackOverviewPanelService>();
-        DataContext = _service?.InitializeModel(project);
+        ProjectProperty.Changed.Subscribe(x =>
+        {
+            if (x.Sender != this || (EditProjectPanelViewModel?)x.NewValue.Value == null)
+            {
+                return;
+            }
+            _service = this.GetControlService<TrackOverviewPanelService>();
+            DataContext = _service?.InitializeModel(x.NewValue.Value);    
+        });
+        
+        InitializeComponent();
     }
     
     public event EventHandler<TrackEventArgs>? OnSelectedTrack;

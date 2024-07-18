@@ -1,6 +1,4 @@
-﻿using System;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using AvaloniaControls.Extensions;
@@ -19,14 +17,7 @@ public partial class MsuTrackInfoPanel : UserControl
     
     private readonly MsuTrackInfoPanelService? _service;
     
-    public static readonly StyledProperty<MsuTrackInfoViewModel> TrackDataProperty = AvaloniaProperty.Register<MsuTrackInfoPanel, MsuTrackInfoViewModel>(
-        "MsuPcmData");
-
-    public MsuTrackInfoViewModel TrackData
-    {
-        get => GetValue(TrackDataProperty);
-        set => SetValue(TrackDataProperty, value);
-    }
+    private MsuTrackInfoViewModel? TrackData => DataContext as MsuTrackInfoViewModel;
     
     public MsuTrackInfoPanel()
     {
@@ -40,19 +31,16 @@ public partial class MsuTrackInfoPanel : UserControl
         {
             _service = this.GetControlService<MsuTrackInfoPanelService>();
         }
-        
-        TrackDataProperty.Changed.Subscribe(x =>
+
+        DataContextChanged += (_, _) =>
         {
-            if (x.Sender != this || (MsuTrackInfoViewModel?)x.NewValue.Value == null)
+            if (DataContext is MsuTrackInfoViewModel trackInfoViewModel)
             {
-                return;
+                _service?.InitializeModel(trackInfoViewModel);    
             }
-
-            DataContext = x.NewValue.Value;
-            _service?.InitializeModel(x.NewValue.Value);
-        });
+        };
     }
-
+    
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
@@ -65,6 +53,7 @@ public partial class MsuTrackInfoPanel : UserControl
 
     private void AddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (TrackData == null) return;
         var window = new AddSongWindow(TrackData.Project, TrackData.TrackNumber);
         window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
     }

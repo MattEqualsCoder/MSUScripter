@@ -9,7 +9,6 @@ using MSUScripter.ViewModels;
 namespace MSUScripter.Services.ControlServices;
 
 public class MsuSongMsuPcmInfoPanelService(
-    ILogger<MsuSongMsuPcmInfoPanelService> logger,
     Settings settings,
     SettingsService settingsService,
     IAudioPlayerService audioPlayerService,

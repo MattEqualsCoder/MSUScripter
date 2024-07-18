@@ -3,7 +3,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        xmlns:tools="clr-namespace:MSUScripter.Tools"
         xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="300"
         Width="650" Height="200"
@@ -11,6 +10,7 @@
         Icon="/Assets/MSUScripterIcon.ico"
         SizeToContent="Height"
         Title="Settings - MSU Scripter"
+        WindowStartupLocation="CenterOwner"
         x:DataType="viewModels:SettingsWindowViewModel">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>
@@ -53,58 +53,28 @@
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." DisplayHint="True">
-                    <ComboBox 
-                        Name="PromptOnUpdateComboBox"
-                        SelectedItem="{Binding PromptOnUpdate, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox AllowNulls="False" Value="{Binding PromptOnUpdate, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Include Pre-Releases:" Hint="When checking for new updates, alert on pre-release versions in addition to full releases." DisplayHint="True">
-                    <ComboBox 
-                        Name="PromptOnPreReleaseComboBox"
-                        SelectedItem="{Binding PromptOnPreRelease, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
-                        IsEnabled="{Binding PromptOnUpdate}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox AllowNulls="False" IsEnabled="{Binding PromptOnUpdate}" Value="{Binding PromptOnPreRelease, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Use Dark Theme:">
-                    <ComboBox 
-                        SelectedItem="{Binding DarkTheme, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox AllowNulls="False" Value="{Binding DarkTheme, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Hide Sub Track + Sub Channel Warning:" Hint="Hides the popup warning when you try to add a sub track and sub channel on the same level." DisplayHint="True">
-                    <ComboBox 
-                        Name="HideSubTracksSubChannelsWarning"
-                        SelectedItem="{Binding HideSubTracksSubChannelsWarning, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox AllowNulls="False" Value="{Binding HideSubTracksSubChannelsWarning, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Automatically Run PyMusicLooper:" Hint="Automatically run PyMusicLooper in the PyMusicLooper window and Add Song Window." DisplayHint="True">
-                    <ComboBox 
-                        Name="AutomaticallyRunPyMusicLooperComboBox"
-                        SelectedItem="{Binding AutomaticallyRunPyMusicLooper, Converter={StaticResource BoolToStringConverter}}"
-                        ItemsSource="{x:Static tools:BoolComboBoxItemsSource.ItemsSource}"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Stretch"
-                    ></ComboBox>
+                    <controls1:BoolComboBox AllowNulls="False" Value="{Binding AutomaticallyRunPyMusicLooper, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
                     <Grid ColumnDefinitions="*, Auto">
-                        <Slider Grid.Column="0" x:Name="slider" 
+                        <Slider Grid.Column="0" x:Name="LoopDurationSlider" 
                                 Value="{Binding LoopDuration}" 
                                 Minimum="1" 
                                 Maximum="30" />

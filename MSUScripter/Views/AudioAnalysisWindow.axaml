@@ -11,6 +11,7 @@
         x:DataType="viewModels:AudioAnalysisViewModel"
         Loaded="Control_OnLoaded"
         Unloaded="Control_OnUnloaded"
+        WindowStartupLocation="CenterOwner"
         Icon="/Assets/MSUScripterIcon.ico"
         >
     <LayoutTransformControl Name="MainLayout">

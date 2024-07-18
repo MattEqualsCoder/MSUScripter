@@ -20,7 +20,7 @@ public partial class MainWindow : RestorableWindow
 {
     private readonly IServiceProvider? _services;
     private NewProjectPanel? _newProjectPanel;
-    private EditProjectPanel? _editProjectPanel;
+    // private EditProjectPanelOld? _editProjectPanel;
     private Settings? _settings;
     private SettingsService? _settingsService;
     private MsuPcmService? _msuPcmService;
@@ -50,20 +50,11 @@ public partial class MainWindow : RestorableWindow
             _msuPcmService?.ClearCache();
             _pyMusicLooperService?.ClearCache();
         });
-        
-        try
-        {
-            HotKeyManager.SetHotKey(this.Find<MenuItem>(nameof(SaveMenuItem))!, new KeyGesture(Key.S, KeyModifiers.Control));
-        }
-        catch
-        {
-            // Do nothing
-        }
     }
 
     public void SaveChanges()
     {
-        _editProjectPanel?.SaveProject();
+        // _editProjectPanel?.SaveProject();
     }
     
     private void DisplayNewPanel()
@@ -75,13 +66,11 @@ public partial class MainWindow : RestorableWindow
             _newProjectPanel.OnProjectSelected -= OnProjectSelected;    
         }
 
-        _editProjectPanel = null;
+        this.Find<EditProjectPanel>(nameof(EditProjectPanel))!.IsVisible = false;
         MainPanel.Children.Clear();
         _newProjectPanel = _services.GetRequiredService<NewProjectPanel>();
         MainPanel.Children.Add(_newProjectPanel);
         _newProjectPanel.OnProjectSelected += OnProjectSelected;
-        this.Find<MenuItem>(nameof(MsuDetailsMenuItem))!.IsVisible = false;
-        this.Find<MenuItem>(nameof(TrackOverviewMenuItem))!.IsVisible = false;
         UpdateTitle(null);
     }
     
@@ -100,14 +89,13 @@ public partial class MainWindow : RestorableWindow
         {
             _newProjectPanel.OnProjectSelected -= OnProjectSelected;    
         }
-
+        
         _newProjectPanel = null;
         MainPanel.Children.Clear();
-        _editProjectPanel = _services.GetRequiredService<EditProjectPanel>();
-        _editProjectPanel.SetProject(project);
-        MainPanel.Children.Add(_editProjectPanel);
-        this.Find<MenuItem>(nameof(MsuDetailsMenuItem))!.IsVisible = true;
-        this.Find<MenuItem>(nameof(TrackOverviewMenuItem))!.IsVisible = true;
+
+        var editPanel = this.Find<EditProjectPanel>(nameof(EditProjectPanel))!;
+        editPanel.Project = project;
+        editPanel.IsVisible = true;
         UpdateTitle(project);
     }
     
@@ -125,32 +113,11 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
-    private async void NewMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (_editProjectPanel != null)
-        {
-            await _editProjectPanel.CheckPendingChanges();    
-        }
-        DisplayNewPanel();
-    }
-
-    private void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (_editProjectPanel == null) return;
-        _editProjectPanel.SaveProject();
-    }
-
-    private void SettingsMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (_services == null) return;
-        var settingsWindow = _services.GetRequiredService<SettingsWindow>();
-        settingsWindow.ShowDialog(this);
-    }
-
     public bool CheckPendingChanges()
     {
-        if (_editProjectPanel == null) return false;
-        return _editProjectPanel.HasPendingChanges();
+        // if (_editProjectPanel == null) return false;
+        // return _editProjectPanel.HasPendingChanges();
+        return false;
     }
 
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
@@ -212,17 +179,12 @@ public partial class MainWindow : RestorableWindow
         _msuPcmService?.DeleteTempJsonFiles();
     }
 
-    private void MsuDetailsMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _editProjectPanel?.DisplayMsuDetails();
-    }
-
-    private void TrackOverviewMenuItem_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _editProjectPanel?.DisplayTrackOverview();
-    }
-
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
     protected override int DefaultWidth => 1024;
     protected override int DefaultHeight => 768;
+
+    private void EditProjectPanel_OnOnCloseProject(object? sender, EventArgs e)
+    {
+        DisplayNewPanel();
+    }
 }

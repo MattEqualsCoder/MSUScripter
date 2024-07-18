@@ -8,9 +8,9 @@ public class TrackOverviewPanelService : ControlService
 {
     private readonly TrackOverviewPanelViewModel _model = new();
 
-    public TrackOverviewPanelViewModel InitializeModel(MsuProjectViewModel project)
+    public TrackOverviewPanelViewModel InitializeModel(EditProjectPanelViewModel editProjectPanelViewModel)
     {
-        _model.MsuProjectViewModel = project;
+        _model.MsuProjectViewModel = editProjectPanelViewModel.MsuProjectViewModel ?? new MsuProjectViewModel();
         RefreshTracks();
         return _model;
     }

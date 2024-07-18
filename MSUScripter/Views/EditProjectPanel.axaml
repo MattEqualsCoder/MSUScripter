@@ -1,116 +1,164 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             mc:Ignorable="d" d:DesignWidth="1024" d:DesignHeight="768"
              x:Class="MSUScripter.Views.EditProjectPanel"
-             Unloaded="Control_OnUnloaded"
-             x:DataType="viewModels:MsuProjectViewModel">
-    <Grid RowDefinitions="Auto,*,Auto">
+             x:DataType="viewModels:EditProjectPanelViewModel">
+    <DockPanel>
         
-        <Grid Grid.Row="0" DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">
-            <Button 
-                Name="PrevButton"
-                Grid.Column="0" 
-                Margin="0 0 5 0" 
-                Padding="5 0" 
-                Click="PrevButton_OnClick"
-            >
-                <StackPanel Orientation="Horizontal">
-                    <avalonia:MaterialIcon Kind="ChevronDoubleLeft" Margin="0 0 0 0"></avalonia:MaterialIcon>
-                    <TextBlock>Prev</TextBlock>
-                </StackPanel>
-            </Button>
+        <controls:HeaderFooter DockPanel.Dock="Top" BorderSize="0 0 0 2">
+            <StackPanel Orientation="Vertical">
+                
+                <Menu>
+                    <MenuItem 
+                        Header="_New"
+                        Name="NewMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="NewMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_Save" 
+                        Name="SaveMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="SaveMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="S_ettings" 
+                        Name="SettingsMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="SettingsMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_MSU Details" 
+                        Name="MsuDetailsMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="MsuDetailsMenuItem_OnClick"
+                    ></MenuItem>
+                    <MenuItem 
+                        Header="_Track Overview" 
+                        Name="TrackOverviewMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="TrackOverviewMenuItem_OnClick"
+                    ></MenuItem>
+                </Menu>
+                
+                <Grid DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">
+                    <Button 
+                        Name="PrevButton"
+                        Grid.Column="0" 
+                        Padding="5 0" 
+                        IsEnabled="{Binding CanClickPrev}"
+                        Click="PrevButton_OnClick"
+                    >
+                        <StackPanel Orientation="Horizontal">
+                            <avalonia:MaterialIcon Kind="ChevronDoubleLeft" Margin="0 0 0 0"></avalonia:MaterialIcon>
+                            <TextBlock>Prev</TextBlock>
+                        </StackPanel>
+                    </Button>
+                    
+                    <controls:ComboBoxAndSearchControl 
+                        Grid.Column="1"
+                        Margin="5 0"
+                        Items="{Binding TrackSearchItems}"
+                        Value="{Binding PageNumber, Mode=TwoWay}"
+                    ></controls:ComboBoxAndSearchControl>
+                    
+                    <Button 
+                        Name="NextButton"
+                        Grid.Column="2"
+                        Padding="5 0"
+                        IsEnabled="{Binding CanClickNext}"
+                        Click="NextButton_OnClick"
+                    >
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock>Next</TextBlock>
+                            <avalonia:MaterialIcon Kind="ChevronDoubleRight" Margin="0 0 0 0"></avalonia:MaterialIcon>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </controls:HeaderFooter>
+        
+        <controls:HeaderFooter DockPanel.Dock="Bottom" Padding="5">
             
-            <Grid Grid.Column="1" 
-                  Margin="0 0 0 0"
-                  ColumnDefinitions="* Auto"
-            >
-                <ComboBox Grid.Column="0"
-                          Name="PageComboBox"
-                          ItemsSource="{Binding Tracks}"
-                          SelectionChanged="PageComboBox_OnSelectionChanged"
-                />
-                        
-                <AutoCompleteBox Grid.Column="0" 
-                                 Name="TrackSearchAutoCompleteBox"
-                                 ItemsSource="{Binding Tracks}"
-                                 IsVisible="False"
-                                 FilterMode="Contains"
-                                 DropDownClosed="TrackSearchAutoCompleteBox_OnDropDownClosed"
-                                 TextChanged="TrackSearchAutoCompleteBox_OnTextChanged"
-                                 Populated="TrackSearchAutoCompleteBox_OnPopulated"
-                ></AutoCompleteBox>
-                        
-                <Button Grid.Column="1" Name="SearchButton" Click="SearchButton_OnClick" Margin="3 0 0 0" >
-                    <avalonia:MaterialIcon Kind="Search" Height="18" Width="18" Name="SearchIcon"></avalonia:MaterialIcon>
-                </Button>
-            </Grid>
-            <Button 
-                Name="NextButton"
-                Grid.Column="2"
-                Margin="5 0 0 0" 
-                Padding="5 0"
-                Click="NextButton_OnClick"
-            >
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock>Next</TextBlock>
-                    <avalonia:MaterialIcon Kind="ChevronDoubleRight" Margin="0 0 0 0"></avalonia:MaterialIcon>
-                </StackPanel>
-            </Button>
-        </Grid>
-        
-        <Border Grid.Row="2" DockPanel.Dock="Bottom">
             <Grid ColumnDefinitions="*,*,*">
-                <StackPanel Grid.Column="0" Name="AudioStackPanel" VerticalAlignment="Center" Margin="5 0 0 5"></StackPanel>
-                <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+                <views:AudioControl Grid.Column="0" />
+                <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding StatusBarText}"></TextBlock>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
                     <Button x:Name="AddSongButton"
-                            Margin="0 2 5 1"
-                            IsVisible="{Binding BasicInfo.IsMsuPcmProject }"
+                            Margin="0 2 0 1"
+                            IsVisible="{Binding MsuBasicInfoViewModel.IsMsuPcmProject }"
                             Click="AddSongButton_OnClick"
                     >Add _Song</Button>
                     <Button x:Name="AnalysisButton"
-                            Margin="0 2 5 1"
+                            Margin="8 2 0 1"
+                            IsVisible="{Binding MsuBasicInfoViewModel.IsMsuPcmProject }"
                             Click="AnalysisButton_OnClick"
                     >_Audio Analysis</Button>
                     <Button x:Name="ExportButton" 
-                            IsVisible="{Binding !BasicInfo.IsMsuPcmProject }"
-                            Margin="0 2 5 1"
+                            IsVisible="{Binding !IsMsuPcmProject }"
+                            Margin="0 2 0 1"
                             Padding="8 5"
                             Click="ExportButton_OnClick"
                     >_Export</Button>
-                    <SplitButton Content="_Export" Name="ExportMenuButton" IsVisible="{Binding BasicInfo.IsMsuPcmProject }" Click="ExportButton_OnClick" >
+                    <SplitButton Content="_Export" 
+                                 Name="ExportMenuButton" 
+                                 IsVisible="{Binding IsMsuPcmProject }"
+                                 Margin="8 2 0 1"
+                                 Click="ExportButton_OnClick" 
+                    >
                         <SplitButton.Flyout>
-                            <MenuFlyout Placement="BottomEdgeAlignedRight">
-                                <MenuItem Name="ExportButton_Yaml" Header="Export _YAML" Click="ExportButton_Yaml_OnClick" IsVisible="{Binding BasicInfo.WriteYamlFile}"></MenuItem>
-                                <MenuItem Name="ExportButton_ValidatedYaml" Header="_Validate YAML" Click="ExportButton_ValidatedYaml_OnClick" IsVisible="{Binding BasicInfo.WriteYamlFile}"></MenuItem>
-                                <MenuItem Name="ExportButton_TrackList" Header="Export _Track List File" Click="ExportButton_TrackList_OnClick" IsVisible="{Binding BasicInfo.WriteTrackList}"></MenuItem>
-                                <MenuItem Name="ExportButton_Json" Header="Export MsuPcm++ _Json" Click="ExportButton_Json_OnClick"></MenuItem>
-                                <MenuItem Name="ExportButton_Swapper" Header="Export Alt Track Swap Script" Click="ExportButton_Swapper_OnClick" IsVisible="{Binding BasicInfo.CreateAltSwapper}"></MenuItem>
-                                <MenuItem Name="ExportButton_Smz3" Header="Export _SMZ3 Split MSU Script" Click="ExportButton_Smz3_OnClick" IsVisible="{Binding BasicInfo.CreateSplitSmz3Script}"></MenuItem>
-                                <MenuItem Name="ExportButton_Msu" Header="Export _MSU" Click="ExportButton_Msu_OnClick"></MenuItem>
+                            <MenuFlyout Placement="BottomEdgeAlignedRight" Opening="PopupFlyoutBase_OnOpening">
+                                <MenuItem Name="ExportButtonYaml" Header="Export _YAML" Click="ExportButtonYaml_OnClick" IsVisible="{Binding WriteYamlFile}"></MenuItem>
+                                <MenuItem Name="ExportButtonValidatedYaml" Header="_Validate YAML" Click="ExportButtonValidateYaml_OnClick" IsVisible="{Binding WriteYamlFile}"></MenuItem>
+                                <MenuItem Name="ExportButtonTrackList" Header="Export _Track List File" Click="ExportButtonTrackList_OnClick" IsVisible="{Binding WriteTrackList}"></MenuItem>
+                                <MenuItem Name="ExportButtonJson" Header="Export MsuPcm++ _Json" Click="ExportButtonJson_OnClick" IsVisible="{Binding IsMsuPcmProject}"></MenuItem>
+                                <MenuItem Name="ExportButtonSwapper" Header="Export Alt Track Swap Script" Click="ExportButtonSwapper_OnClick" IsVisible="{Binding DisplayAltSwapperExportButton}"></MenuItem>
+                                <MenuItem Name="ExportButtonSmz3" Header="Export _SMZ3 Split MSU Script" Click="ExportButtonSmz3_OnClick" IsVisible="{Binding CreateSplitSmz3Script}"></MenuItem>
+                                <MenuItem Name="ExportButtonMsu" Header="Export _MSU Only" Click="ExportButtonMsu_OnClick" IsVisible="{Binding IsMsuPcmProject}"></MenuItem>
                                 <MenuItem Name="OpenFolderMenuItem" Header="Open _Folder" Click="OpenFolderMenuItem_OnClick"></MenuItem>
-                                <MenuItem Name="ExportButton_Video" Header="_Create Copyright Test Video" Click="ExportButton_Video_OnClick"></MenuItem>
-                                <MenuItem Name="ExportButton_Package" Header="_Package MSU Files into ZIP" Click="ExportButton_Package_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButtonVideo" Header="_Create Copyright Test Video" Click="ExportButtonVideo_OnClick"></MenuItem>
+                                <MenuItem Name="ExportButtonPackage" Header="_Package MSU Files into ZIP" Click="ExportButtonPackage_OnClick"></MenuItem>
                             </MenuFlyout>
                         </SplitButton.Flyout>
                     </SplitButton>
                 </StackPanel>
             </Grid>
             
-        </Border>
+        </controls:HeaderFooter>
         
-        <DockPanel Grid.Row="1" Name="PageDockPanel" IsVisible="False" Margin="5"></DockPanel>
-        
-        <Border Grid.Row="1" BorderBrush="DimGray" BorderThickness="1" Margin="5" Name="ScrollViewerBorder">
-            <ScrollViewer x:Name="ScrollViewer">
-                <StackPanel Orientation="Vertical" Name="PagePanel" Margin="10 10 10 10">
+        <Grid>
+            <ScrollViewer IsVisible="{Binding DisplayBasicInfoPanel}">
+                <StackPanel Margin="8">
+                    <views:MsuBasicInfoPanel DataContext="{Binding MsuBasicInfoViewModel}"></views:MsuBasicInfoPanel>
                 </StackPanel>
             </ScrollViewer>
-        </Border>
+            
+            <Grid IsVisible="{Binding DisplayTrackOverviewPanel}">
+                <views:TrackOverviewPanel Margin="10" 
+                                          DataContext="{Binding NullValue}" 
+                                          Project="{Binding $parent.DataContext}"
+                                          OnSelectedTrack="TrackOverviewPanel_OnOnSelectedTrack"
+                ></views:TrackOverviewPanel>
+            </Grid>
+            
+            <ScrollViewer IsVisible="{Binding DisplayTrackInfoPanel}">
+                <StackPanel Margin="8">
+                    <views:MsuTrackInfoPanel DataContext="{Binding SelectedTrack}"></views:MsuTrackInfoPanel>
+                </StackPanel>
+            </ScrollViewer>
+            
+        </Grid>
         
-    </Grid>
+    </DockPanel>
 </UserControl>

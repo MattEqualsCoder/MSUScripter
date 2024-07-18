@@ -13,7 +13,6 @@ using MSUScripter.Views;
 namespace MSUScripter.Services.ControlServices;
 
 public class AddSongWindowService(
-    ILogger<AddSongWindowService> logger,
     AudioMetadataService audioMetadataService,
     AudioAnalysisService audioAnalysisService,
     MsuPcmService msuPcmService,

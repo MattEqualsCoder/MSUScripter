@@ -61,8 +61,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         AvaloniaXamlLoader.Load(this);
     }
     
-    public event EventHandler<BasicEventArgs>? FileUpdated;
-
     private async void RemoveButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (!await MessageWindow.ShowYesNoDialog("Are you sure you want to delete these msupcm++ details?",

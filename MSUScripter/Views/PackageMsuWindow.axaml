@@ -9,6 +9,7 @@
         x:Class="MSUScripter.Views.PackageMsuWindow"
         Title="Package MSU"
         Icon="/Assets/MSUScripterIcon.ico"
+        WindowStartupLocation="CenterOwner"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
         x:DataType="viewModels:PackageMsuWindowViewModel">

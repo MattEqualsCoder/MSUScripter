@@ -53,6 +53,8 @@ public class TrackOverviewPanelViewModel : ViewModelBase
     
     public override ViewModelBase DesignerExample()
     {
+        CompletedSongDetails = $"1 out of 4 songs are marked as finished";
+        CompletedTrackDetails = $"1 out of 6 tracks have songs with audio files";
         return this;
     }
 }

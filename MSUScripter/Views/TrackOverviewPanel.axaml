@@ -9,9 +9,8 @@
     <DockPanel>
         
         <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" RowDefinitions="Auto, Auto">
-            <TextBlock Grid.Row="0" Grid.Column="0" Margin="10" Text="{Binding CompletedSongDetails}"></TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" Margin="10" Text="{Binding CompletedTrackDetails}"></TextBlock>
-            <Separator Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0 0"></Separator>
+            <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 10 0 0" Text="{Binding CompletedSongDetails}"></TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" Margin="0 10 0 0" Text="{Binding CompletedTrackDetails}"></TextBlock>
         </Grid>
         <DataGrid Name="TrackDataGrid" 
                   ItemsSource="{Binding Rows}" 

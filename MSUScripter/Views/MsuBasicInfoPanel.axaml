@@ -51,7 +51,7 @@
                 <controls1:LabeledControl Text="Create YAML File:" Hint="Create MSU Randomizer YAML file(s)" DisplayHint="True">
                     <controls1:BoolComboBox
                         AllowNulls="False"
-                        Value="{Binding WriteYamlFile}">
+                        Value="{Binding WriteYamlFile, Mode=TwoWay}">
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Track List Format:" Hint='Create a text file with the track details in either a list with the format "%album% - %song% (%artist%)" or in a table view' DisplayHint="True">
@@ -66,13 +66,13 @@
                 <controls1:LabeledControl Text="Enable MsuPcm:" Hint="If this is a project for modifying the MsuPcm++ data" DisplayHint="True">
                     <controls1:BoolComboBox
                         AllowNulls="False"
-                        Value="{Binding IsMsuPcmProject}">
+                        Value="{Binding IsMsuPcmProject, Mode=TwoWay}">
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Create Alt Swap File:" Hint="Creates a .bat file to swap between base and alt tracks. Only works between the original song and first track." DisplayHint="True">
                     <controls1:BoolComboBox
                         AllowNulls="False"
-                        Value="{Binding CreateAltSwapper}">
+                        Value="{Binding CreateAltSwapper, Mode=TwoWay}">
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Create SMZ3 Split Script:" 
@@ -82,7 +82,7 @@
                                       >
                     <controls1:BoolComboBox
                         AllowNulls="False"
-                        Value="{Binding CreateSplitSmz3Script}">
+                        Value="{Binding CreateSplitSmz3Script, Mode=TwoWay}">
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Metroid MSU Path:" 
@@ -120,7 +120,7 @@
                 <controls1:LabeledControl Text="Dither:" Hint="Whether or not to apply audio dither to the final output" DisplayHint="True">
                     <controls1:BoolComboBox 
                         AllowNulls="True"
-                        Value="{Binding Dither}"
+                        Value="{Binding Dither, Mode=TwoWay}"
                     ></controls1:BoolComboBox>
                 </controls1:LabeledControl>
             </StackPanel>

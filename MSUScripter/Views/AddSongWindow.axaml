@@ -11,6 +11,7 @@
         MinWidth="1000" MinHeight="700"
         x:Class="MSUScripter.Views.AddSongWindow"
         Title="Add Song"
+        WindowStartupLocation="CenterOwner"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
         Icon="/Assets/MSUScripterIcon.ico"
