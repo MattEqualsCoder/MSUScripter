@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using NAudio.Wave;
@@ -174,7 +175,7 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
         
         CurrentPlayingFile = path;
         
-        _ = Task.Run(() =>
+        _ = ITaskService.Run(() =>
         {
             _logger.LogInformation("Playing song {Path}", path);
             

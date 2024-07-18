@@ -13,15 +13,12 @@ public class SettingsService
 {
     private readonly YamlService _yamlService;
 
-    public static SettingsService Instance { get; private set; } = null!;
-
     public Settings Settings { get; set; } = null!;
 
     public SettingsService(YamlService yamlService)
     {
         _yamlService = yamlService;
         LoadSettings();
-        Instance = this;
     }
 
     public void LoadSettings()

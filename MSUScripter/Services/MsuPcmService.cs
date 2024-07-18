@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
-using MSUScripter.Events;
 using MSUScripter.Models;
 using Newtonsoft.Json;
 
@@ -19,15 +18,17 @@ namespace MSUScripter.Services;
 public class MsuPcmService
 {
     private readonly StatusBarService _statusBarService;
+    private readonly ConverterService _converterService;
     private readonly ILogger<MsuPcmService> _logger;
     private readonly Settings _settings;
     private readonly string _cacheFolder;
 
-    public MsuPcmService(ILogger<MsuPcmService> logger, Settings settings, StatusBarService statusBarService)
+    public MsuPcmService(ILogger<MsuPcmService> logger, Settings settings, StatusBarService statusBarService, ConverterService converterService)
     {
         _logger = logger;
         _settings = settings;
         _statusBarService = statusBarService;
+        _converterService = converterService;
         _cacheFolder = Path.Combine(Directories.CacheFolder, "msupcm");
         if (!Directory.Exists(_cacheFolder))
         {
@@ -564,7 +565,7 @@ public class MsuPcmService
         
         foreach (var song in songs)
         {
-            if (ConverterService.Instance.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
+            if (_converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
             track.Output = song.OutputPath;
             track.Track_number = song.TrackNumber;
             track.Title = song.TrackName;

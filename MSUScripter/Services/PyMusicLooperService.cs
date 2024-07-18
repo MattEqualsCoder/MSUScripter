@@ -18,6 +18,7 @@ public class PyMusicLooperService
 {
     private readonly ILogger<PyMusicLooperService> _logger;
     private readonly PythonCommandRunnerService _python;
+    private readonly YamlService _yamlService;
     private static readonly Regex digitsOnly = new(@"[^\d.]");
     private bool _hasValidated;
     private const string MinVersion = "3.0.0";
@@ -26,10 +27,11 @@ public class PyMusicLooperService
     private readonly string _cachePath;
     private int _currentVersion;
 
-    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python)
+    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python, YamlService yamlService)
     {
         _logger = logger;
         _python = python;
+        _yamlService = yamlService;
         _cachePath = Path.Combine(Directories.CacheFolder, "pymusiclooper");
         if (!Directory.Exists(_cachePath))
         {
@@ -85,7 +87,7 @@ public class PyMusicLooperService
         {
             var ymlText = File.ReadAllText(path);
 
-            if (YamlService.Instance.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true))
+            if (_yamlService.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true))
             {
                 message = "";
                 IsRunning = false;
@@ -109,7 +111,7 @@ public class PyMusicLooperService
         {
             try
             {
-                var ymlText = YamlService.Instance.ToYaml(loopPoints, true, false);
+                var ymlText = _yamlService.ToYaml(loopPoints, true, false);
                 File.WriteAllText(path, ymlText);
             }
             catch (Exception e)

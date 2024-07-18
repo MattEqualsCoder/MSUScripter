@@ -10,7 +10,14 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class EditProjectPanelService(ProjectService projectService, MsuPcmService msuPcmService, IAudioPlayerService audioService, ConverterService converterService, TrackListService trackListService, StatusBarService statusBarService) : ControlService
+public class EditProjectPanelService(
+    ProjectService projectService,
+    MsuPcmService msuPcmService,
+    IAudioPlayerService audioService,
+    ConverterService converterService,
+    TrackListService trackListService,
+    StatusBarService statusBarService,
+    AudioAnalysisService audioAnalysisService) : ControlService
 {
     private EditProjectPanelViewModel _model = new();
     private bool _isFirstInit = true;
@@ -29,6 +36,14 @@ public class EditProjectPanelService(ProjectService projectService, MsuPcmServic
         }
         
         var projectModel = converterService.ConvertProject(project);
+        
+        foreach (var songViewModel in projectModel.Tracks.SelectMany(x => x.Songs))
+        {
+            songViewModel.MsuPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File));
+            songViewModel.MsuPcmInfo.UpdateMultiWarning();
+            songViewModel.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
+        }
+
         _model = new EditProjectPanelViewModel
         {
             MsuProject = project,

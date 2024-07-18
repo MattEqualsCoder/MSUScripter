@@ -13,20 +13,8 @@ using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
-public class ConverterService
+public class ConverterService(IMsuTypeService msuTypeService)
 {
-    private readonly IMsuTypeService _msuTypeService;
-    private readonly AudioAnalysisService _audioAnalysisService;
-
-    public static ConverterService Instance { get; private set; } = null!;
-    
-    public ConverterService(IMsuTypeService msuTypeService, AudioAnalysisService audioAnalysisService)
-    {
-        _msuTypeService = msuTypeService;
-        _audioAnalysisService = audioAnalysisService;
-        Instance = this;
-    }
-    
     public bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()
     {
         var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
@@ -107,10 +95,6 @@ public class ConverterService
                 songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false);
                 
                 trackViewModel.Songs.Add(songViewModel);
-
-                songViewModel.MsuPcmInfo.UpdateHertzWarning(_audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File));
-                songViewModel.MsuPcmInfo.UpdateMultiWarning();
-                songViewModel.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
             }
 
             viewModel.Tracks.Add(trackViewModel);
@@ -126,7 +110,7 @@ public class ConverterService
         var project = new MsuProject();
         ConvertViewModel(viewModel, project);
         ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
-        project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ??
+        project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ??
                           throw new InvalidOperationException($"Invalid MSU Type {project.MsuTypeName}");
 
         foreach (var trackViewModel in viewModel.Tracks)

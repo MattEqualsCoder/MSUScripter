@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
+using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Events;
 using MSUScripter.ViewModels;
@@ -29,7 +30,7 @@ public class PyMusicLooperPanelService(
             if (_model.PyMusicLooperResults.Count <= 0) return;
             FilterResults();
 
-            _ = Task.Run(() =>
+            _ = ITaskService.Run(() =>
             {
                 RunMsuPcm(false);
             });
@@ -70,7 +71,7 @@ public class PyMusicLooperPanelService(
         _model.GeneratingPcms = true;
         _model.Page += mod;
 
-        _ = Task.Run(() =>
+        _ = ITaskService.Run(() =>
         {
             RunMsuPcm();
             _model.Message = null;
@@ -79,7 +80,7 @@ public class PyMusicLooperPanelService(
 
     public async Task PlayResult(PyMusicLooperResultViewModel result)
     {
-        await Task.Run(async () =>
+        await ITaskService.Run(async () =>
         {
             await audioPlayerService.StopSongAsync();
 
@@ -187,7 +188,7 @@ public class PyMusicLooperPanelService(
 
         _cts = new CancellationTokenSource();
 
-        Task.Run(() =>
+        ITaskService.Run(() =>
         {
             _model.IsRunning = true;
             _model.Message = "Running PyMusicLooper";

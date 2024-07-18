@@ -9,12 +9,13 @@ using System.Text.RegularExpressions;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
+using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger, PythonCommandRunnerService python) : ControlService
+public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger, PythonCommandRunnerService python, YamlService yamlService, Settings settings) : ControlService
 {
     private Process? _process;
     private const string MinVersion = "0.2.0";
@@ -23,6 +24,8 @@ public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger
 
     public VideoCreatorWindowViewModel InitializeModel(MsuProjectViewModel project)
     {
+        _model.PreviousPath = settings.PreviousPath;
+        
         _model.PcmPaths = project.Tracks.SelectMany(x => x.Songs)
             .Where(x => x.CheckCopyright && File.Exists(x.OutputPath)).Select(x => x.OutputPath).ToList();
         
@@ -76,7 +79,7 @@ public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger
             { "Files", _model.PcmPaths }
         };
         
-        var yaml = YamlService.Instance.ToYaml(pcmFilesData, false, false);
+        var yaml = yamlService.ToYaml(pcmFilesData, false, false);
         var path = Path.Combine(Directories.TempFolder, "video-creator-list.yml");
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

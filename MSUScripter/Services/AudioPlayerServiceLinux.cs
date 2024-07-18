@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 
@@ -135,7 +136,7 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
             _process.Disposed += ProcessOnExited;
             PlayStarted?.Invoke(this, EventArgs.Empty);
 
-            Task.Run(() =>
+            ITaskService.Run(() =>
             {
                 var processToWaitFor = _process;
                 processToWaitFor.WaitForExit();

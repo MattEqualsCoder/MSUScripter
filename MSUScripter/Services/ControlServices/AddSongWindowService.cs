@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AvaloniaControls.Controls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Models;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.ViewModels;
 using MSUScripter.Views;
@@ -126,26 +127,14 @@ public class AddSongWindowService(
 
         if (!generated)
         {
-            var window = new MessageWindow(new MessageWindowRequest
-            {
-                Message = message ?? "Unknown error",
-                Buttons = MessageWindowButtons.OK,
-                Icon = MessageWindowIcon.Error
-            });
-            await window.ShowDialog(parent);
+            await MessageWindow.ShowErrorDialog(message ?? "Unknown error", "Error", parent);
             return false;
         }
         
         if (!successful)
         {
-            var window = new MessageWindow(new MessageWindowRequest
-            {
-                Message = $"{message}\r\nDo you want to continue adding this song?",
-                Buttons = MessageWindowButtons.YesNo,
-                Icon = MessageWindowIcon.Error
-            });
-            await window.ShowDialog(parent);
-            if (window.DialogResult?.PressedAcceptButton != true)
+            if (!await MessageWindow.ShowYesNoDialog($"{message}\r\nDo you want to continue adding this song?",
+                    "Continue?", parent))
             {
                 return false;
             }
@@ -191,7 +180,7 @@ public class AddSongWindowService(
         track.Songs.Add(song);
 
         _model.AddSongButtonText = "Added Song";
-        _ = Task.Run(() =>
+        _ = ITaskService.Run(() =>
         {
             Thread.Sleep(TimeSpan.FromSeconds(3));
             _model.AddSongButtonText = "Add Song";
@@ -210,7 +199,7 @@ public class AddSongWindowService(
         _model.AverageAudio = "Running";
         _model.PeakAudio = null;
         
-        Task.Run(async () =>
+        ITaskService.Run(async () =>
         {
             await StopSong(false);
 

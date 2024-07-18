@@ -5,10 +5,8 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
-public class YamlService
+public class YamlService(ILogger<YamlService> logger)
 {
-    public static YamlService Instance = null!;
-    
     private readonly ISerializer _underscoreSerializerIgnoreDefaults = new SerializerBuilder()
         .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -37,14 +35,6 @@ public class YamlService
         .IgnoreUnmatchedProperties()
         .Build();
 
-    private readonly ILogger<YamlService> _logger;
-
-    public YamlService(ILogger<YamlService> logger)
-    {
-        Instance = this;
-        _logger = logger;
-    }
-
     public string ToYaml(object obj, bool isUnderscoreFormat, bool ignoreDefaults)
     {
         if (ignoreDefaults)
@@ -69,7 +59,7 @@ public class YamlService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Could not deserialize {Type} from yaml", typeof(T).Name);
+            logger.LogError(e, "Could not deserialize {Type} from yaml", typeof(T).Name);
             createdObject = default;
             error = e.Message;
             return false;

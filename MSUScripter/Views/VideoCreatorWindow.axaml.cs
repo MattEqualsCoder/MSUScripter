@@ -14,10 +14,11 @@ namespace MSUScripter.Views;
 public partial class VideoCreatorWindow : Window
 {
     private VideoCreatorWindowService? _service;
+    private VideoCreatorWindowViewModel _model;
     
     public VideoCreatorWindow()
     {
-        DataContext = new VideoCreatorWindowViewModel().DesignerExample();
+        DataContext = _model = (VideoCreatorWindowViewModel)new VideoCreatorWindowViewModel().DesignerExample();
         InitializeComponent();
     }
     
@@ -26,7 +27,7 @@ public partial class VideoCreatorWindow : Window
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         InitializeComponent();
         _service = this.GetControlService<VideoCreatorWindowService>();
-        DataContext = _service?.InitializeModel(project);
+        DataContext = _model = _service?.InitializeModel(project) ?? new VideoCreatorWindowViewModel();
     }
 
 
@@ -39,9 +40,9 @@ public partial class VideoCreatorWindow : Window
         if (topLevel == null) return;
 
         IStorageFolder? previousFolder;
-        if (!string.IsNullOrEmpty(SettingsService.Instance.Settings.PreviousPath))
+        if (!string.IsNullOrEmpty(_model.PreviousPath))
         {
-            previousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(SettingsService.Instance.Settings.PreviousPath);    
+            previousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(_model.PreviousPath);    
         }
         else
         {

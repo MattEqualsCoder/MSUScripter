@@ -21,6 +21,7 @@ public class ProjectService(
     AudioMetadataService audioMetadataService,
     SettingsService settingsService,
     ConverterService converterService,
+    YamlService yamlService,
     StatusBarService statusBarService)
 {
     public void SaveMsuProject(MsuProject project, bool isBackup)
@@ -34,7 +35,7 @@ public class ProjectService(
             SaveMsuProject(project, true);
         }
         
-        var yaml = YamlService.Instance.ToYaml(project, false, false);
+        var yaml = yamlService.ToYaml(project, false, false);
 
         if (isBackup && !Directory.Exists(GetBackupDirectory()))
         {
@@ -81,7 +82,7 @@ public class ProjectService(
         }
         
         var yaml = File.ReadAllText(path);
-        if (!YamlService.Instance.FromYaml<MsuProject>(yaml, out var project, out _, false) || project == null)
+        if (!yamlService.FromYaml<MsuProject>(yaml, out var project, out _, false) || project == null)
         {
             return null;
         }
@@ -597,7 +598,7 @@ public class ProjectService(
         try
         {
             var yamlText = File.ReadAllText(yamlPath);
-            if (!YamlService.Instance.FromYaml(yamlText, out msuDetails, out _, true) || msuDetails == null)
+            if (!yamlService.FromYaml(yamlText, out msuDetails, out _, true) || msuDetails == null)
             {
                 error = $"Could not retrieve MSU Details from {yamlPath}";
                 statusBarService.UpdateStatusBar("YAML File Write Error");
@@ -636,7 +637,7 @@ public class ProjectService(
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
-                var outYaml = YamlService.Instance.ToYaml(newMsuType, true, false);
+                var outYaml = yamlService.ToYaml(newMsuType, true, false);
                 statusBarService.UpdateStatusBar("YAML File Written");
                 File.WriteAllText(newYamlPath, outYaml);
             }

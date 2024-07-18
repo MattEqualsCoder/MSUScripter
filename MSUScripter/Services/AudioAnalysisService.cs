@@ -17,11 +17,12 @@ public class AudioAnalysisService(
     IAudioPlayerService audioPlayerService,
     MsuPcmService msuPcmService,
     StatusBarService statusBarService,
+    ConverterService converterService,
     ILogger<AudioAnalysisService> logger)
 {
     public async Task AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
-        var project = ConverterService.Instance.ConvertProject(projectViewModel);
+        var project = converterService.ConvertProject(projectViewModel);
         
         await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
@@ -34,7 +35,7 @@ public class AudioAnalysisService(
 
     public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
     {
-        var project = ConverterService.Instance.ConvertProject(projectViewModel);
+        var project = converterService.ConvertProject(projectViewModel);
         await AnalyzePcmFile(project, song);
     }
     
@@ -74,8 +75,8 @@ public class AudioAnalysisService(
     private bool GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
     {
         var song = new MsuSongInfo();
-        ConverterService.Instance.ConvertViewModel(songModel, song);
-        ConverterService.Instance.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
+        converterService.ConvertViewModel(songModel, song);
+        converterService.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
         msuPcmService.CreatePcm(project, song, out var message, out var generated);
         if (!generated)
         {
