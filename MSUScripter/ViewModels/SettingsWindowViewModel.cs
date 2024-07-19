@@ -15,6 +15,7 @@ public class SettingsWindowViewModel : ViewModelBase
     [Reactive] public ICollection<RecentProject> RecentProjects { get; set; } = [];
     [Reactive] public double Volume { get; set; }
     [Reactive] public string? PreviousPath { get; set; }
+    [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
     [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
     [Reactive] public bool HideSubTracksSubChannelsWarning { get; set; }
 

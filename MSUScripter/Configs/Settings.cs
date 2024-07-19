@@ -15,4 +15,5 @@ public class Settings
     public string? PreviousPath { get; set; }
     public bool HideSubTracksSubChannelsWarning { get; set; }
     public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
+    public bool RunMsuPcmWithKeepTemps { get; set; }
 }

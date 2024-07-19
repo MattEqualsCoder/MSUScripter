@@ -77,7 +77,7 @@ public class AudioAnalysisService(
         var song = new MsuSongInfo();
         converterService.ConvertViewModel(songModel, song);
         converterService.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
-        msuPcmService.CreatePcm(project, song, out var message, out var generated);
+        msuPcmService.CreatePcm(false, project, song, out var message, out var generated);
         if (!generated)
         {
             logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, message);

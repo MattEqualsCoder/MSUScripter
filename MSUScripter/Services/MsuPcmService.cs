@@ -73,7 +73,7 @@ public class MsuPcmService
         }
     }
 
-    public bool CreateTempPcm(MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null, bool skipCleanup = false)
+    public bool CreateTempPcm(bool standAlone, MsuProject project, string inputFile, out string outputPath, out string? message, out bool generated, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null, bool skipCleanup = false)
     {
         if (!skipCleanup)
         {
@@ -84,7 +84,7 @@ public class MsuPcmService
         {
             File.Delete(outputPath);
         }
-        var result = CreatePcm(project, new MsuSongInfo()
+        var result = CreatePcm(standAlone, project, new MsuSongInfo()
             {
                 TrackNumber = project.MsuType.Tracks.First().Number,
                 OutputPath = outputPath,
@@ -154,7 +154,7 @@ public class MsuPcmService
         }
     }
 
-    public bool CreatePcm(MsuProject project, MsuSongInfo song, out string? message, out bool generated, bool addTrackDetailsToMessage = true)
+    public bool CreatePcm(bool standAlone, MsuProject project, MsuSongInfo song, out string? message, out bool generated, bool addTrackDetailsToMessage = true)
     {
         _statusBarService.UpdateStatusBar("Generating PCM");
 
@@ -187,7 +187,7 @@ public class MsuPcmService
         var jsonPath = Path.Combine(jsonDirectory, msu.Name.Replace(msu.Extension, $"-msupcm-temp-{guid}.json"));
         try
         {
-            ExportMsuPcmTracksJson(project, song, jsonPath);
+            ExportMsuPcmTracksJson(standAlone, project, song, jsonPath);
             
             var msuPath = new FileInfo(project.MsuPath).DirectoryName;
             var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
@@ -534,7 +534,7 @@ public class MsuPcmService
         }
     }
     
-    public string? ExportMsuPcmTracksJson(MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null)
+    public string? ExportMsuPcmTracksJson(bool standAlone, MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null)
     {
         var msu = new FileInfo(project.MsuPath);
         
@@ -553,7 +553,7 @@ public class MsuPcmService
             Normalization = project.BasicInfo.Normalization,
             Dither = project.BasicInfo.Dither,
             Verbosity = 2,
-            Keep_temps = false,
+            Keep_temps = standAlone && _settings.RunMsuPcmWithKeepTemps,
             First_track = project.Tracks.Min(x => x.TrackNumber),
             Last_track = project.Tracks.Max(x => x.TrackNumber)
         };

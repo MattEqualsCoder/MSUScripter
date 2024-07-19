@@ -6,7 +6,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services;
 
-public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService audioPlayerService, ConverterService converterService)
+public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService audioPlayerService, ConverterService converterService, Settings settings)
 {
     public bool GeneratePcmFile(MsuSongInfoViewModel songInfo, bool asPrimary, bool asEmpty, out string error, out bool msuPcmError)
     {
@@ -47,7 +47,7 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
             song.OutputPath = path;
         }
         
-        if (!msuPcmService.CreatePcm(tempProject, song, out var msuPcmMessage, out var generated, false))
+        if (!msuPcmService.CreatePcm(true, tempProject, song, out var msuPcmMessage, out var generated, false))
         {
             if (generated)
             {

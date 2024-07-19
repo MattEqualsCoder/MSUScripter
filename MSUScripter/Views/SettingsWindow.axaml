@@ -72,6 +72,10 @@
                     <controls1:BoolComboBox AllowNulls="False" Value="{Binding AutomaticallyRunPyMusicLooper, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
+                <controls1:LabeledControl Text="Use keep__temps on Individual Tracks:" Hint="Enables the flag keep_temps when executing msupcm++ when generating a single track." DisplayHint="True">
+                    <controls1:BoolComboBox AllowNulls="False" Value="{Binding RunMsuPcmWithKeepTemps, Mode=TwoWay}" />
+                </controls1:LabeledControl>
+                
                 <controls1:LabeledControl Text="Loop Test Duration:" Hint="When testing the loop, how long before the end of the song to start playing. On Linux, this also affects how long it will play after the looping." DisplayHint="True">
                     <Grid ColumnDefinitions="*, Auto">
                         <Slider Grid.Column="0" x:Name="LoopDurationSlider" 

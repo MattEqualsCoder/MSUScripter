@@ -121,7 +121,7 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
         var song = new MsuSongInfo();
         converterService.ConvertViewModel(songViewModel, song);
         converterService.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
-        if (!msuPcmService.CreatePcm(_model.MsuProject, song, out var error, out var generated))
+        if (!msuPcmService.CreatePcm(false, _model.MsuProject, song, out var error, out var generated))
         {
             if (!isRetry && error?.Contains("__sox_wrapper_temp") == true &&
                 error.Contains("Permission denied"))

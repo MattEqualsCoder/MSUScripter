@@ -108,7 +108,7 @@ public class AddSongWindowService(
     
     private string? CreateTempPcm()
     {
-        msuPcmService.CreateTempPcm(_model.MsuProject, _model.FilePath, out var outputPath, out _,
+        msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.FilePath, out var outputPath, out _,
             out var generated, _model.LoopPoint, _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization, _model.TrimStart);
         return generated ? outputPath : null;
     }
@@ -122,7 +122,7 @@ public class AddSongWindowService(
 
         var track = _model.SelectedTrack;
         
-        var successful = msuPcmService.CreateTempPcm(_model.MsuProject, _model.FilePath, out var tempPcmPath, out var message,
+        var successful = msuPcmService.CreateTempPcm(true, _model.MsuProject, _model.FilePath, out var tempPcmPath, out var message,
             out var generated, _model.LoopPoint, _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization, _model.TrimStart);
 
         if (!generated)

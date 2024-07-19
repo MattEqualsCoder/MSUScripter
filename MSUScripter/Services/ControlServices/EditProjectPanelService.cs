@@ -115,7 +115,7 @@ public class EditProjectPanelService(
     {
         if (_model.MsuProjectViewModel == null) return;
         var project = converterService.ConvertProject(_model.MsuProjectViewModel);
-        msuPcmService.ExportMsuPcmTracksJson(project);
+        msuPcmService.ExportMsuPcmTracksJson(false, project);
     }
     
     public string? WriteSwapperBatchFiles()
@@ -196,7 +196,7 @@ public class EditProjectPanelService(
             return ExportYaml(project);
         }
         
-        msuPcmService.ExportMsuPcmTracksJson(project);
+        msuPcmService.ExportMsuPcmTracksJson(false, project);
 
         return null;
     }
