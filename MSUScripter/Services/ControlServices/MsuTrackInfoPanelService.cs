@@ -35,7 +35,7 @@ public class MsuTrackInfoPanelService : ControlService
 
         songInfo.Project = _model.Project;
         songInfo.Track = _model;
-        songInfo.MsuPcmInfo.ApplyCascadingSettings(songInfo.Project, songInfo, songInfo.IsAlt, null, true);
+        songInfo.MsuPcmInfo.ApplyCascadingSettings(songInfo.Project, songInfo, songInfo.IsAlt, null, songInfo.CanPlaySongs, true);
         _model.Songs.Add(songInfo);
     }
 }

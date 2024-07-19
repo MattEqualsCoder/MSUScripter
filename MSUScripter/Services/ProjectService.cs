@@ -35,7 +35,7 @@ public class ProjectService(
             SaveMsuProject(project, true);
         }
         
-        var yaml = yamlService.ToYaml(project, false, false);
+        var yaml = yamlService.ToYaml(project, YamlType.Pascal);
 
         if (isBackup && !Directory.Exists(GetBackupDirectory()))
         {
@@ -82,7 +82,7 @@ public class ProjectService(
         }
         
         var yaml = File.ReadAllText(path);
-        if (!yamlService.FromYaml<MsuProject>(yaml, out var project, out _, false) || project == null)
+        if (!yamlService.FromYaml<MsuProject>(yaml, YamlType.Pascal, out var project, out _) || project == null)
         {
             return null;
         }
@@ -283,7 +283,7 @@ public class ProjectService(
             var newSongs = new List<MsuSongInfo>();
             foreach (var oldSong in oldTrack.Songs)
             {
-                var oldSongFile = new FileInfo(oldSong.OutputPath);
+                var oldSongFile = new FileInfo(oldSong.OutputPath ?? "");
                 var songBaseName = oldSongFile.Name;
                 if (!songBaseName.StartsWith($"{baseName}-{oldTrack.TrackNumber}"))
                     continue;
@@ -413,9 +413,9 @@ public class ProjectService(
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
-                    song.OutputPath.Replace($"{oldMsuBaseName}-{oldTrackNumber}", $"{newMsuBaseName}-{newTrackNumber}");
+                    song.OutputPath?.Replace($"{oldMsuBaseName}-{oldTrackNumber}", $"{newMsuBaseName}-{newTrackNumber}");
 
-                convertedPaths[song.OutputPath] = newSong.OutputPath;
+                convertedPaths[song.OutputPath ?? ""] = newSong.OutputPath ?? "";
 
                 newSongs.Add(newSong);
             }
@@ -598,7 +598,7 @@ public class ProjectService(
         try
         {
             var yamlText = File.ReadAllText(yamlPath);
-            if (!yamlService.FromYaml(yamlText, out msuDetails, out _, true) || msuDetails == null)
+            if (!yamlService.FromYaml(yamlText, YamlType.UnderscoreIgnoreDefaults, out msuDetails, out _) || msuDetails == null)
             {
                 error = $"Could not retrieve MSU Details from {yamlPath}";
                 statusBarService.UpdateStatusBar("YAML File Write Error");
@@ -637,7 +637,7 @@ public class ProjectService(
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
-                var outYaml = yamlService.ToYaml(newMsuType, true, false);
+                var outYaml = yamlService.ToYaml(newMsuType, YamlType.UnderscoreIgnoreDefaults);
                 statusBarService.UpdateStatusBar("YAML File Written");
                 File.WriteAllText(newYamlPath, outYaml);
             }
@@ -671,7 +671,7 @@ public class ProjectService(
                     trackName: projectTrack.TrackName,
                     number: projectTrack.TrackNumber,
                     songName: projectSong.SongName ?? "",
-                    path: projectSong.OutputPath,
+                    path: projectSong.OutputPath ?? "",
                     artist: projectSong.Artist,
                     album: projectSong.Album,
                     url: projectSong.Url,
@@ -776,10 +776,10 @@ public class ProjectService(
 
             foreach (var combo in trackCombos)
             {
-                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath);
+                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath ?? "");
                 var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
                     $"-{combo.Item1.TrackNumber}_Original.pcm");
-                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath);
+                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath ?? "");
 
                 sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
                 sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");

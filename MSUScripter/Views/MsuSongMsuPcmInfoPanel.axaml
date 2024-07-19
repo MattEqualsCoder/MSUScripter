@@ -52,12 +52,12 @@
                         <Button.ContextMenu>
                             <ContextMenu Opening="ContextMenu_OnOpening">
                                 <MenuItem Header="{Binding InsertText}" Name="Insert" IsVisible="{Binding !IsTopLevel}"
-                                          Click="Insert_OnClick" 
+                                          Click="Insert_OnClick"
                                 ></MenuItem>
-                                <MenuItem Header="Copy MsuPcm++ Details" Name="Copy"
-                                          Click="Copy_OnClick" 
+                                <MenuItem Header="Copy MsuPcm++ Details to Clipboard" Name="Copy"
+                                          Click="Copy_OnClick"
                                 ></MenuItem>
-                                <MenuItem Header="Paste and Overwrite MsuPcm++ Details" Name="PasteMenuItem"
+                                <MenuItem Header="Paste MsuPcm++ Details from Clipboard" Name="PasteMenuItem"
                                           Click="PasteMenuItem_OnClick" 
                                 ></MenuItem>
                                 <MenuItem Header="{Binding RemoveText}" Name="RemoveButton" IsVisible="{Binding CanDelete}"
@@ -149,7 +149,7 @@
                 
                 <controls1:LabeledControl Text="Compression:" Hint="Apply dynamic range compression to the current track" DisplayHint="True">
                     <controls1:BoolComboBox
-                        Value="{Binding Compression}"
+                        Value="{Binding Compression, Mode=TwoWay}"
                         AllowNulls="True"
                     ></controls1:BoolComboBox>
                 </controls1:LabeledControl>

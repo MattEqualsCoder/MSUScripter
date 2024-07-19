@@ -2,6 +2,7 @@ using System;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
+#pragma warning disable CS0067 // Event is never used
 
 namespace MSUScripter.ViewModels;
 

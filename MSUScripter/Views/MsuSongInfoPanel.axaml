@@ -24,6 +24,12 @@
                     >
                         <Button.ContextMenu>
                             <ContextMenu>
+                                <MenuItem Header="Copy Song Details to Clipboard"
+                                          Click="CopySongToClipboardMenuItem_OnClick" 
+                                ></MenuItem>
+                                <MenuItem Header="Paste Song Details from Clipboard"
+                                          Click="PasteSongFromClipboardMenuItem_OnClick" 
+                                ></MenuItem>
                                 <MenuItem Header="Duplicate Song"
                                           Click="DuplicateSongMenuItem_OnClick" 
                                 ></MenuItem>
@@ -66,7 +72,7 @@
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
                     <controls1:BoolComboBox
-                        Value="{Binding CheckCopyright}"
+                        Value="{Binding CheckCopyright, Mode=TwoWay}"
                         AllowNulls="False"
                     ></controls1:BoolComboBox>
                 </controls1:LabeledControl>

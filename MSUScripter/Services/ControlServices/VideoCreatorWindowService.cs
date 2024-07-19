@@ -79,7 +79,7 @@ public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger
             { "Files", _model.PcmPaths }
         };
         
-        var yaml = yamlService.ToYaml(pcmFilesData, false, false);
+        var yaml = yamlService.ToYaml(pcmFilesData, YamlType.Pascal);
         var path = Path.Combine(Directories.TempFolder, "video-creator-list.yml");
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

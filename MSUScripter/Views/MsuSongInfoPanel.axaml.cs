@@ -141,4 +141,22 @@ public partial class MsuSongInfoPanel : UserControl
             Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, true);
         window.ShowDialog(App.MainWindow!);
     }
+
+    private async void CopySongToClipboardMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var yamlText = _service?.GetCopyDetailsString();
+        if (string.IsNullOrEmpty(yamlText)) return;
+        await this.SetClipboardAsync(yamlText);
+    }
+
+    private async void PasteSongFromClipboardMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var yamlText = await this.GetClipboardAsync();
+        if (string.IsNullOrEmpty(yamlText)) return;
+        var error = _service?.CopyDetailsFromString(yamlText);
+        if (!string.IsNullOrEmpty(error))
+        {
+            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+    }
 }

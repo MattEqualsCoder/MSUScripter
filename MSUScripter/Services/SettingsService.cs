@@ -33,7 +33,7 @@ public class SettingsService
 
         var yaml = File.ReadAllText(settingsPath);
         
-        if (!_yamlService.FromYaml<Settings>(yaml, out var settingsObject, out _, false) ||
+        if (!_yamlService.FromYaml<Settings>(yaml, YamlType.Pascal, out var settingsObject, out _) ||
             settingsObject == null)
         {
             Settings = new Settings();
@@ -48,7 +48,7 @@ public class SettingsService
 
     public void SaveSettings()
     {
-        var yaml = _yamlService.ToYaml(Settings, false, false);
+        var yaml = _yamlService.ToYaml(Settings, YamlType.Pascal);
         var path = GetSettingsPath();
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))

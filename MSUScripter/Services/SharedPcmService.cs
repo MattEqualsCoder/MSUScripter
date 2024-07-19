@@ -51,7 +51,7 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         {
             if (generated)
             {
-                if (!songInfo.Project.IgnoreWarnings.Contains(song.OutputPath))
+                if (!songInfo.Project.IgnoreWarnings.Contains(song.OutputPath ?? ""))
                 {
                     msuPcmError = true;
                     error = msuPcmMessage ?? "Unknown error with msupcm++";

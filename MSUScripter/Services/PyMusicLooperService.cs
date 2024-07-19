@@ -87,7 +87,7 @@ public class PyMusicLooperService
         {
             var ymlText = File.ReadAllText(path);
 
-            if (_yamlService.FromYaml<List<(int, int, decimal)>>(ymlText, out var result, out _, true))
+            if (_yamlService.FromYaml<List<(int, int, decimal)>>(ymlText, YamlType.UnderscoreIgnoreDefaults, out var result, out _))
             {
                 message = "";
                 IsRunning = false;
@@ -111,7 +111,7 @@ public class PyMusicLooperService
         {
             try
             {
-                var ymlText = _yamlService.ToYaml(loopPoints, true, false);
+                var ymlText = _yamlService.ToYaml(loopPoints, YamlType.UnderscoreIgnoreDefaults);
                 File.WriteAllText(path, ymlText);
             }
             catch (Exception e)

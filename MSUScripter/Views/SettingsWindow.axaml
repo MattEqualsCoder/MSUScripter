@@ -57,7 +57,7 @@
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Include Pre-Releases:" Hint="When checking for new updates, alert on pre-release versions in addition to full releases." DisplayHint="True">
-                    <controls1:BoolComboBox AllowNulls="False" IsEnabled="{Binding PromptOnUpdate}" Value="{Binding PromptOnPreRelease, Mode=TwoWay}" />
+                    <controls1:BoolComboBox AllowNulls="False" IsEnabled="{Binding PromptOnUpdate, Mode=TwoWay}" Value="{Binding PromptOnPreRelease, Mode=TwoWay}" />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Use Dark Theme:">

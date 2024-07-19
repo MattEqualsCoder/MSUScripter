@@ -141,12 +141,12 @@ public class MsuSongMsuPcmInfoPanelService(
             return null;
         }
         output.ClearLastModifiedDate();
-        return yamlService.ToYaml(output, false, true);
+        return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
     }
 
     public string? CopyDetailsFromString(string yamlText)
     {
-        if (!yamlService.FromYaml<MsuSongMsuPcmInfo>(yamlText, out var yamlMsuPcmDetails, out _, false) || yamlMsuPcmDetails == null)
+        if (!yamlService.FromYaml<MsuSongMsuPcmInfo>(yamlText, YamlType.PascalIgnoreDefaults, out var yamlMsuPcmDetails, out _) || yamlMsuPcmDetails == null)
         {
             return "Invalid msupcm++ track details";
         }
@@ -155,13 +155,14 @@ public class MsuSongMsuPcmInfoPanelService(
         var originalSong = _model.Song;
         var originalIsAlt = _model.IsAlt;
         var originalParent = _model.ParentMsuPcmInfo;
+        var originalCanPlaySongs = _model.CanPlaySongs;
             
         if (!converterService.ConvertViewModel(yamlMsuPcmDetails, _model))
         {
             return "Invalid msupcm++ track details";
         }
             
-        _model.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, true);
+        _model.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, originalCanPlaySongs, true);
         _model.LastModifiedDate = DateTime.Now;
         return null;
     }

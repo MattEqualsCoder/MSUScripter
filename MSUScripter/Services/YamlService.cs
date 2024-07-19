@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -7,53 +8,59 @@ namespace MSUScripter.Services;
 
 public class YamlService(ILogger<YamlService> logger)
 {
-    private readonly ISerializer _underscoreSerializerIgnoreDefaults = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    
-    private readonly ISerializer _underscoreSerializerAll = new SerializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    
-    private readonly IDeserializer _underscoreDeserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-    
-    private readonly ISerializer _pascalSerializerIgnoreDefaults = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(PascalCaseNamingConvention.Instance)
-        .Build();
-    
-    private readonly ISerializer _pascalSerializerAll = new SerializerBuilder()
-        .WithNamingConvention(PascalCaseNamingConvention.Instance)
-        .Build();
-    
-    private readonly IDeserializer _pascalDeserializer = new DeserializerBuilder()
-        .WithNamingConvention(PascalCaseNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-
-    public string ToYaml(object obj, bool isUnderscoreFormat, bool ignoreDefaults)
+    private readonly Dictionary<YamlType, ISerializer> _serializers = new()
     {
-        if (ignoreDefaults)
         {
-            return isUnderscoreFormat ? _underscoreSerializerIgnoreDefaults.Serialize(obj) : _pascalSerializerIgnoreDefaults.Serialize(obj);    
-        }
-        else
+            YamlType.Pascal, new SerializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .Build()
+        },
         {
-            return isUnderscoreFormat ? _underscoreSerializerAll.Serialize(obj) : _pascalSerializerAll.Serialize(obj);
+            YamlType.PascalIgnoreDefaults, new SerializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .Build()
+        },
+        {
+            YamlType.UnderscoreIgnoreDefaults, new SerializerBuilder()
+                .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .Build()
         }
+    };
+
+    private readonly Dictionary<YamlType, IDeserializer> _deserializers = new()
+    {
+        {
+            YamlType.Pascal, new DeserializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build()
+        },
+        {
+            YamlType.PascalIgnoreDefaults, new DeserializerBuilder()
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build()
+        },
+        {
+            YamlType.UnderscoreIgnoreDefaults, new DeserializerBuilder()
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .Build()
+        }
+    };
+    
+    public string ToYaml(object obj, YamlType yamlType)
+    {
+        return _serializers[yamlType].Serialize(obj);
     }
 
-    public bool FromYaml<T>(string yaml, out T? createdObject, out string? error, bool isUnderscoreFormat)
+    public bool FromYaml<T>(string yaml, YamlType yamlType, out T? createdObject, out string? error)
     {
         try
         {
-            createdObject = isUnderscoreFormat
-                ? _underscoreDeserializer.Deserialize<T>(yaml)
-                : _pascalDeserializer.Deserialize<T>(yaml);
+            createdObject = _deserializers[yamlType].Deserialize<T>(yaml);
             error = null;
             return true;
         }
@@ -65,4 +72,11 @@ public class YamlService(ILogger<YamlService> logger)
             return false;
         }
     }
+}
+
+public enum YamlType
+{
+    UnderscoreIgnoreDefaults,
+    Pascal,
+    PascalIgnoreDefaults
 }

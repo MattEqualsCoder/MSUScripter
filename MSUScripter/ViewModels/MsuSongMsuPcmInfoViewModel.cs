@@ -123,12 +123,13 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
         return fileCount + SubTracks.Sum(x => x.GetFileCount()) + SubChannels.Sum(x => x.GetFileCount());
     }
 
-    public void ApplyCascadingSettings(MsuProjectViewModel projectModel, MsuSongInfoViewModel songModel, bool isAlt, MsuSongMsuPcmInfoViewModel? parent, bool updateLastModified)
+    public void ApplyCascadingSettings(MsuProjectViewModel projectModel, MsuSongInfoViewModel songModel, bool isAlt, MsuSongMsuPcmInfoViewModel? parent, bool canPlaySongs, bool updateLastModified)
     {
         Project = projectModel;
         Song = songModel;
         IsAlt = isAlt;
         ParentMsuPcmInfo = parent;
+        CanPlaySongs = canPlaySongs;
 
         if (updateLastModified)
         {
@@ -137,7 +138,7 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
 
         foreach (var subItem in SubChannels.Concat(SubTracks))
         {
-            subItem.ApplyCascadingSettings(projectModel, songModel, isAlt, this, updateLastModified);
+            subItem.ApplyCascadingSettings(projectModel, songModel, isAlt, this, canPlaySongs, updateLastModified);
         }
     }
 

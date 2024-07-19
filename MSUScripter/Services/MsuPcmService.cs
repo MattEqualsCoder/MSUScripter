@@ -568,7 +568,7 @@ public class MsuPcmService
             if (_converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
             track.Output = song.OutputPath;
             track.Track_number = song.TrackNumber;
-            track.Title = song.TrackName;
+            track.Title = song.TrackName ?? "";
             tracks.Add(track);
         }
 

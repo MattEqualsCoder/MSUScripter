@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings settings, AudioMetadataService audioMetadataService) : ControlService
+public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings settings, AudioMetadataService audioMetadataService, ConverterService converterService, YamlService yamlService) : ControlService
 {
     private MsuSongInfoViewModel _model = new();
 
@@ -68,5 +69,55 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         
         var metadata =  audioMetadataService.GetAudioMetadata(file);
         _model.ApplyAudioMetadata(metadata, true);
+    }
+    
+    public string? GetCopyDetailsString()
+    {
+        MsuSongInfo output = new();
+        if (!converterService.ConvertViewModel(_model, output) || !converterService.ConvertViewModel(_model.MsuPcmInfo, output.MsuPcmInfo))
+        {
+            return null;
+        }
+        
+        output.TrackNumber = 0;
+        output.TrackName = null;
+        output.OutputPath = null;
+        output.LastGeneratedDate = new DateTime();
+        output.LastModifiedDate = new DateTime();
+        output.MsuPcmInfo.ClearLastModifiedDate();
+        return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
+    }
+
+    public string? CopyDetailsFromString(string yamlText)
+    {
+        if (!yamlService.FromYaml<MsuSongInfo>(yamlText, YamlType.PascalIgnoreDefaults, out var yamlSongDetails, out _) || yamlSongDetails == null)
+        {
+            return "Invalid song details";
+        }
+
+        var originalProject = _model.Project;
+        var originalTrack = _model.Track;
+        var originalTrackName = _model.TrackName;
+        var originalTrackNumber = _model.TrackNumber;
+        var originalIsAlt = _model.IsAlt;
+        var originalCanPlaySongs = _model.CanPlaySongs;
+        var originalOutputPath = _model.OutputPath;
+            
+        if (!converterService.ConvertViewModel(yamlSongDetails, _model) || !converterService.ConvertViewModel(yamlSongDetails.MsuPcmInfo, _model.MsuPcmInfo))
+        {
+            return "Invalid song details";
+        }
+
+        _model.Project = originalProject;
+        _model.Track = originalTrack;
+        _model.TrackNumber = originalTrackNumber;
+        _model.TrackName = originalTrackName;
+        _model.IsAlt = originalIsAlt;
+        _model.CanPlaySongs = originalCanPlaySongs;
+        _model.OutputPath = originalOutputPath;
+            
+        _model.MsuPcmInfo.ApplyCascadingSettings(originalProject, _model, originalIsAlt, null, originalCanPlaySongs, true);
+        _model.LastModifiedDate = DateTime.Now;
+        return null;
     }
 }
