@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
-using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
@@ -14,7 +12,6 @@ public class MsuSongMsuPcmInfoPanelService(
     IAudioPlayerService audioPlayerService,
     ConverterService converterService,
     AudioAnalysisService audioAnalysisService,
-    SharedPcmService sharedPcmService,
     AudioMetadataService audioMetadataService,
     YamlService yamlService) : ControlService
 {
@@ -117,22 +114,6 @@ public class MsuSongMsuPcmInfoPanelService(
         settingsService.SaveSettings();
     }
 
-    public async Task<string?> PlaySong(bool testLoop)
-    {
-        return await sharedPcmService.PlaySong(_model.Song, testLoop);
-    }
-
-    public void IgnoreMsuPcmError()
-    {
-        if (string.IsNullOrEmpty(_model.Song.OutputPath)) return;
-        _model.Project.IgnoreWarnings.Add(_model.Song.OutputPath);
-    }
-    
-    public bool GeneratePcmFile(bool asPrimary, bool asEmpty, out string error, out bool msuPcmError)
-    {
-        return sharedPcmService.GeneratePcmFile(_model.Song, asPrimary, asEmpty, out error, out msuPcmError);
-    }
-
     public string? GetCopyDetailsString()
     {
         MsuSongMsuPcmInfo output = new();
@@ -178,11 +159,6 @@ public class MsuSongMsuPcmInfoPanelService(
         return _model.Loop > 0 || _model.TrimEnd > 0;
     }
 
-    public async Task StopSong()
-    {
-        await sharedPcmService.StopSong();
-    }
-    
     public string? GetStartingSamples()
     {
         if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))

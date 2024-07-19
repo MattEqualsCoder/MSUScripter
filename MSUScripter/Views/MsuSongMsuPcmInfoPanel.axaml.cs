@@ -106,73 +106,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
     }
     
-    private async void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (_service == null)
-        {
-            return;
-        }
-        
-        var errorMessage = await _service.PlaySong(false);
-
-        if (!string.IsNullOrEmpty(errorMessage))
-        {
-            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
-        }
-    }
-
-    private async void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (_service == null)
-        {
-            return;
-        }
-        
-        var errorMessage = await _service.PlaySong(true);
-        
-        if (!string.IsNullOrEmpty(errorMessage))
-        {
-            await MessageWindow.ShowErrorDialog(errorMessage, "Error", TopLevel.GetTopLevel(this) as Window);
-        }
-    }
-
-    private async Task GeneratePcm(bool asPrimary, bool asEmpty)
-    {
-        if (_service == null) return;
-        
-        var successful = _service.GeneratePcmFile(asPrimary, asEmpty, out var error, out var msuPcmError);
-        if (!successful)
-        {
-            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
-        }
-        else if (msuPcmError)
-        {
-            var window = new MessageWindow(new MessageWindowRequest
-            {
-                Message = error,
-                Buttons = MessageWindowButtons.OK,
-                Icon = MessageWindowIcon.Warning,
-                CheckBoxText = "Ignore future warnings for this song"
-            });
-
-            await window.ShowDialog(TopLevel.GetTopLevel(this) as Control ?? this);
-
-            if (window.DialogResult is { PressedAcceptButton: true, CheckedBox: true })
-            {
-                _service.IgnoreMsuPcmError();
-            }
-        }
-    }
-    private async void GenerateAsMainPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        await GeneratePcm(true, false);
-    }
-
-    private async void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        await GeneratePcm(false, false);
-    }
-
     private async void LoopWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.HasLoopDetails() == true)
@@ -191,17 +124,6 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         {
             _service?.UpdateLoopSettings(loopResult);
         }
-    }
-
-    private void StopButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.StopSong();
-        //PcmOptionSelected?.Invoke(this, new PcmEventArgs(MsuPcmData.Song, PcmEventType.StopMusic));
-    }
-
-    private async void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        await GeneratePcm(false, true);
     }
 
     private async void GetTrimStartButton_OnClick(object? sender, RoutedEventArgs e)

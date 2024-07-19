@@ -10,7 +10,13 @@
              x:Class="MSUScripter.Views.MsuSongMsuPcmInfoPanel"
              x:DataType="viewModels:MsuSongMsuPcmInfoViewModel">
     <Grid>
-        <controls1:CardControl Name="MainGroupBox" HeaderText="{Binding HeaderText}" DisplayHeaderButtons="True" Padding="10" Margin="0 0 0 5">
+        <controls1:CardControl Name="MainGroupBox" 
+                               HeaderText="{Binding HeaderText}" 
+                               DisplayHeaderButtons="True" 
+                               Padding="10" 
+                               Margin="0 0 0 5"
+                               CanCollapse="True"
+        >
             <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
                     <StackPanel Orientation="Horizontal"
@@ -154,7 +160,7 @@
                     ></controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 
-                <controls1:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True">
+                <controls1:LabeledControl Text="Sub Tracks:" x:Name="SubTrackLabeledControl" Hint="Files which will be concatenated together to form the input to the parent track" DisplayHint="True" Margin="0 10 0 0">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Vertical" Name="SubTrackStackPanel"  Grid.IsSharedSizeScope="True">
                             <ItemsControl ItemsSource="{Binding SubTracks, Mode=OneWay}" Name="SubTracksItemsControl">
@@ -204,64 +210,6 @@
                         ></Button>
                     </StackPanel>
                 </controls1:LabeledControl>
-                
-                <StackPanel Orientation="Vertical" Name="MsuPcmButtonsStackPanel" IsVisible="{Binding IsTopLevel}">
-                    <Separator Margin="0 5"></Separator>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button
-                            Name="PlaySongButton"
-                            Content="Play Song"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            IsVisible="{Binding CanPlaySongs}"
-                            Click="PlaySongButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="TestLoopButton"
-                            Content="Test Loop"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            IsVisible="{Binding CanPlaySongs}"
-                            Click="TestLoopButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="StopButton"
-                            Content="Stop Music"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            IsVisible="{Binding CanPlaySongs}"
-                            Click="StopButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="CreateEmptyPcmFileButton"
-                            Content="Generate empty .pcm File"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            Click="CreateEmptyPcmFileButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="GenerateAsMainPcmFileButton"
-                            Content="Generate as primary .pcm file"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            IsVisible="{Binding IsAlt}"
-                            Click="GenerateAsMainPcmFileButton_OnClick"
-                        ></Button>
-                        <Button
-                            Name="GeneratePcmFileButton"
-                            Content="Generate .pcm file"
-                            HorizontalAlignment="Center"
-                            Margin="5 5"
-                            Padding="8 5"
-                            Click="GeneratePcmFileButton_OnClick"
-                        ></Button>
-                    </StackPanel>
-                </StackPanel>
                 
             </StackPanel>
         </controls1:CardControl>

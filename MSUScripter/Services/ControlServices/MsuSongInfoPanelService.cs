@@ -3,12 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
+using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings settings, AudioMetadataService audioMetadataService, ConverterService converterService, YamlService yamlService) : ControlService
+public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings settings, AudioMetadataService audioMetadataService, ConverterService converterService, YamlService yamlService, AudioAnalysisService audioAnalysisService) : ControlService
 {
     private MsuSongInfoViewModel _model = new();
 
@@ -119,5 +120,53 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         _model.MsuPcmInfo.ApplyCascadingSettings(originalProject, _model, originalIsAlt, null, originalCanPlaySongs, true);
         _model.LastModifiedDate = DateTime.Now;
         return null;
+    }
+    
+    public void IgnoreMsuPcmError()
+    {
+        if (string.IsNullOrEmpty(_model.OutputPath)) return;
+        _model.Project.IgnoreWarnings.Add(_model.OutputPath);
+    }
+    
+    public bool GeneratePcmFile(bool asPrimary, bool asEmpty, out string error, out bool msuPcmError)
+    {
+        return sharedPcmService.GeneratePcmFile(_model, asPrimary, asEmpty, out error, out msuPcmError);
+    }
+    
+    public void AnalyzeAudio()
+    {
+        _model.AverageAudio = "Running";
+        _model.PeakAudio = null;
+        
+        ITaskService.Run(async () =>
+        {
+            await StopSong();
+
+            if (!GeneratePcmFile(false, false, out var error, out var msuPcmError))
+            {
+                _model.AverageAudio = "Error";
+            }
+
+            if (!string.IsNullOrEmpty(_model.OutputPath))
+            {
+                var output = await audioAnalysisService.AnalyzeAudio(_model.OutputPath);
+
+                if (output is { AvgDecibals: not null, MaxDecibals: not null })
+                {
+                    _model.AverageAudio = $"Average: {Math.Round(output.AvgDecibals.Value, 2)}db";
+                    _model.PeakAudio = $"Peak: {Math.Round(output.MaxDecibals.Value, 2)}db";
+                }
+                else
+                {
+                    _model.AverageAudio = "Error analyzing audio";
+                    _model.PeakAudio = null;
+                }
+            }
+            else
+            {
+                _model.AverageAudio = "Error generating PCM";
+                _model.PeakAudio = null;
+            }
+        });
     }
 }

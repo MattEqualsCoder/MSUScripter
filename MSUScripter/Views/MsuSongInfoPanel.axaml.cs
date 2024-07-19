@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -7,6 +8,7 @@ using Avalonia.Markup.Xaml;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
@@ -158,5 +160,53 @@ public partial class MsuSongInfoPanel : UserControl
         {
             await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
         }
+    }
+
+    private async void GenerateAsMainPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await GeneratePcm(true, false);
+    }
+
+    private async void GeneratePcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await GeneratePcm(false, false);
+    }
+    
+    private async void CreateEmptyPcmFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        await GeneratePcm(false, true);
+    }
+    
+    private async Task GeneratePcm(bool asPrimary, bool asEmpty)
+    {
+        if (_service == null) return;
+        
+        var successful = _service.GeneratePcmFile(asPrimary, asEmpty, out var error, out var msuPcmError);
+        if (!successful)
+        {
+            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+        else if (msuPcmError)
+        {
+            var window = new MessageWindow(new MessageWindowRequest
+            {
+                Message = error,
+                Buttons = MessageWindowButtons.OK,
+                Icon = MessageWindowIcon.Warning,
+                CheckBoxText = "Ignore future warnings for this song"
+            });
+
+            await window.ShowDialog(TopLevel.GetTopLevel(this) as Control ?? this);
+
+            if (window.DialogResult is { PressedAcceptButton: true, CheckedBox: true })
+            {
+                _service.IgnoreMsuPcmError();
+            }
+        }
+    }
+
+    private void TestAudioLevelButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.AnalyzeAudio();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
@@ -47,6 +48,13 @@ public class MsuSongInfoViewModel : ViewModelBase
     [SkipConvert] public MsuTrackInfoViewModel Track { get; set; } = null!;
     
     [SkipConvert] public bool CanPlaySongs { get; set; }
+    
+    [Reactive, SkipConvert] public string? AverageAudio { get; set; }
+    
+    [Reactive, ReactiveLinkedProperties(nameof(HasAudioAnalysis)), SkipConvert]
+    public string? PeakAudio { get; set; }
+    
+    [SkipConvert] public bool HasAudioAnalysis => !string.IsNullOrEmpty(PeakAudio);
     
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
     
