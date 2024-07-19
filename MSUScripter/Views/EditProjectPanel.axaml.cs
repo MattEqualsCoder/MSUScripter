@@ -136,6 +136,7 @@ public partial class EditProjectPanel : UserControl
         if (!string.IsNullOrEmpty(initError))
         {
             await MessageWindow.ShowErrorDialog(initError, "MSU Generation Error", ParentWindow);
+            return;
         }
         
         var project = _service.MsuProjectViewModel;

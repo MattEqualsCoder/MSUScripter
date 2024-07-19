@@ -362,6 +362,13 @@ public class ProjectService(
             return toReturn;
         }
 
+        if (project.BasicInfo.MetroidMsuPath == project.MsuPath || project.BasicInfo.ZeldaMsuPath == project.MsuPath ||
+            project.BasicInfo.MetroidMsuPath == project.BasicInfo.ZeldaMsuPath)
+        {
+            error = "The main MSU path, Metroid MSU path, and Zelda MSU path must all be unique.";
+            return toReturn;
+        }
+
         var msuType = msuTypeService.GetMsuType("Super Metroid") ??
                       throw new InvalidOperationException("Super Metroid MSU Type not found");
         toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.MetroidMsuPath, convertedPaths));
