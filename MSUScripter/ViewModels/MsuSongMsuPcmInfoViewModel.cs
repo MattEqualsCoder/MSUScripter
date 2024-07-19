@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AvaloniaControls.Models;
-using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -77,6 +76,8 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(HasFile))] 
     public string? File { get; set; }
+
+    [Reactive] public bool ShowPanel { get; set; } = true;
     
     public bool CanDisplayTrimStartButton => OperatingSystem.IsWindows();
 

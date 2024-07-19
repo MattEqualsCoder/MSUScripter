@@ -21,7 +21,7 @@ public class MsuSongMsuPcmInfo
     public DateTime LastModifiedDate { get; set; }
     public string? Output { get; set; }
     public string? File { get; set; }
-    
+    public bool ShowPanel { get; set; } = true;
     public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();
     public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = new();
 

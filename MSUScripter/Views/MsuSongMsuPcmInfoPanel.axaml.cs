@@ -6,17 +6,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using AvaloniaControls.Models;
-using MSUScripter.Configs;
-using MSUScripter.Models;
-using MSUScripter.Services;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
-using Tmds.DBus.Protocol;
 
 namespace MSUScripter.Views;
 

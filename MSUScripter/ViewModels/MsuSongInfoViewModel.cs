@@ -55,6 +55,8 @@ public class MsuSongInfoViewModel : ViewModelBase
     public string? PeakAudio { get; set; }
     
     [SkipConvert] public bool HasAudioAnalysis => !string.IsNullOrEmpty(PeakAudio);
+
+    [Reactive] public bool ShowPanel { get; set; } = true;
     
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
     

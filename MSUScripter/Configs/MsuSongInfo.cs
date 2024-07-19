@@ -14,6 +14,7 @@ public class MsuSongInfo
     public bool IsAlt { get; set; }
     public bool IsComplete { get; set; }
     public bool CheckCopyright { get; set; } = true;
+    public bool ShowPanel { get; set; } = true;
     public DateTime LastModifiedDate { get; set; }
     public DateTime LastGeneratedDate { get; set; }
 

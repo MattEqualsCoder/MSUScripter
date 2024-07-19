@@ -16,6 +16,7 @@
                                Padding="10" 
                                Margin="0 0 0 5"
                                CanCollapse="True"
+                               IsContentVisible="{Binding ShowPanel, Mode=TwoWay}"
         >
             <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
