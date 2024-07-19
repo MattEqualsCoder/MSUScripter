@@ -92,7 +92,7 @@ public class ConverterService(IMsuTypeService msuTypeService)
                 
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
-                songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false, false);
+                songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false, false, false);
                 
                 trackViewModel.Songs.Add(songViewModel);
             }

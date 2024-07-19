@@ -25,12 +25,13 @@ public class MsuSongMsuPcmInfo
     public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();
     public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = new();
 
-    public void ClearLastModifiedDate()
+    public void ClearFieldsForYaml()
     {
         LastModifiedDate = new DateTime();
+        ShowPanel = false;
         foreach (var subItem in SubChannels.Concat(SubTracks))
         {
-            subItem.ClearLastModifiedDate();
+            subItem.ClearFieldsForYaml();
         }
     }
 

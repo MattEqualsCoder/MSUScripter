@@ -85,7 +85,8 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         output.OutputPath = null;
         output.LastGeneratedDate = new DateTime();
         output.LastModifiedDate = new DateTime();
-        output.MsuPcmInfo.ClearLastModifiedDate();
+        output.ShowPanel = false;
+        output.MsuPcmInfo.ClearFieldsForYaml();
         return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
     }
 
@@ -117,7 +118,7 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         _model.CanPlaySongs = originalCanPlaySongs;
         _model.OutputPath = originalOutputPath;
             
-        _model.MsuPcmInfo.ApplyCascadingSettings(originalProject, _model, originalIsAlt, null, originalCanPlaySongs, true);
+        _model.MsuPcmInfo.ApplyCascadingSettings(originalProject, _model, originalIsAlt, null, originalCanPlaySongs, true, true);
         _model.LastModifiedDate = DateTime.Now;
         return null;
     }

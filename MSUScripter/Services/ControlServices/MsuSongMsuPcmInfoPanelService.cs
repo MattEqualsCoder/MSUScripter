@@ -121,7 +121,7 @@ public class MsuSongMsuPcmInfoPanelService(
         {
             return null;
         }
-        output.ClearLastModifiedDate();
+        output.ClearFieldsForYaml();
         return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
     }
 
@@ -143,7 +143,7 @@ public class MsuSongMsuPcmInfoPanelService(
             return "Invalid msupcm++ track details";
         }
             
-        _model.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, originalCanPlaySongs, true);
+        _model.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, originalCanPlaySongs, true, true);
         _model.LastModifiedDate = DateTime.Now;
         return null;
     }
