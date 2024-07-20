@@ -38,6 +38,7 @@
         <entry key="MSUScripter/Views/AddSongWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/AudioControlWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/EditProjectPanelOld.axaml" value="MSUScripter/MSUScripter.csproj" />

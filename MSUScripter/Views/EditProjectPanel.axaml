@@ -92,7 +92,7 @@
         <controls:HeaderFooter DockPanel.Dock="Bottom" Padding="5">
             
             <Grid ColumnDefinitions="*,*,*">
-                <views:AudioControl Grid.Column="0" />
+                <views:AudioControl Grid.Column="0" CanPopout="True" />
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding StatusBarText}"></TextBlock>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
                     <Button x:Name="AddSongButton"

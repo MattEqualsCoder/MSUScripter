@@ -17,7 +17,7 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
     public AudioControlViewModel InitializeModel()
     {
         _model.CanPlayMusic = audioService.CanPlayMusic;
-        _model.CanSetMusicPosition = audioService.CanSetMusicPosition;
+        _model.CanChangePosition = audioService.CanSetMusicPosition;
         _model.CanChangeVolume = audioService.CanChangeVolume;
         _model.Volume = Settings.Volume * 100;
         _timer.Elapsed += TimerOnElapsed;
@@ -43,11 +43,17 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
     {
         audioService.SetPosition(position / 100);
     }
+    
+    public void SetSeconds()
+    {
+        audioService.JumpToTime(_model.JumpToSeconds ?? 0);
+    }
 
     public void UpdateVolume(double volume)
     {
         Settings.Volume = volume / 100;
         audioService.SetVolume(volume / 100);
+        settingsService.SaveSettings();
     }
 
     private void PlayStopped(object? sender, EventArgs e)

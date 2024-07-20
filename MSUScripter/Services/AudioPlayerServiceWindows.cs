@@ -78,6 +78,11 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
         _loopStream.Position = (long)(_loopStream.Length * value + 8.0);
     }
 
+    public void JumpToTime(double seconds)
+    {
+        SetPosition(seconds / GetLengthSeconds());
+    }
+
     public void SetVolume(double volume)
     {
         if (_waveOutEvent == null || _loopStream == null) return;

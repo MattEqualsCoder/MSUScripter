@@ -22,6 +22,8 @@ public interface IAudioPlayerService
     public double GetCurrentPositionSeconds();
 
     public void SetPosition(double value);
+    
+    public void JumpToTime(double seconds);
 
     public void SetVolume(double volume);
     

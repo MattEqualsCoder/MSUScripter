@@ -92,6 +92,11 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     {
         // Do nothing
     }
+    
+    public void JumpToTime(double seconds)
+    {
+        // Do nothing
+    }
 
     public void SetVolume(double volume)
     {

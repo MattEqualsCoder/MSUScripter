@@ -4,20 +4,25 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="40"
              x:Class="MSUScripter.Views.AudioControl"
              x:DataType="viewModels:AudioControlViewModel">
-    <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto,Auto,Auto" IsVisible="{Binding CanPlayMusic}">
+    <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto,Auto" IsVisible="{Binding CanPlayMusic}">
         
-        <Button Grid.Column="0" Padding="5" IsEnabled="{Binding CanPlayPause}" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+        <Button Grid.Column="0" Padding="5" Margin="5 0 0 0" IsEnabled="{Binding CanPlayPause}" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
             <StackPanel>
-                <avalonia:MaterialIcon Kind="{Binding Icon}" />
+                <avalonia:MaterialIcon 
+                    Kind="{Binding Icon}"
+                    Width="{Binding IconSize}" 
+                    Height="{Binding IconSize}"
+                />
             </StackPanel>
         </Button>
         
         <Slider Grid.Column="1"
                 IsEnabled="{Binding CanPlayPause}"
-                IsVisible="{Binding CanSetMusicPosition}"
+                IsVisible="{Binding CanChangePosition}"
                 Margin="4 4 0 0"
                 Name="PositionSlider"
                 Minimum="0"
@@ -27,28 +32,78 @@
         />
         
         <TextBlock Grid.Column="2"
-                   Width="85"
+                   Width="75"
                    VerticalAlignment="Center"
                    Name="TimestampTextBlock"
-                   IsVisible="{Binding CanSetMusicPosition}"
+                   IsVisible="{Binding CanChangePosition}"
                    Text="{Binding Timestamp}"
         />
         
-        <avalonia:MaterialIcon Grid.Column="3" 
-                               Kind="VolumeHigh" 
-                               Margin="0 2 0 0" 
-                               IsVisible="{Binding CanChangeVolume}"
-                               Name="VolumeIcon" />
-        
-        <Slider Grid.Column="4" 
-                Width="80" 
-                Margin="4 4 0 0" 
-                Name="VolumeSlider" 
-                Minimum="0" 
-                Maximum="100"
-                IsVisible="{Binding CanChangeVolume}"
-                Value="{Binding Volume}"
-                ValueChanged="VolumeSlider_OnValueChanged"
-        />
+        <StackPanel Grid.Column="3" Orientation="Horizontal">
+            
+            
+            <controls:NumericTextBox Value="{Binding JumpToSeconds}" 
+                                    Watermark="Jump Time" 
+                                    MinWidth="80"
+                                    Margin="0 0 5 0"
+                                    IsTime="True"
+                                    IsEnabled="{Binding CanPlayPause}" 
+                                    IsVisible="{Binding CanSetTimeSeconds}"
+            ></controls:NumericTextBox>
+            
+            <Button Padding="5" 
+                    Margin="0 0 0 0" 
+                    IsEnabled="{Binding CanPlayPause}" 
+                    IsVisible="{Binding CanSetTimeSeconds}"
+                    IsDefault="True"
+                    Click="JumpToSecondsButton_OnClick"
+            >
+                <StackPanel>
+                    <avalonia:MaterialIcon 
+                        Kind="ArrowCompressRight" 
+                        Width="{Binding IconSize}" 
+                        Height="{Binding IconSize}"
+                    />
+                </StackPanel>
+            </Button>
+            
+            <Button Padding="5" 
+                    Margin="5 0 5 0" 
+                    IsVisible="{Binding CanChangeVolume}"
+            >
+                <Button.Flyout>
+                    <Flyout Placement="Top">
+                        <Slider Orientation="Vertical" 
+                                Name="VolumeSlider"
+                                Height="80"
+                                Minimum="0" 
+                                Maximum="100"
+                                Value="{Binding Volume}"
+                                ValueChanged="VolumeSlider_OnValueChanged"
+                        ></Slider>
+                    </Flyout>
+                </Button.Flyout>
+                <StackPanel>
+                    <avalonia:MaterialIcon Kind="VolumeHigh" 
+                                           Width="{Binding IconSize}" 
+                                           Height="{Binding IconSize}"
+                    />
+                </StackPanel>
+            </Button>
+            
+            <Button Padding="5" 
+                    Margin="0 0 5 0" 
+                    IsEnabled="{Binding CanPressPopoutButton}" 
+                    IsVisible="{Binding CanPopout}"
+                    Click="PopoutButton_OnClick"
+            >
+                <StackPanel>
+                    <avalonia:MaterialIcon Kind="OpenInNew" 
+                                           Width="{Binding IconSize}" 
+                                           Height="{Binding IconSize}"
+                    />
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </UserControl>
