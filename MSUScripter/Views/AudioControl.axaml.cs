@@ -78,6 +78,7 @@ public partial class AudioControl : UserControl
 
     private void VolumeSlider_OnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
     {
+        if (sender is not Slider slider || !slider.IsLoaded) return;        
         _service?.UpdateVolume(e.NewValue);
     }
 
@@ -95,5 +96,11 @@ public partial class AudioControl : UserControl
             _model.CanPressPopoutButton = true;
         };
         audioPlayerWindow.Show(App.MainWindow);
+    }
+
+    private void VolumeSlider_OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (_service == null || sender is not Slider slider) return;
+        slider.Value = _service.GetCurrentVolume();
     }
 }

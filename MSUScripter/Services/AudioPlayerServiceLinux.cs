@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using NAudio.Wave;
 
 namespace MSUScripter.Services;
 
@@ -40,7 +41,13 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     }
 
     public string CurrentPlayingFile { get; set; } = "";
-    
+
+    public bool IsPlaying => _isPlaying;
+
+    public bool IsPaused => false;
+
+    public bool IsStopped => !_isPlaying;
+
     public void Pause()
     {
         if (_process?.HasExited == false)

@@ -27,6 +27,12 @@ public interface IAudioPlayerService
 
     public void SetVolume(double volume);
     
+    public bool IsPlaying { get; }
+
+    public bool IsPaused { get; }
+
+    public bool IsStopped { get; }
+
     public Task<bool> PlaySongAsync(string path, bool fromEnd);
 
     public Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false);

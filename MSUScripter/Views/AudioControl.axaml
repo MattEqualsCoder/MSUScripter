@@ -10,7 +10,7 @@
              x:DataType="viewModels:AudioControlViewModel">
     <Grid VerticalAlignment="Center" ColumnDefinitions="Auto,*,Auto,Auto" IsVisible="{Binding CanPlayMusic}">
         
-        <Button Grid.Column="0" Padding="5" Margin="5 0 0 0" IsEnabled="{Binding CanPlayPause}" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
+        <Button Grid.Column="0" Padding="5" Margin="0 0 0 0" IsEnabled="{Binding CanPlayPause}" Name="PlayPauseButton" Click="PlayPauseButton_OnClick">
             <StackPanel>
                 <avalonia:MaterialIcon 
                     Kind="{Binding Icon}"
@@ -31,10 +31,14 @@
                 ValueChanged="PositionSlider_OnValueChanged"
         />
         
-        <TextBlock Grid.Column="2"
-                   Width="75"
+        <TextBox Grid.Column="2"
+                   Width="90"
+				   Height="28"
+				   Margin="0 0 0 0"
+				   VerticalContentAlignment="Center"
                    VerticalAlignment="Center"
                    Name="TimestampTextBlock"
+                   IsEnabled="False"
                    IsVisible="{Binding CanChangePosition}"
                    Text="{Binding Timestamp}"
         />
@@ -45,8 +49,9 @@
             <controls:NumericTextBox Value="{Binding JumpToSeconds}" 
                                     Watermark="Jump Time" 
                                     MinWidth="80"
-                                    Margin="0 0 5 0"
+                                    Margin="5 0 5 0"
                                     IsTime="True"
+									VerticalContentAlignment="Center"
                                     IsEnabled="{Binding CanPlayPause}" 
                                     IsVisible="{Binding CanSetTimeSeconds}"
             ></controls:NumericTextBox>
@@ -79,6 +84,7 @@
                                 Minimum="0" 
                                 Maximum="100"
                                 Value="{Binding Volume}"
+                                Loaded="VolumeSlider_OnLoaded"
                                 ValueChanged="VolumeSlider_OnValueChanged"
                         ></Slider>
                     </Flyout>

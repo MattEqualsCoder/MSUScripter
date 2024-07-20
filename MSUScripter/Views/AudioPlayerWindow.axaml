@@ -6,7 +6,9 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="40"
         MinHeight="40"
         MinWidth="800"
+        Icon="/Assets/MSUScripterIcon.ico"
         x:Class="MSUScripter.Views.AudioPlayerWindow"
-        Title="Audio Player - MSU Scripter">
+        Title="Audio Player - MSU Scripter"
+		Padding="5 0 0 0">
     <views:AudioControl CanSetTimeSeconds="True" CanPopout="False"></views:AudioControl>
 </Window>

@@ -24,6 +24,12 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
     }
 
     public string CurrentPlayingFile { get; set; } = "";
+    
+    public bool IsPlaying => _waveOutEvent?.PlaybackState == PlaybackState.Playing;
+
+    public bool IsPaused => _waveOutEvent?.PlaybackState == PlaybackState.Paused;
+
+    public bool IsStopped => !IsPlaying && !IsPaused;
 
     public void Pause()
     {
