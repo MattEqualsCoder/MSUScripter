@@ -120,9 +120,9 @@ public partial class AddSongWindow : ScalableWindow
     private async void AddSongAndCloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service == null) return;
-        await _service.AddSongToProject(this);
+        var song = await _service.AddSongToProject(this);
         _forceClosing = true;
-        Close();
+        Close(song);
     }
 
     private void FileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)

@@ -3,8 +3,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.TrackOverviewPanel"
+             
              x:DataType="viewModels:TrackOverviewPanelViewModel">
     <DockPanel>
         
@@ -24,13 +26,30 @@
                   DoubleTapped="AudioDataGrid_OnDoubleTapped"
         >
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Finished" SortMemberPath="SongInfo.IsComplete">
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate >
+                        <DataTemplate>
+                            <Button
+                                Padding="2 0"
+                                Margin="0 0 1 0"
+                                Tag="{Binding}"
+                                Click="OpenAddSongWindowButton_OnClick"
+                                ToolTip.Tip="Add Song"
+                            >
+                                <avalonia:MaterialIcon Kind="Plus"></avalonia:MaterialIcon>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn SortMemberPath="SongInfo.IsComplete">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox Name="IsCompleteCheckBox" 
                                       IsVisible="{Binding HasSong}" 
                                       IsChecked="{Binding SongInfo.IsComplete}" 
+                                      HorizontalAlignment="Center"
                                       Tag="{Binding}"
+                                      ToolTip.Tip="Song Finished?"
                                       IsCheckedChanged="IsCompleteCheckBox_OnIsCheckedChanged"></CheckBox>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

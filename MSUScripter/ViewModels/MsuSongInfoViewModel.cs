@@ -35,7 +35,8 @@ public class MsuSongInfoViewModel : ViewModelBase
 
     [Reactive] public bool IsAlt { get; set; }
     
-    [Reactive] public bool IsComplete { get; set; }
+    [Reactive] 
+    public bool IsComplete { get; set; }
     
     [Reactive] public bool CheckCopyright { get; set; }
     
@@ -57,7 +58,6 @@ public class MsuSongInfoViewModel : ViewModelBase
     [SkipConvert] public bool HasAudioAnalysis => !string.IsNullOrEmpty(PeakAudio);
 
     [Reactive] public bool ShowPanel { get; set; } = true;
-    
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
     
     public bool HasChangesSince(DateTime time)

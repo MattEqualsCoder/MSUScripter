@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Services;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -40,7 +42,13 @@ public partial class TrackOverviewPanel : UserControl
             _service = this.GetControlService<TrackOverviewPanelService>();
             DataContext = _service?.InitializeModel(x.NewValue.Value);    
         });
-        
+
+        IsVisibleProperty.Changed.Subscribe(x =>
+        {
+            if (x.Sender != this || x.NewValue.Value != true) return;
+            _service?.RefreshTracks();
+        });
+
         InitializeComponent();
     }
     
@@ -69,13 +77,29 @@ public partial class TrackOverviewPanel : UserControl
 
     private void IsCompleteCheckBox_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
     {
-        if (sender is not CheckBox { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row} || row.SongInfo == null )
+        if (sender is not CheckBox { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || row.SongInfo == null)
         {
             return;
         }
 
-        row.SongInfo.IsComplete = !row.SongInfo.IsComplete; 
-        _service?.UpdateCompletedTrackDetails();
+        ITaskService.Run(async () =>
+        {
+            await Task.Delay(100);
+            _service?.UpdateCompletedTrackDetails();
+        });
+        
+    }
 
+    private async void OpenAddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || _service == null) return;
+        var window = new AddSongWindow(_service.GetProject(), row.TrackNumber);
+        await window.ShowDialog<MsuSongInfoViewModel?>(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow);
+        _service?.RefreshTracks();
+    }
+
+    public void Refresh()
+    {
+        _service?.RefreshTracks();
     }
 }

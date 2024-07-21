@@ -21,7 +21,7 @@
         >
             <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Content="Song Finished" 
+                    <CheckBox Content="Song Finished?" 
                               Margin="0 0 15 0"
                               IsChecked="{Binding IsComplete}"
                     ></CheckBox>

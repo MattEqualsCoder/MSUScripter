@@ -145,7 +145,8 @@
             </ScrollViewer>
             
             <Grid IsVisible="{Binding DisplayTrackOverviewPanel}">
-                <views:TrackOverviewPanel Margin="10" 
+                <views:TrackOverviewPanel x:Name="TrackOverviewPanel"
+                                          Margin="10" 
                                           DataContext="{Binding NullValue}" 
                                           Project="{Binding $parent.DataContext}"
                                           OnSelectedTrack="TrackOverviewPanel_OnOnSelectedTrack"

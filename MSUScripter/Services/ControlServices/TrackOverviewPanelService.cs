@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using AvaloniaControls.ControlServices;
 using MSUScripter.ViewModels;
@@ -18,20 +20,24 @@ public class TrackOverviewPanelService : ControlService
     public void RefreshTracks()
     {
         var tracks = _model.MsuProjectViewModel.Tracks;
+
+        var rows = new List<TrackOverviewPanelViewModel.TrackOverviewRow>();
         
         foreach (var track in tracks.OrderBy(x => x.TrackNumber))
         {
             if (!track.Songs.Any())
             {
-                _model.Rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber, track.TrackName));
+                rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber, track.TrackName));
             }
             else
             {
-                _model.Rows.AddRange(track.Songs.Select(x =>
+                rows.AddRange(track.Songs.Select(x =>
                     new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber,
                         track.TrackName + (x.IsAlt ? " (Alt)" : ""), x)));
             }
         }
+
+        _model.Rows = rows;
 
         UpdateCompletedTrackDetails();
     }
@@ -39,5 +45,10 @@ public class TrackOverviewPanelService : ControlService
     public void UpdateCompletedTrackDetails()
     {
         _model.UpdateCompletedTrackDetails();
+    }
+
+    public MsuProjectViewModel GetProject()
+    {
+        return _model.MsuProjectViewModel;
     }
 }

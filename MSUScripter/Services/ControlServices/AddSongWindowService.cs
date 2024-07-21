@@ -113,11 +113,11 @@ public class AddSongWindowService(
         return generated ? outputPath : null;
     }
 
-    public async Task<bool> AddSongToProject(AddSongWindow parent)
+    public async Task<MsuSongInfoViewModel?> AddSongToProject(AddSongWindow parent)
     {
         if (_model.SelectedTrack == null || string.IsNullOrEmpty(_model.FilePath))
         {
-            return false;
+            return null;
         }
 
         var track = _model.SelectedTrack;
@@ -128,7 +128,7 @@ public class AddSongWindowService(
         if (!generated)
         {
             await MessageWindow.ShowErrorDialog(message ?? "Unknown error", "Error", parent);
-            return false;
+            return null;
         }
         
         if (!successful)
@@ -136,7 +136,7 @@ public class AddSongWindowService(
             if (!await MessageWindow.ShowYesNoDialog($"{message}\r\nDo you want to continue adding this song?",
                     "Continue?", parent))
             {
-                return false;
+                return null;
             }
         }
         
@@ -186,7 +186,7 @@ public class AddSongWindowService(
             _model.AddSongButtonText = "Add Song";
         });
 
-        return true;
+        return song;
     }
 
     public void ClearModel()

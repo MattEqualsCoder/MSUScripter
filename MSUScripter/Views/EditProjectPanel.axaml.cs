@@ -52,6 +52,12 @@ public partial class EditProjectPanel : UserControl
                 if (x.NewValue.Value.CurrentMsuProject != null)
                 {
                     DataContext = Model = _service.InitializeModel(x.NewValue.Value.CurrentMsuProject);
+
+                    Model.PropertyChanged += (o, eventArgs) =>
+                    {
+                        if (eventArgs.PropertyName != nameof(Model.PageNumber) || !Model.DisplayTrackOverviewPanel) return;
+                        this.FindControl<TrackOverviewPanel>(nameof(TrackOverviewPanel))!.Refresh();
+                    };
                 }
             };
             
