@@ -59,14 +59,14 @@
                         Click="MenuButton_OnClick"
                     >
                         <Button.ContextMenu>
-                            <ContextMenu>
+                            <ContextMenu Opening="ContextMenu_OnOpening">
                                 <MenuItem Header="Import Audio File Metadta"
                                           Click="ImportSongMetadataButton_OnClick" 
                                 ></MenuItem>
                                 <MenuItem Header="Copy Song Details to Clipboard"
                                           Click="CopySongToClipboardMenuItem_OnClick" 
                                 ></MenuItem>
-                                <MenuItem Header="Paste Song Details from Clipboard"
+                                <MenuItem Header="Paste Song Details from Clipboard" x:Name="PasteMenuItem"
                                           Click="PasteSongFromClipboardMenuItem_OnClick" 
                                 ></MenuItem>
                                 <MenuItem Header="Duplicate Song"

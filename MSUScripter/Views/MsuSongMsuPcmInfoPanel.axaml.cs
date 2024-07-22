@@ -139,7 +139,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
     }
 
-    private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void MenuButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button)
         {
@@ -150,6 +150,11 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         if (contextMenu == null)
         {
             return;
+        }
+        
+        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
+        {
+            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
         }
         
         contextMenu.PlacementTarget = button;
@@ -195,7 +200,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
 
         if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
         {
-            pasteMenuItem.IsEnabled = !string.IsNullOrWhiteSpace(await this.GetClipboardAsync());    
+            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
         }
     }
 

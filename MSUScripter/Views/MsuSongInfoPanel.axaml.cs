@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
@@ -112,7 +113,7 @@ public partial class MsuSongInfoPanel : UserControl
         await _service.PauseSong();
     }
 
-    private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void MenuButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button)
         {
@@ -123,6 +124,11 @@ public partial class MsuSongInfoPanel : UserControl
         if (contextMenu == null)
         {
             return;
+        }
+        
+        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
+        {
+            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
         }
         
         contextMenu.PlacementTarget = button;
@@ -208,5 +214,18 @@ public partial class MsuSongInfoPanel : UserControl
     private void TestAudioLevelButton_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.AnalyzeAudio();
+    }
+
+    private async void ContextMenu_OnOpening(object? sender, CancelEventArgs e)
+    {
+        if (sender is not ContextMenu contextMenu)
+        {
+            return;
+        }
+
+        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
+        {
+            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
+        }
     }
 }
