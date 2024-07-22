@@ -30,6 +30,8 @@ public class MsuTrackInfoViewModel : ViewModelBase
     [SkipConvert] public MsuProjectViewModel Project { get; set; } = new();
     
     [SkipConvert] public ObservableCollection<MsuSongInfoViewModel> Songs { get; init; } = [];
+
+    [SkipConvert] public string Display => ToString();
     
     public bool HasChangesSince(DateTime time)
     {

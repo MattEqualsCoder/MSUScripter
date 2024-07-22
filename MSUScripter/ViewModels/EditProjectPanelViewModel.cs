@@ -31,9 +31,9 @@ public class EditProjectPanelViewModel : ViewModelBase
     public bool CanClickNext => PageNumber < Tracks.Count + 1;
     public bool IsMsuPcmProject => MsuProjectViewModel?.BasicInfo.IsMsuPcmProject == true;
     public bool WriteYamlFile => MsuProjectViewModel?.BasicInfo.WriteYamlFile == true;
-    public bool WriteTrackList => MsuProjectViewModel?.BasicInfo.WriteYamlFile == true;
-    public bool CreateAltSwapper => MsuProjectViewModel?.BasicInfo.WriteYamlFile == true;
-    public bool CreateSplitSmz3Script => MsuProjectViewModel?.BasicInfo.WriteYamlFile == true;
+    public bool WriteTrackList => MsuProjectViewModel?.BasicInfo.TrackList != TrackListType.Disabled;
+    public bool CreateAltSwapper => MsuProjectViewModel?.BasicInfo.CreateAltSwapperScript == true;
+    public bool CreateSplitSmz3Script => MsuProjectViewModel?.BasicInfo.CreateSplitSmz3Script == true;
     public bool DisplayBasicInfoPanel => PageNumber == 0;
     public bool DisplayTrackOverviewPanel => PageNumber == 1;
     public bool DisplayTrackInfoPanel => PageNumber >= 2;

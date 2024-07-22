@@ -116,6 +116,8 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         var originalIsAlt = _model.IsAlt;
         var originalCanPlaySongs = _model.CanPlaySongs;
         var originalOutputPath = _model.OutputPath;
+        _model.MsuPcmInfo.SubChannels.Clear();
+        _model.MsuPcmInfo.SubTracks.Clear();
             
         if (!converterService.ConvertViewModel(yamlSongDetails, _model) || !converterService.ConvertViewModel(yamlSongDetails.MsuPcmInfo, _model.MsuPcmInfo))
         {

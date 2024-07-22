@@ -8,7 +8,7 @@
         WindowStartupLocation="CenterOwner"
         SizeToContent="Height"
         x:Class="MSUScripter.Views.DuplicateMoveTrackWindow"
-        Title="SelectTrackWindow"
+        Title="Select Track"
         x:DataType="viewModels:CopyMoveTrackWindowViewModel"
         >
     <DockPanel>
@@ -29,6 +29,7 @@
                 Name="TrackComboBox"
                 ItemsSource="{Binding Tracks}"
                 SelectedValue="{Binding TargetTrack, Mode=TwoWay}"
+                DisplayMemberBinding="{Binding Display}"
             ></ComboBox>
         </StackPanel>
         

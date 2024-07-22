@@ -144,6 +144,9 @@ public class MsuSongMsuPcmInfoPanelService(
         var originalIsAlt = _model.IsAlt;
         var originalParent = _model.ParentMsuPcmInfo;
         var originalCanPlaySongs = _model.CanPlaySongs;
+
+        _model.SubTracks.Clear();
+        _model.SubChannels.Clear();
             
         if (!converterService.ConvertViewModel(yamlMsuPcmDetails, _model))
         {
