@@ -89,7 +89,14 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         output.CheckCopyright = false;
         output.ShowPanel = false;
         output.MsuPcmInfo.ClearFieldsForYaml();
-        return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
+        var yamlText = yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
+        
+        return
+            """
+            # yaml-language-server: $schema=https://raw.githubusercontent.com/MattEqualsCoder/MSUScripter/v3.3.0-changes/Schemas/MsuSongInfo.json
+            # Use Visual Studio Code with the YAML plugin from redhat for schema support
+            
+            """ + yamlText;
     }
 
     public string? CopyDetailsFromString(string yamlText)
