@@ -96,7 +96,7 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         
         return
             """
-            # yaml-language-server: $schema=https://raw.githubusercontent.com/MattEqualsCoder/MSUScripter/v3.3.0-changes/Schemas/MsuSongInfo.json
+            # yaml-language-server: $schema=https://raw.githubusercontent.com/MattEqualsCoder/MSUScripter/main/Schemas/MsuSongInfo.json
             # Use Visual Studio Code with the YAML plugin from redhat for schema support
             
             """ + yamlText;

@@ -126,7 +126,7 @@ public class MsuSongMsuPcmInfoPanelService(
         
         return
             """
-            # yaml-language-server: $schema=https://raw.githubusercontent.com/MattEqualsCoder/MSUScripter/v3.3.0-changes/Schemas/MsuSongMsuPcmInfo.json
+            # yaml-language-server: $schema=https://raw.githubusercontent.com/MattEqualsCoder/MSUScripter/main/Schemas/MsuSongMsuPcmInfo.json
             # Use Visual Studio Code with the YAML plugin from redhat for schema support
             
             """ + yamlText;
