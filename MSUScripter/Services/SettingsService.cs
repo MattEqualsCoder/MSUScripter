@@ -1,30 +1,24 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
+using AvaloniaControls.Controls;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
-using MSUScripter.Controls;
 using MSUScripter.Models;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Settings = MSUScripter.Configs.Settings;
 
 namespace MSUScripter.Services;
 
 public class SettingsService
 {
-    private ILogger<SettingsService> _logger;
-
-    public static SettingsService Instance { get; private set; } = null!;
+    private readonly YamlService _yamlService;
 
     public Settings Settings { get; set; } = null!;
 
-    public SettingsService(ILogger<SettingsService> logger)
+    public SettingsService(YamlService yamlService)
     {
-        _logger = logger;
+        _yamlService = yamlService;
         LoadSettings();
-        Instance = this;
     }
 
     public void LoadSettings()
@@ -32,27 +26,29 @@ public class SettingsService
         var settingsPath = GetSettingsPath();
         if (!File.Exists(settingsPath))
         {
-            Settings = new();
+            Settings = new Settings();
             SaveSettings();
             return;
         }
 
         var yaml = File.ReadAllText(settingsPath);
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-        Settings = deserializer.Deserialize<Settings>(yaml);
+        
+        if (!_yamlService.FromYaml<Settings>(yaml, YamlType.Pascal, out var settingsObject, out _) ||
+            settingsObject == null)
+        {
+            Settings = new Settings();
+        }
+        else
+        {
+            Settings = settingsObject;
+        }
 
-        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
+        ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
     }
 
     public void SaveSettings()
     {
-        var serializer = new SerializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
-        var yaml = serializer.Serialize(Settings);
+        var yaml = _yamlService.ToYaml(Settings, YamlType.Pascal);
         var path = GetSettingsPath();
         var directory = new FileInfo(path).DirectoryName;
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -61,7 +57,7 @@ public class SettingsService
         }
         File.WriteAllText(GetSettingsPath(), yaml);
 
-        ScalableWindow.GlobalScaleFactor = Settings.UiScaling;
+        ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
     }
 
     public void AddRecentProject(MsuProject project)

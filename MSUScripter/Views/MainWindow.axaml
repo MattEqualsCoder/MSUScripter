@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:MSUScripter.Views"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="MSUScripter.Views.MainWindow"
+        Icon="/Assets/MSUScripterIcon.ico"
+        MinWidth="1024"
+        MinHeight="768"
+        Width="1024"
+        Height="768"
+        Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
+        x:DataType="viewModels:MainWindowViewModel"
+        Title="{Binding Title}">
+    <LayoutTransformControl Name="MainLayout">
+        
+        <Grid RowDefinitions="Auto, *">
+            <controls:HeaderFooter BorderSize="0 0 0 2" Grid.Row="0" IsVisible="{Binding DisplayNewVersionBanner}">
+                
+                    <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
+                        
+                        <avalonia:MaterialIcon Grid.Row="0" 
+                                               Grid.Column="0" 
+                                               Grid.RowSpan="2" 
+                                               Kind="Update"
+                                               Width="30"
+                                               Height="30"
+                                               Margin="5 0 0 0"
+                        ></avalonia:MaterialIcon>
+                        
+                        <StackPanel Grid.Row="" Grid.Column="1" Orientation="Horizontal" Margin="5">
+                            <TextBlock>A new version of the MSU Scripter is now available!</TextBlock>
+                            <controls:LinkControl Margin="5 0 0 0" Name="GitHubUrlLink" Click="GitHubUrlLink_OnClick">Click here to go to the download page.</controls:LinkControl>
+                        </StackPanel>
+
+                        <controls:ImageButton Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Name="CloseUpdateButton" Click="CloseUpdateButton_OnClick" Margin="0 3 3 0">
+                            <avalonia:MaterialIcon Kind="Close" Width="12" Height="12" Background="Transparent"></avalonia:MaterialIcon>
+                        </controls:ImageButton>
+                        
+                        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 3 3">
+                            <controls:LinkControl FontSize="10" Margin="5 0 0 0" Name="DisableUpdatesLink" Click="DisableUpdatesLink_OnClick">Don't Check for Updates</controls:LinkControl>
+                        </StackPanel>
+                    </Grid>
+
+
+            </controls:HeaderFooter>
+            
+            <Grid Grid.Row="1" Name="MainGrid" RowDefinitions="Auto,*" IsSharedSizeScope="True">
+                
+                <DockPanel Grid.Row="1" IsVisible="{Binding DisplayNewPage}">
+                    <views:NewProjectPanel 
+                        Name="NewProjectPanel" 
+                        OnProjectSelected="NewProjectPanel_OnOnProjectSelected"
+                    ></views:NewProjectPanel>
+                </DockPanel>
+                
+                <DockPanel Grid.Row="1" IsVisible="{Binding DisplayEditPage}">
+                    <views:EditProjectPanel 
+                        Name="EditProjectPanel"
+                        OnCloseProject="EditProjectPanel_OnOnCloseProject"
+                        DataContext="{Binding NullValue}" 
+                        ParentDataContext="{Binding $parent.DataContext}"
+                    ></views:EditProjectPanel>
+                </DockPanel>
+            </Grid>
+        </Grid>
+    </LayoutTransformControl>
+</Window>

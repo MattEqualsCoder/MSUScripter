@@ -1,0 +1,198 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+        xmlns:views="clr-namespace:MSUScripter.Views"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        Width="1000" Height="700"
+        MinWidth="1000" MinHeight="700"
+        x:Class="MSUScripter.Views.AddSongWindow"
+        Title="Add Song"
+        WindowStartupLocation="CenterOwner"
+        Loaded="Control_OnLoaded"
+        Closing="Window_OnClosing"
+        Icon="/Assets/MSUScripterIcon.ico"
+        x:DataType="viewModels:AddSongWindowViewModel"
+        DragDrop.AllowDrop="True">
+    <LayoutTransformControl Name="MainLayout">
+        <DockPanel>
+            
+            <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" Margin="5">
+                <views:AudioControl Grid.Column="0"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Margin="5, 0" 
+							IsVisible="{Binding !SingleMode}"
+                            IsEnabled="{Binding CanAddSong}"
+                            Name="AddSongButton"
+                            Click="AddSongButton_OnClick"
+                            Content="{Binding AddSongButtonText}" />
+                    <Button Margin="5, 0" 
+                            IsEnabled="{Binding CanAddSong}"
+                            Name="AddSongAndCloseButton"
+                            Click="AddSongAndCloseButton_OnClick"
+                            Content="Add and Close" />
+                    <Button Margin="5, 0" Name="CloseButton" Click="CloseButton_OnClick">
+                        Close
+                    </Button>
+                </StackPanel>
+                <Panel Grid.Column="2" />
+            </Grid>
+            
+            <StackPanel Orientation="Vertical">
+            
+                <controls1:CardControl Margin="5" Name="MainGroupBox" HeaderText="Details" Padding="10" HorizontalAlignment="Stretch" DisplayHeaderButtons="True">
+                    <controls1:CardControl.HeaderButtons>
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="10 0 5 0"
+                                    IsVisible="{Binding DisplayHertzWarning}"
+                                    ToolTip.Tip="This is a non-44100Hz track. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                        >
+                            <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                            <TextBlock VerticalAlignment="Center">
+                                Non-44100Hz Track
+                            </TextBlock>
+                        </StackPanel>
+                    </controls1:CardControl.HeaderButtons>
+                    <Grid ColumnDefinitions="* * * * * * * * * * * *" RowDefinitions="* * * * * * *">
+                        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
+                        <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>
+                        
+                        <controls1:ComboBoxAndSearchControl 
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Grid.ColumnSpan="6"
+                            Margin="0 0 3 0"
+                            Items="{Binding TrackSearchItems}"
+                            Value="{Binding SelectedTrack, Mode=TwoWay}"
+                        ></controls1:ComboBoxAndSearchControl>
+                        
+                        <controls1:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
+                                              Name="FileControl" 
+                                              Filter="All Files:*"
+                                              Margin="3 0 0 0"
+                                              FilePath="{Binding FilePath, Mode=TwoWay}" 
+                                              IsEnabled="{Binding !RunningPyMusicLooper}"
+                                              OnUpdated="FileControl_OnOnUpdated"
+                        ></controls1:FileControl>
+                        
+                        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Song Name</TextBlock>
+                        <TextBlock Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Artist</TextBlock>
+                        <TextBlock Grid.Column="8" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Album</TextBlock>
+                        
+                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
+                                 Margin="0 0 3 0"
+                                 Text="{Binding SongName}"
+                                 IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <TextBox Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="4"
+                                 Margin="3 0 3 0"
+                                 Text="{Binding ArtistName}"
+                                 IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <TextBox Grid.Row="3" Grid.Column="8" Grid.ColumnSpan="4"
+                                 Margin="3 0 0 0"
+                                 Text="{Binding AlbumName}"
+                                 IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <TextBlock Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Trim Start</TextBlock>
+                        <TextBlock Grid.Column="3" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Trim End</TextBlock>
+                        <TextBlock Grid.Column="6" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Loop Point</TextBlock>
+                        <TextBlock Grid.Column="9" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Normalization</TextBlock>
+                        
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" 
+                                                        Margin="0 0 3 0"
+                                                        Text="{Binding TrimStart}"
+                                                        IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" 
+                                                        Margin="3 0 3 0"
+                                                        Text="{Binding TrimEnd}"
+                                                        IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="3" 
+                                                        Margin="3 0 3 0"
+                                                        Text="{Binding LoopPoint}"
+                                                        IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="9" Grid.ColumnSpan="3" 
+                                                        Margin="3 0 3 0"
+                                                        Text="{Binding Normalization}"
+                                                        IsEnabled="{Binding CanEditMainFields}"
+                        />
+                        
+                        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6"  Orientation="Horizontal">
+                            <Button Name="TestAudioLevelButton"
+                                    Margin="0 8 0 0"
+                                    Click="TestAudioLevelButton_OnClick"
+                                    IsEnabled="{Binding CanEditMainFields}">
+                                Test Audio Levels
+                            </Button>
+                            
+                            <TextBlock Margin="8 5 0 0"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding AverageAudio}" />
+                            
+                            <TextBlock Margin="8 5 0 0"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding HasAudioAnalysis}">
+                                |
+                            </TextBlock>
+                            
+                            <TextBlock Margin="8 5 0 0"
+                                       VerticalAlignment="Center"
+                                       IsVisible="{Binding HasAudioAnalysis}"
+                                       Text="{Binding PeakAudio}" />
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="6" Grid.Column="6" Grid.ColumnSpan="6"  Orientation="Horizontal" HorizontalAlignment="Right">
+                            
+                            <Button Name="PlaySongButton"
+                                    Margin="0 8 8 0"
+                                    Click="PlaySongButton_OnClick"
+                                    IsEnabled="{Binding CanEditMainFields}">
+                                Play Song
+                            </Button>
+                            
+                            <Button Name="TestLoopButton"
+                                    Margin="0 8 8 0"
+                                    Click="TestLoopButton_OnClick"
+                                    IsEnabled="{Binding CanEditMainFields}">
+                                Test Loop
+                            </Button>
+                            
+                            <Button Name="StopSongButton"
+                                    Margin="0 8 0 0"
+                                    Click="StopSongButton_OnClick"
+                                    IsEnabled="{Binding CanEditMainFields}">
+                                Stop Music
+                            </Button>
+                            
+                        </StackPanel>
+                        
+                    </Grid>
+                </controls1:CardControl>
+                
+                <controls1:CardControl Margin="5 0 5 5" Name="PyMusicLooperBox" HeaderText="PyMusicLooper" Padding="10" HorizontalAlignment="Stretch" IsEnabled="{Binding CanEditMainFields}">
+                    <StackPanel Orientation="Vertical">
+                        <Panel IsVisible="{Binding ShowPyMusicLooper}">
+                            <views:PyMusicLooperPanel x:Name="PyMusicLooperPanel" OnUpdated="PyMusicLooperPanel_OnOnUpdated"/>
+                        </Panel>
+                        <Panel IsVisible="{Binding !ShowPyMusicLooper}">
+                            <TextBlock HorizontalAlignment="Center">Select an audio file</TextBlock>
+                        </Panel>
+                    </StackPanel>
+                </controls1:CardControl>
+                
+            </StackPanel>
+        </DockPanel>
+    </LayoutTransformControl>
+</Window>

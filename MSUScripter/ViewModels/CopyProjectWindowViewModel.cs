@@ -1,70 +1,43 @@
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Runtime.CompilerServices;
+using Avalonia.Platform.Storage;
 using MSUScripter.Configs;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class CopyProjectWindowViewModel : INotifyPropertyChanged
+public class CopyProjectWindowViewModel : ViewModelBase
 {
-    private MsuProject? _originalProject;
+    [Reactive] public MsuProject? OriginalProject { get; set; }
 
-    public MsuProject? OriginalProject
-    {
-        get => _originalProject;
-        set => SetField(ref _originalProject, value);
-    }
+    [Reactive] public MsuProjectViewModel? ProjectViewModel { get; set; }
+
+    [Reactive] public MsuProject? NewProject { get; set; }
     
-    private MsuProjectViewModel? _projectViewModel;
+    [Reactive] public List<CopyProjectViewModel> Paths { get; set; } = new();
 
-    public MsuProjectViewModel? ProjectViewModel
-    {
-        get => _projectViewModel;
-        set => SetField(ref _projectViewModel, value);
-    }
+    [Reactive] public bool IsValid { get; set; }
     
-    private MsuProject? _newProject;
-
-    public MsuProject? NewProject
+    public override ViewModelBase DesignerExample()
     {
-        get => _newProject;
-        set => SetField(ref _newProject, value);
-    }
-        
-    private List<CopyProjectViewModel> _paths = new();
-
-    public List<CopyProjectViewModel> Paths
-    {
-        get => _paths;
-        set => SetField(ref _paths, value);
-    }
-    
-    private bool _isValid;
-
-    public bool IsValid
-    {
-        get => _isValid;
-        set => SetField(ref _isValid, value);
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        Paths =
+        [
+            new CopyProjectViewModel(@"C:\Test\TestMsuProject.msup"),
+            new CopyProjectViewModel(@"C:\Test\TestMsu.msu")
+            {
+                Message = "Bad file"
+            },
+            new CopyProjectViewModel(@"C:\Test\TestSong.mp3")
+            {
+                IsValid = true
+            }
+        ];
+        return this;
     }
 }
 
-public class CopyProjectViewModel : INotifyPropertyChanged
+public class CopyProjectViewModel : ViewModelBase
 {
     public CopyProjectViewModel(string? path)
     {
@@ -77,67 +50,31 @@ public class CopyProjectViewModel : INotifyPropertyChanged
             Extension = file.Extension;
         }
     }
-    
-    private string _previousPath = "";
 
-    public string PreviousPath
+    [Reactive] public string PreviousPath { get; set; }
+
+    [Reactive] public string NewPath { get; set; }
+
+    [Reactive] public string Extension { get; set; } = "";
+
+    [Reactive] public string BaseFileName { get; set; } = "";
+
+    [Reactive] public bool IsValid { get; set; }
+
+    [Reactive] public string Message { get; set; } = "";
+
+    public bool IsSongFile => !Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase) &&
+                              !Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase);
+    public List<FilePickerFileType>? FileTypePatterns =>
+        string.IsNullOrEmpty(Extension)
+            ? null
+            : new List<FilePickerFileType>
+            {
+                new($"{Extension} File") { Patterns = new List<string> { $"*{Extension}" } }
+            };
+
+    public override ViewModelBase DesignerExample()
     {
-        get => _previousPath;
-        set => SetField(ref _previousPath, value);
-    }
-
-    private string _newPath = "";
-
-    public string NewPath
-    {
-        get => _newPath;
-        set => SetField(ref _newPath, value);
-    }
-    
-    private string _extension = "";
-
-    public string Extension
-    {
-        get => _extension;
-        set => SetField(ref _extension, value);
-    }
-    
-    private string _baseFileName = "";
-
-    public string BaseFileName
-    {
-        get => _baseFileName;
-        set => SetField(ref _baseFileName, value);
-    }
-
-    private bool _isValid;
-
-    public bool IsValid
-    {
-        get => _isValid;
-        set => SetField(ref _isValid, value);
-    }
-    
-    private string _message = "";
-
-    public string Message
-    {
-        get => _message;
-        set => SetField(ref _message, value);
-    }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        return this;
     }
 }

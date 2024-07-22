@@ -8,26 +8,13 @@ using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
-public class ConverterService
+public class ConverterService(IMsuTypeService msuTypeService)
 {
-    private readonly IMsuTypeService _msuTypeService;
-    private readonly AudioAnalysisService _audioAnalysisService;
-
-    public static ConverterService Instance { get; private set; } = null!;
-    
-    public ConverterService(IMsuTypeService msuTypeService, AudioAnalysisService audioAnalysisService)
-    {
-        _msuTypeService = msuTypeService;
-        _audioAnalysisService = audioAnalysisService;
-        Instance = this;
-    }
-    
     public bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()
     {
         var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
@@ -51,9 +38,7 @@ public class ConverterService
                 if (recursive)
                 {
                     IList<A>? aValue = propA.GetValue(input) as IList<A>;
-                    IList<B> bValue = new List<B>();
-                    if (propB.PropertyType == typeof(ObservableCollection<B>))
-                        bValue = new ObservableCollection<B>();
+                    IList<B> bValue = propB.GetValue(output) as IList<B> ?? (propB.PropertyType == typeof(ObservableCollection<B>) ? new ObservableCollection<B>() : new List<B>());
                     if (aValue != null)
                     {
                         foreach (var aSubItem in aValue)
@@ -77,42 +62,39 @@ public class ConverterService
 
         return updated;
     }
-
+    
     public MsuProjectViewModel ConvertProject(MsuProject project)
     {
         var viewModel = new MsuProjectViewModel();
         ConvertViewModel(project, viewModel);
         ConvertViewModel(project.BasicInfo, viewModel.BasicInfo);
+        viewModel.BasicInfo.Project = viewModel;
         
         foreach (var track in project.Tracks)
         {
-            var trackViewModel = new MsuTrackInfoViewModel();
-            ConvertViewModel(track, trackViewModel);
-
             var msuTypeTrack = project.MsuType.Tracks.First(x => x.Number == track.TrackNumber);
-            trackViewModel.Description = msuTypeTrack.Description;
+
+            var trackViewModel = new MsuTrackInfoViewModel()
+            {
+                Project = viewModel,
+                Description = msuTypeTrack.Description
+            };
+            
+            ConvertViewModel(track, trackViewModel);
 
             foreach (var song in track.Songs)
             {
                 var songViewModel = new MsuSongInfoViewModel
                 {
                     Project = viewModel,
-                    MsuPcmInfo =
-                    {
-                        Project = viewModel,
-                        IsTopLevel = true,
-                    }
+                    Track = trackViewModel
                 };
-                songViewModel.MsuPcmInfo.Song = songViewModel;
+                
                 ConvertViewModel(song, songViewModel);
                 ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
-                songViewModel.MsuPcmInfo.IsAlt = songViewModel.IsAlt;
+                songViewModel.MsuPcmInfo.ApplyCascadingSettings(viewModel, songViewModel, songViewModel.IsAlt, null, false, false, false);
+                
                 trackViewModel.Songs.Add(songViewModel);
-
-                songViewModel.MsuPcmInfo.DisplayHertzWarning =
-                    _audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File) != 44100;
-                songViewModel.MsuPcmInfo.DisplayMultiWarning = songViewModel.MsuPcmInfo.SubChannels.Any() ||
-                                                               songViewModel.MsuPcmInfo.SubTracks.Any();
             }
 
             viewModel.Tracks.Add(trackViewModel);
@@ -128,7 +110,7 @@ public class ConverterService
         var project = new MsuProject();
         ConvertViewModel(viewModel, project);
         ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
-        project.MsuType = _msuTypeService.GetMsuType(project.MsuTypeName) ??
+        project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ??
                           throw new InvalidOperationException($"Invalid MSU Type {project.MsuTypeName}");
 
         foreach (var trackViewModel in viewModel.Tracks)

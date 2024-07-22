@@ -1,0 +1,109 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Views.NewProjectPanel"
+             x:DataType="viewModels:NewProjectPanelViewModel">
+    
+    <StackPanel>
+        
+        <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Grid.Column="0" Margin="10 10 10 5">Welcome to the MSU Scripter! You can use this for creating YAML files for the MSU Randomizer and for creating JSON files for msupcm++.</TextBlock>
+            <Button Grid.Column="1" Margin="0 5 5 0" Name="MenuButton" Click="MenuButton_OnClick">
+                <Button.Styles>
+                    <Style Selector="Button">
+                        <Setter Property="Background" Value="Transparent"></Setter>
+                        <Setter Property="BorderBrush" Value="Transparent"></Setter>
+                        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                            <Setter Property="Background" Value="Gray" />
+                        </Style>
+                    </Style>
+
+                </Button.Styles>
+                <avalonia:MaterialIcon Kind="Settings" Width="25" Height="25"/>
+            </Button>
+        </Grid>
+        
+        <controls1:CardControl HeaderText="New Project" Padding="10" Margin="5">
+            <StackPanel Orientation="Vertical">
+                
+                <TextBlock TextWrapping="Wrap">
+                    If you already have created the MSU, select the pre-existing MSU and msupcm++ tracks json file (if applicable) below. If you're starting a brand new MSU, select where you'd like the MSU file to go.
+                </TextBlock>
+                
+                <TextBlock TextWrapping="Wrap" Margin="0 5 0 5">
+                    If you're importing a previously created msupcm++ tracks json file, you will also need to select the folder in which you previously ran msupcm++ from so that the MSU Scripter will know where to find the files. It not provided, it will use the tracks.json file directory.
+                </TextBlock>
+                
+                <controls1:LabeledControl Text="MSU Type:">
+                    <ComboBox x:Name="MsuTypeComboBox" 
+                              HorizontalContentAlignment="Stretch" 
+                              HorizontalAlignment="Stretch"
+                              ItemsSource="{Binding MsuTypes}"
+                              DisplayMemberBinding="{Binding DisplayName}"
+                              SelectedItem="{Binding SelectedMsuType, Mode=TwoWay}"
+                    ></ComboBox>
+                </controls1:LabeledControl>
+                
+                <controls1:LabeledControl Text="MSU Path:">
+                    <controls1:FileControl FileInputType="SaveFile" 
+                                           Filter="MSU Files:*.msu" 
+                                           WarnOnOverwrite="False" 
+                                           Name="MsuPath" 
+                                           ForceExtension="msu"
+                                           FilePath="{Binding MsuPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
+                </controls1:LabeledControl>
+                    
+                <controls1:LabeledControl Text="Import msupcm++ Json File (optional):" DisplayHint="True" Hint="The tracks.json file used by msupcm++">
+                    <controls1:FileControl FileInputType="OpenFile" 
+                                           Filter="msupcm++ Json Files:*.json" 
+                                           Name="MsuPcmJsonFile"
+                                           FilePath="{Binding MsuPcmTracksJsonPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
+                </controls1:LabeledControl>
+                
+                <controls1:LabeledControl Text="msupcm++ Working Directory (optional):" DisplayHint="True" Hint="The folder you previously ran msupcm++ from for it to translate relative pcm and song paths">
+                    <controls1:FileControl FileInputType="Folder" 
+                                           Name="MsuPcmWorkingDirectory"
+                                           FilePath="{Binding MsuPcmWorkingDirectoryPath, Mode=TwoWay}"
+                    ></controls1:FileControl>
+                </controls1:LabeledControl>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Name="NewProjectButton" HorizontalAlignment="Center" Margin="5 10 5 0" Click="NewProjectButton_OnClick" IsEnabled="{Binding CanCreateNewProject}">Create New Project</Button>
+                    <Button Name="ImportProjectButton" HorizontalAlignment="Center" Margin="5 10 5 0" Click="ImportProjectButton_OnClick">Clone Project</Button>
+                </StackPanel>
+                
+            </StackPanel>
+        </controls1:CardControl>
+            
+        <controls1:CardControl HeaderText="Open Project" Padding="5" Margin="5 0 5 5">
+            <StackPanel Orientation="Vertical">
+                <StackPanel IsVisible="{Binding AnyRecentProjects}">
+                    <TextBlock Name="RecentProjectsTextBlock">Recent Projects</TextBlock>
+                    <ItemsControl ItemsSource="{Binding  Path=RecentProjects, Mode=Default}" Name="RecentProjectsList">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Margin="0 5 0 0">
+                                    - <controls1:LinkControl Click="RecentProject_OnClick" Tag="{Binding ProjectPath}" Content="{Binding ProjectName}"></controls1:LinkControl>
+                                    <TextBlock Margin="5 0 0 0" Foreground="{DynamicResource FadedTextColor}">
+                                        (<TextBlock Text="{Binding ProjectPath}" Foreground="{DynamicResource FadedTextColor}"></TextBlock>)
+                                    </TextBlock>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+                <Button Name="SelectProjectButton" HorizontalAlignment="Center" Margin="10 5 10 5" Click="SelectProjectButton_OnClick">Select Project File</Button>
+            </StackPanel>
+        </controls1:CardControl>
+            
+    </StackPanel>
+    
+</UserControl>

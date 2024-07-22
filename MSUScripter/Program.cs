@@ -1,18 +1,21 @@
 ﻿using Avalonia;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using AvaloniaControls.Controls;
+using AvaloniaControls.Extensions;
+using AvaloniaControls.Services;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using MSURandomizerLibrary;
-using MSUScripter.Controls;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.Services.ControlServices;
+using MSUScripter.Views;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
 
@@ -20,6 +23,7 @@ namespace MSUScripter;
 
 class Program
 {
+    internal static IHost MainHost { get; private set; } = null!;
     internal static string? StartingProject { get; private set; }
         
     // Initialization code. Don't use any Avalonia, third-party APIs or any
@@ -28,11 +32,29 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        Log.Logger = new LoggerConfiguration()
+            
+        var loggerConfiguration = new LoggerConfiguration();
+        
+#if DEBUG
+        loggerConfiguration = loggerConfiguration.MinimumLevel.Debug();
+#else
+        if (args.Contains("-d"))
+        {
+            loggerConfiguration = loggerConfiguration.MinimumLevel.Debug();
+        }
+        else
+        {
+            loggerConfiguration = loggerConfiguration.MinimumLevel.Information();
+        }
+#endif
+        
+        Log.Logger = loggerConfiguration
             .Enrich.FromLogContext()
-            .WriteTo.Console()
             .WriteTo.File(LogPath, rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
+#if DEBUG
             .WriteTo.Debug()
+            .WriteTo.Console()
+#endif
             .CreateLogger();
 
         if (args.Length == 1 && args[0].EndsWith(".msup", StringComparison.OrdinalIgnoreCase) && File.Exists(args[0]))
@@ -40,41 +62,36 @@ class Program
             StartingProject = args[0];
         }
         
+        MainHost = Host.CreateDefaultBuilder(args)
+            .UseSerilog()
+            .ConfigureLogging(logging =>
+            {
+                logging.AddSerilog(dispose: true);
+            })
+            .ConfigureServices(services =>
+            {
+                ConfigureServices(services);
+            })
+            .Build();
+
+        InitializeServices(args);
+
+        ExceptionWindow.GitHubUrl = "https://github.com/MattEqualsCoder/MSUScripter/issues";
+        ExceptionWindow.LogPath = Directories.LogFolder;
+        
+        using var source = new CancellationTokenSource();
+        
         try
         {
             BuildAvaloniaApp()
                 .StartWithClassicDesktopLifetime(args);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-            Log.Error(ex, $"[CRASH] Uncaught {ex.GetType().Name}: ");
-            using var source = new CancellationTokenSource();
-            ShowExceptionPopup().ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
+            ShowExceptionPopup(e).ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
             Dispatcher.UIThread.MainLoop(source.Token);
         }
-    }
-    
-    private static async Task ShowExceptionPopup()
-    {
-        var window = new MessageWindow("A critical error has occurred. Please open an issue at\n" +
-                                               "https://github.com/MattEqualsCoder/MSUScripter/issues.\n" +
-                                               "Press Yes to open the log directory.", MessageWindowType.YesNo, "Error");
         
-        window.Closing += (sender, args) =>
-        {
-            if (window.Result != MessageWindowResult.Yes) return;
-            Directories.OpenDirectory(Directories.LogFolder);
-        };
-        
-        window.Show();
-
-        await Dispatcher.UIThread.Invoke(async () =>
-        {
-            while (window.IsVisible)
-            {
-                await Task.Delay(500);
-            }
-        });
     }
     
     // Avalonia configuration, don't remove; also used by visual designer.
@@ -88,58 +105,62 @@ class Program
             .LogToTrace();
     }
 
-    private static IServiceProvider? _serviceProvider;
-    
-    public static IServiceProvider GetServiceProvider()
+    private static IServiceCollection ConfigureServices(IServiceCollection collection)
     {
-        if (_serviceProvider != null) return _serviceProvider;
-
-        var serviceCollection = new ServiceCollection()
-            .AddLogging(logging =>
-            {
-                logging.AddSerilog(dispose: true);
-            })
-            .AddMsuRandomizerServices()
+        collection.AddMsuRandomizerServices()
             .AddGitHubReleaseCheckerServices()
             .AddSingleton<SettingsService>()
+            .AddSingleton<YamlService>()
             .AddSingleton(serviceProvider => serviceProvider.GetRequiredService<SettingsService>().Settings)
             .AddSingleton<MsuPcmService>()
             .AddSingleton<AudioMetadataService>()
             .AddSingleton<ConverterService>()
             .AddSingleton<AudioAnalysisService>()
-            .AddSingleton<MainWindow>()
             .AddSingleton<ProjectService>()
             .AddSingleton<PyMusicLooperService>()
-            .AddSingleton<MainWindow>()
             .AddSingleton<TrackListService>()
-            .AddTransient<NewProjectPanel>()
-            .AddTransient<EditProjectPanel>()
-            .AddTransient<PyMusicLooperPanel>()
-            .AddTransient<MsuTrackInfoPanel>()
-            .AddTransient<MsuPcmGenerationWindow>()
-            .AddTransient<AudioControl>()
-            .AddTransient<SettingsWindow>()
-            .AddTransient<AudioAnalysisWindow>()
-            .AddTransient<MusicLooperWindow>()
-            .AddTransient<AddSongWindow>()
+            .AddSingleton<StatusBarService>()
             .AddTransient<PythonCommandRunnerService>()
-            .AddTransient<VideoCreatorService>()
-            .AddTransient<VideoCreatorWindow>();
+            .AddTransient<VideoCreatorWindowService>()
+            .AddTransient<SharedPcmService>()
+            .AddAvaloniaControlServices<Program>()
+            .AddTransient<ApplicationInitializationService>();
 
         if (OperatingSystem.IsWindows())
         {
-            serviceCollection.AddSingleton<IAudioPlayerService, AudioPlayerServiceWindows>();
+            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceWindows>();
         }
         else
         {
-            serviceCollection.AddSingleton<IAudioPlayerService, AudioPlayerServiceLinux>();    
+            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceLinux>();    
         }
-        
-        _serviceProvider = serviceCollection.BuildServiceProvider();
 
-        _serviceProvider.GetRequiredService<ConverterService>();
-        
-        return _serviceProvider;
+        return collection;
+    }
+
+    private static void InitializeServices(string[] args)
+    {
+        var services = MainHost.Services;
+        services.GetRequiredService<SettingsService>();
+        services.GetRequiredService<ITaskService>();
+        services.GetRequiredService<IControlServiceFactory>();
+        services.GetRequiredService<ConverterService>();
+        services.GetRequiredService<YamlService>();
+        services.GetRequiredService<ApplicationInitializationService>().Initialize(args);
+    }
+    
+    private static async Task ShowExceptionPopup(Exception e)
+    {
+        Log.Error(e, "[CRASH] Uncaught {Name}: ", e.GetType().Name);
+        var window = new ExceptionWindow();
+        window.Show();
+        await Dispatcher.UIThread.Invoke(async () =>
+        {
+            while (window.IsVisible)
+            {
+                await Task.Delay(500);
+            }
+        });
     }
 
 #if DEBUG

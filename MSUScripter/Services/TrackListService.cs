@@ -10,17 +10,8 @@ using MSUScripter.Tools;
 
 namespace MSUScripter.Services;
 
-public class TrackListService
+public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService msuTypeService, StatusBarService statusBarService)
 {
-    private ILogger<TrackListService> _logger;
-    private IMsuTypeService _msuTypeService;
-
-    public TrackListService(ILogger<TrackListService> logger, IMsuTypeService msuTypeService)
-    {
-        _logger = logger;
-        _msuTypeService = msuTypeService;
-    }
-
     public void WriteTrackListFile(MsuProject project)
     {
         var msuFileInfo = new FileInfo(project.MsuPath);
@@ -48,7 +39,7 @@ public class TrackListService
             var zeldaTrackModifier = 0;
             var metroidTrackModifier = -100;
 
-            if (project.MsuType == _msuTypeService.GetSMZ3LegacyMSUType())
+            if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType())
             {
                 zeldaTrackRange = (101, 199);
                 metroidTrackRange = (0, 98);
@@ -90,7 +81,7 @@ public class TrackListService
             }
             else
             {
-                var songs = project.Tracks.SelectMany(x => x.Songs);
+                var songs = project.Tracks.SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
                 var trackLength = project.Tracks.Max(x => x.TrackName.Length) + 4;
                 var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 4);
@@ -124,7 +115,7 @@ public class TrackListService
             }
             else
             {
-                var songs = project.Tracks.SelectMany(x => x.Songs);
+                var songs = project.Tracks.SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
                 var trackLength = project.Tracks.Max(x => x.TrackName.Length) + 3;
                 var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 3);
@@ -137,10 +128,12 @@ public class TrackListService
         try
         {
             File.WriteAllText(tracklistPath, sb.ToString());
+            statusBarService.UpdateStatusBar("Track list written");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to write tracklist file");
+            logger.LogError(e, "Unable to write tracklist file");
+            statusBarService.UpdateStatusBar("Failed to write track list");
         }
     }
 

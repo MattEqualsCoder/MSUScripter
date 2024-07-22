@@ -1,0 +1,66 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Views.TrackOverviewPanel"
+             x:DataType="viewModels:TrackOverviewPanelViewModel">
+    <DockPanel>
+        
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" RowDefinitions="Auto, Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 10 0 0" Text="{Binding CompletedSongDetails}"></TextBlock>
+            <TextBlock Grid.Row="0" Grid.Column="1" Margin="0 10 0 0" Text="{Binding CompletedTrackDetails}"></TextBlock>
+        </Grid>
+        <DataGrid Name="TrackDataGrid" 
+                  ItemsSource="{Binding Rows}" 
+                  AutoGenerateColumns="False" 
+                  CanUserReorderColumns="False" 
+                  CanUserResizeColumns="False"
+                  IsReadOnly="True"
+                  RowBackground="{DynamicResource CardBackground}"
+                  SelectionMode="Single"
+                  SelectedIndex="{Binding SelectedIndex}"
+                  DoubleTapped="AudioDataGrid_OnDoubleTapped"
+                  DragDrop.AllowDrop="True"
+        >
+            <DataGrid.Columns>
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Padding="2 0"
+                                Margin="0 0 1 0"
+                                Tag="{Binding}"
+                                Click="OpenAddSongWindowButton_OnClick"
+                                ToolTip.Tip="Add Song"
+                            >
+                                <avalonia:MaterialIcon Kind="Plus"></avalonia:MaterialIcon>
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn SortMemberPath="SongInfo.IsComplete">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox Name="IsCompleteCheckBox" 
+                                      IsVisible="{Binding HasSong}" 
+                                      IsChecked="{Binding SongInfo.IsComplete}" 
+                                      HorizontalAlignment="Center"
+                                      Tag="{Binding}"
+                                      ToolTip.Tip="Song Finished?"
+                                      IsCheckedChanged="IsCompleteCheckBox_OnIsCheckedChanged"></CheckBox>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
+                <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
+                <DataGridTextColumn Header="Song Name"  Binding="{Binding Name}"/>
+                <DataGridTextColumn Header="Artist Name"  Binding="{Binding Artist}"/>
+                <DataGridTextColumn Header="Album Name"  Binding="{Binding Album}"/>
+                <DataGridTextColumn Header="File(s)"  Binding="{Binding File}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </DockPanel>
+</UserControl>

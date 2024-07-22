@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using NAudio.Wave;
@@ -23,6 +24,12 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
     }
 
     public string CurrentPlayingFile { get; set; } = "";
+    
+    public bool IsPlaying => _waveOutEvent?.PlaybackState == PlaybackState.Playing;
+
+    public bool IsPaused => _waveOutEvent?.PlaybackState == PlaybackState.Paused;
+
+    public bool IsStopped => !IsPlaying && !IsPaused;
 
     public void Pause()
     {
@@ -75,6 +82,11 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
         if (_waveOutEvent == null || _loopStream == null) return;
         value = Math.Clamp(value, 0.0, 1.0);
         _loopStream.Position = (long)(_loopStream.Length * value + 8.0);
+    }
+
+    public void JumpToTime(double seconds)
+    {
+        SetPosition(seconds / GetLengthSeconds());
     }
 
     public void SetVolume(double volume)
@@ -174,7 +186,7 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
         
         CurrentPlayingFile = path;
         
-        _ = Task.Run(() =>
+        _ = ITaskService.Run(() =>
         {
             _logger.LogInformation("Playing song {Path}", path);
             
@@ -275,4 +287,5 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
     public bool CanSetMusicPosition { get; set; } = true;
 
     public bool CanChangeVolume { get; set; } = true;
+    public bool CanPauseMusic { get; set; } = true;
 }

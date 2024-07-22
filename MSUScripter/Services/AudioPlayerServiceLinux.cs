@@ -3,8 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using NAudio.Wave;
 
 namespace MSUScripter.Services;
 
@@ -28,6 +30,7 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
         if (_python.SetBaseCommand("pcm_player", "--version", out var result, out var error) &&
             result.StartsWith("pcm_player "))
         {
+            logger.LogInformation("{Version} found", result);
             var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
             var versionValue = ConvertVersionNumber(version[0], version[1], version[2]);
             var minVersionValue = GetMinVersionNumberForSetLoop();
@@ -38,7 +41,13 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     }
 
     public string CurrentPlayingFile { get; set; } = "";
-    
+
+    public bool IsPlaying => _isPlaying;
+
+    public bool IsPaused => false;
+
+    public bool IsStopped => !_isPlaying;
+
     public void Pause()
     {
         if (_process?.HasExited == false)
@@ -90,6 +99,11 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     {
         // Do nothing
     }
+    
+    public void JumpToTime(double seconds)
+    {
+        // Do nothing
+    }
 
     public void SetVolume(double volume)
     {
@@ -134,7 +148,7 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
             _process.Disposed += ProcessOnExited;
             PlayStarted?.Invoke(this, EventArgs.Empty);
 
-            Task.Run(() =>
+            ITaskService.Run(() =>
             {
                 var processToWaitFor = _process;
                 processToWaitFor.WaitForExit();
@@ -180,4 +194,5 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     public bool CanSetMusicPosition { get; set; } = false;
 
     public bool CanChangeVolume { get; set; } = false;
+    public bool CanPauseMusic { get; set; } = false;
 }

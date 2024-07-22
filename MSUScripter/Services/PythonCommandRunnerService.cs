@@ -151,7 +151,7 @@ public class PythonCommandRunnerService
                 {
                     break;
                 }
-                _logger.LogInformation("Waiting");
+                _logger.LogDebug("Waiting for response from {Command}", innerCommand);
             }
 
             if (cancellationToken?.IsCancellationRequested == true)

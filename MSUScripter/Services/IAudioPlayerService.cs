@@ -22,9 +22,17 @@ public interface IAudioPlayerService
     public double GetCurrentPositionSeconds();
 
     public void SetPosition(double value);
+    
+    public void JumpToTime(double seconds);
 
     public void SetVolume(double volume);
     
+    public bool IsPlaying { get; }
+
+    public bool IsPaused { get; }
+
+    public bool IsStopped { get; }
+
     public Task<bool> PlaySongAsync(string path, bool fromEnd);
 
     public Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false);
@@ -36,4 +44,5 @@ public interface IAudioPlayerService
     public bool CanPlayMusic { get; protected set; }
     public bool CanSetMusicPosition { get; protected set; }
     public bool CanChangeVolume { get; protected set; }
+    public bool CanPauseMusic { get; protected set; }
 }

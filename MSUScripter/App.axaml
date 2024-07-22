@@ -1,25 +1,26 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:tools="clr-namespace:MSUScripter.Tools"
+             xmlns:msuScripter="clr-namespace:MSUScripter"
              x:Class="MSUScripter.App"
-             
              RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+             <Application.DataTemplates>
+                 <msuScripter:ViewLocator/>
+             </Application.DataTemplates>
+  
              <Application.Resources>
-                 <tools:NullableBoolToStringConverter x:Key="NullableBoolToStringConverter" />
-                 <tools:BoolToStringConverter x:Key="BoolToStringConverter" />
+                 <ResourceDictionary>
+                     <ResourceDictionary.MergedDictionaries>
+                         <ResourceInclude Source="avares://AvaloniaControls/Themes/Resources.axaml"></ResourceInclude>
+                     </ResourceDictionary.MergedDictionaries>
+                 </ResourceDictionary>
              </Application.Resources>
+             
              <Application.Styles>
-                 <!--<StyleInclude Source="avares://Semi.Avalonia/Themes/Index.axaml" />-->
                  <SimpleTheme />
-                 <avalonia:MaterialIconStyles />
-                 <StyleInclude Source="Controls/CardControl.axaml"></StyleInclude>
-                 <StyleInclude Source="Controls/LabeledControl.axaml"></StyleInclude>
-                 <StyleInclude Source="Controls/LinkControl.axaml"></StyleInclude>
-                 <StyleInclude Source="Themes/Themes.axaml"></StyleInclude>
                  <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
+                 <StyleInclude Source="avares://AvaloniaControls/Themes/Themes.axaml"></StyleInclude>
              </Application.Styles>
              
 </Application>

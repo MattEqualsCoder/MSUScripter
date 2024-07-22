@@ -9,5 +9,6 @@ public enum PcmEventType
     LoopWindow,
     StopMusic,
     GenerateEmpty,
-    StartingSamples
+    StartingSamples,
+    AddedSubChannelOrSubTrack
 }

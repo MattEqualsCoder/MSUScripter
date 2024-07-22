@@ -1,86 +1,31 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using AvaloniaControls.Models;
 using MSUScripter.Models;
-using MSUScripter.Services;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisSongViewModel : INotifyPropertyChanged
+public class AudioAnalysisSongViewModel : ViewModelBase
 {
-    private string _songName = "";
-    public string SongName
-    {
-        get => _songName;
-        set => SetField(ref _songName, value);
-    }
+    public MsuSongInfoViewModel? OriginalViewModel { get; set; }
+        
+    [Reactive] public string SongName { get; set; } = "";
     
-    private MsuSongInfoViewModel? _originalViewModel;
-    public MsuSongInfoViewModel? OriginalViewModel
-    {
-        get => _originalViewModel;
-        set => SetField(ref _originalViewModel, value);
-    }
-    
-    private int _trackNumber = 0;
-    public int TrackNumber
-    {
-        get => _trackNumber;
-        set => SetField(ref _trackNumber, value);
-    }
-    
-    private string _trackName = "";
-    public string TrackName
-    {
-        get => _trackName;
-        set => SetField(ref _trackName, value);
-    }
-    
-    private string _path = "";
-    public string Path
-    {
-        get => _path;
-        set => SetField(ref _path, value);
-    }
-    
-    private double? _avgDecibals;
-    public double? AvgDecibals
-    {
-        get => _avgDecibals;
-        set => SetField(ref _avgDecibals, value);
-    }
-    
-    private double? _maxDecibals;
-    public double? MaxDecibals
-    {
-        get => _maxDecibals;
-        set => SetField(ref _maxDecibals, value);
-    }
+    [Reactive] public int TrackNumber { get; set; }
 
-    private bool _hasLoaded;
+    [Reactive] public string TrackName { get; set; } = "";
 
-    public bool HasLoaded
-    {
-        get => _hasLoaded;
-        set => SetField(ref _hasLoaded, value);
-    }
+    [Reactive] public string Path { get; set; } = "";
     
-    private bool _hasWarning;
+    [Reactive] public double? AvgDecibals { get; set; }
+    
+    [Reactive] public double? MaxDecibals { get; set; }
 
-    public bool HasWarning
-    {
-        get => _hasWarning;
-        set => SetField(ref _hasWarning, value);
-    }
-    
-    public string _warningMessage = "";
+    [Reactive] public bool HasLoaded { get; set; }
 
-    public string WarningMessage
-    {
-        get => _warningMessage;
-        set => SetField(ref _warningMessage, value);
-    }
+    [Reactive, ReactiveLinkedProperties(nameof(HasWarning))]
+    public string WarningMessage { get; set; } = "";
     
+    public bool HasWarning => !string.IsNullOrEmpty(WarningMessage);
 
     public void ApplyAudioAnalysis(AnalysisDataOutput data)
     {
@@ -88,19 +33,9 @@ public class AudioAnalysisSongViewModel : INotifyPropertyChanged
         MaxDecibals = data.MaxDecibals;
         HasLoaded = true;
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    public override ViewModelBase DesignerExample()
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        return this;
     }
 }

@@ -18,6 +18,7 @@ public class PyMusicLooperService
 {
     private readonly ILogger<PyMusicLooperService> _logger;
     private readonly PythonCommandRunnerService _python;
+    private readonly YamlService _yamlService;
     private static readonly Regex digitsOnly = new(@"[^\d.]");
     private bool _hasValidated;
     private const string MinVersion = "3.0.0";
@@ -25,20 +26,12 @@ public class PyMusicLooperService
     private bool _canReturnMultipleResults;
     private readonly string _cachePath;
     private int _currentVersion;
-    
-    private readonly ISerializer _serializer = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    private readonly IDeserializer _deserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
 
-    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python)
+    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python, YamlService yamlService)
     {
         _logger = logger;
         _python = python;
+        _yamlService = yamlService;
         _cachePath = Path.Combine(Directories.CacheFolder, "pymusiclooper");
         if (!Directory.Exists(_cachePath))
         {
@@ -47,6 +40,8 @@ public class PyMusicLooperService
     }
 
     public bool CanReturnMultipleResults => _canReturnMultipleResults;
+    
+    public bool IsRunning { get; private set; }
     
     public void ClearCache()
     {
@@ -69,10 +64,13 @@ public class PyMusicLooperService
 
     public List<(int LoopStart, int LoopEnd, decimal Score)>? GetLoopPoints(string filePath, out string message, double minDurationMultiplier = 0.25, int? minLoopDuration = null, int? maxLoopDuration = null, int? approximateLoopStart = null, int? approximateLoopEnd = null, CancellationToken? cancellationToken = null)
     {
+        IsRunning = true;
+        
         if (!_hasValidated)
         {
             if (!TestService(out message))
             {
+                IsRunning = false;
                 return null;
             }
         }
@@ -88,15 +86,12 @@ public class PyMusicLooperService
         if (File.Exists(path))
         {
             var ymlText = File.ReadAllText(path);
-            try
+
+            if (_yamlService.FromYaml<List<(int, int, decimal)>>(ymlText, YamlType.UnderscoreIgnoreDefaults, out var result, out _))
             {
                 message = "";
-                return _deserializer.Deserialize<List<(int, int, decimal)>>(ymlText);
-            }
-            catch
-            {
-                message = "Could not parse cached PyMusicLooper results";
-                return null;
+                IsRunning = false;
+                return result;
             }
         }
         
@@ -116,7 +111,7 @@ public class PyMusicLooperService
         {
             try
             {
-                var ymlText = _serializer.Serialize(loopPoints);
+                var ymlText = _yamlService.ToYaml(loopPoints, YamlType.UnderscoreIgnoreDefaults);
                 File.WriteAllText(path, ymlText);
             }
             catch (Exception e)
@@ -126,7 +121,31 @@ public class PyMusicLooperService
             
         }
 
+        IsRunning = false;
         return loopPoints;
+    }
+    
+    public bool TestService(out string message)
+    {
+        if (_hasValidated)
+        {
+            message = "";
+            return true;
+        }
+
+        if (!_python.SetBaseCommand("pymusiclooper", "--version", out var result, out _) || !result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
+        {
+            message = "Could not run PyMusicLooper. Make sure it's installed and executable in command line.";
+            return false;
+        }
+        
+        _logger.LogInformation("{Version} found", result);
+        var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
+        _currentVersion = ConvertVersionNumber(version[0], version[1], version[2]);
+        _hasValidated = _currentVersion >= GetMinVersionNumber();
+        _canReturnMultipleResults = _currentVersion >= GetMinVersionNumberForMultipleResults();
+        message = _hasValidated ? "" : $"Minimum required PyMusicLooper version is {MinVersion}";
+        return _hasValidated;
     }
 
     private List<(int, int, decimal)>? GetLoopPointsSingle(string arguments, out string message, CancellationToken cancellationToken)
@@ -221,28 +240,6 @@ public class PyMusicLooperService
         }
 
         return arguments;
-    }
-
-    public bool TestService(out string message)
-    {
-        if (_hasValidated)
-        {
-            message = "";
-            return true;
-        }
-
-        if (!_python.SetBaseCommand("pymusiclooper", "--version", out var result, out _) || !result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
-        {
-            message = "Could not run PyMusicLooper. Make sure it's installed and executable in command line.";
-            return false;
-        }
-        
-        var version = digitsOnly.Replace(result, "").Split(".").Select(int.Parse).ToList();
-        _currentVersion = ConvertVersionNumber(version[0], version[1], version[2]);
-        _hasValidated = _currentVersion >= GetMinVersionNumber();
-        _canReturnMultipleResults = _currentVersion >= GetMinVersionNumberForMultipleResults();
-        message = _hasValidated ? "" : $"Minimum required PyMusicLooper version is {MinVersion}";
-        return _hasValidated;
     }
 
     private int GetMinVersionNumber()

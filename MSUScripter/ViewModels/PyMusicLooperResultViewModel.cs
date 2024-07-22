@@ -1,98 +1,32 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+using AvaloniaControls.Models;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class PyMusicLooperResultViewModel : INotifyPropertyChanged
+public class PyMusicLooperResultViewModel(int loopStart, int loopEnd, decimal score) : ViewModelBase
 {
-    public PyMusicLooperResultViewModel(int loopStart, int loopEnd, decimal score)
-    {
-        _loopStart = loopStart;
-        _loopEnd = loopEnd;
-        _score = Math.Round(score * 100, 2);
-    }
-    
-    private int _loopStart;
-    public int LoopStart
-    {
-        get => _loopStart;
-        set => SetField(ref _loopStart, value);
-    }
-    
-    
-    private int _loopEnd;
-    public int LoopEnd
-    {
-        get => _loopEnd;
-        set => SetField(ref _loopEnd, value);
-    }
-    
-    private decimal _score;
-    public decimal Score
-    {
-        get => _score;
-        set => SetField(ref _score, value);
-    }
+    [Reactive] public int LoopStart { get; set; } = loopStart;
 
-    private string _tempPath = "";
-    public string TempPath
-    {
-        get => _tempPath;
-        set
-        {
-            SetField(ref _tempPath, value);
-            OnPropertyChanged(nameof(CanTestFile));
-        }
-    }
+    [Reactive] public int LoopEnd { get; set; } = loopEnd;
+
+    [Reactive] public decimal Score { get; set; } = Math.Round(score * 100, 2);
+
+    [Reactive] public string Status { get; set; } = "";
+
+    [Reactive] public string Duration { get; set; } = "";
     
-    private string _status = "";
-    public string Status
-    {
-        get => _status;
-        set => SetField(ref _status, value);
-    }
+    [Reactive] public bool Generated { get; set; }
 
-    private string _duration = "";
-
-    public string Duration
-    {
-        get => _duration;
-        set => SetField(ref _duration, value);
-    }
+    [Reactive] public bool IsSelected { get; set; }
     
-    private bool _generated;
+    [Reactive, ReactiveLinkedProperties(nameof(CanTestFile))]
+    public string TempPath { get; set; } = "";
 
-    public bool Generated
-    {
-        get => _generated;
-        set => SetField(ref _generated, value);
-    }
-
-    private bool _isSelected;
-
-    public bool IsSelected
-    {
-        get => _isSelected;
-        set => SetField(ref _isSelected, value);
-    }
-
-    public bool CanTestFile => !string.IsNullOrEmpty(_tempPath);
+    public bool CanTestFile => !string.IsNullOrEmpty(TempPath);
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-    
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    public override ViewModelBase DesignerExample()
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        return this;
     }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
-    
 }

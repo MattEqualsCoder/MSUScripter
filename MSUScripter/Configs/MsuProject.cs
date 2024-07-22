@@ -14,7 +14,7 @@ public class MsuProject
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
     public DateTime LastSaveTime { get; set; }
-    public List<string> IgnoreWarnings { get; set; } = new List<string>();
+    public List<string> IgnoreWarnings { get; set; } = new();
     [YamlIgnore, SkipConvert]
     public MsuType MsuType { get; set; } = null!;
     [SkipConvert]

@@ -10,8 +10,6 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using Newtonsoft.Json;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace MSUScripter.Services;
 
@@ -22,17 +20,10 @@ public class ProjectService(
     ILogger<ProjectService> logger,
     AudioMetadataService audioMetadataService,
     SettingsService settingsService,
-    ConverterService converterService)
+    ConverterService converterService,
+    YamlService yamlService,
+    StatusBarService statusBarService)
 {
-    private readonly ISerializer _msuDetailsSerializer = new SerializerBuilder()
-        .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-    private readonly IDeserializer _msuDetailsDeserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .IgnoreUnmatchedProperties()
-        .Build();
-
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
         project.LastSaveTime = DateTime.Now;
@@ -44,10 +35,7 @@ public class ProjectService(
             SaveMsuProject(project, true);
         }
         
-        var serializer = new SerializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .Build();
-        var yaml = serializer.Serialize(project);
+        var yaml = yamlService.ToYaml(project, YamlType.Pascal);
 
         if (isBackup && !Directory.Exists(GetBackupDirectory()))
         {
@@ -82,6 +70,7 @@ public class ProjectService(
         if (!isBackup)
         {
             logger.LogInformation("Saved project");
+            statusBarService?.UpdateStatusBar("Project Saved");
         }
     }
 
@@ -93,11 +82,10 @@ public class ProjectService(
         }
         
         var yaml = File.ReadAllText(path);
-        var deserializer = new DeserializerBuilder()
-            .WithNamingConvention(PascalCaseNamingConvention.Instance)
-            .IgnoreUnmatchedProperties()
-            .Build();
-        var project = deserializer.Deserialize<MsuProject>(yaml);
+        if (!yamlService.FromYaml<MsuProject>(yaml, YamlType.Pascal, out var project, out _) || project == null)
+        {
+            return null;
+        }
         
         if (!isBackup)
         {
@@ -144,6 +132,8 @@ public class ProjectService(
             settingsService.AddRecentProject(project);    
         }
         
+        statusBarService.UpdateStatusBar("Project Loaded");
+        
         return project;
     }
 
@@ -177,7 +167,18 @@ public class ProjectService(
             });
         }
 
-        if (File.Exists(msuPath))
+        if (!File.Exists(msuPath))
+        {
+            var fileInfo = new FileInfo(msuPath);
+            var directoryInfo = fileInfo.Directory;
+            var pattern = $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}-*.pcm";
+            if (directoryInfo?.EnumerateFiles(pattern).Any() == true)
+            {
+                using (File.Create(project.MsuPath)) {}
+                ImportMsu(project, msuPath);
+            }
+        }
+        else if (File.Exists(msuPath))
         {
             ImportMsu(project, msuPath);
         }
@@ -269,6 +270,8 @@ public class ProjectService(
         var oldType = project.MsuType;
         project.MsuType = newMsuType;
         project.MsuTypeName = newMsuType.Name;
+        project.BasicInfo.Game = project.MsuTypeName;
+        project.BasicInfo.MsuType = project.MsuTypeName;
 
         var conversion = project.MsuType.Conversions[oldType];
         
@@ -293,7 +296,7 @@ public class ProjectService(
             var newSongs = new List<MsuSongInfo>();
             foreach (var oldSong in oldTrack.Songs)
             {
-                var oldSongFile = new FileInfo(oldSong.OutputPath);
+                var oldSongFile = new FileInfo(oldSong.OutputPath ?? "");
                 var songBaseName = oldSongFile.Name;
                 if (!songBaseName.StartsWith($"{baseName}-{oldTrack.TrackNumber}"))
                     continue;
@@ -372,6 +375,13 @@ public class ProjectService(
             return toReturn;
         }
 
+        if (project.BasicInfo.MetroidMsuPath == project.MsuPath || project.BasicInfo.ZeldaMsuPath == project.MsuPath ||
+            project.BasicInfo.MetroidMsuPath == project.BasicInfo.ZeldaMsuPath)
+        {
+            error = "The main MSU path, Metroid MSU path, and Zelda MSU path must all be unique.";
+            return toReturn;
+        }
+
         var msuType = msuTypeService.GetMsuType("Super Metroid") ??
                       throw new InvalidOperationException("Super Metroid MSU Type not found");
         toReturn.Add(InternalGetSmz3MsuProject(project, msuType, project.BasicInfo.MetroidMsuPath, convertedPaths));
@@ -423,9 +433,9 @@ public class ProjectService(
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
-                    song.OutputPath.Replace($"{oldMsuBaseName}-{oldTrackNumber}", $"{newMsuBaseName}-{newTrackNumber}");
+                    song.OutputPath?.Replace($"{oldMsuBaseName}-{oldTrackNumber}", $"{newMsuBaseName}-{newTrackNumber}");
 
-                convertedPaths[song.OutputPath] = newSong.OutputPath;
+                convertedPaths[song.OutputPath ?? ""] = newSong.OutputPath ?? "";
 
                 newSongs.Add(newSong);
             }
@@ -454,6 +464,7 @@ public class ProjectService(
 
         if (testTrack == null)
         {
+            statusBarService.UpdateStatusBar("Insufficient tracks");
             return false;
         }
         
@@ -482,6 +493,8 @@ public class ProjectService(
         
         File.WriteAllText(Path.Combine(folder, "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat"), sbTotal.ToString());
 
+        statusBarService.UpdateStatusBar("SMZ3 Split Script Created");
+        
         return true;
     }
 
@@ -590,7 +603,7 @@ public class ProjectService(
         }
     }
 
-    public bool CreateSMZ3SplitRandomizerYaml(MsuProject project, out string? error)
+    public bool CreateSmz3SplitRandomizerYaml(MsuProject project, out string? error)
     {
         var data = new List<(MsuType?, string?)>()
         {
@@ -600,17 +613,24 @@ public class ProjectService(
 
         var msu = new FileInfo(project.MsuPath);
         var yamlPath = msu.FullName.Replace(msu.Extension, ".yml");
-        MsuDetails msuDetails;
+        MsuDetails? msuDetails;
         
         try
         {
             var yamlText = File.ReadAllText(yamlPath);
-            msuDetails = _msuDetailsDeserializer.Deserialize<MsuDetails>(yamlText);
+            if (!yamlService.FromYaml(yamlText, YamlType.UnderscoreIgnoreDefaults, out msuDetails, out _) || msuDetails == null)
+            {
+                error = $"Could not retrieve MSU Details from {yamlPath}";
+                logger.LogError(error);
+                statusBarService.UpdateStatusBar("YAML File Write Error");
+                return false;
+            }
         }
         catch (Exception e)
         {
             logger.LogError(e, "Could not retrieve MSU Details from {YamlPath}", yamlPath);
             error = $"Could not retrieve MSU Details from {yamlPath}";
+            statusBarService.UpdateStatusBar("YAML File Write Error");
             return false;
         }
         
@@ -622,12 +642,16 @@ public class ProjectService(
             if (msuType == null)
             {
                 error = "Invalid MSU Type";
+                logger.LogError(error);
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
 
             if (string.IsNullOrEmpty(msuPath))
             {
                 error = $"Invalid MSU path for {msuType.Name}";
+                logger.LogError(error);
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
 
@@ -636,13 +660,15 @@ public class ProjectService(
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
-                var outYaml = _msuDetailsSerializer.Serialize(newMsuType);
+                var outYaml = yamlService.ToYaml(newMsuType, YamlType.UnderscoreIgnoreDefaults);
+                statusBarService.UpdateStatusBar("YAML File Written");
                 File.WriteAllText(newYamlPath, outYaml);
             }
             catch (Exception e)
             {
                 logger.LogError(e, "Unable to convert MSU YAML");
                 error = "Unable to convert MSU YAML";
+                statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
             
@@ -668,7 +694,7 @@ public class ProjectService(
                     trackName: projectTrack.TrackName,
                     number: projectTrack.TrackNumber,
                     songName: projectSong.SongName ?? "",
-                    path: projectSong.OutputPath,
+                    path: projectSong.OutputPath ?? "",
                     artist: projectSong.Artist,
                     album: projectSong.Album,
                     url: projectSong.Url,
@@ -693,7 +719,28 @@ public class ProjectService(
         };
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
-        msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
+        if (!msuDetailsService.SaveMsuDetails(msu, yamlPath, out error))
+        {
+            logger.LogError(error);
+            statusBarService.UpdateStatusBar("YAML File Write Failed");
+        }
+
+        if (project.BasicInfo.CreateSplitSmz3Script)
+        {
+            if (CreateSmz3SplitRandomizerYaml(project, out error))
+            {
+                statusBarService.UpdateStatusBar("YAML File Written");    
+            }
+            else
+            {
+                statusBarService.UpdateStatusBar("YAML File Write Failed");
+            }
+        }
+        else
+        {
+            statusBarService.UpdateStatusBar("YAML File Write Failed");
+        }
+        
     }
 
     public bool CreateMsuFiles(MsuProject project)
@@ -763,10 +810,10 @@ public class ProjectService(
 
             foreach (var combo in trackCombos)
             {
-                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath);
+                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath ?? "");
                 var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
                     $"-{combo.Item1.TrackNumber}_Original.pcm");
-                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath);
+                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath ?? "");
 
                 sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
                 sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");
@@ -797,6 +844,7 @@ public class ProjectService(
         if (msu == null)
         {
             message = "Could not load MSU.";
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
         
@@ -817,6 +865,7 @@ public class ProjectService(
                 if (missingMsuPaths.Any())
                 {
                     message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
                 
@@ -824,10 +873,12 @@ public class ProjectService(
                 if (missingProjPaths.Any())
                 {
                     message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
             }
             message = "Could not load all tracks from the YAML file.";
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
 
@@ -839,17 +890,20 @@ public class ProjectService(
             if (msuTrack == null)
             {
                 message = $"Could not find track for song {projectTrack.SongName} in the YAML file.";
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
             else if ((projectTrack.SongName ?? "") != msuTrack.SongName || (projectTrack.Album ?? "") != (msuTrack.Album ?? "") ||
                      (projectTrack.Artist ?? "") != (msuTrack.Artist ?? "") || (projectTrack.Url ?? "") != (msuTrack.Url ?? ""))
             {
                 message = $"Detail mismatch for song {projectTrack.SongName} under track #{projectTrack.TrackNumber}.";
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
         }
             
         message = "";
+        statusBarService.UpdateStatusBar("YAML File Validated Successfully");
         return true;
     }
 

@@ -1,0 +1,66 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
+        Width="768" Height="1024"
+        x:Class="MSUScripter.Views.AudioAnalysisWindow"
+        Title="Audio Analysis - MSU Scripter"
+        x:DataType="viewModels:AudioAnalysisViewModel"
+        Loaded="Control_OnLoaded"
+        Unloaded="Control_OnUnloaded"
+        WindowStartupLocation="CenterOwner"
+        Icon="/Assets/MSUScripterIcon.ico"
+        >
+    <LayoutTransformControl Name="MainLayout">
+    <DockPanel>
+            <ProgressBar Name="MsuPcmProgressBar" DockPanel.Dock="Top"
+                         Minimum="0"
+                         Maximum="{Binding TotalSongs}"
+                         Value="{Binding SongsCompleted}"></ProgressBar>
+            <TextBlock DockPanel.Dock="Bottom" Text="{Binding BottomBar}" TextAlignment="Right" Margin="3" />
+            <DataGrid Name="AudioDataGrid" 
+                      ItemsSource="{Binding Rows}" 
+                      AutoGenerateColumns="False" 
+                      CanUserReorderColumns="False" 
+                      CanUserResizeColumns="True" 
+                      IsReadOnly="True"
+                      RowBackground="{DynamicResource CardBackground}"
+                      SelectionMode="Single"
+            >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Name="RefreshSongButton"
+                                        Tag="{Binding}"
+                                        IsEnabled="{Binding HasLoaded}"
+                                        Click="RefreshSongButton_OnClick">
+                                    <avalonia:MaterialIcon Kind="Refresh" ></avalonia:MaterialIcon>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <avalonia:MaterialIcon Kind="Alert" 
+                                                       Foreground="Goldenrod" 
+                                                       IsVisible="{Binding HasWarning}" 
+                                                       ToolTip.Tip="{Binding WarningMessage}"
+                                ></avalonia:MaterialIcon>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
+                    <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
+                    <DataGridTextColumn Header="File"  Binding="{Binding SongName}"/>
+                    <DataGridTextColumn Header="Average Volume"  Binding="{Binding AvgDecibals}"/>
+                    <DataGridTextColumn Header="Peak Volume"  Binding="{Binding MaxDecibals}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+    </LayoutTransformControl>
+</Window>

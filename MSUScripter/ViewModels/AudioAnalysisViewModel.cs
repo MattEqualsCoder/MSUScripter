@@ -1,58 +1,57 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using AvaloniaControls.Models;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisViewModel : INotifyPropertyChanged
+public class AudioAnalysisViewModel : ViewModelBase
 {
-    private List<AudioAnalysisSongViewModel> _rows { get; set; } = new List<AudioAnalysisSongViewModel>();
-    public List<AudioAnalysisSongViewModel> Rows
-    {
-        get => _rows;
-        set
-        {
-            _rows = value;
-            OnPropertyChanged();
-        }
-    }
+    public MsuProjectViewModel Project { get; set; } = new();
     
-    private int _totalSongs;
+    [Reactive] public int SongsCompleted { get; set; }
 
-    public int TotalSongs
-    {
-        get => _totalSongs;
-        set => SetField(ref _totalSongs, value);
-    }
+    [Reactive] public string BottomBar { get; set; } = "";
     
-    private int _songsCompleted;
-
-    public int SongsCompleted
-    {
-        get => _songsCompleted;
-        set => SetField(ref _songsCompleted, value);
-    }
+    [Reactive, ReactiveLinkedProperties(nameof(TotalSongs))]
+    public List<AudioAnalysisSongViewModel> Rows { get; set; } = [];
     
-    private string _bottomBar = "";
-
-    public string BottomBar
-    {
-        get => _bottomBar;
-        set => SetField(ref _bottomBar, value);
-    }
+    public double Duration { get; set; }
+    public int TotalSongs => Rows.Count;
     
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    public override ViewModelBase DesignerExample()
     {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
+        SongsCompleted = 2;
+        BottomBar = "Test Message";
+        Rows =
+        [
+            new AudioAnalysisSongViewModel()
+            {
+                SongName = "Test Song Name",
+                TrackNumber = 1,
+                TrackName = "Track #1",
+                AvgDecibals = -20,
+                MaxDecibals = -10,
+                HasLoaded = true
+            },
+            new AudioAnalysisSongViewModel()
+            {
+                SongName = "Test Song Name 2",
+                TrackNumber = 2,
+                TrackName = "Track #2",
+                AvgDecibals = -21.25,
+                MaxDecibals = -22,
+                WarningMessage = "Could not fully load",
+                HasLoaded = true
+            },
+            new AudioAnalysisSongViewModel()
+            {
+                SongName = "Test Song Name 3",
+                TrackNumber = 3,
+                TrackName = "Track #3",
+                HasLoaded = false
+            }
+        ];
+        return this;
     }
 }
