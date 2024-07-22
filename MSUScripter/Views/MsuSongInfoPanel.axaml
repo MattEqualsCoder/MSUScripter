@@ -50,7 +50,7 @@
                         Click="StopMusicButton_OnClick"
                         IsVisible="{Binding CanPlaySongs}"
                     >
-                        <avalonia:MaterialIcon Kind="Stop"></avalonia:MaterialIcon>
+                        <avalonia:MaterialIcon Kind="{Binding PauseStopIcon}"></avalonia:MaterialIcon>
                     </Button>
                     
                     <Button
@@ -179,7 +179,7 @@
                         ></Button>
                         <Button
                             Name="StopMusicButton"
-                            Content="Stop Music"
+                            Content="{Binding PauseStopText}"
                             HorizontalAlignment="Center"
                             Margin="5 5"
                             Padding="8 5"

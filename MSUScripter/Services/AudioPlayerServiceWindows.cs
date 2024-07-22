@@ -287,4 +287,5 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
     public bool CanSetMusicPosition { get; set; } = true;
 
     public bool CanChangeVolume { get; set; } = true;
+    public bool CanPauseMusic { get; set; } = true;
 }

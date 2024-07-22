@@ -86,11 +86,21 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         await audioPlayerService.PlaySongAsync(songInfo.OutputPath, testLoop);
         return null;
     }
-    
+
+    public async Task PauseSong()
+    {
+        if (CanPauseSongs)
+            audioPlayerService.Pause();
+        else
+            await audioPlayerService.StopSongAsync(null, true);
+    }
+
     public async Task StopSong()
     {
         await audioPlayerService.StopSongAsync(null, true);
     }
 
     public bool CanPlaySongs => audioPlayerService.CanPlayMusic;
+
+    public bool CanPauseSongs => audioPlayerService.CanPauseMusic;
 }

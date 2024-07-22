@@ -38,7 +38,7 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
         }
         else if (audioService.IsPaused)
         {
-            _model.Icon = MaterialIconKind.Stop;
+            _model.Icon = MaterialIconKind.Play;
             _model.CanPlayPause = true;
         }
 
@@ -63,6 +63,10 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
     public void SetSeconds()
     {
         audioService.JumpToTime(_model.JumpToSeconds ?? 0);
+        if (audioService.IsPaused)
+        {
+            audioService.Play();
+        }
     }
 
     public double GetCurrentVolume()

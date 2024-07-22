@@ -194,4 +194,5 @@ public class AudioPlayerServiceLinux : IAudioPlayerService
     public bool CanSetMusicPosition { get; set; } = false;
 
     public bool CanChangeVolume { get; set; } = false;
+    public bool CanPauseMusic { get; set; } = false;
 }

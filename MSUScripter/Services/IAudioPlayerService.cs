@@ -44,4 +44,5 @@ public interface IAudioPlayerService
     public bool CanPlayMusic { get; protected set; }
     public bool CanSetMusicPosition { get; protected set; }
     public bool CanChangeVolume { get; protected set; }
+    public bool CanPauseMusic { get; protected set; }
 }

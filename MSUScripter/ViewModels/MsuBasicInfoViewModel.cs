@@ -1,5 +1,6 @@
 ﻿using System;
 using AvaloniaControls.Models;
+using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;

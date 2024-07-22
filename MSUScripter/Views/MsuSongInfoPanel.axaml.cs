@@ -109,7 +109,7 @@ public partial class MsuSongInfoPanel : UserControl
     private async void StopMusicButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service == null) return;
-        await _service.StopSong();
+        await _service.PauseSong();
     }
 
     private void MenuButton_OnClick(object? sender, RoutedEventArgs e)

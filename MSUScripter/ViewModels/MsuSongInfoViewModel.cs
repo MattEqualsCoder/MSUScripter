@@ -1,5 +1,6 @@
 ﻿using System;
 using AvaloniaControls.Models;
+using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
@@ -49,7 +50,9 @@ public class MsuSongInfoViewModel : ViewModelBase
     [SkipConvert] public MsuTrackInfoViewModel Track { get; set; } = null!;
     
     [SkipConvert] public bool CanPlaySongs { get; set; }
-    
+    [Reactive, SkipConvert] public MaterialIconKind PauseStopIcon { get; set; }
+    [Reactive, SkipConvert] public string PauseStopText { get; set; } = "Pause Song";
+
     [Reactive, SkipConvert] public string? AverageAudio { get; set; }
     
     [Reactive, ReactiveLinkedProperties(nameof(HasAudioAnalysis)), SkipConvert]

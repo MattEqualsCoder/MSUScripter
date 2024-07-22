@@ -18,6 +18,8 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         _model = model;
         _model.Track = _model.Project.Tracks.First(x => x.TrackNumber == model.TrackNumber);
         _model.CanPlaySongs = sharedPcmService.CanPlaySongs;
+        _model.PauseStopIcon = sharedPcmService.CanPauseSongs ? Material.Icons.MaterialIconKind.Pause : Material.Icons.MaterialIconKind.Stop;
+        _model.PauseStopText = sharedPcmService.CanPauseSongs ? "Pause Music" : "Stop Music";
     }
 
     public async Task<string?> PlaySong(bool testLoop)
@@ -38,9 +40,10 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         }
     }
     
-    public async Task StopSong()
+    public async Task PauseSong()
     {
-        await sharedPcmService.StopSong();
+
+        await sharedPcmService.PauseSong();
     }
 
     public string? GetOpenMusicFilePath()
@@ -150,7 +153,7 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         
         ITaskService.Run(async () =>
         {
-            await StopSong();
+            await PauseSong();
 
             if (!GeneratePcmFile(false, false, out var error, out var msuPcmError))
             {
