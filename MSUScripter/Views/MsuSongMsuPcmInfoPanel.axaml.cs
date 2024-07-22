@@ -130,6 +130,15 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
     }
 
+    private async void GetTrimEndButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var response = _service?.GetEndingSamples();
+        if (!string.IsNullOrEmpty(response))
+        {
+            await MessageWindow.ShowErrorDialog(response, "Error", TopLevel.GetTopLevel(this) as Window);
+        }
+    }
+
     private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Button button)

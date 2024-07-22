@@ -178,6 +178,25 @@ public class MsuSongMsuPcmInfoPanelService(
         }
     }
 
+    public string? GetEndingSamples()
+    {
+        if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
+        {
+            return "No input file selected";
+        }
+
+        try
+        {
+            var samples = audioAnalysisService.GetAudioEndingSample(_model.File);
+            _model.TrimEnd = samples;
+            return null;
+        }
+        catch
+        {
+            return "Unable to get ending samples for file";
+        }
+    }
+
     public void ImportAudioMetadata()
     {
         if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))

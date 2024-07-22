@@ -140,7 +140,7 @@ public class AudioAnalysisService(
             
                 for (var i = 0; i < samples; i++)
                 {
-                    if (Math.Abs(readBuffer[i]) > .005)
+                    if (Math.Abs(readBuffer[i]) > .0003)
                     {
                         totalSampleCount += i;
                         quit = true;
@@ -155,7 +155,7 @@ public class AudioAnalysisService(
             
             } while (!quit && samples == readBuffer.Length);
 
-            statusBarService.UpdateStatusBar("Retrieved Starting Stamples");
+            statusBarService.UpdateStatusBar("Retrieved Starting Samples");
             return totalSampleCount / mp3.WaveFormat.Channels;
         }
         catch (Exception e)
@@ -165,7 +165,46 @@ public class AudioAnalysisService(
         }
         
     }
-    
+
+    public int GetAudioEndingSample(string path)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            throw new InvalidOperationException("This is only supported on Windows");
+        }
+
+        logger.LogInformation("GetAudioEndingSample");
+        try
+        {
+            var samples = 0;
+            var readBuffer = new float[10000];
+            var mp3 = new AudioFileReader(path);
+            int lastLoudSample = 0;
+            do
+            {
+                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+
+                for (var i = 0; i < samples; i++)
+                {
+                    if (Math.Abs(readBuffer[i]) > .0003)
+                    {
+                        lastLoudSample++;
+                    }
+                }
+
+            } while (samples == readBuffer.Length);
+
+            statusBarService.UpdateStatusBar("Retrieved Ending Samples");
+            return lastLoudSample / mp3.WaveFormat.Channels;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Unable to get audio samples for file");
+            throw;
+        }
+
+    }
+
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
     {
         await audioPlayerService.StopSongAsync(path, true);
