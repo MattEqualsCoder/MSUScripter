@@ -237,7 +237,7 @@ public class MsuPcmService
             
             var lastModifiedDate = file.Exists ? file.LastWriteTime : DateTime.MinValue;
 
-            if (RunMsuPcm(jsonPath, out message))
+            if (RunMsuPcm(jsonPath, song.OutputPath, out message))
             {
                 if (!ValidatePcm(song.OutputPath, out message))
                 {
@@ -374,6 +374,12 @@ public class MsuPcmService
 
     public bool ValidatePcm(string path, out string? error)
     {
+        if (!File.Exists(path))
+        {
+            error = "msupcm++ did not create the file, but did not return an error.";
+            return false;
+        }
+
         var testBytes = new byte[8];
         using (var reader = new BinaryReader(new FileStream(path, FileMode.Open)))
         {
@@ -402,17 +408,17 @@ public class MsuPcmService
         }
     }
 
-    public bool RunMsuPcm(string trackJson, out string error)
+    public bool RunMsuPcm(string trackJson, string expectedOutputPath, out string error)
     {
         IsGeneratingPcm = true;
-        var toReturn = RunMsuPcmInternal("\"" + trackJson + "\"", out _, out error);
+        var toReturn = RunMsuPcmInternal("\"" + trackJson + "\"", expectedOutputPath, out _, out error);
         IsGeneratingPcm = false;
         return toReturn;
     }
 
     public bool ValidateMsuPcmPath(string msuPcmPath, out string error)
     {
-        var successful = RunMsuPcmInternal("-v", out var result, out error, msuPcmPath);
+        var successful = RunMsuPcmInternal("-v", "", out var result, out error, msuPcmPath);
         return successful && result.StartsWith("msupcm v");
     }
 
@@ -467,7 +473,7 @@ public class MsuPcmService
         return (filePath, value);
     }
 
-    private bool RunMsuPcmInternal(string innerCommand, out string result, out string error, string? msuPcmPath = null)
+    private bool RunMsuPcmInternal(string innerCommand, string expectedOutputPath, out string result, out string error, string? msuPcmPath = null)
     {
         msuPcmPath ??= _settings.MsuPcmPath;
         if (string.IsNullOrEmpty(msuPcmPath) ||
@@ -480,6 +486,13 @@ public class MsuPcmService
         
         try
         {
+            var modifiedTime = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(expectedOutputPath) && File.Exists(expectedOutputPath))
+            {
+                var fileInfo = new FileInfo(expectedOutputPath);
+                modifiedTime = fileInfo.LastWriteTime;
+            }
+
             var msuPcmFile = new FileInfo(msuPcmPath);
             
             ProcessStartInfo procStartInfo;
@@ -520,10 +533,54 @@ public class MsuPcmService
             // and only then read the result
             result = process.StandardOutput.ReadToEnd().Replace("\0", "").Trim();
             error = process.StandardError.ReadToEnd().Replace("\0", "").Trim();
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                _logger.LogError("Error running MsuPcm++: {Error}", error);
+                return false;
+            }
+
+            // Validate that the file generated if applicable
+            if (!string.IsNullOrEmpty(expectedOutputPath))
+            {
+                if (!File.Exists(expectedOutputPath))
+                {
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        error = $"MsuPcm++ did not create the expected file and returned with the following Message: {result}";
+                        _logger.LogError("Error running MsuPcm++: {Error}", error);
+                        return false;
+                    }
+                    else
+                    {
+                        error = "$MsuPcm++ ran but did not create the expected file or return an error message.";
+                        _logger.LogError("Error running MsuPcm++: {Error}", error);
+                        return false;
+                    }
+                }
+                else
+                {
+                    var fileInfo = new FileInfo(expectedOutputPath);
+                    if (fileInfo.LastWriteTime <= modifiedTime)
+                    {
+                        if (!string.IsNullOrEmpty(result))
+                        {
+                            error = $"MsuPcm++ did not create the expected file and returned with the following Message: {result}";
+                            _logger.LogError("Error running MsuPcm++: {Error}", error);
+                            return false;
+                        }
+                        else
+                        {
+                            error = "$MsuPcm++ ran but did not create the expected file or return an error message.";
+                            _logger.LogError("Error running MsuPcm++: {Error}", error);
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
             
-            if (string.IsNullOrEmpty(error)) return true;
-            _logger.LogError("Error running MsuPcm++: {Error}", error);
-            return false;
         }
         catch (Exception e)
         {
