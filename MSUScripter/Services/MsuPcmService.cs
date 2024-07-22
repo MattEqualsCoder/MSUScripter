@@ -605,7 +605,6 @@ public class MsuPcmService
             Game = project.BasicInfo.Game,
             Pack = project.BasicInfo.PackName,
             Artist = project.BasicInfo.Artist,
-            Url = string.IsNullOrEmpty(project.BasicInfo.Url) ? null : new Uri(project.BasicInfo.Url),
             Output_prefix = msu.FullName.Replace(msu.Extension, ""),
             Normalization = project.BasicInfo.Normalization,
             Dither = project.BasicInfo.Dither,

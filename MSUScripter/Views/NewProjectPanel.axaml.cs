@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -17,6 +18,7 @@ namespace MSUScripter.Views;
 public partial class NewProjectPanel : UserControl
 {
     private readonly NewProjectPanelService? _service;
+    private readonly NewProjectPanelViewModel _model;
     
     public NewProjectPanel()
     {
@@ -24,12 +26,12 @@ public partial class NewProjectPanel : UserControl
 
         if (Design.IsDesignMode)
         {
-            DataContext = new NewProjectPanelViewModel().DesignerExample();
+            DataContext = _model = (NewProjectPanelViewModel)new NewProjectPanelViewModel().DesignerExample();
         }
         else
         {
             _service = this.GetControlService<NewProjectPanelService>();
-            DataContext = _service?.InitializeModel() ?? new NewProjectPanelViewModel();
+            DataContext = _model = _service?.InitializeModel() ?? new NewProjectPanelViewModel();
             _service?.ResetModel();
         }
     }
@@ -161,9 +163,11 @@ public partial class NewProjectPanel : UserControl
 
     private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
     {
-        var documentsFolder = await this.GetDocumentsFolderPath();
+        var folder = string.IsNullOrEmpty(_model.MsuPath)
+            ? await this.GetDocumentsFolderPath()
+            : Path.GetDirectoryName(_model.MsuPath);
         var path = await CrossPlatformTools.OpenFileDialogAsync(ParentWindow, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
-            "MSU Scripter Project File:*.msup", documentsFolder);
+            "MSU Scripter Project File:*.msup", folder);
         return path?.Path.LocalPath;
     }
 

@@ -33,7 +33,7 @@ public class MsuBasicInfoViewModel : ViewModelBase
     [Reactive] public double? Normalization { get; set; } 
     [Reactive] public bool? Dither { get; set; } 
     [Reactive] public bool IsMsuPcmProject { get; set; }
-    [Reactive] public bool CreateAltSwapper { get; set; }
+    [Reactive] public bool CreateAltSwapperScript { get; set; }
     [Reactive] public bool CreateSplitSmz3Script { get; set; }
     [Reactive] public bool IsSmz3Project { get; set; }
     [Reactive] public string? ZeldaMsuPath { get; set; }

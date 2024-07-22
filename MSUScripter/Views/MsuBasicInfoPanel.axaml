@@ -72,7 +72,7 @@
                 <controls1:LabeledControl Text="Create Alt Swap File:" Hint="Creates a .bat file to swap between base and alt tracks. Only works between the original song and first track." DisplayHint="True">
                     <controls1:BoolComboBox
                         AllowNulls="False"
-                        Value="{Binding CreateAltSwapper, Mode=TwoWay}">
+                        Value="{Binding CreateAltSwapperScript, Mode=TwoWay}">
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Create SMZ3 Split Script:" 
@@ -86,7 +86,7 @@
                     </controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Metroid MSU Path:" 
-                                      IsVisible="{Binding CreateSplitSmz3Script, Mode=TwoWay}"
+                                      IsVisible="{Binding CreateSplitSmz3Script, Mode=OneWay}"
                 >
                     <controls1:FileControl 
                         FileInputType="SaveFile" 
@@ -96,7 +96,7 @@
                     />
                 </controls1:LabeledControl>
                 <controls1:LabeledControl Text="Zelda MSU Path:" 
-                                      IsVisible="{Binding CreateSplitSmz3Script, Mode=TwoWay}"
+                                      IsVisible="{Binding CreateSplitSmz3Script, Mode=OneWay}"
                 >
                     <controls1:FileControl 
                         FileInputType="SaveFile" 

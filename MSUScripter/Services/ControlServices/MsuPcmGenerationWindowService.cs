@@ -123,10 +123,17 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
         converterService.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
         if (!msuPcmService.CreatePcm(false, _model.MsuProject, song, out var error, out var generated))
         {
+            // If this is an error for the sox temp file for the first run, ignore so it can be retried
             if (!isRetry && error?.Contains("__sox_wrapper_temp") == true &&
                 error.Contains("Permission denied"))
             {
                 return false;
+            }
+            // Partially ignore empty pcms with no input files
+            else if (error?.EndsWith("No input files specified") == true && File.Exists(song.OutputPath) && new FileInfo(song.OutputPath).Length <= 44500)
+            {
+                songDetails.HasWarning = true;
+                songDetails.Message = error;
             }
             else
             {
