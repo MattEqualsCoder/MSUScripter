@@ -80,7 +80,7 @@
                                 ></MenuItem>
                             </ContextMenu>
                         </Button.ContextMenu>
-                        <avalonia:MaterialIcon Kind="Settings"></avalonia:MaterialIcon>
+                        <avalonia:MaterialIcon Kind="HamburgerMenu"></avalonia:MaterialIcon>
                     </Button>
                 </StackPanel>
             </controls1:CardControl.HeaderButtons>
