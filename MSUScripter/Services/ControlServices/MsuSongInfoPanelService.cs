@@ -85,6 +85,8 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         output.OutputPath = null;
         output.LastGeneratedDate = new DateTime();
         output.LastModifiedDate = new DateTime();
+        output.IsComplete = false;
+        output.CheckCopyright = false;
         output.ShowPanel = false;
         output.MsuPcmInfo.ClearFieldsForYaml();
         return yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);

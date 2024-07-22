@@ -1,0 +1,165 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "MsuSongInfo",
+  "type": "object",
+  "description": "Details about a song for YAML and PCM generation",
+  "additionalProperties": false,
+  "properties": {
+    "SongName": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The title of the song"
+    },
+    "Artist": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The artist(s) that created the song"
+    },
+    "Album": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "The album in which the song was released on or the game the song is from"
+    },
+    "Url": {
+      "type": [
+        "null",
+        "string"
+      ],
+      "description": "A url in which the user can purchase the song/album"
+    },
+    "MsuPcmInfo": {
+      "description": "Details that are passed to msupcm++ for generation",
+      "oneOf": [
+        {
+          "$ref": "#/definitions/MsuSongMsuPcmInfo"
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "MsuSongMsuPcmInfo": {
+      "type": "object",
+      "description": "Details that are passed to msupcm++ for generation",
+      "additionalProperties": false,
+      "properties": {
+        "Loop": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "The loop point of the current track, relative to this track/sub-track/sub-channel, in samples",
+          "format": "int32"
+        },
+        "TrimStart": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Trim the start of the current track at the specified sample",
+          "format": "int32"
+        },
+        "TrimEnd": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Trim the end of the current track at the specified sample",
+          "format": "int32"
+        },
+        "FadeIn": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Apply a fade in effect to the current track lasting a specified number of samples",
+          "format": "int32"
+        },
+        "FadeOut": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Apply a fade out effect to the current track lasting a specified number of samples",
+          "format": "int32"
+        },
+        "CrossFade": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Apply a cross fade effect from the end of the current track to its loop point lasting a specified number of samples",
+          "format": "int32"
+        },
+        "PadStart": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Pad the beginning of the current track with a specified number of silent samples",
+          "format": "int32"
+        },
+        "PadEnd": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "description": "Pad the end of the current track with a specified number of silent samples",
+          "format": "int32"
+        },
+        "Tempo": {
+          "type": [
+            "null",
+            "number"
+          ],
+          "description": "Alter the tempo of the current track by a specified ratio",
+          "format": "double"
+        },
+        "Normalization": {
+          "type": [
+            "null",
+            "number"
+          ],
+          "description": "Normalize the current track to the specified RMS level, overrides the global normalization value",
+          "format": "double"
+        },
+        "Compression": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Apply dynamic range compression to the current track"
+        },
+        "File": {
+          "type": [
+            "null",
+            "string"
+          ],
+          "description": "The file to be used as the input for this track/sub-track/sub-channel"
+        },
+        "SubTracks": {
+          "type": "array",
+          "description": "Files which will be concatenated together to form the input to the parent track",
+          "items": {
+            "$ref": "#/definitions/MsuSongMsuPcmInfo"
+          }
+        },
+        "SubChannels": {
+          "type": "array",
+          "description": "Files which will be mixed together to form the input to the parent track",
+          "items": {
+            "$ref": "#/definitions/MsuSongMsuPcmInfo"
+          }
+        },
+        "HasBothSubTracksAndSubChannels": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
