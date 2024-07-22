@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using AvaloniaControls.Models;
+using DynamicData;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -10,7 +13,7 @@ public class TrackOverviewPanelViewModel : ViewModelBase
 {
     public MsuProjectViewModel MsuProjectViewModel { get; set; } = new();
     
-    [Reactive] public List<TrackOverviewRow> Rows { get; set; } = new();
+    [Reactive] public ObservableCollection<TrackOverviewRow> Rows { get; set; } = new();
 
     [Reactive] public string CompletedSongDetails { get; set; } = "";
 
@@ -32,11 +35,13 @@ public class TrackOverviewPanelViewModel : ViewModelBase
         CompletedTrackDetails = $"{CompletedTrackCount} out of {TotalTrackCount} tracks have songs with audio files";
     }
     
-    public class TrackOverviewRow(int trackNumber, string trackName, MsuSongInfoViewModel? song = null)
+    public class TrackOverviewRow(int trackNumber, string trackName, MsuSongInfoViewModel? song = null) : ViewModelBase
     {
         public int TrackNumber => trackNumber;
         public string TrackName => trackName;
-        public MsuSongInfoViewModel? SongInfo => song;
+
+        [Reactive, ReactiveLinkedProperties(nameof(HasSong), nameof(Name), nameof(Artist), nameof(Album), nameof(File))]
+        public MsuSongInfoViewModel? SongInfo { get; set; } = song;
         
         public bool HasSong => SongInfo != null;
         public string Name => SongInfo?.SongName ?? "";
@@ -51,6 +56,11 @@ public class TrackOverviewPanelViewModel : ViewModelBase
                     : SongInfo.MsuPcmInfo.GetFileCount() == 1
                         ? SongInfo.MsuPcmInfo.File!
                         : $"{SongInfo.MsuPcmInfo.GetFileCount()} files";
+
+        public override ViewModelBase DesignerExample()
+        {
+            return this;
+        }
     }
     
     public override ViewModelBase DesignerExample()

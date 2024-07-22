@@ -23,19 +23,24 @@ public class AddSongWindowService(
 {
     private readonly AddSongWindowViewModel _model = new();
 
-    public AddSongWindowViewModel InitializeModel(MsuProjectViewModel project, int? trackNumber)
+    public AddSongWindowViewModel InitializeModel(MsuProjectViewModel project, int? trackNumber, string? filePath, bool singleMode)
     {
         _model.MsuProjectViewModel = project;
         _model.MsuProject = converterService.ConvertProject(project);
 
         var addDescriptions = project.Tracks.First().HasDescription;
+        _model.SingleMode = singleMode;
         _model.TrackSearchItems = [new ComboBoxAndSearchItem(null, "Track", addDescriptions ? "Default description" : null)];
         _model.TrackSearchItems.AddRange(project.Tracks.OrderBy(x => x.TrackNumber).Select(x =>
             new ComboBoxAndSearchItem(x, $"Track #{x.TrackNumber} - {x.TrackName}", x.Description)));
         _model.SelectedTrack = trackNumber == null ? null : project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
 
+        UpdateFilePath(filePath);
+
         _model.HasBeenModified = false;
-        
+
+        // TODO: Run PyMusicLooper on start if file exists
+
         return _model;
     }
 

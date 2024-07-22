@@ -20,6 +20,7 @@ public class AddSongWindowViewModel : ViewModelBase
     [Reactive] public string? AverageAudio { get; set; }
     [Reactive] public string AddSongButtonText { get; set; } = "Add Song";
     [Reactive] public bool RunningPyMusicLooper { get; set; }
+    [Reactive] public bool SingleMode { get; set; }
     public bool ShowPyMusicLooper => !string.IsNullOrEmpty(FilePath);
     
     [Reactive, ReactiveLinkedProperties(nameof(HasAudioAnalysis))]

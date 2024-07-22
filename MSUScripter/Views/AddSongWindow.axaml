@@ -24,6 +24,7 @@
                 <views:AudioControl Grid.Column="0"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Margin="5, 0" 
+							IsVisible="{Binding !SingleMode}"
                             IsEnabled="{Binding CanAddSong}"
                             Name="AddSongButton"
                             Click="AddSongButton_OnClick"

@@ -122,7 +122,7 @@ public partial class EditProjectPanel : UserControl
     private async void AddSongButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null) return;
-        var window = new AddSongWindow(_service.MsuProjectViewModel, null);
+        var window = new AddSongWindow(_service.MsuProjectViewModel, null, null);
         await window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
     }
 

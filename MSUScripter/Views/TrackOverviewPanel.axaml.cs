@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaControls.Extensions;
@@ -50,6 +52,28 @@ public partial class TrackOverviewPanel : UserControl
         });
 
         InitializeComponent();
+        
+        AddHandler(DragDrop.DropEvent, DropFile);
+    }
+
+    private async void DropFile(object? sender, DragEventArgs e)
+    {
+        if (_service == null) return;
+
+        var obj = e.Source;
+        while (obj is not DataGridRow)
+        {
+            if (obj is not Control control) return;
+            obj = control.Parent;
+        }
+
+        if (obj is not DataGridRow {  DataContext: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
+
+        var file = e.Data.GetFiles()?.FirstOrDefault();
+
+        if (file == null || string.IsNullOrEmpty(file.Path.LocalPath)) return;
+
+        await OpenAddSongWindow(row, file.Path.LocalPath);
     }
     
     public event EventHandler<TrackEventArgs>? OnSelectedTrack;
@@ -92,10 +116,17 @@ public partial class TrackOverviewPanel : UserControl
 
     private async void OpenAddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || _service == null) return;
-        var window = new AddSongWindow(_service.GetProject(), row.TrackNumber);
-        await window.ShowDialog<MsuSongInfoViewModel?>(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow);
-        _service?.RefreshTracks();
+        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
+        await OpenAddSongWindow(row, null);
+    }
+
+    private async Task OpenAddSongWindow(TrackOverviewPanelViewModel.TrackOverviewRow row, string? filePath)
+    {
+        if (_service == null) return;
+        var window = new AddSongWindow(_service.GetProject(), row.TrackNumber, filePath, true);
+        var newSongInfo = await window.ShowDialog<MsuSongInfoViewModel?>(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow);
+        if (newSongInfo == null) return;
+        _service.AddSong(row, newSongInfo);
     }
 
     public void Refresh()

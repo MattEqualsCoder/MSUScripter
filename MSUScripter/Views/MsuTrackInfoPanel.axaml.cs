@@ -54,7 +54,7 @@ public partial class MsuTrackInfoPanel : UserControl
     private void AddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (TrackData == null) return;
-        var window = new AddSongWindow(TrackData.Project, TrackData.TrackNumber);
+        var window = new AddSongWindow(TrackData.Project, TrackData.TrackNumber, null);
         window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
     }
 

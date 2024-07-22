@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -21,23 +22,24 @@ public class TrackOverviewPanelService : ControlService
     {
         var tracks = _model.MsuProjectViewModel.Tracks;
 
-        var rows = new List<TrackOverviewPanelViewModel.TrackOverviewRow>();
+        _model.Rows.Clear();
         
         foreach (var track in tracks.OrderBy(x => x.TrackNumber))
         {
             if (!track.Songs.Any())
             {
-                rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber, track.TrackName));
+                _model.Rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber, track.TrackName));
             }
             else
             {
-                rows.AddRange(track.Songs.Select(x =>
-                    new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber,
-                        track.TrackName + (x.IsAlt ? " (Alt)" : ""), x)));
+                foreach (var song in track.Songs)
+                {
+                    _model.Rows.Add(new TrackOverviewPanelViewModel.TrackOverviewRow(track.TrackNumber,
+                       track.TrackName + (song.IsAlt ? " (Alt)" : ""), song));
+                }
+                
             }
         }
-
-        _model.Rows = rows;
 
         UpdateCompletedTrackDetails();
     }
@@ -50,5 +52,18 @@ public class TrackOverviewPanelService : ControlService
     public MsuProjectViewModel GetProject()
     {
         return _model.MsuProjectViewModel;
+    }
+
+    internal void AddSong(TrackOverviewPanelViewModel.TrackOverviewRow row, MsuSongInfoViewModel newSongInfo)
+    {
+        if (row.HasSong)
+        {
+            var oldRowIndex = _model.Rows.IndexOf(row);
+            _model.Rows.Insert(oldRowIndex + 1, new TrackOverviewPanelViewModel.TrackOverviewRow(row.TrackNumber, row.TrackName, newSongInfo));
+        }
+        else
+        {
+            row.SongInfo = newSongInfo;
+        }
     }
 }

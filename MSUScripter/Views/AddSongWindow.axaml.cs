@@ -16,18 +16,19 @@ public partial class AddSongWindow : ScalableWindow
 {
     private bool _forceClosing;
     private readonly AddSongWindowService? _service;
+    private readonly AddSongWindowViewModel _model;
 
     public AddSongWindow()
     {
         InitializeComponent();
-        DataContext = new AddSongWindowViewModel().DesignerExample();
+        DataContext = _model = (AddSongWindowViewModel)new AddSongWindowViewModel().DesignerExample();
     }
     
-    public AddSongWindow(MsuProjectViewModel msuProjectViewModel, int? trackNumber)
+    public AddSongWindow(MsuProjectViewModel msuProjectViewModel, int? trackNumber, string? filePath, bool singleMode = false)
     {
         _service = this.GetControlService<AddSongWindowService>();
-        var model = _service?.InitializeModel(msuProjectViewModel, trackNumber) ?? new AddSongWindowViewModel();
-        DataContext = model;
+        var model = _service?.InitializeModel(msuProjectViewModel, trackNumber, filePath, singleMode) ?? new AddSongWindowViewModel();
+        DataContext = _model = model;
 
         model.TrimStartUpdated += (sender, args) =>
         {
@@ -86,6 +87,11 @@ public partial class AddSongWindow : ScalableWindow
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         _ = _service?.StopSong();
+
+        if (!string.IsNullOrEmpty(_model.FilePath))
+        {
+            _service?.UpdatePyMusicLooperPanel(this.FindControl<PyMusicLooperPanel>(nameof(PyMusicLooperPanel)));
+        }
     }
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)

@@ -6,7 +6,6 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.TrackOverviewPanel"
-             
              x:DataType="viewModels:TrackOverviewPanelViewModel">
     <DockPanel>
         
@@ -24,10 +23,11 @@
                   SelectionMode="Single"
                   SelectedIndex="{Binding SelectedIndex}"
                   DoubleTapped="AudioDataGrid_OnDoubleTapped"
+                  DragDrop.AllowDrop="True"
         >
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate >
+                    <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button
                                 Padding="2 0"
