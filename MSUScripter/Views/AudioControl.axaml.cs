@@ -3,7 +3,6 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
@@ -31,7 +30,7 @@ public partial class AudioControl : UserControl
         CanPopoutProperty.Changed.Subscribe(x =>
         {
             if (x.Sender != this) return;
-            _model.CanPopout = x.NewValue is { HasValue: true, Value: true };
+            _model.CanPopout = OperatingSystem.IsWindows() && x.NewValue is { HasValue: true, Value: true };
         });
         
         CanSetTimeSecondsProperty.Changed.Subscribe(x =>

@@ -167,7 +167,18 @@ public class ProjectService(
             });
         }
 
-        if (File.Exists(msuPath))
+        if (!File.Exists(msuPath))
+        {
+            var fileInfo = new FileInfo(msuPath);
+            var directoryInfo = fileInfo.Directory;
+            var pattern = $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}-*.pcm";
+            if (directoryInfo?.EnumerateFiles(pattern).Any() == true)
+            {
+                using (File.Create(project.MsuPath)) {}
+                ImportMsu(project, msuPath);
+            }
+        }
+        else if (File.Exists(msuPath))
         {
             ImportMsu(project, msuPath);
         }
@@ -259,6 +270,8 @@ public class ProjectService(
         var oldType = project.MsuType;
         project.MsuType = newMsuType;
         project.MsuTypeName = newMsuType.Name;
+        project.BasicInfo.Game = project.MsuTypeName;
+        project.BasicInfo.MsuType = project.MsuTypeName;
 
         var conversion = project.MsuType.Conversions[oldType];
         

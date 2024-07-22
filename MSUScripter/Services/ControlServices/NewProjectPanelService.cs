@@ -19,7 +19,6 @@ public class NewProjectPanelService(IMsuTypeService msuTypeService, ProjectServi
     public NewProjectPanelViewModel InitializeModel()
     {
         _model.MsuTypes = msuTypeService.MsuTypes
-            .Where(x => x.Selectable)
             .OrderBy(x => x.DisplayName)
             .ToList();
         return _model;

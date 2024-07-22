@@ -81,7 +81,7 @@ public partial class NewProjectPanel : UserControl
         if (isLegacySmz3)
         {
             var result = await MessageWindow.ShowYesNoDialog(
-                "This MSU is currently a classic SMZ3 MSU. Would you like to swap the tracks to the new order?",
+                "You have selected the legacy SMZ3 MSU type. While this will be compatible with SMZ3 Cas' and the old ips patch, it will not be compatible with the beta of Total's original SMZ3 version. Would you like to swap the tracks to the new SMZ3 MSU order?",
                 "Update MSU Type?", ParentWindow);
 
             if (result && _service.UpdateLegacySmz3Msu(newProject) == false)
