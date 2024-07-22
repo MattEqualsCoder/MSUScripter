@@ -12,17 +12,20 @@ public class YamlService(ILogger<YamlService> logger)
     {
         {
             YamlType.Pascal, new SerializerBuilder()
+                .WithQuotingNecessaryStrings()
                 .WithNamingConvention(PascalCaseNamingConvention.Instance)
                 .Build()
         },
         {
             YamlType.PascalIgnoreDefaults, new SerializerBuilder()
+                .WithQuotingNecessaryStrings()
                 .WithNamingConvention(PascalCaseNamingConvention.Instance)
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
                 .Build()
         },
         {
             YamlType.UnderscoreIgnoreDefaults, new SerializerBuilder()
+                .WithQuotingNecessaryStrings()
                 .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
                 .WithNamingConvention(UnderscoredNamingConvention.Instance)
                 .Build()
@@ -53,7 +56,6 @@ public class YamlService(ILogger<YamlService> logger)
     
     public string ToYaml(object obj, YamlType yamlType)
     {
-        SanitizeNullStrings(obj, true);
         return _serializers[yamlType].Serialize(obj);
     }
 
@@ -62,7 +64,6 @@ public class YamlService(ILogger<YamlService> logger)
         try
         {
             createdObject = _deserializers[yamlType].Deserialize<T>(yaml);
-            SanitizeNullStrings(createdObject, false);
             error = null;
             return true;
         }
@@ -75,48 +76,6 @@ public class YamlService(ILogger<YamlService> logger)
         }
     }
 
-    public void SanitizeNullStrings(object? obj, bool sanitize)
-    {
-        if (obj == null || obj.GetType().IsPrimitive) return; 
-        
-        foreach (var prop in obj.GetType().GetProperties())
-        {
-            if (prop.PropertyType == typeof(string))
-            {
-                var value = prop.GetValue(obj) as string;
-                if (sanitize && "null".Equals(value, StringComparison.OrdinalIgnoreCase))
-                {
-                    prop.SetValue(obj, $"`{value}`");
-                }
-                else if (!sanitize && "`null`".Equals(value, StringComparison.OrdinalIgnoreCase))
-                {
-                    prop.SetValue(obj, value.Replace("`", ""));
-                }
-            }
-            else if (prop.PropertyType.Name.StartsWith("List`"))
-            {
-                var list = prop.GetValue(obj) as IEnumerable<object?> ?? [];
-                foreach (var item in list)
-                {
-                    SanitizeNullStrings(item, sanitize);
-                }
-            }
-            else if (prop.PropertyType.IsClass)
-            {
-                try
-                {
-                    var newObj = prop.GetValue(obj);
-                    SanitizeNullStrings(newObj, sanitize);
-                }
-                catch (Exception e)
-                {
-                    logger.LogError(e, "Error sanitizing null strings");
-                }
-                
-            }
-        }
-    }
-    
 }
 
 public enum YamlType

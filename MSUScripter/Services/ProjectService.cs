@@ -621,6 +621,7 @@ public class ProjectService(
             if (!yamlService.FromYaml(yamlText, YamlType.UnderscoreIgnoreDefaults, out msuDetails, out _) || msuDetails == null)
             {
                 error = $"Could not retrieve MSU Details from {yamlPath}";
+                logger.LogError(error);
                 statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
@@ -641,6 +642,7 @@ public class ProjectService(
             if (msuType == null)
             {
                 error = "Invalid MSU Type";
+                logger.LogError(error);
                 statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
@@ -648,6 +650,7 @@ public class ProjectService(
             if (string.IsNullOrEmpty(msuPath))
             {
                 error = $"Invalid MSU path for {msuType.Name}";
+                logger.LogError(error);
                 statusBarService.UpdateStatusBar("YAML File Write Error");
                 return false;
             }
@@ -716,15 +719,26 @@ public class ProjectService(
         };
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
-        msuDetailsService.SaveMsuDetails(msu, yamlPath, out error);
-
-        if (project.BasicInfo.CreateSplitSmz3Script && !CreateSmz3SplitRandomizerYaml(project, out error))
+        if (!msuDetailsService.SaveMsuDetails(msu, yamlPath, out error))
         {
-            statusBarService.UpdateStatusBar("YAML File Written");    
+            logger.LogError(error);
+            statusBarService.UpdateStatusBar("YAML File Write Failed");
+        }
+
+        if (project.BasicInfo.CreateSplitSmz3Script)
+        {
+            if (CreateSmz3SplitRandomizerYaml(project, out error))
+            {
+                statusBarService.UpdateStatusBar("YAML File Written");    
+            }
+            else
+            {
+                statusBarService.UpdateStatusBar("YAML File Write Failed");
+            }
         }
         else
         {
-            statusBarService.UpdateStatusBar("YAML File Failed");
+            statusBarService.UpdateStatusBar("YAML File Write Failed");
         }
         
     }
