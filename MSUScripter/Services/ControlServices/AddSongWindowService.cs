@@ -85,7 +85,7 @@ public class AddSongWindowService(
             return;
         }
         
-        var outputPath = CreateTempPcm();
+        var outputPath = await CreateTempPcm();
         
         if (string.IsNullOrEmpty(outputPath))
         {
@@ -111,11 +111,13 @@ public class AddSongWindowService(
         _model.TrimEnd = result.LoopEnd;
     }
     
-    private string? CreateTempPcm()
+    private async Task<string?> CreateTempPcm()
     {
-        msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.FilePath, out var outputPath, out _,
-            out var generated, _model.LoopPoint, _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization, _model.TrimStart);
-        return generated ? outputPath : null;
+        var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.FilePath, _model.LoopPoint,
+            _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization,
+            _model.TrimStart);
+        
+        return response.GeneratedPcmFile ? response.OutputPath : null;
     }
 
     public async Task<MsuSongInfoViewModel?> AddSongToProject(AddSongWindow parent)
@@ -126,19 +128,20 @@ public class AddSongWindowService(
         }
 
         var track = _model.SelectedTrack;
-        
-        var successful = msuPcmService.CreateTempPcm(true, _model.MsuProject, _model.FilePath, out var tempPcmPath, out var message,
-            out var generated, _model.LoopPoint, _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization, _model.TrimStart);
 
-        if (!generated)
+        var response = await msuPcmService.CreateTempPcm(true, _model.MsuProject, _model.FilePath, _model.LoopPoint,
+            _model.TrimEnd, _model.Normalization ?? _model.MsuProjectViewModel.BasicInfo.Normalization,
+            _model.TrimStart);
+
+        if (!response.GeneratedPcmFile)
         {
-            await MessageWindow.ShowErrorDialog(message ?? "Unknown error", "Error", parent);
+            await MessageWindow.ShowErrorDialog(response.Message ?? "Unknown error", "Error", parent);
             return null;
         }
         
-        if (!successful)
+        if (!response.Successful)
         {
-            if (!await MessageWindow.ShowYesNoDialog($"{message}\r\nDo you want to continue adding this song?",
+            if (!await MessageWindow.ShowYesNoDialog($"{response.Message}\r\nDo you want to continue adding this song?",
                     "Continue?", parent))
             {
                 return null;
@@ -208,7 +211,7 @@ public class AddSongWindowService(
         {
             await StopSong(false);
 
-            var outputPath = CreateTempPcm();
+            var outputPath = await CreateTempPcm();
 
             if (!string.IsNullOrEmpty(outputPath))
             {

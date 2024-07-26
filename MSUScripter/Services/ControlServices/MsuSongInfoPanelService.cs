@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -42,8 +43,12 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
     
     public async Task PauseSong()
     {
-
         await sharedPcmService.PauseSong();
+    }
+    
+    public async Task StopSong()
+    {
+        await sharedPcmService.StopSong();
     }
 
     public string? GetOpenMusicFilePath()
@@ -143,9 +148,9 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         _model.Project.IgnoreWarnings.Add(_model.OutputPath);
     }
     
-    public bool GeneratePcmFile(bool asPrimary, bool asEmpty, out string error, out bool msuPcmError)
+    public Task<GeneratePcmFileResponse> GeneratePcmFile(bool asPrimary, bool asEmpty)
     {
-        return sharedPcmService.GeneratePcmFile(_model, asPrimary, asEmpty, out error, out msuPcmError);
+        return sharedPcmService.GeneratePcmFile(_model, asPrimary, asEmpty);
     }
     
     public void AnalyzeAudio()
@@ -157,9 +162,11 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         {
             await PauseSong();
 
-            if (!GeneratePcmFile(false, false, out var error, out var msuPcmError))
+            var generateResponse = await GeneratePcmFile(false, false);
+            if (!generateResponse.Successful)
             {
-                _model.AverageAudio = "Error";
+                _model.AverageAudio = "Error generating PCM";
+                _model.PeakAudio = null;
             }
 
             if (!string.IsNullOrEmpty(_model.OutputPath))

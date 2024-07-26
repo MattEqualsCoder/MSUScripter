@@ -187,16 +187,16 @@ public partial class MsuSongInfoPanel : UserControl
     {
         if (_service == null) return;
         
-        var successful = _service.GeneratePcmFile(asPrimary, asEmpty, out var error, out var msuPcmError);
-        if (!successful)
+        var response = await _service.GeneratePcmFile(asPrimary, asEmpty);
+        if (!response.Successful)
         {
-            await MessageWindow.ShowErrorDialog(error, "Error", TopLevel.GetTopLevel(this) as Window);
+            await MessageWindow.ShowErrorDialog(response.Message ?? "Unknown error generating the PCM file via msupcm++", "Error", TopLevel.GetTopLevel(this) as Window);
         }
-        else if (msuPcmError)
+        else if (response is { Successful: false, GeneratedPcmFile: true })
         {
             var window = new MessageWindow(new MessageWindowRequest
             {
-                Message = error,
+                Message = response.Message ?? "Unknown error generating the PCM file via msupcm++",
                 Buttons = MessageWindowButtons.OK,
                 Icon = MessageWindowIcon.Warning,
                 CheckBoxText = "Ignore future warnings for this song"

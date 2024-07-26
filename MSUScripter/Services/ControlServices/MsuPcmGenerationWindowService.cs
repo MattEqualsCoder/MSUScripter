@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Management;
 using System.Threading;
 using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Events;
-using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -52,7 +50,7 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
 
     public void RunGeneration()
     {
-        _ = ITaskService.Run(() => {
+        _ = ITaskService.Run(async () => {
         
             var start = DateTime.Now;
             
@@ -60,18 +58,12 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
 
             Parallel.ForEach(_model.Rows,
                 new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token },
-                songDetails =>
-                {
-                    if (!ProcessSong(songDetails, false))
-                    {
-                        toRetry.Add(songDetails);
-                    }
-                });
+                ParallelAction);
 
             // For retries, try again linearly
             foreach (var songDetails in toRetry)
             {
-                ProcessSong(songDetails, true);
+                await ProcessSong(songDetails, true);
             }
 
             if (_model.ExportYaml)
@@ -98,7 +90,15 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
             _model.SongsCompleted = _model.Rows.Count;
             statusBarService.UpdateStatusBar("MSU Generated");
             PcmGenerationComplete?.Invoke(this, new ValueEventArgs<MsuPcmGenerationViewModel>(_model));
+            return;
 
+            async void ParallelAction(MsuPcmGenerationSongViewModel songDetails)
+            {
+                if (!await ProcessSong(songDetails, false))
+                {
+                    toRetry.Add(songDetails);
+                }
+            }
         }, _cts.Token);
     }
 
@@ -110,7 +110,7 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
         }
     }
     
-    private bool ProcessSong(MsuPcmGenerationSongViewModel songDetails, bool isRetry)
+    private async Task<bool> ProcessSong(MsuPcmGenerationSongViewModel songDetails, bool isRetry)
     {
         if (_cts.IsCancellationRequested)
         {
@@ -121,24 +121,27 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
         var song = new MsuSongInfo();
         converterService.ConvertViewModel(songViewModel, song);
         converterService.ConvertViewModel(songViewModel!.MsuPcmInfo, song.MsuPcmInfo);
-        if (!msuPcmService.CreatePcm(false, _model.MsuProject, song, out var error, out var generated))
+
+        var generationResponse = await msuPcmService.CreatePcm(false, _model.MsuProject, song);
+        
+        if (!generationResponse.Successful)
         {
             // If this is an error for the sox temp file for the first run, ignore so it can be retried
-            if (!isRetry && error?.Contains("__sox_wrapper_temp") == true &&
-                error.Contains("Permission denied"))
+            if (!isRetry && generationResponse.Message?.Contains("__sox_wrapper_temp") == true &&
+                generationResponse.Message.Contains("Permission denied"))
             {
                 return false;
             }
             // Partially ignore empty pcms with no input files
-            else if (error?.EndsWith("No input files specified") == true && File.Exists(song.OutputPath) && new FileInfo(song.OutputPath).Length <= 44500)
+            else if (generationResponse.Message?.EndsWith("No input files specified") == true && File.Exists(song.OutputPath) && new FileInfo(song.OutputPath).Length <= 44500)
             {
                 songDetails.HasWarning = true;
-                songDetails.Message = error;
+                songDetails.Message = generationResponse.Message;
             }
             else
             {
                 songDetails.HasWarning = true;
-                songDetails.Message = error ?? "Unknown error";
+                songDetails.Message = generationResponse.Message ?? "Unknown error";
                 _model.NumErrors++;
             }
                         

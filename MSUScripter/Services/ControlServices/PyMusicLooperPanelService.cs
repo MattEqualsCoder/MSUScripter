@@ -88,12 +88,12 @@ public class PyMusicLooperPanelService(
             var playSong = true;
             if (!File.Exists(result.TempPath))
             {
-                msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.File!,
-                    out var outputPath,
-                    out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: false);
-                if (generated)
+                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject,
+                    _model.MsuSongMsuPcmInfoViewModel.File!, result.LoopStart, result.LoopEnd, skipCleanup: false);
+                
+                if (response.GeneratedPcmFile)
                 {
-                    songPath = outputPath;
+                    songPath = response.OutputPath;
                 }
                 else
                 {
@@ -259,38 +259,40 @@ public class PyMusicLooperPanelService(
 
         try
         {
+            async void GenerateTempPcm(PyMusicLooperResultViewModel result)
+            {
+                result.Status = "Generating Preview .pcm File";
+
+                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.File!, result.LoopStart, result.LoopEnd, skipCleanup: true);
+
+                if (!response.Successful)
+                {
+                    if (response.GeneratedPcmFile)
+                    {
+                        result.Status = $"Generated with message: {response.Message}";
+                        result.TempPath = response.OutputPath ?? throw new InvalidOperationException("GeneratePcmFileResponse for generated PCM missing output path");
+                        GetLoopDuration(result);
+                        result.Generated = true;
+                    }
+                    else
+                    {
+                        result.Status = $"Error: {response.Message}";
+                    }
+                }
+                else
+                {
+                    result.Status = "Generated";
+                    result.TempPath = response.OutputPath ?? throw new InvalidOperationException("GeneratePcmFileResponse for generated PCM missing output path");
+                    GetLoopDuration(result);
+                    result.Generated = true;
+                }
+            }
+
             Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated), new ParallelOptions()
                 {
                     CancellationToken = _cts?.Token ?? CancellationToken.None
                 },
-                result =>
-                {
-                    result.Status = "Generating Preview .pcm File";
-            
-                    if (!msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.File!, out var outputPath,
-                            out var message, out var generated, result.LoopStart, result.LoopEnd, skipCleanup: true))
-                    {
-                        if (generated)
-                        {
-                            result.Status = $"Generated with message: {message}";
-                            result.TempPath = outputPath;
-                            GetLoopDuration(result);
-                            result.Generated = true;
-                        }
-                        else
-                        {
-                            result.Status = $"Error: {message}";
-                        }
-                    }
-                    else
-                    {
-                        result.Status = "Generated";
-                        result.TempPath = outputPath;
-                        GetLoopDuration(result);
-                        result.Generated = true;
-                    }
-            
-                });
+                GenerateTempPcm);
         }
         catch
         {

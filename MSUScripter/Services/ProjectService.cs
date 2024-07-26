@@ -738,7 +738,7 @@ public class ProjectService(
         }
         else
         {
-            statusBarService.UpdateStatusBar("YAML File Write Failed");
+            statusBarService.UpdateStatusBar("YAML File Written");
         }
         
     }

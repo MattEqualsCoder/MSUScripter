@@ -61,7 +61,7 @@ public class AudioAnalysisService(
         if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
         {
             logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
-            if (!GeneratePcmFile(project, song.OriginalViewModel))
+            if (!await GeneratePcmFile(project, song.OriginalViewModel))
             {
                 song.WarningMessage = "Could not generate new PCM file";
             }
@@ -72,15 +72,15 @@ public class AudioAnalysisService(
         logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
     
-    private bool GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
+    private async Task<bool> GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
     {
         var song = new MsuSongInfo();
         converterService.ConvertViewModel(songModel, song);
         converterService.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
-        msuPcmService.CreatePcm(false, project, song, out var message, out var generated);
-        if (!generated)
+        var response = await msuPcmService.CreatePcm(false, project, song);
+        if (!response.GeneratedPcmFile)
         {
-            logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, message);
+            logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, response.Message);
         }
         else
         {
@@ -88,7 +88,7 @@ public class AudioAnalysisService(
             logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
         }
 
-        return generated;
+        return response.GeneratedPcmFile;
     }
 
     public int GetAudioSampleRate(string? path)
