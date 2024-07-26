@@ -56,6 +56,11 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
             
             List<MsuPcmGenerationSongViewModel> toRetry = [];
 
+            if (!File.Exists(_model.MsuProjectViewModel.MsuPath))
+            {
+                using (File.Create(_model.MsuProjectViewModel.MsuPath)) { }
+            }
+
             Parallel.ForEach(_model.Rows,
                 new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token },
                 ParallelAction);
