@@ -15,15 +15,12 @@ public class MsuTrackInfoPanelService : ControlService
 
     public void AddSong()
     {
-        var songInfo = new MsuSongInfoViewModel()
-        {
-            TrackNumber = _model.TrackNumber,
-            TrackName = _model.TrackName,
-            IsAlt = _model.Songs.Count > 0,
-        };
+        var songInfo = new MsuSongInfoViewModel();
+
+        var isAlt = _model.Songs.Count > 0;
         
         var msu = new FileInfo(_model.Project.MsuPath);
-        if (!songInfo.IsAlt)
+        if (!isAlt)
         {
             songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_model.TrackNumber}.pcm");
         }
@@ -33,9 +30,7 @@ public class MsuTrackInfoPanelService : ControlService
             songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_model.TrackNumber}_{altSuffix}.pcm");
         }
 
-        songInfo.Project = _model.Project;
-        songInfo.Track = _model;
-        songInfo.MsuPcmInfo.ApplyCascadingSettings(songInfo.Project, songInfo, songInfo.IsAlt, null, songInfo.CanPlaySongs, true, true);
+        songInfo.ApplyCascadingSettings(_model.Project, _model, isAlt, true, true, true);
         _model.Songs.Add(songInfo);
     }
 }

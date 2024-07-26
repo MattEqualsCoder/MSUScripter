@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using AvaloniaControls.ControlServices;
@@ -41,11 +42,6 @@ public class CopyMoveTrackWindowService (ConverterService converterService) : Co
 
             var songInfo = _model.PreviousSong;
 
-            songInfo.TrackNumber = destinationTrack.TrackNumber;
-            songInfo.TrackName = destinationTrack.TrackName;
-            songInfo.IsAlt = destinationTrack.Songs.Count > 0;
-            songInfo.MsuPcmInfo.IsAlt = songInfo.IsAlt;
-
             var msu = new FileInfo(_model.Project.MsuPath);
             if (!songInfo.MsuPcmInfo.IsAlt)
             {
@@ -58,8 +54,10 @@ public class CopyMoveTrackWindowService (ConverterService converterService) : Co
                     msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}_{altSuffix}.pcm");
             }
 
-            _model.PreviousTrack.Songs.Remove(_model.PreviousSong);
-            destinationTrack.Songs.Add(_model.PreviousSong);
+            _model.PreviousTrack.Songs.Remove(songInfo);
+            songInfo.ApplyCascadingSettings(_model.Project, destinationTrack, destinationTrack.Songs.Count > 0, songInfo.CanPlaySongs, true, true);
+            destinationTrack.Songs.Add(songInfo);
+            
         }
         else
         {
@@ -86,7 +84,7 @@ public class CopyMoveTrackWindowService (ConverterService converterService) : Co
             var msuSongInfoCloned = new MsuSongInfoViewModel(); 
             converterService.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
             converterService.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
-            msuSongInfoCloned.Project = _model.Project;
+            msuSongInfoCloned.ApplyCascadingSettings(_model.Project, destinationTrack, msuSongInfo.IsAlt, _model.PreviousSong.CanPlaySongs, true, true);
             destinationTrack.Songs.Add(msuSongInfoCloned);
         }
     }

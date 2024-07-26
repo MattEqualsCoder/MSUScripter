@@ -164,26 +164,21 @@ public class AddSongWindowService(
 
         var song = new MsuSongInfoViewModel
         {
-            TrackNumber = track.TrackNumber,
-            TrackName = track.TrackName,
-            Track = track,
             SongName = _model.SongName,
             Artist = _model.ArtistName,
             Album = _model.AlbumName,
             OutputPath = outputPath,
-            IsAlt = isAlt,
-            LastModifiedDate = DateTime.Now,
-            Project = _model.MsuProjectViewModel,
             MsuPcmInfo = new MsuSongMsuPcmInfoViewModel
             {
                 Loop = _model.LoopPoint,
                 TrimStart = _model.TrimStart,
                 TrimEnd = _model.TrimEnd,
                 Normalization = _model.Normalization,
-                File = _model.FilePath,
-                IsAlt = isAlt
+                File = _model.FilePath
             }
         };
+
+        song.ApplyCascadingSettings(_model.MsuProjectViewModel, track, isAlt, false, true, true);
 
         track.Songs.Add(song);
 

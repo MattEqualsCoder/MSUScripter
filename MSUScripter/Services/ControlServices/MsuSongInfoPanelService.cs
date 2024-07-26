@@ -129,16 +129,9 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
             return "Invalid song details";
         }
 
-        _model.Project = originalProject;
-        _model.Track = originalTrack;
-        _model.TrackNumber = originalTrackNumber;
-        _model.TrackName = originalTrackName;
-        _model.IsAlt = originalIsAlt;
-        _model.CanPlaySongs = originalCanPlaySongs;
         _model.OutputPath = originalOutputPath;
             
-        _model.MsuPcmInfo.ApplyCascadingSettings(originalProject, _model, originalIsAlt, null, originalCanPlaySongs, true, true);
-        _model.LastModifiedDate = DateTime.Now;
+        _model.ApplyCascadingSettings(originalProject, originalTrack, originalIsAlt, originalCanPlaySongs, true, true);
         return null;
     }
     

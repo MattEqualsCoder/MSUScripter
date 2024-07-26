@@ -86,6 +86,27 @@ public class MsuSongInfoViewModel : ViewModelBase
             Url = metadata.Url;
     }
 
+    public void ApplyCascadingSettings(MsuProjectViewModel projectModel, MsuTrackInfoViewModel track, bool isAlt, bool canPlaySongs, bool updateLastModified, bool forceOpen)
+    {
+        var lastModified = updateLastModified ? DateTime.Now : LastModifiedDate;
+        Project = projectModel;
+        Track = track;
+        TrackName = track.TrackName;
+        TrackNumber = track.TrackNumber;
+        IsAlt = isAlt;
+        CanPlaySongs = canPlaySongs;
+
+        if (forceOpen)
+        {
+            ShowPanel = true;
+        }
+
+        MsuPcmInfo.ApplyCascadingSettings(Project, this, isAlt, null, canPlaySongs, updateLastModified, forceOpen);
+
+        LastModifiedDate = lastModified;
+    }
+
+
     public override ViewModelBase DesignerExample()
     {
         return this;

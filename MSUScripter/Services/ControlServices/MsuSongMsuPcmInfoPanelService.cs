@@ -154,7 +154,6 @@ public class MsuSongMsuPcmInfoPanelService(
         }
             
         _model.ApplyCascadingSettings(originalProject, originalSong, originalIsAlt, originalParent, originalCanPlaySongs, true, true);
-        _model.LastModifiedDate = DateTime.Now;
         return null;
     }
     

@@ -126,16 +126,12 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
 
     public void ApplyCascadingSettings(MsuProjectViewModel projectModel, MsuSongInfoViewModel songModel, bool isAlt, MsuSongMsuPcmInfoViewModel? parent, bool canPlaySongs, bool updateLastModified, bool forceOpen)
     {
+        var lastModified = updateLastModified ? DateTime.Now : LastModifiedDate;
         Project = projectModel;
         Song = songModel;
         IsAlt = isAlt;
         ParentMsuPcmInfo = parent;
         CanPlaySongs = canPlaySongs;
-
-        if (updateLastModified)
-        {
-            LastModifiedDate = DateTime.Now;
-        }
 
         if (forceOpen)
         {
@@ -146,6 +142,8 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
         {
             subItem.ApplyCascadingSettings(projectModel, songModel, isAlt, this, canPlaySongs, updateLastModified, forceOpen);
         }
+
+        LastModifiedDate = lastModified;
     }
 
     [SkipConvert]
