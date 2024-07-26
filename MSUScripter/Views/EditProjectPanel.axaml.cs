@@ -100,7 +100,7 @@ public partial class EditProjectPanel : UserControl
     private async void SettingsMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         var settingsWindow = new SettingsWindow();
-        await settingsWindow.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
+        await settingsWindow.ShowDialog(ParentWindow);
     }
 
     private void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -123,44 +123,51 @@ public partial class EditProjectPanel : UserControl
     {
         if (_service?.MsuProjectViewModel == null) return;
         var window = new AddSongWindow(_service.MsuProjectViewModel, null, null);
-        await window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
+        await window.ShowDialog(ParentWindow);
     }
 
     private async void AnalysisButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null) return;
         var window = new AudioAnalysisWindow(_service.MsuProjectViewModel);
-        await window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
+        await window.ShowDialog(ParentWindow);
     }
 
     private async void ExportButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null) return;
 
+        DisableExport();
+
         var initError = _service.SetupForMsuGenerationWindow();
 
         if (!string.IsNullOrEmpty(initError))
         {
             await MessageWindow.ShowErrorDialog(initError, "MSU Generation Error", ParentWindow);
+            EnableExport();
             return;
         }
         
         var project = _service.MsuProjectViewModel;
         var window = new MsuPcmGenerationWindow(project, project.BasicInfo.WriteYamlFile);
-        await window.ShowDialog(TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
+        await window.ShowDialog(ParentWindow);
+        EnableExport();
     }
 
     private async void ExportButtonYaml_OnClick(object? sender, RoutedEventArgs e)
     {
+        DisableExport();
         var result = _service?.ExportYaml();
         if (!string.IsNullOrEmpty(result))
         {
             await MessageWindow.ShowErrorDialog(result, "YAML Generation Error", ParentWindow);
         }
+        EnableExport();
     }
 
     private async void ExportButtonValidateYaml_OnClick(object? sender, RoutedEventArgs e)
     {
+        DisableExport();
         var result = _service?.ValidateProject();
         if (!string.IsNullOrEmpty(result))
         {
@@ -170,6 +177,7 @@ public partial class EditProjectPanel : UserControl
         {
             await MessageWindow.ShowInfoDialog("Generated MSU and YAML file matches the project", "Validation Successful");
         }
+        EnableExport();
     }
 
     private void ExportButtonTrackList_OnClick(object? sender, RoutedEventArgs e)
@@ -184,28 +192,34 @@ public partial class EditProjectPanel : UserControl
 
     private async void ExportButtonSwapper_OnClick(object? sender, RoutedEventArgs e)
     {
+        DisableExport();
         var result = _service?.WriteSwapperBatchFiles();
         if (!string.IsNullOrEmpty(result))
         {
             await MessageWindow.ShowErrorDialog(result, "Script Generation Failed", ParentWindow);
         }
+        EnableExport();
     }
 
     private async void ExportButtonSmz3_OnClick(object? sender, RoutedEventArgs e)
     {
+        DisableExport();
         var result = _service?.CreateSmz3SplitBatchFile();
         if (!string.IsNullOrEmpty(result))
         {
             await MessageWindow.ShowErrorDialog(result, "Script Generation Failed", ParentWindow);
         }
+        EnableExport();
     }
 
-    private void ExportButtonMsu_OnClick(object? sender, RoutedEventArgs e)
+    private async void ExportButtonMsu_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null) return;
+        DisableExport();
         _service.WriteTrackJson();
         var window = new MsuPcmGenerationWindow(_service.MsuProjectViewModel, false);
-        window.Show(ParentWindow);
+        await window.ShowDialog(ParentWindow);
+        EnableExport();
     }
 
     private async void OpenFolderMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -216,18 +230,22 @@ public partial class EditProjectPanel : UserControl
         }
     }
 
-    private void ExportButtonVideo_OnClick(object? sender, RoutedEventArgs e)
+    private async void ExportButtonVideo_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null) return;
+        DisableExport();
         var window = new VideoCreatorWindow(_service.MsuProjectViewModel);
-        window.ShowDialog(ParentWindow);
+        await window.ShowDialog(ParentWindow);
+        EnableExport();
     }
 
-    private void ExportButtonPackage_OnClick(object? sender, RoutedEventArgs e)
+    private async void ExportButtonPackage_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_service?.MsuProjectViewModel == null || _service?.ArePcmFilesUpToDate() != true) return;
+        DisableExport();
         var packageWindow = new PackageMsuWindow(_service.MsuProjectViewModel);
-        _ = packageWindow.ShowDialog(ParentWindow);
+        await packageWindow.ShowDialog(ParentWindow);
+        EnableExport();
     }
 
     public async Task DisplayPendingChangesWindow()
@@ -249,5 +267,15 @@ public partial class EditProjectPanel : UserControl
     private void TrackOverviewPanel_OnOnSelectedTrack(object? sender, TrackEventArgs e)
     {
         _service?.SetToTrackPage(e.TrackNumber);
+    }
+
+    private void DisableExport()
+    {
+        this.Find<SplitButton>(nameof(ExportMenuButton))!.IsEnabled = false;
+    }
+
+    private void EnableExport()
+    {
+        this.Find<SplitButton>(nameof(ExportMenuButton))!.IsEnabled = true;
     }
 }
