@@ -107,25 +107,25 @@
                         
                         <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" 
                                                         Margin="0 0 3 0"
-                                                        Text="{Binding TrimStart}"
+                                                        Value="{Binding TrimStart}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
                         <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
-                                                        Text="{Binding TrimEnd}"
+                                                        Value="{Binding TrimEnd}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
                         <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
-                                                        Text="{Binding LoopPoint}"
+                                                        Value="{Binding LoopPoint}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
                         <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="9" Grid.ColumnSpan="3" 
                                                         Margin="3 0 3 0"
-                                                        Text="{Binding Normalization}"
+                                                        Value="{Binding Normalization}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
