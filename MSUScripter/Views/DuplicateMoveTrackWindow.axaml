@@ -9,6 +9,7 @@
         SizeToContent="Height"
         x:Class="MSUScripter.Views.DuplicateMoveTrackWindow"
         Title="Select Track"
+		Icon="/Assets/MSUScripterIcon.ico"
         x:DataType="viewModels:CopyMoveTrackWindowViewModel"
         >
     <DockPanel>
