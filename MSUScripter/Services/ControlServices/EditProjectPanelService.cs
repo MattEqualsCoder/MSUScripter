@@ -62,6 +62,15 @@ public class EditProjectPanelService(
         
         _backupTimer.Start();
 
+        if (project.IsNewProject)
+        {
+            statusBarService.UpdateStatusBar("Created New Project");
+        }
+        else
+        {
+            statusBarService.UpdateStatusBar("Loaded Project");
+        }
+
         return _model;
     }
 

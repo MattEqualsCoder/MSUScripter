@@ -21,4 +21,6 @@ public class MsuProject
     public MsuBasicInfo BasicInfo { get; set; } = new();
     [SkipConvert]
     public List<MsuTrackInfo> Tracks { get; set; } = new();
+    [YamlIgnore, SkipConvert]
+    public bool IsNewProject { get; set; }
 }

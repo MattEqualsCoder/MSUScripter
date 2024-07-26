@@ -153,6 +153,7 @@ public class ProjectService(
             MsuType = msuType,
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
+            IsNewProject = true,
         };
 
         project.BasicInfo.MsuType = project.MsuType.Name;
