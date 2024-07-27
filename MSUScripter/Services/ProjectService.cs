@@ -469,6 +469,8 @@ public class ProjectService(
             return false;
         }
         
+        CreateMsuFiles(smz3Project);
+        
         var msu = new FileInfo(smz3Project.MsuPath);
         var folder = msu.DirectoryName ?? "";
         var testPath =Path.GetRelativePath(folder,  msu.FullName.Replace(msu.Extension, $"-{testTrack}.pcm"));
