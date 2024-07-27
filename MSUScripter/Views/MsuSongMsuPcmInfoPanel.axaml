@@ -43,11 +43,11 @@
                     <StackPanel Orientation="Horizontal"
                                 Margin="10 0 5 0"
                                 IsVisible="{Binding DisplayHertzWarning}"
-                                ToolTip.Tip="This is a non-44100Hz track. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                                ToolTip.Tip="This is a non-44100Hz file. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
                     >
                         <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
                         <TextBlock VerticalAlignment="Center">
-                            Non-44100Hz Track
+                            Non-44100Hz File
                         </TextBlock>
                     </StackPanel>
                     <Button 
@@ -171,7 +171,7 @@
                                     <DataTemplate>
                                         <views:MsuSongMsuPcmInfoPanel 
                                             DataContext="{Binding}"
-                                            MsuPcmData="{Binding}" 
+                                            MsuPcmData="{Binding}"
                                         ></views:MsuSongMsuPcmInfoPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

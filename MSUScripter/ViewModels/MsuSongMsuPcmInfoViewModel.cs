@@ -96,6 +96,19 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
     [SkipConvert]
     public MsuSongMsuPcmInfoViewModel? ParentMsuPcmInfo { get; set; }
 
+    [SkipConvert]
+    public MsuSongMsuPcmInfoViewModel TopLevel
+    {
+        get
+        {
+            if (IsTopLevel) return this;
+            var topModel = ParentMsuPcmInfo;
+            while (topModel?.ParentMsuPcmInfo != null)
+                topModel = topModel.ParentMsuPcmInfo;
+            return topModel ?? this;
+        }
+    }
+
     public bool CanDelete => !IsTopLevel;
 
     public bool CanEditFile => !SubTracks.Any() && !SubChannels.Any();
@@ -167,7 +180,7 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
     
     public void UpdateHertzWarning(int? sampleRate)
     {
-        DisplayHertzWarning = sampleRate > 44100;
+        DisplayHertzWarning = sampleRate != 44100;
     }
     
     public void UpdateMultiWarning()

@@ -51,7 +51,9 @@ public class MsuSongMsuPcmInfoPanelService(
                     { Project = _model.Project, Song = _model.Song, IsAlt = _model.IsAlt, ParentMsuPcmInfo = _model });
             }
         }
-        
+
+        var topLevelPcmInfo = _model.TopLevel;
+        topLevelPcmInfo.UpdateSubTrackSubChannelWarning();
     }
     
     public void AddSubChannel(int? index = null, bool addToParent = false)
@@ -82,6 +84,9 @@ public class MsuSongMsuPcmInfoPanelService(
                     { Project = _model.Project, Song = _model.Song, IsAlt = _model.IsAlt, ParentMsuPcmInfo = _model });
             }
         }
+
+        var topLevelPcmInfo = _model.TopLevel;
+        topLevelPcmInfo.UpdateSubTrackSubChannelWarning();
     }
 
     public void Delete()
@@ -99,13 +104,16 @@ public class MsuSongMsuPcmInfoPanelService(
         {
             _model.ParentMsuPcmInfo.SubTracks.Remove(_model);
         }
+
+        var topLevelPcmInfo = _model.TopLevel;
+        topLevelPcmInfo.UpdateSubTrackSubChannelWarning();
     }
 
     public bool ShouldShowSubTracksSubChannelsWarningPopup(bool newSubTrack, bool newSubChannel)
     {
         var numSubTracks = _model.SubTracks.Count + (newSubTrack ? 1 : 0);
         var numSubChannels = _model.SubChannels.Count + (newSubChannel ? 1 : 0);
-        return !settings.HideSubTracksSubChannelsWarning && numSubTracks > 1 && numSubChannels > 1;
+        return !settings.HideSubTracksSubChannelsWarning && numSubTracks > 0 && numSubChannels > 0;
     }
 
     public void HideSubTracksSubChannelsWarning()
@@ -208,20 +216,18 @@ public class MsuSongMsuPcmInfoPanelService(
 
     public void ImportAudioMetadata()
     {
+        var topLevelPcmInfo = _model.TopLevel;
+
         if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
         {
+            topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File));
+            topLevelPcmInfo.UpdateMultiWarning();
             return;
         }
         
         var metadata =  audioMetadataService.GetAudioMetadata(_model.File);
         _model.Song.ApplyAudioMetadata(metadata, false);
-
-        var topLevelPcmInfo = _model;
-        while (topLevelPcmInfo.ParentMsuPcmInfo != null)
-        {
-            topLevelPcmInfo = topLevelPcmInfo.ParentMsuPcmInfo;
-        }
-        
+   
         topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File));
         topLevelPcmInfo.UpdateMultiWarning();
     }
