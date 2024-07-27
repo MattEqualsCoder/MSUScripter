@@ -60,7 +60,7 @@
                     >
                         <Button.ContextMenu>
                             <ContextMenu Opening="ContextMenu_OnOpening">
-                                <MenuItem Header="Import Audio File Metadta"
+                                <MenuItem Header="Import Audio File Metadata"
                                           Click="ImportSongMetadataButton_OnClick" 
                                 ></MenuItem>
                                 <MenuItem Header="Copy Song Details to Clipboard"
