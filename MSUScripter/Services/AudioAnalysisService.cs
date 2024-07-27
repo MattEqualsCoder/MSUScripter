@@ -20,9 +20,9 @@ public class AudioAnalysisService(
     ConverterService converterService,
     ILogger<AudioAnalysisService> logger)
 {
-    public async Task AnalyzePcmFiles(MsuProjectViewModel projectViewModel, AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
+    public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
-        var project = converterService.ConvertProject(projectViewModel);
+        var project = audioAnalysis.Project == null ? null : converterService.ConvertProject(audioAnalysis.Project);
         
         await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
@@ -39,26 +39,26 @@ public class AudioAnalysisService(
         await AnalyzePcmFile(project, song);
     }
     
-    public async Task AnalyzePcmFile(MsuProject project, AudioAnalysisSongViewModel song)
+    public async Task AnalyzePcmFile(MsuProject? project, AudioAnalysisSongViewModel song)
     {
         if (string.IsNullOrEmpty(song.Path))
         {
             song.WarningMessage = "No output path for the song";
             return;
         }
-        else if (!project.BasicInfo.IsMsuPcmProject && !File.Exists(song.Path))
+        else if (project?.BasicInfo.IsMsuPcmProject != true && !File.Exists(song.Path))
         {
             song.WarningMessage = "PCM file missing";
             return;
         }
-        else if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel?.HasFiles() != true && !File.Exists(song.Path))
+        else if (project?.BasicInfo.IsMsuPcmProject == true && song.OriginalViewModel?.HasFiles() != true && !File.Exists(song.Path))
         {
             song.WarningMessage = "No input files specified for PCM file";
             return;
         }
         
         // Regenerate the pcm file if it has updates that have been made to it
-        if (project.BasicInfo.IsMsuPcmProject && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
+        if (project?.BasicInfo.IsMsuPcmProject == true && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
         {
             logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
             if (!await GeneratePcmFile(project, song.OriginalViewModel))

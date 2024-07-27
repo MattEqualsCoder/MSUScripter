@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"xmlns:controls="using:AvaloniaControls.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         Width="1024"
         Height="768"
@@ -13,15 +13,17 @@
         x:DataType="viewModels:CopyProjectWindowViewModel">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>
-            
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="10">
-                <Button Click="ImportProjectButton_OnClick" IsEnabled="{Binding IsValid}" Margin="0 0 5 0">
-                    Clone Project
-                </Button>
-                <Button Click="CloseButton_OnClick" Margin="5 0 0 0">
-                    Cancel
-                </Button>
-            </StackPanel>
+
+			<controls:HeaderFooter DockPanel.Dock="Bottom">
+                <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" Margin="5">
+                    <Button Click="ImportProjectButton_OnClick" IsEnabled="{Binding IsValid}" Margin="0 0 5 0">
+                        Clone Project
+                    </Button>
+                    <Button Click="CloseButton_OnClick" Margin="5 0 0 0">
+                        Cancel
+                    </Button>
+                </StackPanel>
+			</controls:HeaderFooter>
             
             <DataGrid Name="TrackDataGrid" 
                       ItemsSource="{Binding Paths}" 
@@ -30,6 +32,7 @@
                       CanUserResizeColumns="False"
                       CanUserSortColumns="False"
                       IsReadOnly="True"
+					  BorderThickness="0"
                       RowBackground="{DynamicResource CardBackground}"
                       SelectionMode="Single"
             >

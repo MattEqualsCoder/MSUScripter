@@ -24,7 +24,8 @@ public class AudioAnalysisSongViewModel : ViewModelBase
 
     [Reactive, ReactiveLinkedProperties(nameof(HasWarning))]
     public string WarningMessage { get; set; } = "";
-    
+
+    public bool CanRefresh { get; set; } = true;
     public bool HasWarning => !string.IsNullOrEmpty(WarningMessage);
 
     public void ApplyAudioAnalysis(AnalysisDataOutput data)

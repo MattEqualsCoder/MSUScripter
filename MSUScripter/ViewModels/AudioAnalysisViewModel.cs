@@ -7,7 +7,7 @@ namespace MSUScripter.ViewModels;
 
 public class AudioAnalysisViewModel : ViewModelBase
 {
-    public MsuProjectViewModel Project { get; set; } = new();
+    public MsuProjectViewModel? Project { get; set; }
     
     [Reactive] public int SongsCompleted { get; set; }
 
@@ -15,9 +15,14 @@ public class AudioAnalysisViewModel : ViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(TotalSongs))]
     public List<AudioAnalysisSongViewModel> Rows { get; set; } = [];
-    
+
+    [Reactive] public bool CompareEnabled { get; set; } = true;
+
+
     public double Duration { get; set; }
     public int TotalSongs => Rows.Count;
+    public string? LoadError { get; set; }
+    public bool ShowCompareButton { get; set; } = true;
     
     public override ViewModelBase DesignerExample()
     {

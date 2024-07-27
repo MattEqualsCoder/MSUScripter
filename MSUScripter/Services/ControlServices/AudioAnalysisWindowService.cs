@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
+using MSURandomizerLibrary.Services;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService) : ControlService
+public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService, IMsuLookupService msuLookupService) : ControlService
 {
     private readonly AudioAnalysisViewModel _model = new();
     private readonly CancellationTokenSource _cts = new();
@@ -39,13 +40,49 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
         return _model;
     }
 
+    public AudioAnalysisViewModel InitializeModel(string msuPath)
+    {
+        _model.ShowCompareButton = false;
+
+        var msuDirectory = new FileInfo(msuPath).DirectoryName;
+        if (string.IsNullOrEmpty(msuDirectory))
+        {
+            _model.LoadError = "Could not load MSU";
+            return _model;
+        }
+
+        var msu = msuLookupService.LoadMsu(msuPath, null, false, true, true);
+
+        if (msu == null)
+        {
+            _model.LoadError = "Could not load MSU";
+            return _model;
+        }
+
+        var songs = msu.Tracks
+            .OrderBy(x => x.Number)
+            .Select(x => new AudioAnalysisSongViewModel()
+            {
+                SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.Path).FullName),
+                TrackName = x.TrackName,
+                TrackNumber = x.Number,
+                Path = x.Path ?? "",
+                OriginalViewModel = null,
+                CanRefresh = false
+            })
+            .ToList();
+
+        _model.Rows = songs;
+        return _model;
+    }
+
     public void Run()
     {
         _ = ITaskService.Run(async () =>
         {
             var start = DateTime.Now;
             
-            await audioAnalysisService.AnalyzePcmFiles(_model.Project, _model, _cts.Token);
+            await audioAnalysisService.AnalyzePcmFiles(_model, _cts.Token);
 
             var avg = GetAverageRms();
             var max = GetAveragePeak();

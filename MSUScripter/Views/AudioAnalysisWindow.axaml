@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"xmlns:controls="using:AvaloniaControls.Controls"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         Width="768" Height="1024"
         x:Class="MSUScripter.Views.AudioAnalysisWindow"
@@ -20,7 +20,15 @@
                          Minimum="0"
                          Maximum="{Binding TotalSongs}"
                          Value="{Binding SongsCompleted}"></ProgressBar>
-            <TextBlock DockPanel.Dock="Bottom" Text="{Binding BottomBar}" TextAlignment="Right" Margin="3" />
+		    <controls:HeaderFooter DockPanel.Dock="Bottom">
+				<Grid ColumnDefinitions="Auto, *">
+					<Button Margin="5" Click="CompareButton_OnClick" IsVisible="{Binding ShowCompareButton}" IsEnabled="{Binding CompareEnabled}">
+						Compare to Other MSU
+					</Button>
+				    <TextBlock Grid.Column="2" Text="{Binding BottomBar}" TextAlignment="Right" VerticalAlignment="Center" Margin="5" />
+				</Grid>
+			</controls:HeaderFooter>
+            
             <DataGrid Name="AudioDataGrid" 
                       ItemsSource="{Binding Rows}" 
                       AutoGenerateColumns="False" 
@@ -29,6 +37,7 @@
                       IsReadOnly="True"
                       RowBackground="{DynamicResource CardBackground}"
                       SelectionMode="Single"
+					  BorderThickness="0"
             >
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="">
@@ -37,6 +46,7 @@
                                 <Button Name="RefreshSongButton"
                                         Tag="{Binding}"
                                         IsEnabled="{Binding HasLoaded}"
+										IsVisible="{Binding CanRefresh}"
                                         Click="RefreshSongButton_OnClick">
                                     <avalonia:MaterialIcon Kind="Refresh" ></avalonia:MaterialIcon>
                                 </Button>
