@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using AvaloniaControls.ControlServices;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
@@ -169,6 +170,49 @@ public class MsuSongMsuPcmInfoPanelService(
     {
         _model.Loop = loopResult.LoopStart;
         _model.TrimEnd = loopResult.LoopEnd;
+    }
+
+    public void UpdateContextMenuOptions()
+    {
+        if (_model.IsTopLevel)
+        {
+            _model.CanMoveUp = false;
+            _model.CanMoveDown = false;
+            return;
+        }
+
+        var parentObjectList = _model.IsSubChannel
+            ? _model.ParentMsuPcmInfo!.SubChannels.ToList()
+            : _model.ParentMsuPcmInfo!.SubTracks.ToList();
+
+        _model.CanMoveUp = parentObjectList.IndexOf(_model) > 0;
+        _model.CanMoveDown = parentObjectList.IndexOf(_model) < parentObjectList.Count - 1;
+    }
+
+    public void MoveUp()
+    {
+        if (!_model.CanMoveUp) return;
+        
+        var parentObjectList = _model.IsSubChannel
+            ? _model.ParentMsuPcmInfo!.SubChannels
+            : _model.ParentMsuPcmInfo!.SubTracks;
+
+        var currentIndex = parentObjectList.IndexOf(_model);
+        parentObjectList.Remove(_model);
+        parentObjectList.Insert(currentIndex - 1, _model);
+    }
+
+    public void MoveDown()
+    {
+        if (!_model.CanMoveDown) return;
+        
+        var parentObjectList = _model.IsSubChannel
+            ? _model.ParentMsuPcmInfo!.SubChannels
+            : _model.ParentMsuPcmInfo!.SubTracks;
+
+        var currentIndex = parentObjectList.IndexOf(_model);
+        parentObjectList.Remove(_model);
+        parentObjectList.Insert(currentIndex + 1, _model);
     }
 
     public bool HasLoopDetails()

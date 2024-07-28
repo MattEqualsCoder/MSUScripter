@@ -108,6 +108,9 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
             return topModel ?? this;
         }
     }
+    
+    [SkipConvert, Reactive] public bool CanMoveUp { get; set; }
+    [SkipConvert, Reactive] public bool CanMoveDown { get; set; }
 
     public bool CanDelete => !IsTopLevel;
 

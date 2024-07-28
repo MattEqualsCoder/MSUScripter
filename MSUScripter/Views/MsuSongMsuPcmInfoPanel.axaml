@@ -67,6 +67,12 @@
                                 <MenuItem Header="Paste MsuPcm++ Details from Clipboard" Name="PasteMenuItem"
                                           Click="PasteMenuItem_OnClick" 
                                 ></MenuItem>
+                                <MenuItem Header="Move Up" Name="MoveUpMenuItem" IsEnabled="{Binding CanMoveUp}" IsVisible="{Binding !IsTopLevel}"
+                                          Click="MoveUpMenuItem_OnClick"
+                                ></MenuItem>
+                                <MenuItem Header="Move Down" Name="MoveDownMenuItem" IsEnabled="{Binding CanMoveDown}" IsVisible="{Binding !IsTopLevel}"
+                                          Click="MoveDownMenuItem_OnClick" 
+                                ></MenuItem>
                                 <MenuItem Header="{Binding RemoveText}" Name="RemoveButton" IsVisible="{Binding CanDelete}"
                                           Click="RemoveButton_OnClick" 
                                 ></MenuItem>

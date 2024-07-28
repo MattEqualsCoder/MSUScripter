@@ -152,10 +152,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             return;
         }
         
-        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
-        {
-            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
-        }
+        await UpdateContextMenu(contextMenu);
         
         contextMenu.PlacementTarget = button;
         contextMenu.Open();
@@ -198,10 +195,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
             return;
         }
 
-        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
-        {
-            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
-        }
+        await UpdateContextMenu(contextMenu);
     }
 
     private void Insert_OnClick(object? sender, RoutedEventArgs e)
@@ -227,5 +221,25 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
     private void FileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
     {
         _service?.ImportAudioMetadata();
+    }
+
+    private async Task UpdateContextMenu(ContextMenu contextMenu)
+    {
+        if (contextMenu.Items.FirstOrDefault(x => x is MenuItem { Name: "PasteMenuItem" }) is MenuItem pasteMenuItem)
+        {
+            pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
+        }
+        
+        _service?.UpdateContextMenuOptions();
+    }
+
+    private void MoveUpMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.MoveUp();
+    }
+
+    private void MoveDownMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.MoveDown();
     }
 }
