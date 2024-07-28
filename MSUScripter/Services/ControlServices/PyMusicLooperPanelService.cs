@@ -137,9 +137,10 @@ public class PyMusicLooperPanelService(
                     (_model.FilterStart == null || x.LoopStart >= _model.FilterStart) &&
                     (_model.FilterEnd == null || x.LoopEnd <= _model.FilterEnd))
                 .ToList();
-            _model.Page = 0;
-            _model.LastPage = _model.FilteredResults.Count / _model.NumPerPage;
         }
+        
+        _model.Page = 0;
+        _model.LastPage = _model.FilteredResults.Count / _model.NumPerPage;
     }
     
     public void TestPyMusicLooper()
