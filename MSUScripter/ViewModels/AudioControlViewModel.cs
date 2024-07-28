@@ -17,6 +17,7 @@ public class AudioControlViewModel : ViewModelBase
     [Reactive] public bool CanPopout { get; set; }
     [Reactive] public bool CanSetTimeSeconds { get; set; }
     [Reactive] public bool CanPressPopoutButton { get; set; } = true;
+    public double PreviousPosition { get; set; }
     public int IconSize => 16;
     
     public override ViewModelBase DesignerExample()

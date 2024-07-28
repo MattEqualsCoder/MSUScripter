@@ -102,4 +102,9 @@ public partial class AudioControl : UserControl
         if (_service == null || sender is not Slider slider) return;
         slider.Value = _service.GetCurrentVolume();
     }
+
+    private void Control_OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        _service?.ShutdownService();
+    }
 }

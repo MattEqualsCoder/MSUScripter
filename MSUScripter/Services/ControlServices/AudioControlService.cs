@@ -57,7 +57,11 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
 
     public void UpdatePosition(double position)
     {
-        audioService.SetPosition(position / 100);
+        if (Math.Abs(position - _model.PreviousPosition) > 0.01)
+        {
+            _model.PreviousPosition = position;
+            audioService.SetPosition(position / 100);
+        }
     }
     
     public void SetSeconds()
@@ -79,6 +83,12 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
         Settings.Volume = volume / 100;
         audioService.SetVolume(volume / 100);
         settingsService.SaveSettings();
+    }
+
+    public void ShutdownService()
+    {
+        _timer.Elapsed -= TimerOnElapsed;
+        _timer.Stop();
     }
 
     private void PlayStopped(object? sender, EventArgs e)
@@ -120,7 +130,7 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        _model.Position = (audioService.GetCurrentPosition() ?? 0.0) * 100;
+        _model.Position = _model.PreviousPosition = (audioService.GetCurrentPosition() ?? 0.0) * 100;
         var currentTime = TimeSpan.FromSeconds(audioService.GetCurrentPositionSeconds()).ToString(@"mm\:ss");
         var totalTime = TimeSpan.FromSeconds(audioService.GetLengthSeconds()).ToString(@"mm\:ss");
         _model.Timestamp = $"{currentTime}/{totalTime}";
