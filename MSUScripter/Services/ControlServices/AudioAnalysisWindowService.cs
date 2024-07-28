@@ -105,8 +105,8 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
     public void RunSong(AudioAnalysisSongViewModel song)
     {
-        song.AvgDecibals = null;
-        song.MaxDecibals = null;
+        song.AvgDecibels = null;
+        song.MaxDecibels = null;
         song.WarningMessage = "";
         song.HasLoaded = false;
 
@@ -125,25 +125,25 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
     public event EventHandler? Completed;
     
-    private double GetAverageRms() => Math.Round(_model.Rows.Where(x => x.AvgDecibals != null).Average(x => x.AvgDecibals) ?? 0, 4);
-    private double GetAveragePeak() => Math.Round(_model.Rows.Where(x => x.MaxDecibals != null).Average(x => x.MaxDecibals) ?? 0, 4);
+    private double GetAverageRms() => Math.Round(_model.Rows.Where(x => x.AvgDecibels != null).Average(x => x.AvgDecibels) ?? 0, 4);
+    private double GetAveragePeak() => Math.Round(_model.Rows.Where(x => x.MaxDecibels != null).Average(x => x.MaxDecibels) ?? 0, 4);
     
     private void CheckSongWarnings(AudioAnalysisSongViewModel song, double averageVolume, double maxVolume)
     {
-        if (song.AvgDecibals != null && Math.Abs(song.AvgDecibals.Value - averageVolume) > 4)
+        if (song.AvgDecibels != null && Math.Abs(song.AvgDecibels.Value - averageVolume) > 4)
         {
             song.WarningMessage =
-                $"This song's average volume of {song.AvgDecibals} differs greatly from the average volume of all songs, {averageVolume}";
+                $"This song's average volume of {song.AvgDecibels} differs greatly from the average volume of all songs, {averageVolume}";
         }
-        else if (song.MaxDecibals != null && song.MaxDecibals - maxVolume > 4)
+        else if (song.MaxDecibels != null && song.MaxDecibels - maxVolume > 4)
         {
             song.WarningMessage =
-                $"This song's peak volume of {song.MaxDecibals} differs greatly from the average peak volume of all songs, {maxVolume}";
+                $"This song's peak volume of {song.MaxDecibels} differs greatly from the average peak volume of all songs, {maxVolume}";
         }
     }
     
     private void UpdateBottomMessage()
     {
-        _model.BottomBar = $"{GetAverageRms()} Total Average Decibals | {GetAveragePeak()} Average Peak Decibals";
+        _model.BottomBar = $"{GetAverageRms()} Total Average Decibels | {GetAveragePeak()} Average Peak Decibels";
     }
 }

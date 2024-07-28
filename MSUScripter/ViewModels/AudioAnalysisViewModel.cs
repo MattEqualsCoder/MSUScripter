@@ -35,8 +35,8 @@ public class AudioAnalysisViewModel : ViewModelBase
                 SongName = "Test Song Name",
                 TrackNumber = 1,
                 TrackName = "Track #1",
-                AvgDecibals = -20,
-                MaxDecibals = -10,
+                AvgDecibels = -20,
+                MaxDecibels = -10,
                 HasLoaded = true
             },
             new AudioAnalysisSongViewModel()
@@ -44,8 +44,8 @@ public class AudioAnalysisViewModel : ViewModelBase
                 SongName = "Test Song Name 2",
                 TrackNumber = 2,
                 TrackName = "Track #2",
-                AvgDecibals = -21.25,
-                MaxDecibals = -22,
+                AvgDecibels = -21.25,
+                MaxDecibels = -22,
                 WarningMessage = "Could not fully load",
                 HasLoaded = true
             },

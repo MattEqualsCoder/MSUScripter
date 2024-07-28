@@ -250,8 +250,8 @@ public class AudioAnalysisService(
         
         return new AnalysisDataOutput()
         {
-            AvgDecibals = ConvertToDecibel(average),
-            MaxDecibals = ConvertToDecibel(maxPeak)
+            AvgDecibels = ConvertToDecibel(average),
+            MaxDecibels = ConvertToDecibel(maxPeak)
         };
     }
 

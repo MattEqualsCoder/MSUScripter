@@ -166,10 +166,10 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
             {
                 var output = await audioAnalysisService.AnalyzeAudio(_model.OutputPath);
 
-                if (output is { AvgDecibals: not null, MaxDecibals: not null })
+                if (output is { AvgDecibels: not null, MaxDecibels: not null })
                 {
-                    _model.AverageAudio = $"Average: {Math.Round(output.AvgDecibals.Value, 2)}db";
-                    _model.PeakAudio = $"Peak: {Math.Round(output.MaxDecibals.Value, 2)}db";
+                    _model.AverageAudio = $"Average: {Math.Round(output.AvgDecibels.Value, 2)}db";
+                    _model.PeakAudio = $"Peak: {Math.Round(output.MaxDecibels.Value, 2)}db";
                 }
                 else
                 {

@@ -3,7 +3,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"xmlns:controls="using:AvaloniaControls.Controls"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+xmlns:controls="using:AvaloniaControls.Controls"
         mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="450"
         Width="768" Height="1024"
         x:Class="MSUScripter.Views.AudioAnalysisWindow"
@@ -67,8 +68,8 @@
                     <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
                     <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
                     <DataGridTextColumn Header="File"  Binding="{Binding SongName}"/>
-                    <DataGridTextColumn Header="Average Volume"  Binding="{Binding AvgDecibals}"/>
-                    <DataGridTextColumn Header="Peak Volume"  Binding="{Binding MaxDecibals}"/>
+                    <DataGridTextColumn Header="Average Volume"  Binding="{Binding AvgDecibels}"/>
+                    <DataGridTextColumn Header="Peak Volume"  Binding="{Binding MaxDecibels}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>

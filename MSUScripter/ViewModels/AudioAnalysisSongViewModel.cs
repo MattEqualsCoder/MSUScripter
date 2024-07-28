@@ -16,9 +16,9 @@ public class AudioAnalysisSongViewModel : ViewModelBase
 
     [Reactive] public string Path { get; set; } = "";
     
-    [Reactive] public double? AvgDecibals { get; set; }
+    [Reactive] public double? AvgDecibels { get; set; }
     
-    [Reactive] public double? MaxDecibals { get; set; }
+    [Reactive] public double? MaxDecibels { get; set; }
 
     [Reactive] public bool HasLoaded { get; set; }
 
@@ -30,8 +30,8 @@ public class AudioAnalysisSongViewModel : ViewModelBase
 
     public void ApplyAudioAnalysis(AnalysisDataOutput data)
     {
-        AvgDecibals = data.AvgDecibals;
-        MaxDecibals = data.MaxDecibals;
+        AvgDecibels = data.AvgDecibels;
+        MaxDecibels = data.MaxDecibels;
         HasLoaded = true;
     }
 
