@@ -98,10 +98,20 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Margin="0 0 5 0" VerticalAlignment="Center">Start:</TextBlock>
                         <controls1:NumericUpDownNoScroll Grid.Column="1" Value="{Binding TrimStart}"></controls1:NumericUpDownNoScroll>
-                        <Button Grid.Column="2" Margin="5 0 0 0" IsVisible="{Binding CanDisplayTrimStartButton}" Click="GetTrimStartButton_OnClick">Get Trim Start</Button>
+                        <Button Grid.Column="2" 
+                                Margin="5 0 0 0" 
+                                IsVisible="{Binding CanDisplayTrimStartButton}" 
+                                Click="GetTrimStartButton_OnClick"
+                                IsEnabled="{Binding IsPyMusicLooperButtonEnabled}"
+                        >Get Trim Start</Button>
                         <TextBlock Grid.Column="3" Margin="15 0 5 0" VerticalAlignment="Center">End:</TextBlock>
                         <controls1:NumericUpDownNoScroll Grid.Column="4" Value="{Binding TrimEnd}" ></controls1:NumericUpDownNoScroll>
-						<Button Grid.Column="5" Margin="5 0 0 0" IsVisible="{Binding CanDisplayTrimStartButton}" Click="GetTrimEndButton_OnClick">Get Trim End</Button>
+						<Button Grid.Column="5" 
+                                Margin="5 0 0 0" 
+                                IsVisible="{Binding CanDisplayTrimStartButton}" 
+                                Click="GetTrimEndButton_OnClick"
+                                IsEnabled="{Binding IsPyMusicLooperButtonEnabled}"
+                        >Get Trim End</Button>
                     </Grid>
                 </controls1:LabeledControl>
                 
@@ -112,7 +122,7 @@
                                 Name="LoopWindowButton"
                                 Margin="5 0 0 0 "
                                 Click="LoopWindowButton_OnClick"
-                                IsEnabled="{Binding HasFile}">
+                                IsEnabled="{Binding IsPyMusicLooperButtonEnabled}">
                             Run PyMusicLooper
                         </Button>
                     </Grid>

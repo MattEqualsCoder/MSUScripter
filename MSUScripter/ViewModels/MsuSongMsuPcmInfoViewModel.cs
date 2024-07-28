@@ -63,7 +63,7 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
 
     [Reactive] public ObservableCollection<MsuSongMsuPcmInfoViewModel> SubChannels { get; init; } = [];
     
-    [SkipConvert] public bool HasFile => !string.IsNullOrEmpty(File) && System.IO.File.Exists(File);
+    [SkipConvert] public bool IsPyMusicLooperButtonEnabled => (!string.IsNullOrEmpty(File) && System.IO.File.Exists(File)) || ParentMsuPcmInfo?.IsPyMusicLooperButtonEnabled == true;
     
     [SkipConvert, Reactive]
     public bool DisplayHertzWarning { get; set; }
@@ -74,7 +74,7 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
     [SkipConvert, Reactive]
     public bool DisplaySubTrackSubChannelWarning { get; set; }
     
-    [Reactive, ReactiveLinkedProperties(nameof(HasFile))] 
+    [Reactive, ReactiveLinkedProperties(nameof(IsPyMusicLooperButtonEnabled))] 
     public string? File { get; set; }
 
     [Reactive] public bool ShowPanel { get; set; } = true;
@@ -157,6 +157,27 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
         }
 
         LastModifiedDate = lastModified;
+    }
+
+    public void UpdatePyMusicLooperButtonStatus()
+    {
+        this.RaisePropertyChanged(nameof(IsPyMusicLooperButtonEnabled));
+        foreach (var subTrackChannel in SubChannels.Concat(SubTracks))
+        {
+            subTrackChannel.UpdatePyMusicLooperButtonStatus();
+        }
+    }
+
+    public string? GetEffectiveFile()
+    {
+        var model = this;
+        
+        while (model != null && string.IsNullOrEmpty(model.File))
+        {
+            model = model.ParentMsuPcmInfo;
+        }
+
+        return model?.File;
     }
 
     [SkipConvert]

@@ -178,14 +178,15 @@ public class MsuSongMsuPcmInfoPanelService(
 
     public string? GetStartingSamples()
     {
-        if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
+        var file = _model.GetEffectiveFile();
+        if (string.IsNullOrEmpty(file) || !File.Exists(file))
         {
             return "No input file selected";
         }
 
         try
         {
-            var samples = audioAnalysisService.GetAudioStartingSample(_model.File);
+            var samples = audioAnalysisService.GetAudioStartingSample(file);
             _model.TrimStart = samples;
             return null;
         }
@@ -197,14 +198,15 @@ public class MsuSongMsuPcmInfoPanelService(
 
     public string? GetEndingSamples()
     {
-        if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
+        var file = _model.GetEffectiveFile();
+        if (string.IsNullOrEmpty(file) || !File.Exists(file))
         {
             return "No input file selected";
         }
 
         try
         {
-            var samples = audioAnalysisService.GetAudioEndingSample(_model.File);
+            var samples = audioAnalysisService.GetAudioEndingSample(file);
             _model.TrimEnd = samples;
             return null;
         }
@@ -217,6 +219,8 @@ public class MsuSongMsuPcmInfoPanelService(
     public void ImportAudioMetadata()
     {
         var topLevelPcmInfo = _model.TopLevel;
+        
+        _model.UpdatePyMusicLooperButtonStatus();
 
         if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
         {

@@ -89,7 +89,7 @@ public class PyMusicLooperPanelService(
             if (!File.Exists(result.TempPath))
             {
                 var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject,
-                    _model.MsuSongMsuPcmInfoViewModel.File!, result.LoopStart, result.LoopEnd, skipCleanup: false);
+                    _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, skipCleanup: false);
                 
                 if (response.GeneratedPcmFile)
                 {
@@ -175,7 +175,7 @@ public class PyMusicLooperPanelService(
             }
         }
         
-        if (string.IsNullOrEmpty(_model.MsuSongMsuPcmInfoViewModel.File))
+        if (string.IsNullOrEmpty(_model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()))
         {
             return;
         }
@@ -194,7 +194,7 @@ public class PyMusicLooperPanelService(
             _model.IsRunning = true;
             _model.Message = "Running PyMusicLooper";
             
-            var inputFile = _model.MsuSongMsuPcmInfoViewModel.File!;
+            var inputFile = _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!;
             var loopPoints = pyMusicLooperService.GetLoopPoints(inputFile, out string message,
                 _model.MinDurationMultiplier,
                 _model.MinLoopDuration, _model.MaxLoopDuration,
@@ -264,7 +264,7 @@ public class PyMusicLooperPanelService(
             {
                 result.Status = "Generating Preview .pcm File";
 
-                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.File!, result.LoopStart, result.LoopEnd, skipCleanup: true);
+                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, skipCleanup: true);
 
                 if (!response.Successful)
                 {

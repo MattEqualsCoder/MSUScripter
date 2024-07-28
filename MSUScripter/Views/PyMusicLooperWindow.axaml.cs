@@ -24,7 +24,6 @@ public partial class PyMusicLooperWindow : ScalableWindow
     
     public async Task<PyMusicLooperResultViewModel?> ShowDialog()
     {
-        if (App.MainWindow == null) return null;
         return await ShowDialog(App.MainWindow);
     }
 
