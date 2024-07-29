@@ -18,6 +18,7 @@ public class SettingsWindowViewModel : ViewModelBase
     [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
     [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
     [Reactive] public bool HideSubTracksSubChannelsWarning { get; set; }
+    public bool HasDoneFirstTimeSetup { get; set; }
 
     public override ViewModelBase DesignerExample()
     {

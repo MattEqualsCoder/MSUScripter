@@ -16,4 +16,5 @@ public class Settings
     public bool HideSubTracksSubChannelsWarning { get; set; }
     public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
     public bool RunMsuPcmWithKeepTemps { get; set; }
+    public bool HasDoneFirstTimeSetup { get; set; }
 }

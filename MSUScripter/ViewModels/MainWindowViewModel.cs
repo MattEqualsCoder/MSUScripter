@@ -19,7 +19,7 @@ public class MainWindowViewModel : ViewModelBase
 
     [Reactive, ReactiveLinkedProperties(nameof(DisplayNewVersionBanner))]
     public string? GitHubReleaseUrl { get; set; }
-    
+    public bool HasDoneFirstTimeSetup { get; set; }
     public bool DisplayNewPage => CurrentMsuProject == null;
     public bool DisplayEditPage => CurrentMsuProject != null;
     public string AppVersion { get; set; } = "";

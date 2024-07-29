@@ -11,7 +11,7 @@ namespace MSUScripter.Services.ControlServices;
 
 public class MainWindowService(Settings settings, SettingsService settingsService, MsuPcmService msuPcmService, PyMusicLooperService pyMusicLooperService, ProjectService projectService, IGitHubReleaseCheckerService gitHubReleaseCheckerService) : ControlService
 {
-    private MainWindowViewModel _model = new();
+    private readonly MainWindowViewModel _model = new();
 
     public MainWindowViewModel InitializeModel()
     {
@@ -19,6 +19,15 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         _ = CleanUpFolders();
         OpenCommandlineArgsProject();
         _model.AppVersion = $" v{App.Version}";
+        
+        if (!settings.HasDoneFirstTimeSetup && !string.IsNullOrEmpty(settings.MsuPcmPath))
+        {
+            settings.HasDoneFirstTimeSetup = true;
+            settingsService.SaveSettings();
+        }
+        
+        _model.HasDoneFirstTimeSetup = settings.HasDoneFirstTimeSetup;
+        
         UpdateTitle();
         return _model;
     }
@@ -50,6 +59,18 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         }
 
         _model.GitHubReleaseUrl = "";
+    }
+    
+    public bool ValidateMsuPcm(string msupcmPath)
+    {
+        return msuPcmService.ValidateMsuPcmPath(msupcmPath, out _);
+    }
+
+    public void UpdateHasDoneFirstTimeSetup(string? msupcmPath)
+    {
+        settings.HasDoneFirstTimeSetup = true;
+        settings.MsuPcmPath = msupcmPath;
+        settingsService.SaveSettings();
     }
     
     public void Shutdown()

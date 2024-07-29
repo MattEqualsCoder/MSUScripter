@@ -1,14 +1,18 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using MSUScripter.Configs;
 using MSUScripter.Events;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using FileInputControlType = AvaloniaControls.FileInputControlType;
 
 namespace MSUScripter.Views;
 
@@ -44,6 +48,47 @@ public partial class MainWindow : RestorableWindow
         else if (_model.InitProject != null)
         {
             await GetNewProjectPanel().LoadProject(_model.InitProject, _model.InitBackupProject);
+        }
+
+        if (_model.HasDoneFirstTimeSetup) return;
+        await SetupMsuPcm();
+    }
+
+    private async Task SetupMsuPcm()
+    {
+        if (_service == null) return;
+        
+        var result = await MessageWindow.ShowYesNoDialog(
+            "If you want to use msupcm++, you'll need to point the MSU Scripter to its location. Would you like to set the msupcm++ path now? You can always set it later in the settings if needed.",
+            "Setup msupcm++", this);
+        if (!result)
+        {
+            _service.UpdateHasDoneFirstTimeSetup(null);
+        }
+
+        var documentsFolderPath = await this.GetDocumentsFolderPath();
+        var filter = OperatingSystem.IsWindows()
+            ? "msupcm Executable:msupcm.exe;All Files:*.*"
+            : "msupcm Executable:msupcm;All Files:*";
+        var msuPcmPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.OpenFile, filter, documentsFolderPath);
+
+        if (msuPcmPath == null)
+        {
+            _service.UpdateHasDoneFirstTimeSetup(null);
+            return;
+        }
+
+        _service.UpdateHasDoneFirstTimeSetup(msuPcmPath.Path.LocalPath);
+        
+        if (!_service.ValidateMsuPcm(msuPcmPath.Path.LocalPath))
+        {
+            await MessageWindow.ShowErrorDialog(
+                "msupcm++ failed to run successfully. Make sure you can run msupcm -v in the commandline.",
+                "msupcm++ Error", this);
+        }
+        else
+        {
+            await MessageWindow.ShowInfoDialog("msupcm++ setup successful.", "Success", this);
         }
     }
 

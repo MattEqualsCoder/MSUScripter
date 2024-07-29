@@ -94,27 +94,24 @@
             <Grid ColumnDefinitions="*,*,*">
                 <views:AudioControl Grid.Column="0" CanPopout="True" />
                 <TextBlock Grid.Column="1" Name="StatusMessage" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding StatusBarText}"></TextBlock>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 5 5">
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 0 0" VerticalAlignment="Center">
                     <Button x:Name="AddSongButton"
-                            Margin="0 2 0 1"
                             IsVisible="{Binding MsuBasicInfoViewModel.IsMsuPcmProject }"
                             Click="AddSongButton_OnClick"
                     >Add _Song</Button>
                     <Button x:Name="AnalysisButton"
-                            Margin="8 2 0 1"
                             IsVisible="{Binding MsuBasicInfoViewModel.IsMsuPcmProject }"
+                            Margin="5 0 0 0"
                             Click="AnalysisButton_OnClick"
                     >_Audio Analysis</Button>
                     <Button x:Name="ExportButton" 
                             IsVisible="{Binding !IsMsuPcmProject }"
-                            Margin="0 2 0 1"
-                            Padding="8 5"
                             Click="ExportButton_OnClick"
                     >_Export</Button>
                     <SplitButton Content="_Export" 
                                  Name="ExportMenuButton" 
                                  IsVisible="{Binding IsMsuPcmProject }"
-                                 Margin="8 2 0 1"
+                                 Margin="5 0 0 0"
                                  Click="ExportButton_OnClick" 
                     >
                         <SplitButton.Flyout>
