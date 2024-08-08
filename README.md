@@ -32,7 +32,11 @@ A cross platform application built for creating MSUs and related files. The appl
 
 ## Troubleshooting & Support
 
-Having problems? Please feel free to [post an Issue on GitHub](). If encountering a crash, please include the latest log file located at %localappdata%/MSUScripter.
+Having problems? Please feel free to [post an Issue on GitHub](https://github.com/MattEqualsCoder/MSUScripter/issues). If encountering a crash, please include the latest log file located at %localappdata%/MSUScripter on Windows or ~/.local/share/MSUScripter/Logs on Linux.
+
+## Future
+
+As of version 4.0.0, I am considering this project mostly feature complete. There are some things I'd like to add such as better PCM support on Linux and perhaps a UI based wave form viewer for more advanced usage, but at this point I'm shifting my focus onto other personal projects. While there may be bug fixes and small feature changes, I do not predict any major updates with new functionality in the forseeable future.
 
 ## Credit & Thanks
 
@@ -42,3 +46,4 @@ Having problems? Please feel free to [post an Issue on GitHub](). If encounterin
 - [qwertymodo](https://github.com/qwertymodo) for msupcm++ 
 - [arkrow](https://github.com/arkrow) for PyMusicLooper
 - [StructuralMike](https://github.com/StructuralMike) for the original Python code to create the Copyright Test Videos.
+- All of the MSU creators out there who made this worth making!
