@@ -38,6 +38,8 @@ Having problems? Please feel free to [post an Issue on GitHub](https://github.co
 
 As of version 4.0.0, I am considering this project mostly feature complete. There are some things I'd like to add such as better PCM support on Linux and perhaps a UI based wave form viewer for more advanced usage, but at this point I'm shifting my focus onto other personal projects. While there may be bug fixes and small feature changes, I do not predict any major updates with new functionality in the forseeable future.
 
+That being said, if anyone has anything they'd like to change or add themselves, pull requests are always appreciated!
+
 ## Credit & Thanks
 
 - [Vivelin](https://vivelin.net/) for the [SMZ3 Cas' Randomizer](https://github.com/Vivelin/SMZ3Randomizer), from which I borrowed some code snippets here and there.
