@@ -7,6 +7,7 @@ using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Events;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -88,8 +89,7 @@ public class PyMusicLooperPanelService(
             var playSong = true;
             if (!File.Exists(result.TempPath))
             {
-                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject,
-                    _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, skipCleanup: false);
+                var response = await CreateTempPcm(result, false);
                 
                 if (response.GeneratedPcmFile)
                 {
@@ -264,7 +264,7 @@ public class PyMusicLooperPanelService(
             {
                 result.Status = "Generating Preview .pcm File";
 
-                var response = await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, skipCleanup: true);
+                var response = await CreateTempPcm(result, true);
 
                 if (!response.Successful)
                 {
@@ -301,6 +301,13 @@ public class PyMusicLooperPanelService(
         }
         
         _model.GeneratingPcms = false;
+    }
+
+    private async Task<GeneratePcmFileResponse> CreateTempPcm(PyMusicLooperResultViewModel result, bool skipCleanup)
+    {
+        var normalization = _model.MsuSongMsuPcmInfoViewModel.Normalization ??
+                            _model.MsuProjectViewModel.BasicInfo.Normalization ?? -25;
+        return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
     }
 
     private void GetLoopDuration(PyMusicLooperResultViewModel song)
