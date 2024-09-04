@@ -208,12 +208,18 @@ public class PyMusicLooperService
 
         return result.Split("\n")
             .Select(ParsePyMusicLooperLine)
+            .Where(x => x != null)
+            .Cast<(int, int, decimal)>()
             .ToList();
     }
 
-    private (int, int, decimal) ParsePyMusicLooperLine(string input)
+    private (int, int, decimal)? ParsePyMusicLooperLine(string input)
     {
         var parts = input.Split(" ");
+        if (parts.Length < 5)
+        {
+            return null;
+        }
         int.TryParse(parts[0], CultureInfo.InvariantCulture, out var loopStart);
         int.TryParse(parts[1], CultureInfo.InvariantCulture, out var loopEnd);
         decimal.TryParse(parts[4], CultureInfo.InvariantCulture, out var score);
