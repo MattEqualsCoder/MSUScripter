@@ -75,6 +75,9 @@
                                 <MenuItem Header="Move Song"
                                           Click="MoveSongMenuItem_OnClick" 
                                 ></MenuItem>
+                                <MenuItem Header="Swap Song"
+                                          Click="SwapSongMenuItem_OnClick" 
+                                ></MenuItem>
                                 <MenuItem Header="Remove Song" Name="RemoveButton"
                                           Click="RemoveButton_OnClick" 
                                 ></MenuItem>

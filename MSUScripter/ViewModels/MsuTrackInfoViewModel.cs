@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using MSUScripter.Models;
 using ReactiveUI;
@@ -36,6 +37,31 @@ public class MsuTrackInfoViewModel : ViewModelBase
     public bool HasChangesSince(DateTime time)
     {
         return Songs.Any(x => x.HasChangesSince(time)) || LastModifiedDate > time;
+    }
+    
+    public void FixTrackSuffixes(bool? canPlaySongs = null)
+    {
+        var msu = new FileInfo(Project.MsuPath);
+
+        canPlaySongs ??= Songs.Any(x => x.CanPlaySongs);
+        
+        for (var i = 0; i < Songs.Count; i++)
+        {
+            var songInfo = Songs[i];
+            
+            if (i == 0)
+            {
+                songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}.pcm");
+            }
+            else
+            {
+                var altSuffix = i == 1 ? "alt" : $"alt{i}";
+                songInfo.OutputPath =
+                    msu.FullName.Replace(msu.Extension, $"-{TrackNumber}_{altSuffix}.pcm");
+            }
+            
+            songInfo.ApplyCascadingSettings(Project, this, i > 0, canPlaySongs == true, true, true);
+        }
     }
 
     public override string ToString()

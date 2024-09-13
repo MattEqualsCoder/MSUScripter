@@ -17,11 +17,11 @@ public partial class DuplicateMoveTrackWindow : Window
     }
     
     public DuplicateMoveTrackWindow(MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
-        MsuSongInfoViewModel msuSongInfoViewModel, bool isMove)
+        MsuSongInfoViewModel msuSongInfoViewModel, CopyMoveType type)
     {
         InitializeComponent();
         _service = this.GetControlService<CopyMoveTrackWindowService>();
-        DataContext = _service?.InitializeModel(msuProjectViewModel, trackViewModel, msuSongInfoViewModel, isMove);
+        DataContext = _service?.InitializeModel(msuProjectViewModel, trackViewModel, msuSongInfoViewModel, type);
     }
 
     private void OkButton_OnClick(object? sender, RoutedEventArgs e)
@@ -33,5 +33,10 @@ public partial class DuplicateMoveTrackWindow : Window
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
         Close();
+    }
+
+    private void TrackComboBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        _service?.UpdateTrackLocations();
     }
 }

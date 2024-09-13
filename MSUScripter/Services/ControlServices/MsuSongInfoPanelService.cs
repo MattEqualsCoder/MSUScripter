@@ -31,14 +31,7 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
     public void DeleteSong()
     {
         _model.Track.Songs.Remove(_model);
-
-        if (!_model.IsAlt && _model.Track.Songs.Any())
-        {
-            var newPrimaryTrack = _model.Track.Songs.First();
-            newPrimaryTrack.IsAlt = false;
-            var msu = new FileInfo(_model.Project.MsuPath);
-            newPrimaryTrack.OutputPath = msu.FullName.Replace(msu.Extension, $"-{_model.TrackNumber}.pcm");
-        }
+        _model.Track.FixTrackSuffixes(_model.CanPlaySongs);
     }
     
     public async Task PauseSong()

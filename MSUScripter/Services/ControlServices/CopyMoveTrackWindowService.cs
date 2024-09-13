@@ -1,25 +1,27 @@
-using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AvaloniaControls.ControlServices;
+using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class CopyMoveTrackWindowService (ConverterService converterService) : ControlService
+public class CopyMoveTrackWindowService (ConverterService converterService, ILogger<CopyMoveTrackWindowService> logger) : ControlService
 {
     private readonly CopyMoveTrackWindowViewModel _model = new();
 
     public CopyMoveTrackWindowViewModel InitializeModel(MsuProjectViewModel msuProjectViewModel, MsuTrackInfoViewModel trackViewModel,
-        MsuSongInfoViewModel msuSongInfoViewModel, bool isMove)
+        MsuSongInfoViewModel msuSongInfoViewModel, CopyMoveType type)
     {
         _model.Project = msuProjectViewModel;
         _model.PreviousTrack = trackViewModel;
         _model.PreviousSong = msuSongInfoViewModel;
-        _model.IsMove = isMove;
+        _model.Type = type;
         _model.Tracks = msuProjectViewModel.Tracks.OrderBy(x => x.TrackNumber).ToList();
         _model.TargetTrack = _model.PreviousTrack;
+        _model.OriginalLocation = trackViewModel.Songs.IndexOf(msuSongInfoViewModel);
         
         return _model;
     }
@@ -31,61 +33,104 @@ public class CopyMoveTrackWindowService (ConverterService converterService) : Co
             return;
         }
 
+        var songInfo = _model.PreviousSong;
+        var previousTrack = _model.PreviousTrack;
         var destinationTrack = _model.TargetTrack;
         
-        if (_model.IsMove)
+        if (_model.Type == CopyMoveType.Move)
         {
-            if (destinationTrack.TrackNumber == _model.PreviousTrack.TrackNumber)
+            var targetLocation = _model.TargetLocation;
+            if (previousTrack == destinationTrack && targetLocation > _model.OriginalLocation)
             {
-                return;
+                targetLocation--;
             }
-
-            var songInfo = _model.PreviousSong;
-
-            var msu = new FileInfo(_model.Project.MsuPath);
-            if (!songInfo.MsuPcmInfo.IsAlt)
-            {
-                songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}.pcm");
-            }
-            else
-            {
-                var altSuffix = destinationTrack.Songs.Count == 1 ? "alt" : $"alt{destinationTrack.Songs.Count}";
-                songInfo.OutputPath =
-                    msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}_{altSuffix}.pcm");
-            }
-
-            _model.PreviousTrack.Songs.Remove(songInfo);
-            songInfo.ApplyCascadingSettings(_model.Project, destinationTrack, destinationTrack.Songs.Count > 0, songInfo.CanPlaySongs, true, true);
-            destinationTrack.Songs.Add(songInfo);
-            
+            previousTrack.Songs.Remove(songInfo);
+            destinationTrack.Songs.Insert(targetLocation, songInfo);
         }
-        else
+        else if (_model.Type == CopyMoveType.Copy)
         {
             var msuSongInfo = new MsuSongInfo(); 
             converterService.ConvertViewModel(_model.PreviousSong, msuSongInfo);
             converterService.ConvertViewModel(_model.PreviousSong.MsuPcmInfo, msuSongInfo.MsuPcmInfo);
             
-            msuSongInfo.TrackNumber = destinationTrack.TrackNumber;
-            msuSongInfo.TrackName = destinationTrack.TrackName;
-            msuSongInfo.IsAlt = destinationTrack.Songs.Count > 0;
-
-            var msu = new FileInfo(_model.Project.MsuPath);
-            if (!msuSongInfo.IsAlt)
-            {
-                msuSongInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}.pcm");
-            }
-            else
-            {
-                var altSuffix = destinationTrack.Songs.Count == 1 ? "alt" : $"alt{destinationTrack.Songs.Count}";
-                msuSongInfo.OutputPath =
-                    msu.FullName.Replace(msu.Extension, $"-{destinationTrack.TrackNumber}_{altSuffix}.pcm");
-            }
-            
             var msuSongInfoCloned = new MsuSongInfoViewModel(); 
             converterService.ConvertViewModel(msuSongInfo, msuSongInfoCloned);
             converterService.ConvertViewModel(msuSongInfo.MsuPcmInfo, msuSongInfoCloned.MsuPcmInfo);
-            msuSongInfoCloned.ApplyCascadingSettings(_model.Project, destinationTrack, msuSongInfo.IsAlt, _model.PreviousSong.CanPlaySongs, true, true);
-            destinationTrack.Songs.Add(msuSongInfoCloned);
+            
+            destinationTrack.Songs.Insert(_model.TargetLocation, msuSongInfoCloned);
         }
+        else if (_model.Type == CopyMoveType.Swap)
+        {
+            var originalIndex = previousTrack.Songs.IndexOf(songInfo);
+            var swapSong = destinationTrack.Songs[_model.TargetLocation];
+            previousTrack.Songs.Remove(songInfo);
+            destinationTrack.Songs.Remove(swapSong);
+            previousTrack.Songs.Insert(originalIndex, swapSong);
+            destinationTrack.Songs.Insert(_model.TargetLocation, songInfo);
+        }
+
+        previousTrack.FixTrackSuffixes(songInfo.CanPlaySongs);
+        if (previousTrack != destinationTrack)
+        {
+            destinationTrack.FixTrackSuffixes(songInfo.CanPlaySongs);
+        }
+    }
+    
+    private void FixTrackSuffixes(MsuTrackInfoViewModel track)
+    {
+        if (_model.Project == null)
+        {
+            return;
+        }
+
+        var msu = new FileInfo(_model.Project.MsuPath);
+
+        for (var i = 0; i < track.Songs.Count; i++)
+        {
+            var songInfo = track.Songs[i];
+            
+            if (i == 0)
+            {
+                songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{track.TrackNumber}.pcm");
+            }
+            else
+            {
+                var altSuffix = i == 1 ? "alt" : $"alt{i}";
+                songInfo.OutputPath =
+                    msu.FullName.Replace(msu.Extension, $"-{track.TrackNumber}_{altSuffix}.pcm");
+            }
+            
+            songInfo.ApplyCascadingSettings(_model.Project, track, i > 0, _model.PreviousSong?.CanPlaySongs == true, true, true);
+        }
+    }
+
+    public void UpdateTrackLocations()
+    {
+        List<string> locationOptions = [];
+
+        var prefix = _model.Type == CopyMoveType.Swap ? "Song " : "Before song ";
+        
+        for (var i = 0; i < _model.TargetTrack.Songs.Count; i++)
+        {
+            if (string.IsNullOrEmpty(_model.TargetTrack.Songs[0].SongName))
+            {
+                locationOptions.Add($"{prefix}{i+1}");
+            }
+            else
+            {
+                locationOptions.Add($"{prefix}{i+1}: {_model.TargetTrack.Songs[i].SongName}");
+            }
+        }
+
+        logger.LogInformation("{Location}", _model.TargetTrack.TrackName);
+
+        if (_model.Type != CopyMoveType.Swap)
+        {
+            locationOptions.Add("At the end of the list");
+        }
+        
+        _model.TargetLocationOptions = locationOptions;
+        _model.TargetLocation = locationOptions.Count - 1;
+        _model.IsTargetLocationEnabled = locationOptions.Count > 1;
     }
 }

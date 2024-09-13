@@ -139,14 +139,21 @@ public partial class MsuSongInfoPanel : UserControl
     private void DuplicateSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         var window = new DuplicateMoveTrackWindow(Song.Project,
-            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, false);
+            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, CopyMoveType.Copy);
         window.ShowDialog(App.MainWindow!);
     }
 
     private void MoveSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         var window = new DuplicateMoveTrackWindow(Song.Project,
-            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, true);
+            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, CopyMoveType.Move);
+        window.ShowDialog(App.MainWindow!);
+    }
+    
+    private void SwapSongMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var window = new DuplicateMoveTrackWindow(Song.Project,
+            Song.Project.Tracks.First(x => x.TrackNumber == Song.TrackNumber), Song, CopyMoveType.Swap);
         window.ShowDialog(App.MainWindow!);
     }
 

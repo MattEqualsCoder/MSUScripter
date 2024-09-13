@@ -3,7 +3,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="100"
+        mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
         Width="400"
         WindowStartupLocation="CenterOwner"
         SizeToContent="Height"
@@ -17,6 +17,7 @@
             <Button Name="OkButton"
                     Click="OkButton_OnClick"
                     Margin="0 0 2.5 0"
+                    IsEnabled="{Binding CanPressButton}"
                     Content="OK"></Button>
             <Button Name="CloseButton"
                     Click="CloseButton_OnClick"
@@ -31,6 +32,13 @@
                 ItemsSource="{Binding Tracks}"
                 SelectedValue="{Binding TargetTrack, Mode=TwoWay}"
                 DisplayMemberBinding="{Binding Display}"
+                SelectionChanged="TrackComboBox_OnSelectionChanged"
+            ></ComboBox>
+            <TextBlock Text="{Binding LocationText}" Margin="0 5 0 0"></TextBlock>
+            <ComboBox
+                ItemsSource="{Binding TargetLocationOptions}"
+                SelectedIndex="{Binding TargetLocation, Mode=TwoWay}"
+                IsEnabled="{Binding IsTargetLocationEnabled}"
             ></ComboBox>
         </StackPanel>
         
