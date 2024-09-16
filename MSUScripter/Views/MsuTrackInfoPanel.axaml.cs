@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
+using ReactiveUI;
 
 namespace MSUScripter.Views;
 
@@ -40,7 +41,16 @@ public partial class MsuTrackInfoPanel : UserControl
             }
         };
     }
-    
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        if (DataContext is MsuTrackInfoViewModel trackInfoViewModel && !string.IsNullOrEmpty(trackInfoViewModel.Description))
+        {
+            trackInfoViewModel.RaisePropertyChanged(nameof(trackInfoViewModel.Description));
+        }
+    }
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

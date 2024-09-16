@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DynamicData;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
@@ -122,6 +123,16 @@ public class ProjectService(
             }
         }
 
+        if (!project.Tracks.Any(x => x.IsScratchPad))
+        {
+            project.Tracks.Add(new MsuTrackInfo()
+            {
+                TrackNumber = 9999,
+                TrackName = "Scratch Pad",
+                IsScratchPad = true,
+            });
+        }
+
         if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == msuTypeService.GetSMZ3MsuType())
         {
             project.BasicInfo.IsSmz3Project = true;
@@ -167,6 +178,13 @@ public class ProjectService(
                 TrackName = track.Name
             });
         }
+        
+        project.Tracks.Add(new MsuTrackInfo()
+        {
+            TrackNumber = 9999,
+            TrackName = "Scratch Pad",
+            IsScratchPad = true
+        });
 
         if (!File.Exists(msuPath))
         {
@@ -283,6 +301,12 @@ public class ProjectService(
         var newTracks = new List<MsuTrackInfo>();
         foreach (var oldTrack in project.Tracks)
         {
+            if (oldTrack.IsScratchPad)
+            {
+                newTracks.Add(oldTrack);
+                continue;
+            }
+            
             var newTrackNumber = conversion(oldTrack.TrackNumber);
 
             if (oldTrack.TrackNumber == newTrackNumber)
@@ -403,6 +427,7 @@ public class ProjectService(
         var conversion = msuType.Conversions[project.MsuType];
 
         var trackConversions = project.Tracks
+            .Where(x => !x.IsScratchPad)
             .Select(x => (x.TrackNumber, conversion(x.TrackNumber)))
             .Where(x => msuType.ValidTrackNumbers.Contains(x.Item2));
 
@@ -689,7 +714,7 @@ public class ProjectService(
 
         var tracks = new List<MSURandomizerLibrary.Configs.Track>();
 
-        foreach (var projectTrack in project.Tracks)
+        foreach (var projectTrack in project.Tracks.Where(x => !x.IsScratchPad))
         {
             foreach (var projectSong in projectTrack.Songs)
             {
@@ -799,14 +824,14 @@ public class ProjectService(
         {
             var sb = new StringBuilder();
 
-            var trackCombos = project.Tracks.Where(t => t.Songs.Count > 1)
+            var trackCombos = project.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
                 .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
 
             if (otherProjects != null)
             {
                 foreach (var otherProject in otherProjects)
                 {
-                    trackCombos.AddRange(otherProject.Tracks.Where(t => t.Songs.Count > 1)
+                    trackCombos.AddRange(otherProject.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
                         .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
                 }
             }
@@ -851,9 +876,9 @@ public class ProjectService(
             return false;
         }
         
-        var projectTracks = project.Tracks.SelectMany(x => x.Songs).ToList();
+        var projectSongs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
 
-        var projectTrackNumbers = project.Tracks.SelectMany(x => x.Songs).Select(x => x.TrackNumber).Order().ToList();
+        var projectTrackNumbers = projectSongs.Select(x => x.TrackNumber).Order().ToList();
         var msuTrackNumbers = msu.Tracks.Where(x => !x.IsCopied).Select(x => x.Number).Order().ToList();
         if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
         {
@@ -885,21 +910,21 @@ public class ProjectService(
             return false;
         }
 
-        foreach (var projectTrack in projectTracks)
+        foreach (var projectSong in projectSongs)
         {
-            var filename = new FileInfo(projectTrack.OutputPath!).Name;
+            var filename = new FileInfo(projectSong.OutputPath!).Name;
             var msuTrack = msu.Tracks.FirstOrDefault(x => x.Path.EndsWith(filename));
 
             if (msuTrack == null)
             {
-                message = $"Could not find track for song {projectTrack.SongName} in the YAML file.";
+                message = $"Could not find track for song {projectSong.SongName} in the YAML file.";
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
-            else if ((projectTrack.SongName ?? "") != msuTrack.SongName || (projectTrack.Album ?? "") != (msuTrack.Album ?? "") ||
-                     (projectTrack.Artist ?? "") != (msuTrack.Artist ?? "") || (projectTrack.Url ?? "") != (msuTrack.Url ?? ""))
+            else if ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
+                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? ""))
             {
-                message = $"Detail mismatch for song {projectTrack.SongName} under track #{projectTrack.TrackNumber}.";
+                message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }

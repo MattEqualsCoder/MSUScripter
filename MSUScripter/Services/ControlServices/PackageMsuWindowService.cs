@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +31,8 @@ public class PackageMsuWindowService : ControlService
     public PackageMsuWindowViewModel InitializeModel(MsuProjectViewModel project)
     {
         _model.Project = project;
+        _model.ValidPcmPaths = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs)
+            .Select(x => x.OutputPath).Where(x => !string.IsNullOrEmpty(x)).Cast<string>().ToList();
         return _model;
     }
     
@@ -63,6 +66,12 @@ public class PackageMsuWindowService : ControlService
                 }
                 
                 if (!_extensions.Contains(Path.GetExtension(file)))
+                {
+                    continue;
+                }
+
+                if (string.Equals(Path.GetExtension(file), ".pcm", StringComparison.OrdinalIgnoreCase) &&
+                    !_model.ValidPcmPaths.Contains(file))
                 {
                     continue;
                 }

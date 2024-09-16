@@ -278,4 +278,9 @@ public partial class EditProjectPanel : UserControl
     {
         this.Find<SplitButton>(nameof(ExportMenuButton))!.IsEnabled = true;
     }
+
+    private void ScratchPadMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.SetPage(9999);
+    }
 }

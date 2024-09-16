@@ -24,7 +24,9 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
             return _model;
         }
 
-        var songs = project.Tracks.SelectMany(x => x.Songs)
+        var songs = project.Tracks
+            .Where(x => !x.IsScratchPad)
+            .SelectMany(x => x.Songs)
             .OrderBy(x => x.TrackNumber)
             .Select(x => new AudioAnalysisSongViewModel()
             {

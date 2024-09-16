@@ -32,7 +32,7 @@ public class AddSongWindowService(
         _model.SingleMode = singleMode;
         _model.TrackSearchItems = [new ComboBoxAndSearchItem(null, "Track", addDescriptions ? "Default description" : null)];
         _model.TrackSearchItems.AddRange(project.Tracks.OrderBy(x => x.TrackNumber).Select(x =>
-            new ComboBoxAndSearchItem(x, $"Track #{x.TrackNumber} - {x.TrackName}", x.Description)));
+            new ComboBoxAndSearchItem(x, x.ToString(), x.Description)));
         _model.SelectedTrack = trackNumber == null ? null : project.Tracks.FirstOrDefault(x => x.TrackNumber == trackNumber);
 
         UpdateFilePath(filePath);

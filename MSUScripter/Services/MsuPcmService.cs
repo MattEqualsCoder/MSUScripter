@@ -610,13 +610,13 @@ public class MsuPcmService
             Dither = project.BasicInfo.Dither,
             Verbosity = 2,
             Keep_temps = standAlone && _settings.RunMsuPcmWithKeepTemps,
-            First_track = project.Tracks.Min(x => x.TrackNumber),
-            Last_track = project.Tracks.Max(x => x.TrackNumber)
+            First_track = singleSong?.TrackNumber ?? project.Tracks.Min(x => x.TrackNumber),
+            Last_track = singleSong?.TrackNumber ?? project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackNumber)
         };
         var tracks = new List<Track>();
 
         var songs = singleSong == null 
-            ? project.Tracks.SelectMany(x => x.Songs).ToList()
+            ? project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList()
             : new List<MsuSongInfo>() { singleSong };
         
         foreach (var song in songs)

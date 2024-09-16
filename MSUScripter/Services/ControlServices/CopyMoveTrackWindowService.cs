@@ -8,7 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class CopyMoveTrackWindowService (ConverterService converterService, ILogger<CopyMoveTrackWindowService> logger) : ControlService
+public class CopyMoveTrackWindowService (ConverterService converterService) : ControlService
 {
     private readonly CopyMoveTrackWindowViewModel _model = new();
 
@@ -76,34 +76,6 @@ public class CopyMoveTrackWindowService (ConverterService converterService, ILog
         }
     }
     
-    private void FixTrackSuffixes(MsuTrackInfoViewModel track)
-    {
-        if (_model.Project == null)
-        {
-            return;
-        }
-
-        var msu = new FileInfo(_model.Project.MsuPath);
-
-        for (var i = 0; i < track.Songs.Count; i++)
-        {
-            var songInfo = track.Songs[i];
-            
-            if (i == 0)
-            {
-                songInfo.OutputPath = msu.FullName.Replace(msu.Extension, $"-{track.TrackNumber}.pcm");
-            }
-            else
-            {
-                var altSuffix = i == 1 ? "alt" : $"alt{i}";
-                songInfo.OutputPath =
-                    msu.FullName.Replace(msu.Extension, $"-{track.TrackNumber}_{altSuffix}.pcm");
-            }
-            
-            songInfo.ApplyCascadingSettings(_model.Project, track, i > 0, _model.PreviousSong?.CanPlaySongs == true, true, true);
-        }
-    }
-
     public void UpdateTrackLocations()
     {
         List<string> locationOptions = [];
@@ -121,8 +93,6 @@ public class CopyMoveTrackWindowService (ConverterService converterService, ILog
                 locationOptions.Add($"{prefix}{i+1}: {_model.TargetTrack.Songs[i].SongName}");
             }
         }
-
-        logger.LogInformation("{Location}", _model.TargetTrack.TrackName);
 
         if (_model.Type != CopyMoveType.Swap)
         {

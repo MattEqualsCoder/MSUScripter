@@ -30,7 +30,9 @@ public class MsuPcmGenerationWindowService(MsuPcmService msuPcmService, Converte
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory)) return _model;
         
-        var songs = project.Tracks.SelectMany(x => x.Songs)
+        var songs = project.Tracks
+            .Where(x => !x.IsScratchPad)
+            .SelectMany(x => x.Songs)
             .OrderBy(x => x.TrackNumber)
             .Select(x => new MsuPcmGenerationSongViewModel()
             {
