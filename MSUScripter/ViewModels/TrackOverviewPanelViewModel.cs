@@ -21,9 +21,9 @@ public class TrackOverviewPanelViewModel : ViewModelBase
 
     [Reactive] public int SelectedIndex { get; set; } = 0;
 
-    public int TotalTrackCount => MsuProjectViewModel.Tracks.Count;
+    public int TotalTrackCount => MsuProjectViewModel.Tracks.Count(x => !x.IsScratchPad);
     
-    public int CompletedTrackCount => MsuProjectViewModel.Tracks.Count(x => x.Songs.Any(y => y.HasFiles()));
+    public int CompletedTrackCount => MsuProjectViewModel.Tracks.Count(x => !x.IsScratchPad && x.Songs.Any(y => y.HasFiles()));
     
     public int TotalSongCount => Rows.Count(x => x.HasSong);
     

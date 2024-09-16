@@ -47,17 +47,17 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
                 metroidTrackModifier = 0;
             }
 
-            var zeldaTracks = project.Tracks.Where(t =>
-                t.TrackNumber >= zeldaTrackRange.Item1 && t.TrackNumber <= zeldaTrackRange.Item2 && t.Songs.Any());
+            var zeldaTracks = project.Tracks.Where(t => !t.IsScratchPad &&
+                t.TrackNumber >= zeldaTrackRange.Item1 && t.TrackNumber <= zeldaTrackRange.Item2 && t.Songs.Count != 0);
 
-            var metroidTracks = project.Tracks.Where(t =>
+            var metroidTracks = project.Tracks.Where(t => !t.IsScratchPad &&
                 t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2 &&
-                t.Songs.Any());
+                t.Songs.Count != 0);
 
-            var smz3Tracks = project.Tracks.Where(t =>
+            var smz3Tracks = project.Tracks.Where(t => !t.IsScratchPad &&
                 !(t.TrackNumber >= zeldaTrackRange.Item1 && t.TrackNumber <= zeldaTrackRange.Item2) &&
                 !(t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2) &&
-                t.Songs.Any());
+                t.Songs.Count != 0);
 
             if (project.BasicInfo.TrackList == TrackListType.List)
             {
@@ -81,9 +81,9 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
             }
             else
             {
-                var songs = project.Tracks.SelectMany(x => x.Songs).ToList();
+                var songs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
-                var trackLength = project.Tracks.Max(x => x.TrackName.Length) + 4;
+                var trackLength = project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackName.Length) + 4;
                 var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 4);
                 var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.CleanString().Length + 4);
                 var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.CleanString().Length + 4);
@@ -107,7 +107,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         }
         else
         {
-            var allTracks = project.Tracks.Where(t => t.Songs.Any());
+            var allTracks = project.Tracks.Where(t => !t.IsScratchPad && t.Songs.Count != 0);
             
             if (project.BasicInfo.TrackList == TrackListType.List)
             {
@@ -139,7 +139,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 
     private void AppendTrackList(IEnumerable<MsuTrackInfo> tracks, StringBuilder sb, int trackModifier)
     {
-        foreach (var track in tracks.OrderBy(x => x.TrackNumber))
+        foreach (var track in tracks.Where(x => !x.IsScratchPad).OrderBy(x => x.TrackNumber))
         {
             sb.AppendLine($"Track {track.TrackNumber + trackModifier} ({track.TrackName})");
 
@@ -186,7 +186,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         var header = $"{headerNumber}{headerTrack}{headerAlbum}{headerSong}{headerArtist}";
         sb.AppendLine(header);
         sb.AppendLine(new string('-', header.Length));
-        foreach (var track in tracks.OrderBy(x => x.TrackNumber))
+        foreach (var track in tracks.Where(x => !x.IsScratchPad).OrderBy(x => x.TrackNumber))
         {
             foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
             {

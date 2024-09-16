@@ -15,6 +15,13 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         {
             return new GeneratePcmFileResponse(false, false, "Currently generating another file", null);
         }
+
+        if (songInfo.Track.IsScratchPad && songInfo.OutputPath?.StartsWith(Directories.TempFolder) != true)
+        {
+            var msuFile = new FileInfo(songInfo.Project.MsuPath);
+            var pcmFileName = msuFile.Name.Replace(msuFile.Extension, $"-{Guid.NewGuid()}.pcm");
+            songInfo.OutputPath = Path.Combine(Directories.TempFolder, pcmFileName);
+        }
         
         await audioPlayerService.StopSongAsync(null, true);
 

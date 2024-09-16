@@ -72,12 +72,14 @@ public class ConverterService(IMsuTypeService msuTypeService)
         
         foreach (var track in project.Tracks)
         {
-            var msuTypeTrack = project.MsuType.Tracks.First(x => x.Number == track.TrackNumber);
+            var msuTypeTrack = project.MsuType.Tracks.FirstOrDefault(x => x.Number == track.TrackNumber);
 
             var trackViewModel = new MsuTrackInfoViewModel()
             {
                 Project = viewModel,
-                Description = msuTypeTrack.Description
+                Description = track.IsScratchPad
+                    ? "Use this page to add songs for keeping and editing without including them in the MSU. All songs included in this will not be included when generating and packaging the MSU."
+                    : msuTypeTrack?.Description
             };
             
             ConvertViewModel(track, trackViewModel);

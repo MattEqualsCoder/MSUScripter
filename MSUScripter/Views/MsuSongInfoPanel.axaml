@@ -119,7 +119,7 @@
                     ></controls1:BoolComboBox>
                 </controls1:LabeledControl>
                 
-                <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True">
+                <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True" IsVisible="{Binding DisplayPcmFile}">
                     <controls1:FileControl FilePath="{Binding Path=OutputPath, Mode=TwoWay}"
                                           ShowClearButton="False"
                                           FileInputType="SaveFile"
@@ -190,7 +190,7 @@
                             Click="StopMusicButton_OnClick"
                         ></Button>
                         
-                        <StackPanel Orientation="Horizontal" IsVisible="{Binding Project.BasicInfo.IsMsuPcmProject}">
+                        <StackPanel Orientation="Horizontal" IsVisible="{Binding ShowCreatePcmSection}">
                             <Button
                                 Name="CreateEmptyPcmFileButton"
                                 Content="Generate Empty File"

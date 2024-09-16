@@ -24,7 +24,7 @@ public class TrackOverviewPanelService : ControlService
 
         _model.Rows.Clear();
         
-        foreach (var track in tracks.OrderBy(x => x.TrackNumber))
+        foreach (var track in tracks.Where(x => !x.IsScratchPad).OrderBy(x => x.TrackNumber))
         {
             if (!track.Songs.Any())
             {

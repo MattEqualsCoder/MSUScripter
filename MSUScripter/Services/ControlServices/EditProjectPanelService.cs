@@ -219,7 +219,7 @@ public class EditProjectPanelService(
     public void UpdateExportMenuOptions()
     {
         _model.DisplayAltSwapperExportButton =
-            _model.CreateAltSwapper && _model.MsuProjectViewModel?.Tracks.Any(x => x.Songs.Count > 1) == true;
+            _model.CreateAltSwapper && _model.MsuProjectViewModel?.Tracks.Any(x => x is { IsScratchPad: false, Songs.Count: > 1 }) == true;
     }
 
     public void Disable()

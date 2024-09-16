@@ -35,6 +35,8 @@ public class MsuSongInfoViewModel : ViewModelBase
     [Reactive] public string? OutputPath { get; set; }
 
     [Reactive] public bool IsAlt { get; set; }
+
+    public bool DisplayPcmFile => !Track.IsScratchPad;
     
     [Reactive] 
     public bool IsComplete { get; set; }
@@ -61,6 +63,7 @@ public class MsuSongInfoViewModel : ViewModelBase
     [SkipConvert] public bool HasAudioAnalysis => !string.IsNullOrEmpty(PeakAudio);
 
     [Reactive] public bool ShowPanel { get; set; } = true;
+    public bool ShowCreatePcmSection => Project.BasicInfo.IsMsuPcmProject && !Track.IsScratchPad;
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
     
     public bool HasChangesSince(DateTime time)

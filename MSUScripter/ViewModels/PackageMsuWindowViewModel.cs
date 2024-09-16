@@ -1,4 +1,5 @@
-﻿using ReactiveUI.Fody.Helpers;
+﻿using System.Collections.Generic;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
@@ -11,6 +12,8 @@ public class PackageMsuWindowViewModel : ViewModelBase
     [Reactive] public string Response { get; set; } = "";
     
     [Reactive] public bool IsRunning { get; set; }
+
+    public List<string> ValidPcmPaths = [];
     
     public override ViewModelBase DesignerExample()
     {

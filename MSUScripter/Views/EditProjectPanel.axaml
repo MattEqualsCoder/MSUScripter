@@ -50,6 +50,13 @@
                         Padding="5"
                         Click="TrackOverviewMenuItem_OnClick"
                     ></MenuItem>
+                    <MenuItem 
+                        Header="Scratch _Pad" 
+                        Name="ScratchPadMenuItem"
+                        FontSize="11"
+                        Padding="5"
+                        Click="ScratchPadMenuItem_OnClick"
+                    ></MenuItem>
                 </Menu>
                 
                 <Grid DockPanel.Dock="Top" Margin="5" ColumnDefinitions="Auto,*,Auto">

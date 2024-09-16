@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using MSUScripter.Models;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
@@ -24,7 +25,7 @@ public class MsuTrackInfoViewModel : ViewModelBase
     
     public DateTime LastModifiedDate { get; set; }
     
-    [SkipConvert] public string? Description { get; set; }
+    [SkipConvert, Reactive] public string? Description { get; set; }
 
     [SkipConvert] public bool HasDescription => !string.IsNullOrEmpty(Description); 
 
@@ -33,6 +34,8 @@ public class MsuTrackInfoViewModel : ViewModelBase
     [SkipConvert] public ObservableCollection<MsuSongInfoViewModel> Songs { get; init; } = [];
 
     [SkipConvert] public string Display => ToString();
+    
+    public bool IsScratchPad { get; set; }
     
     public bool HasChangesSince(DateTime time)
     {
@@ -66,7 +69,7 @@ public class MsuTrackInfoViewModel : ViewModelBase
 
     public override string ToString()
     {
-        return $"Track #{TrackNumber} - {TrackName}";
+        return IsScratchPad ? "Scratch Pad" : $"Track #{TrackNumber} - {TrackName}";
     }
 
     public override ViewModelBase DesignerExample()

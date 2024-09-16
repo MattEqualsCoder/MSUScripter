@@ -306,7 +306,7 @@ public class PyMusicLooperPanelService(
     private async Task<GeneratePcmFileResponse> CreateTempPcm(PyMusicLooperResultViewModel result, bool skipCleanup)
     {
         var normalization = _model.MsuSongMsuPcmInfoViewModel.Normalization ??
-                            _model.MsuProjectViewModel.BasicInfo.Normalization ?? -25;
+                            _model.MsuProjectViewModel.BasicInfo.Normalization;
         return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
     }
 
