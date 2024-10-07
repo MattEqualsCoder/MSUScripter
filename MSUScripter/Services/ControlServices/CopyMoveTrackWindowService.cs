@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -65,8 +66,8 @@ public class CopyMoveTrackWindowService (ConverterService converterService) : Co
             var swapSong = destinationTrack.Songs[_model.TargetLocation];
             previousTrack.Songs.Remove(songInfo);
             destinationTrack.Songs.Remove(swapSong);
-            previousTrack.Songs.Insert(originalIndex, swapSong);
-            destinationTrack.Songs.Insert(_model.TargetLocation, songInfo);
+            previousTrack.Songs.Insert(Math.Clamp(originalIndex, 0, previousTrack.Songs.Count), swapSong);
+            destinationTrack.Songs.Insert(Math.Clamp(_model.TargetLocation, 0, destinationTrack.Songs.Count), songInfo);
         }
 
         previousTrack.FixTrackSuffixes(songInfo.CanPlaySongs);
