@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.TrackOverviewPanel"
              x:DataType="viewModels:TrackOverviewPanelViewModel">
@@ -42,6 +43,11 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTemplateColumn SortMemberPath="SongInfo.IsComplete">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <avalonia:MaterialIcon Kind="FlagCheckered" Width="20" Height="20" ToolTip.Tip="Song Finished?"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox Name="IsCompleteCheckBox" 
@@ -54,7 +60,50 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
+                
+                <DataGridTemplateColumn SortMemberPath="SongInfo.IsComplete">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <avalonia:MaterialIcon Kind="Video" ToolTip.Tip="Include in copyright test video?"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox Name="IsCompleteCheckBox" 
+                                      IsVisible="{Binding HasSong}" 
+                                      IsChecked="{Binding SongInfo.CheckCopyright}" 
+                                      HorizontalAlignment="Center"
+                                      Tag="{Binding}"
+                                      ToolTip.Tip="Include in copyright test video?"
+                            />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                
+                <DataGridTemplateColumn SortMemberPath="SongInfo.IsComplete">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Grid Background="Transparent" ToolTip.Tip="If the file is tested to be safe from copyright strikes in VODs">
+                                <avalonia:MaterialIcon Width="20" Height="20" Kind="Copyright"/>
+                            </Grid>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <controls:ImageButton IsVisible="{Binding HasSong}" Tag="{Binding}" Click="ToggleCopyrightSafeButton_OnClick" ToolTip.Tip="If the file is tested to be safe from copyright strikes in VODs">
+                                <Grid>
+                                    <avalonia:MaterialIcon
+                                        Width="20"
+                                        Height="20"
+                                        Kind="{Binding SongInfo.CopyrightIconKind}"
+                                        Foreground="{Binding SongInfo.CopyrightIconBrush}"
+                                    />
+                                </Grid>
+                            </controls:ImageButton>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Track" Binding="{Binding TrackNumber}"/>
                 <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
                 <DataGridTextColumn Header="Song Name"  Binding="{Binding Name}"/>
                 <DataGridTextColumn Header="Artist Name"  Binding="{Binding Artist}"/>

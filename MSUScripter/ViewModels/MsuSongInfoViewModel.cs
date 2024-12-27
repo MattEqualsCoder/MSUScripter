@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Media;
 using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
@@ -41,6 +42,8 @@ public class MsuSongInfoViewModel : ViewModelBase
     [Reactive] 
     public bool IsComplete { get; set; }
     
+    [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush))] public bool? IsCopyrightSafe { get; set; }
+    
     [Reactive] public bool CheckCopyright { get; set; }
     
     [Reactive] public DateTime LastModifiedDate { get; set; }
@@ -65,6 +68,20 @@ public class MsuSongInfoViewModel : ViewModelBase
     [Reactive] public bool ShowPanel { get; set; } = true;
     public bool ShowCreatePcmSection => Project.BasicInfo.IsMsuPcmProject && !Track.IsScratchPad;
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
+
+    public MaterialIconKind CopyrightIconKind => IsCopyrightSafe switch
+    {
+        true => MaterialIconKind.CheckCircleOutline,
+        false => MaterialIconKind.CancelCircleOutline,
+        _ => MaterialIconKind.QuestionMarkCircleOutline
+    };
+    
+    public IBrush CopyrightIconBrush => IsCopyrightSafe switch
+    {
+        true => Brushes.LimeGreen,
+        false => Brushes.IndianRed,
+        _ => Brushes.Goldenrod
+    };
     
     public bool HasChangesSince(DateTime time)
     {

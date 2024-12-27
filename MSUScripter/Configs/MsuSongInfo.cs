@@ -25,6 +25,9 @@ public class MsuSongInfo
     [Description("A url in which the user can purchase the song/album")]
     public string? Url { get; set; }
     
+    [Description("If the song has been tested and shown to be safe from copyright strikes in VODs")]
+    public bool? IsCopyrightSafe { get; set; }
+    
     [Description("Details that are passed to msupcm++ for generation")]
     public MsuSongMsuPcmInfo MsuPcmInfo { get; set; } = new();
     

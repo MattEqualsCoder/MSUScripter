@@ -312,7 +312,8 @@ public class ConverterService(IMsuTypeService msuTypeService)
                 Path = oldDetails.Path?.Replace($"{oldBase}-{oldTypeTrack.Number}", $"{newBase}-{newTypeTrack.Number}"),
                 Url = oldDetails.Url,
                 MsuName = oldDetails.MsuName,
-                MsuAuthor = oldDetails.MsuAuthor
+                MsuAuthor = oldDetails.MsuAuthor,
+                IsCopyrightSafe = oldDetails.IsCopyrightSafe
             };
 
             if (oldDetails.Alts?.Any() == true)
@@ -330,7 +331,8 @@ public class ConverterService(IMsuTypeService msuTypeService)
                         Path = alt.Path?.Replace($"{oldBase}-{oldTypeTrack.Number}", $"{newBase}-{newTypeTrack.Number}"),
                         Url = alt.Url,
                         MsuName = alt.MsuName,
-                        MsuAuthor = alt.MsuAuthor
+                        MsuAuthor = alt.MsuAuthor,
+                        IsCopyrightSafe = alt.IsCopyrightSafe
                     });
                 }
             }

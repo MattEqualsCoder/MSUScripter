@@ -727,7 +727,10 @@ public class ProjectService(
                     album: projectSong.Album,
                     url: projectSong.Url,
                     isAlt: projectSong.IsAlt
-                ));
+                )
+                {
+                    IsCopyrightSafe = projectSong.IsCopyrightSafe,
+                });
             }
         }
 

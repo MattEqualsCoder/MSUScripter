@@ -21,10 +21,17 @@
         >
             <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Content="Song Finished?" 
+                    <CheckBox
                               Margin="0 0 15 0"
                               IsChecked="{Binding IsComplete}"
-                    ></CheckBox>
+                    >
+                        <CheckBox.Content>
+                            <StackPanel Orientation="Horizontal" Background="Transparent">
+                                <avalonia:MaterialIcon Kind="FlagCheckered" Width="20" Height="20" Margin="0 0 3 0"/>
+                                <TextBlock VerticalAlignment="Center">Is Song Finished?</TextBlock>
+                            </StackPanel>
+                        </CheckBox.Content>
+                    </CheckBox>
                     
                     <Button
                         Padding="5 0"
@@ -112,7 +119,14 @@
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </controls1:LabeledControl>
-                <controls1:LabeledControl Text="Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
+                <controls1:LabeledControl Text="Is Copyright Strike Safe:" Hint="If the song has been tested and shown to be safe from copyright strikes in VODs" DisplayHint="True">
+                    <controls1:BoolComboBox
+                        Value="{Binding IsCopyrightSafe, Mode=TwoWay}"
+                        AllowNulls="True"
+                        NullDisplayText="Not Tested"
+                    ></controls1:BoolComboBox>
+                </controls1:LabeledControl>
+                <controls1:LabeledControl Text="Add to Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
                     <controls1:BoolComboBox
                         Value="{Binding CheckCopyright, Mode=TwoWay}"
                         AllowNulls="False"

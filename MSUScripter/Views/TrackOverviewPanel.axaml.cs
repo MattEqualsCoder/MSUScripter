@@ -133,4 +133,22 @@ public partial class TrackOverviewPanel : UserControl
     {
         _service?.RefreshTracks();
     }
+
+    private void ToggleCopyrightSafeButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || row.SongInfo == null) return;
+
+        if (row.SongInfo.IsCopyrightSafe == null)
+        {
+            row.SongInfo.IsCopyrightSafe = true;
+        }
+        else if (row.SongInfo.IsCopyrightSafe == true)
+        {
+            row.SongInfo.IsCopyrightSafe = false;
+        }
+        else
+        {
+            row.SongInfo.IsCopyrightSafe = null;
+        }
+    }
 }
