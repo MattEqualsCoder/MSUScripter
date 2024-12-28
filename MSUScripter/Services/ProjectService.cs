@@ -62,6 +62,12 @@ public class ProjectService(
             if (!isBackup)
                 throw;
         }
+        
+        var info = new FileInfo(project.MsuPath);
+        if (info.Directory?.Exists != true)
+        {
+            Directory.CreateDirectory(info.Directory!.FullName);
+        }
 
         if (!File.Exists(project.MsuPath))
         {
