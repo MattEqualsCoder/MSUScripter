@@ -140,4 +140,25 @@ public partial class AddSongWindow : ScalableWindow
     {
         _service?.UpdateFromPyMusicLooper(e.Result);
     }
+
+    private void CheckCopyrightButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.CheckCopyright = !_model.CheckCopyright;
+    }
+
+    private void IsCopyrightSafeButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_model.IsCopyrightSafe == null)
+        {
+            _model.IsCopyrightSafe = true;
+        }
+        else if (_model.IsCopyrightSafe == true)
+        {
+            _model.IsCopyrightSafe = false;
+        }
+        else
+        {
+            _model.IsCopyrightSafe = null;
+        }
+    }
 }

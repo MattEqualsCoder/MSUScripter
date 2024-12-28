@@ -10,9 +10,15 @@
              x:DataType="viewModels:TrackOverviewPanelViewModel">
     <DockPanel>
         
-        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" RowDefinitions="Auto, Auto">
-            <TextBlock Grid.Row="0" Grid.Column="0" Margin="0 10 0 0" Text="{Binding CompletedSongDetails}"></TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" Margin="0 10 0 0" Text="{Binding CompletedTrackDetails}"></TextBlock>
+        <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,Auto" RowDefinitions="Auto, Auto" Margin="0 10 0 0">
+            <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <avalonia:MaterialIcon Kind="FlagCheckered" Width="20" Height="20" />
+                <TextBlock Text="{Binding CompletedSongDetails}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <avalonia:MaterialIcon Kind="MusicNote" Width="20" Height="20"  />
+                <TextBlock Text="{Binding CompletedTrackDetails}" VerticalAlignment="Center" />
+            </StackPanel>
         </Grid>
         <DataGrid Name="TrackDataGrid" 
                   ItemsSource="{Binding Rows}" 

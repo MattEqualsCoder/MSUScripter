@@ -44,9 +44,9 @@ public class MsuSongInfoViewModel : ViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush), nameof(CopyrightSafeText))]
     public bool? IsCopyrightSafe { get; set; }
-    
-    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))] 
-    public bool CheckCopyright { get; set; }
+
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))]
+    public bool CheckCopyright { get; set; } = true;
     
     [Reactive] public DateTime LastModifiedDate { get; set; }
     

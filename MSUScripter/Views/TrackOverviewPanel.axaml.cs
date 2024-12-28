@@ -3,11 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using AvaloniaControls.Services;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -58,22 +57,29 @@ public partial class TrackOverviewPanel : UserControl
 
     private async void DropFile(object? sender, DragEventArgs e)
     {
-        if (_service == null) return;
-
-        var obj = e.Source;
-        while (obj is not DataGridRow)
+        try
         {
-            if (obj is not Control control) return;
-            obj = control.Parent;
+            if (_service == null) return;
+
+            var obj = e.Source;
+            while (obj is not DataGridRow)
+            {
+                if (obj is not Control control) return;
+                obj = control.Parent;
+            }
+
+            if (obj is not DataGridRow {  DataContext: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
+
+            var file = e.Data.GetFiles()?.FirstOrDefault();
+
+            if (file == null || string.IsNullOrEmpty(file.Path.LocalPath)) return;
+
+            await OpenAddSongWindow(row, file.Path.LocalPath);
         }
-
-        if (obj is not DataGridRow {  DataContext: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
-
-        var file = e.Data.GetFiles()?.FirstOrDefault();
-
-        if (file == null || string.IsNullOrEmpty(file.Path.LocalPath)) return;
-
-        await OpenAddSongWindow(row, file.Path.LocalPath);
+        catch
+        {
+            await MessageWindow.ShowErrorDialog("Unable to open song window from dropped file");
+        }
     }
     
     public event EventHandler<TrackEventArgs>? OnSelectedTrack;
@@ -99,25 +105,17 @@ public partial class TrackOverviewPanel : UserControl
         OnSelectedTrack?.Invoke(this, new TrackEventArgs(row.TrackNumber));
     }
 
-    private void IsCompleteCheckBox_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not CheckBox { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || row.SongInfo == null)
-        {
-            return;
-        }
-
-        ITaskService.Run(async () =>
-        {
-            await Task.Delay(100);
-            _service?.UpdateCompletedTrackDetails();
-        });
-        
-    }
-
     private async void OpenAddSongWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
-        await OpenAddSongWindow(row, null);
+        try
+        {
+            if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row }) return;
+            await OpenAddSongWindow(row, null);
+        }
+        catch
+        {
+            await MessageWindow.ShowErrorDialog("Unable to open add song window");
+        }
     }
 
     private async Task OpenAddSongWindow(TrackOverviewPanelViewModel.TrackOverviewRow row, string? filePath)

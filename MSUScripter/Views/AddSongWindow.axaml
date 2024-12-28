@@ -56,20 +56,20 @@
                             </TextBlock>
                         </StackPanel>
                     </controls1:CardControl.HeaderButtons>
-                    <Grid ColumnDefinitions="* * * * * * * * * * * *" RowDefinitions="* * * * * * *">
-                        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">Track</TextBlock>
-                        <TextBlock Grid.Column="6" Grid.Row="0" Grid.ColumnSpan="6" Margin="0 0 0 5">File</TextBlock>
+                    <Grid ColumnDefinitions="* * * * * * * * * * * * * * * * * * * * * * * *" RowDefinitions="* * * * * * *">
+                        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="12" Margin="0 0 0 5">Track</TextBlock>
+                        <TextBlock Grid.Column="12" Grid.Row="0" Grid.ColumnSpan="12" Margin="0 0 0 5">File</TextBlock>
                         
                         <controls1:ComboBoxAndSearchControl 
                             Grid.Row="1"
                             Grid.Column="0"
-                            Grid.ColumnSpan="6"
+                            Grid.ColumnSpan="12"
                             Margin="0 0 3 0"
                             Items="{Binding TrackSearchItems}"
                             Value="{Binding SelectedTrack, Mode=TwoWay}"
                         ></controls1:ComboBoxAndSearchControl>
                         
-                        <controls1:FileControl Grid.Row="1" Grid.Column="6" Grid.ColumnSpan="6" 
+                        <controls1:FileControl Grid.Row="1" Grid.Column="12" Grid.ColumnSpan="12" 
                                               Name="FileControl" 
                                               Filter="All Files:*"
                                               Margin="3 0 0 0"
@@ -78,58 +78,102 @@
                                               OnUpdated="FileControl_OnOnUpdated"
                         ></controls1:FileControl>
                         
-                        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Song Name</TextBlock>
-                        <TextBlock Grid.Column="4" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Artist</TextBlock>
-                        <TextBlock Grid.Column="8" Grid.Row="2" Grid.ColumnSpan="4" Margin="0 10 0 5">Album</TextBlock>
+                        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="8" Margin="0 10 0 5">Song Name</TextBlock>
+                        <TextBlock Grid.Column="8" Grid.Row="2" Grid.ColumnSpan="8" Margin="0 10 0 5">Artist</TextBlock>
+                        <TextBlock Grid.Column="16" Grid.Row="2" Grid.ColumnSpan="8" Margin="0 10 0 5">Album</TextBlock>
                         
-                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="4"
+                        <TextBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="8"
                                  Margin="0 0 3 0"
                                  Text="{Binding SongName}"
                                  IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <TextBox Grid.Row="3" Grid.Column="4" Grid.ColumnSpan="4"
+                        <TextBox Grid.Row="3" Grid.Column="8" Grid.ColumnSpan="8"
                                  Margin="3 0 3 0"
                                  Text="{Binding ArtistName}"
                                  IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <TextBox Grid.Row="3" Grid.Column="8" Grid.ColumnSpan="4"
+                        <TextBox Grid.Row="3" Grid.Column="16" Grid.ColumnSpan="8"
                                  Margin="3 0 0 0"
                                  Text="{Binding AlbumName}"
                                  IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <TextBlock Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Trim Start</TextBlock>
-                        <TextBlock Grid.Column="3" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Trim End</TextBlock>
-                        <TextBlock Grid.Column="6" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Loop Point</TextBlock>
-                        <TextBlock Grid.Column="9" Grid.Row="4" Grid.ColumnSpan="3" Margin="0 10 0 5">Normalization</TextBlock>
+                        <TextBlock Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="5" Margin="0 10 0 5">Trim Start</TextBlock>
+                        <TextBlock Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="5" Margin="0 10 0 5">Trim End</TextBlock>
+                        <TextBlock Grid.Column="10" Grid.Row="4" Grid.ColumnSpan="5" Margin="0 10 0 5">Loop Point</TextBlock>
+                        <TextBlock Grid.Column="15" Grid.Row="4" Grid.ColumnSpan="5" Margin="0 10 0 5">Normalization</TextBlock>
+                        <TextBlock Grid.Column="20" Grid.Row="4" Grid.ColumnSpan="4" Margin="0 10 0 5">Copyright</TextBlock>
                         
-                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="5" 
                                                         Margin="0 0 3 0"
                                                         Value="{Binding TrimStart}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="5" Grid.ColumnSpan="5" 
                                                         Margin="3 0 3 0"
                                                         Value="{Binding TrimEnd}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="6" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="10" Grid.ColumnSpan="5" 
                                                         Margin="3 0 3 0"
                                                         Value="{Binding LoopPoint}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="9" Grid.ColumnSpan="3" 
+                        <controls1:NumericUpDownNoScroll Grid.Row="5" Grid.Column="15" Grid.ColumnSpan="5" 
                                                         Margin="3 0 3 0"
                                                         Value="{Binding Normalization}"
                                                         IsEnabled="{Binding CanEditMainFields}"
                         />
                         
-                        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="6"  Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="20" Grid.ColumnSpan="4">
+                            <controls1:ImageButton 
+                                Margin="0 0 8 0"
+                                ToolTip.Tip="Include in video that can be uploaded to YouTube to check for potential copyright strikes?" 
+                                Click="CheckCopyrightButton_OnClick"
+                            >
+                                <StackPanel Orientation="Horizontal">
+                                    <avalonia:MaterialIcon
+                                        Kind="Video"
+                                        Width="22"
+                                        Height="22"
+                                    />
+                                    <avalonia:MaterialIcon
+                                        Width="22"
+                                        Height="22"
+                                        Kind="{Binding CheckCopyrightIconKind}"
+                                        Foreground="DarkGray"
+                                    />
+                                </StackPanel>
+                            </controls1:ImageButton>
+                            <controls1:ImageButton 
+                                Grid.Column="1"
+                                ToolTip.Tip="If the file is tested to be safe from copyright strikes in VODs"
+                                Click="IsCopyrightSafeButton_OnClick"
+                            >
+                                <StackPanel Orientation="Horizontal">
+                                    <avalonia:MaterialIcon 
+                                        Kind="Copyright"
+                                        Width="22"
+                                        Height="22"
+                                    />
+                                    <avalonia:MaterialIcon
+                                        Width="22"
+                                        Height="22"
+                                        Margin="0 0 2 0"
+                                        Kind="{Binding CopyrightIconKind}"
+                                        Foreground="{Binding CopyrightIconBrush}"
+                                    />
+                                    <TextBlock Text="{Binding CopyrightSafeText}" VerticalAlignment="Center"></TextBlock>
+                                </StackPanel>
+                            </controls1:ImageButton>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="12"  Orientation="Horizontal">
                             <Button Name="TestAudioLevelButton"
                                     Margin="0 8 0 0"
                                     Click="TestAudioLevelButton_OnClick"
@@ -153,7 +197,7 @@
                                        Text="{Binding PeakAudio}" />
                         </StackPanel>
                         
-                        <StackPanel Grid.Row="6" Grid.Column="6" Grid.ColumnSpan="6"  Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Grid.Row="6" Grid.Column="12" Grid.ColumnSpan="12"  Orientation="Horizontal" HorizontalAlignment="Right">
                             
                             <Button Name="PlaySongButton"
                                     Margin="0 8 8 0"

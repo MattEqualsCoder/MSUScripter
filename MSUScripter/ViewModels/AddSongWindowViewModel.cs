@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
 using AvaloniaControls.Models;
+using Material.Icons;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 #pragma warning disable CS0067 // Event is never used
@@ -31,6 +33,39 @@ public class AddSongWindowViewModel : ViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(CanAddSong))] 
     public MsuTrackInfoViewModel? SelectedTrack { get; set; }
+    
+    [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush), nameof(CopyrightSafeText))]
+    public bool? IsCopyrightSafe { get; set; }
+
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))]
+    public bool CheckCopyright { get; set; } = true;
+    
+    public MaterialIconKind CheckCopyrightIconKind => CheckCopyright switch
+    {
+        true => MaterialIconKind.CheckboxOutline,
+        false => MaterialIconKind.CheckboxBlankOutline,
+    };
+    
+    public MaterialIconKind CopyrightIconKind => IsCopyrightSafe switch
+    {
+        true => MaterialIconKind.CheckboxOutline,
+        false => MaterialIconKind.CancelBoxOutline,
+        _ => MaterialIconKind.QuestionBoxOutline
+    };
+    
+    public IBrush CopyrightIconBrush => IsCopyrightSafe switch
+    {
+        true => Brushes.LimeGreen,
+        false => Brushes.IndianRed,
+        _ => Brushes.Goldenrod
+    };
+    
+    public string CopyrightSafeText => IsCopyrightSafe switch
+    {
+        true => "Safe",
+        false => "Unsafe",
+        _ => "Untested"
+    };
 
     public List<ComboBoxAndSearchItem> TrackSearchItems { get; set; } = [];
 

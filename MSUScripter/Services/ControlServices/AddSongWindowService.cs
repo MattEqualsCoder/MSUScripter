@@ -167,6 +167,8 @@ public class AddSongWindowService(
             SongName = _model.SongName,
             Artist = _model.ArtistName,
             Album = _model.AlbumName,
+            CheckCopyright = _model.CheckCopyright,
+            IsCopyrightSafe = _model.IsCopyrightSafe,
             OutputPath = outputPath,
             MsuPcmInfo = new MsuSongMsuPcmInfoViewModel
             {
