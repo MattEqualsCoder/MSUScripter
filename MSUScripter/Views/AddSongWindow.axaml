@@ -71,10 +71,11 @@
                         
                         <controls1:FileControl Grid.Row="1" Grid.Column="12" Grid.ColumnSpan="12" 
                                               Name="FileControl" 
-                                              Filter="All Files:*"
+                                              Filter="Supported audio files:*.wav,*.mp3,*.flac,*.ogg;All files:*.*"
                                               Margin="3 0 0 0"
                                               FilePath="{Binding FilePath, Mode=TwoWay}" 
                                               IsEnabled="{Binding !RunningPyMusicLooper}"
+                                              CaseSensitiveFilter="False"
                                               OnUpdated="FileControl_OnOnUpdated"
                         ></controls1:FileControl>
                         

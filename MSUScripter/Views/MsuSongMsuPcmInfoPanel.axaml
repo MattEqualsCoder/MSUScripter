@@ -85,7 +85,13 @@
             <StackPanel Orientation="Vertical">
                 
                 <controls1:LabeledControl Text="Input File:" Hint="The file to be used as the input for this track/sub-track/sub-channel" DisplayHint="True">
-                    <controls1:FileControl Name="FileControl" FilePath="{Binding File, Mode=TwoWay}" OnUpdated="FileControl_OnOnUpdated"></controls1:FileControl>
+                    <controls1:FileControl
+                        Name="FileControl"
+                        FilePath="{Binding File, Mode=TwoWay}"
+                        OnUpdated="FileControl_OnOnUpdated"
+                        CaseSensitiveFilter="False"
+                        Filter="Supported audio files:*.wav,*.mp3,*.flac,*.ogg;All files:*.*"
+                    />
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="Normalization:" Hint="Normalize the current track to the specified RMS level, overrides the global normalization value" DisplayHint="True">

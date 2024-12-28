@@ -33,6 +33,20 @@
       ],
       "description": "A url in which the user can purchase the song/album"
     },
+    "CheckCopyright": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "If the song should be added to the video to upload to YouTube to check for copyright strikes"
+    },
+    "IsCopyrightSafe": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "If the song has been tested and shown to be safe from copyright strikes in VODs"
+    },
     "MsuPcmInfo": {
       "description": "Details that are passed to msupcm++ for generation",
       "oneOf": [
