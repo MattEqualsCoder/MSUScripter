@@ -42,12 +42,12 @@ public class MsuSongInfoViewModel : ViewModelBase
     [Reactive, ReactiveLinkedProperties(nameof(CompleteIconKind), nameof(CompleteIconBrush))] 
     public bool IsComplete { get; set; }
     
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))]
+    public bool? CheckCopyright { get; set; } = true;
+    
     [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush), nameof(CopyrightSafeText))]
     public bool? IsCopyrightSafe { get; set; }
 
-    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))]
-    public bool CheckCopyright { get; set; } = true;
-    
     [Reactive] public DateTime LastModifiedDate { get; set; }
     
     [Reactive] public DateTime LastGeneratedDate { get; set; }

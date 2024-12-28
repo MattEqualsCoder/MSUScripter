@@ -27,7 +27,7 @@ public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger
         _model.PreviousPath = settings.PreviousPath;
         
         _model.PcmPaths = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs)
-            .Where(x => x.CheckCopyright && File.Exists(x.OutputPath)).Select(x => x.OutputPath).ToList();
+            .Where(x => x.CheckCopyright == true && File.Exists(x.OutputPath)).Select(x => x.OutputPath).ToList();
         
         if (_model.PcmPaths.Count == 0)
         {
