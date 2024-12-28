@@ -151,4 +151,19 @@ public partial class TrackOverviewPanel : UserControl
             row.SongInfo.IsCopyrightSafe = null;
         }
     }
+
+    private void ToggleCheckCopyrightButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || row.SongInfo == null) return;
+        
+        row.SongInfo.CheckCopyright = !row.SongInfo.CheckCopyright;
+    }
+    
+    private void ToggleCompleteButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: TrackOverviewPanelViewModel.TrackOverviewRow row } || row.SongInfo == null) return;
+        
+        row.SongInfo.IsComplete = !row.SongInfo.IsComplete;
+        _service?.UpdateCompletedTrackDetails();
+    }
 }

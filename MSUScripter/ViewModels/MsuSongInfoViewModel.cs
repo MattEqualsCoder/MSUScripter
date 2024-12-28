@@ -39,12 +39,14 @@ public class MsuSongInfoViewModel : ViewModelBase
 
     public bool DisplayPcmFile => !Track.IsScratchPad;
     
-    [Reactive] 
+    [Reactive, ReactiveLinkedProperties(nameof(CompleteIconKind), nameof(CompleteIconBrush))] 
     public bool IsComplete { get; set; }
     
-    [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush))] public bool? IsCopyrightSafe { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CopyrightIconKind), nameof(CopyrightIconBrush), nameof(CopyrightSafeText))]
+    public bool? IsCopyrightSafe { get; set; }
     
-    [Reactive] public bool CheckCopyright { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightIconKind))] 
+    public bool CheckCopyright { get; set; }
     
     [Reactive] public DateTime LastModifiedDate { get; set; }
     
@@ -69,11 +71,29 @@ public class MsuSongInfoViewModel : ViewModelBase
     public bool ShowCreatePcmSection => Project.BasicInfo.IsMsuPcmProject && !Track.IsScratchPad;
     public MsuSongMsuPcmInfoViewModel MsuPcmInfo { get; set; } = new();
 
+    public MaterialIconKind CompleteIconKind => IsComplete switch
+    {
+        true => MaterialIconKind.CheckboxOutline,
+        false => MaterialIconKind.CheckboxBlankOutline,
+    };
+    
+    public IBrush CompleteIconBrush => IsComplete switch
+    {
+        true => Brushes.LimeGreen,
+        false => Brushes.DarkGray,
+    };
+    
+    public MaterialIconKind CheckCopyrightIconKind => CheckCopyright switch
+    {
+        true => MaterialIconKind.CheckboxOutline,
+        false => MaterialIconKind.CheckboxBlankOutline,
+    };
+    
     public MaterialIconKind CopyrightIconKind => IsCopyrightSafe switch
     {
-        true => MaterialIconKind.CheckCircleOutline,
-        false => MaterialIconKind.CancelCircleOutline,
-        _ => MaterialIconKind.QuestionMarkCircleOutline
+        true => MaterialIconKind.CheckboxOutline,
+        false => MaterialIconKind.CancelBoxOutline,
+        _ => MaterialIconKind.QuestionBoxOutline
     };
     
     public IBrush CopyrightIconBrush => IsCopyrightSafe switch
@@ -81,6 +101,13 @@ public class MsuSongInfoViewModel : ViewModelBase
         true => Brushes.LimeGreen,
         false => Brushes.IndianRed,
         _ => Brushes.Goldenrod
+    };
+    
+    public string CopyrightSafeText => IsCopyrightSafe switch
+    {
+        true => "Verified to be safe from copyright strikes",
+        false => "Verified to not be safe from copyright strikes",
+        _ => "Not tested for copyright strike safety"
     };
     
     public bool HasChangesSince(DateTime time)

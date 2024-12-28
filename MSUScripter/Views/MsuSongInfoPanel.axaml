@@ -21,17 +21,30 @@
         >
             <controls1:CardControl.HeaderButtons>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox
-                              Margin="0 0 15 0"
-                              IsChecked="{Binding IsComplete}"
+                    <controls1:ImageButton 
+                        ToolTip.Tip="Is Song Finished?"
+                        Click="IsCompleteButton_OnClick"
+                        Margin="0 0 5 0"
                     >
-                        <CheckBox.Content>
-                            <StackPanel Orientation="Horizontal" Background="Transparent">
-                                <avalonia:MaterialIcon Kind="FlagCheckered" Width="20" Height="20" Margin="0 0 3 0"/>
-                                <TextBlock VerticalAlignment="Center">Is Song Finished?</TextBlock>
-                            </StackPanel>
-                        </CheckBox.Content>
-                    </CheckBox>
+                        <StackPanel Orientation="Horizontal">
+                            <avalonia:MaterialIcon 
+                                Kind="FlagCheckered"
+                                Width="24"
+                                Height="24"
+                            />
+                            <avalonia:MaterialIcon
+                                Width="24"
+                                Height="24"
+                                Margin="0 0 4 0"
+                                Kind="{Binding CompleteIconKind}"
+                                Foreground="{Binding CompleteIconBrush}"
+                            />
+                            <TextBlock 
+                                Text="Is Song Finished?"
+                                VerticalAlignment="Center"
+                            />
+                        </StackPanel>
+                    </controls1:ImageButton>
                     
                     <Button
                         Padding="5 0"
@@ -119,18 +132,51 @@
                         Text="{Binding Path=Url, Mode=TwoWay}"
                     ></TextBox>
                 </controls1:LabeledControl>
-                <controls1:LabeledControl Text="Is Copyright Strike Safe:" Hint="If the song has been tested and shown to be safe from copyright strikes in VODs" DisplayHint="True">
-                    <controls1:BoolComboBox
-                        Value="{Binding IsCopyrightSafe, Mode=TwoWay}"
-                        AllowNulls="True"
-                        NullDisplayText="Not Tested"
-                    ></controls1:BoolComboBox>
-                </controls1:LabeledControl>
-                <controls1:LabeledControl Text="Add to Copyright Test:" Hint="Include song when creating the copyright test video" DisplayHint="True">
-                    <controls1:BoolComboBox
-                        Value="{Binding CheckCopyright, Mode=TwoWay}"
-                        AllowNulls="False"
-                    ></controls1:BoolComboBox>
+                <controls1:LabeledControl Text="Copyright:">
+                    <Grid ColumnDefinitions="*, *">
+                        <controls1:ImageButton 
+                            Grid.Column="0" 
+                            ToolTip.Tip="Include in video that can be uploaded to YouTube to check for potential copyright strikes?" 
+                            Click="CheckCopyrightButton_OnClick"
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <avalonia:MaterialIcon
+                                    Kind="Video"
+                                    Width="24"
+                                    Height="24"
+                                />
+                                <avalonia:MaterialIcon
+                                    Width="24"
+                                    Height="24"
+                                    Margin="0 0 4 0"
+                                    Kind="{Binding CheckCopyrightIconKind}"
+                                    Foreground="DarkGray"
+                                />
+                                <TextBlock Text="Add to YouTube copyright test video" VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </controls1:ImageButton>
+                        <controls1:ImageButton 
+                            Grid.Column="1"
+                            ToolTip.Tip="If the file is tested to be safe from copyright strikes in VODs"
+                            Click="IsCopyrightSafeButton_OnClick"
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <avalonia:MaterialIcon 
+                                    Kind="Copyright"
+                                    Width="24"
+                                    Height="24"
+                                />
+                                <avalonia:MaterialIcon
+                                    Width="24"
+                                    Height="24"
+                                    Margin="0 0 4 0"
+                                    Kind="{Binding CopyrightIconKind}"
+                                    Foreground="{Binding CopyrightIconBrush}"
+                                />
+                                <TextBlock Text="{Binding CopyrightSafeText}" VerticalAlignment="Center"></TextBlock>
+                            </StackPanel>
+                        </controls1:ImageButton>
+                    </Grid>
                 </controls1:LabeledControl>
                 
                 <controls1:LabeledControl Text="PCM File:" Hint="The path of the PCM file" DisplayHint="True" IsVisible="{Binding DisplayPcmFile}">

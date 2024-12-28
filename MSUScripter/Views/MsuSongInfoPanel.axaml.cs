@@ -235,4 +235,30 @@ public partial class MsuSongInfoPanel : UserControl
             pasteMenuItem.IsEnabled = !string.IsNullOrEmpty((await this.GetClipboardAsync())?.Trim());    
         }
     }
+
+    private void IsCopyrightSafeButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (Song.IsCopyrightSafe == null)
+        {
+            Song.IsCopyrightSafe = true;
+        }
+        else if (Song.IsCopyrightSafe == true)
+        {
+            Song.IsCopyrightSafe = false;
+        }
+        else
+        {
+            Song.IsCopyrightSafe = null;
+        }
+    }
+
+    private void CheckCopyrightButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Song.CheckCopyright = !Song.CheckCopyright;
+    }
+    
+    private void IsCompleteButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        Song.IsComplete = !Song.IsComplete;
+    }
 }

@@ -247,6 +247,8 @@ public class MsuSongMsuPcmInfoViewModel : ViewModelBase
 
     public override ViewModelBase DesignerExample()
     {
+        Song.CheckCopyright = true;
+        Song.IsCopyrightSafe = true;
         return this;
     }
 }
