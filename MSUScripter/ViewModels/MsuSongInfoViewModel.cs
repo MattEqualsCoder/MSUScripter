@@ -87,6 +87,7 @@ public class MsuSongInfoViewModel : ViewModelBase
     {
         true => MaterialIconKind.CheckboxOutline,
         false => MaterialIconKind.CheckboxBlankOutline,
+        null => MaterialIconKind.CheckboxBlankOutline
     };
     
     public MaterialIconKind CopyrightIconKind => IsCopyrightSafe switch
