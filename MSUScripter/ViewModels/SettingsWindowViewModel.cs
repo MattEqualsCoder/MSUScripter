@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
@@ -18,7 +19,9 @@ public class SettingsWindowViewModel : ViewModelBase
     [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
     [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
     [Reactive] public bool HideSubTracksSubChannelsWarning { get; set; }
+    [Reactive] public string? PyMusicLooperPath { get; set; }
     public bool HasDoneFirstTimeSetup { get; set; }
+    [SkipConvert] public bool CanSetPyMusicLooperPath { get; set; }
 
     public override ViewModelBase DesignerExample()
     {

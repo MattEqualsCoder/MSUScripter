@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -108,12 +109,24 @@ public class PythonCommandRunnerService
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                var workingDirectory = "";
+                if (System.IO.File.Exists(command))
+                {
+                    workingDirectory = Directory.GetParent(command)?.FullName;
+                    if (!string.IsNullOrEmpty(workingDirectory))
+                    {
+                        var file = Path.GetFileName(command);
+                        innerCommand = $"{file} {arguments}";
+                    }
+                }
+                
                 procStartInfo= new ProcessStartInfo("cmd", "/c " + innerCommand)
                 {
                     RedirectStandardOutput = redirectOutput,
                     RedirectStandardError = redirectOutput,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = workingDirectory
                 };
             }
             else

@@ -17,4 +17,5 @@ public class Settings
     public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
     public bool RunMsuPcmWithKeepTemps { get; set; }
     public bool HasDoneFirstTimeSetup { get; set; }
+    public string? PyMusicLooperPath { get; set; }
 }
