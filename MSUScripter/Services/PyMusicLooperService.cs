@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Settings = MSUScripter.Configs.Settings;
 
 namespace MSUScripter.Services;
 
@@ -26,13 +27,20 @@ public class PyMusicLooperService
     private bool _canReturnMultipleResults;
     private readonly string _cachePath;
     private int _currentVersion;
+    private string _pyMusicLooperCommand = "pymusiclooper";
+    private readonly Settings _settings;
 
-    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python, YamlService yamlService)
+    public PyMusicLooperService(ILogger<PyMusicLooperService> logger, PythonCommandRunnerService python, YamlService yamlService, Settings settings)
     {
         _logger = logger;
         _python = python;
         _yamlService = yamlService;
+        _settings = settings;
         _cachePath = Path.Combine(Directories.CacheFolder, "pymusiclooper");
+        if (!string.IsNullOrEmpty(settings.PyMusicLooperPath) && File.Exists(settings.PyMusicLooperPath))
+        {
+            _pyMusicLooperCommand = settings.PyMusicLooperPath;
+        }
         if (!Directory.Exists(_cachePath))
         {
             Directory.CreateDirectory(_cachePath);
@@ -68,7 +76,7 @@ public class PyMusicLooperService
         
         if (!_hasValidated)
         {
-            if (!TestService(out message))
+            if (!TestService(out message, false))
             {
                 IsRunning = false;
                 return null;
@@ -125,15 +133,24 @@ public class PyMusicLooperService
         return loopPoints;
     }
     
-    public bool TestService(out string message)
+    public bool TestService(out string message, bool force)
     {
-        if (_hasValidated)
+        if (_hasValidated && !force)
         {
             message = "";
             return true;
         }
+        
+        if (!string.IsNullOrEmpty(_settings.PyMusicLooperPath) && File.Exists(_settings.PyMusicLooperPath))
+        {
+            _pyMusicLooperCommand = _settings.PyMusicLooperPath;
+        }
+        else
+        {
+            _pyMusicLooperCommand = "pymusiclooper";
+        }
 
-        if (!_python.SetBaseCommand("pymusiclooper", "--version", out var result, out _) || !result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
+        if (!_python.SetBaseCommand(_pyMusicLooperCommand, "--version", out var result, out _) || !result.StartsWith("pymusiclooper ", StringComparison.OrdinalIgnoreCase))
         {
             message = "Could not run PyMusicLooper. Make sure it's installed and executable in command line.";
             return false;

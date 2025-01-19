@@ -52,6 +52,25 @@
                     
                 </controls1:LabeledControl>
                 
+                <controls1:LabeledControl Text="PyMusicLooper Path: " Hint="Path to the PyMusicLooper executable file (not needed if installed via pip/pipx)">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <controls1:FileControl
+                            Grid.Column="0"
+                            FilePath="{Binding PyMusicLooperPath, Mode=TwoWay}"
+                            FileInputType="OpenFile"
+                            IsEnabled="{Binding CanSetPyMusicLooperPath}"
+                        ></controls1:FileControl>
+                        <Button Grid.Column="1"
+                                Name="ValidatePyMusicLooper"
+                                Margin="5 0 0 0"
+                                Click="ValidatePyMusicLooper_OnClick"
+                        >
+                            Validate
+                        </Button>
+                    </Grid>
+                    
+                </controls1:LabeledControl>
+                
                 <controls1:LabeledControl Text="Check for Updates:" Hint="Shows a popup when first launching when there is a new update on GitHub." DisplayHint="True">
                     <controls1:BoolComboBox AllowNulls="False" Value="{Binding PromptOnUpdate, Mode=TwoWay}" />
                 </controls1:LabeledControl>

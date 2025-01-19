@@ -51,4 +51,19 @@ public partial class SettingsWindow : ScalableWindow
             await MessageWindow.ShowInfoDialog("msupcm++ verification successful!", "Success", this);
         }
     }
+
+    private async void ValidatePyMusicLooper_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var isSuccessful = _service?.ValidatePyMusicLooper();
+        if (isSuccessful != true)
+        {
+            await MessageWindow.ShowErrorDialog(
+                "There was an error verifying PyMusicLooper. Please verify that the application runs independently.",
+                "PyMusicLooper Error", this);
+        }
+        else
+        {
+            await MessageWindow.ShowInfoDialog("PyMusicLooper verification successful!", "Success", this);
+        }
+    }
 }
