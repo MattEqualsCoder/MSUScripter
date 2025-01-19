@@ -76,7 +76,7 @@ public class PyMusicLooperService
         
         if (!_hasValidated)
         {
-            if (!TestService(out message, false))
+            if (!TestService(out message))
             {
                 IsRunning = false;
                 return null;
@@ -133,15 +133,20 @@ public class PyMusicLooperService
         return loopPoints;
     }
     
-    public bool TestService(out string message, bool force)
+    public bool TestService(out string message, string? testPath = null)
     {
-        if (_hasValidated && !force)
+        if (_hasValidated && testPath == null)
         {
             message = "";
             return true;
         }
         
-        if (!string.IsNullOrEmpty(_settings.PyMusicLooperPath) && File.Exists(_settings.PyMusicLooperPath))
+        if (testPath != null)
+        {
+            _settings.PyMusicLooperPath = testPath;
+            _pyMusicLooperCommand = string.Empty == testPath ? "pymusiclooper" : testPath;
+        }
+        else if (!string.IsNullOrEmpty(_settings.PyMusicLooperPath) && File.Exists(_settings.PyMusicLooperPath))
         {
             _pyMusicLooperCommand = _settings.PyMusicLooperPath;
         }

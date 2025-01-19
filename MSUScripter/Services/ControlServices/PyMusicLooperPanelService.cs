@@ -145,7 +145,7 @@ public class PyMusicLooperPanelService(
     
     public void TestPyMusicLooper()
     {
-        if (!pyMusicLooperService.TestService(out string message, false))
+        if (!pyMusicLooperService.TestService(out string message))
         {
             _model.Message = message;
             _model.DisplayGitHubLink = true;

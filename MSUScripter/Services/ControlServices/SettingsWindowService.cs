@@ -31,6 +31,6 @@ public class SettingsWindowService(SettingsService settingsService, ConverterSer
     
     public bool ValidatePyMusicLooper()
     {
-        return pyMusicLooperService.TestService(out _, true);
+        return pyMusicLooperService.TestService(out _, _model.PyMusicLooperPath);
     }
 }
