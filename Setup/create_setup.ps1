@@ -1,6 +1,6 @@
 # To run, make sure 7zip and Inno Setup are in your path environment variables
 
-$pathFromRoot = "MSUScripter\bin\Release\net8.0"
+$pathFromRoot = "MSUScripter\bin\Release\net9.0"
 $exe = "MSUScripter.exe"
 $timeDifference = 2
 
@@ -35,9 +35,9 @@ if (Test-Path "$linuxFolder") {
 
 Write-Host "Deleted previous builds"
 
-dotnet publish --os win --arch x64 -c Release --framework net8.0 --self-contained false ../MSUScripter/MSUScripter.csproj
-dotnet publish --os win --arch x86 -c Release --framework net8.0 --self-contained false  ../MSUScripter/MSUScripter.csproj
-dotnet publish --os linux --arch x64 -c Release --framework net8.0 --self-contained false ../MSUScripter/MSUScripter.csproj
+dotnet publish --os win --arch x64 -c Release --framework net9.0 --self-contained false ../MSUScripter/MSUScripter.csproj
+dotnet publish --os win --arch x86 -c Release --framework net9.0 --self-contained false  ../MSUScripter/MSUScripter.csproj
+dotnet publish --os linux --arch x64 -c Release --framework net9.0 --self-contained false ../MSUScripter/MSUScripter.csproj
 
 $hasError = $false
 
