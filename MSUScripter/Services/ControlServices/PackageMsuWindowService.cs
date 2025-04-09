@@ -49,6 +49,18 @@ public class PackageMsuWindowService : ControlService
         sb.AppendLine($"Creating zip file {zipPath}");
         _model.Response = sb.ToString();
 
+        var validExtensions = _extensions.ToList();
+
+        if (!_model.Project.BasicInfo.WriteYamlFile)
+        {
+            validExtensions.Remove(".yml");
+        }
+
+        if (!_model.Project.BasicInfo.WriteTrackList)
+        {
+            validExtensions.Remove(".txt");
+        }
+        
         try
         {
             if (File.Exists(zipPath))
@@ -65,7 +77,16 @@ public class PackageMsuWindowService : ControlService
                     break;
                 }
                 
-                if (!_extensions.Contains(Path.GetExtension(file)))
+                if (!validExtensions.Contains(Path.GetExtension(file)))
+                {
+                    continue;
+                }
+
+                if (file.Contains("!Swap_Alt_Tracks.bat") && !_model.Project.BasicInfo.CreateAltSwapperScript)
+                {
+                    continue;
+                }
+                else if (file.Contains("!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat") && !_model.Project.BasicInfo.CreateSplitSmz3Script)
                 {
                     continue;
                 }
