@@ -259,6 +259,7 @@ public class PyMusicLooperPanelService(
     {
         if (_model.CurrentPageResults.All(x => x.Generated))
         {
+            _model.GeneratingPcms = false;
             return;
         }
 
