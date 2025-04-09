@@ -213,22 +213,33 @@ public class PyMusicLooperPanelService(
                 _model.PyMusicLooperResults =
                     loopPoints.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
                 FilterResults();
-                _model.SelectedResult = _model.FilteredResults.First();
-                _model.SelectedResult.IsSelected = true;
-                _model.Message = "Generating Preview Files";
-                RunMsuPcm();
-                if (_cts?.IsCancellationRequested == true)
+
+                if (_model.FilteredResults.Count > 0)
                 {
-                    _model.Message = "PyMusicLooper canceled";
-                    _model.IsRunning = false;
-                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
-                    return;
+                    _model.SelectedResult = _model.FilteredResults.First();
+                    _model.SelectedResult.IsSelected = true;
+                    _model.Message = "Generating Preview Files";
+                    RunMsuPcm();
+                    if (_cts?.IsCancellationRequested == true)
+                    {
+                        _model.Message = "PyMusicLooper canceled";
+                        _model.IsRunning = false;
+                        OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        return;
+                    }
+                    else
+                    {
+                        _model.Message = null;
+                        _model.IsRunning = false;
+                        OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        return;
+                    }
                 }
                 else
                 {
-                    _model.Message = null;
+                    _model.Message = "No matching results found";
                     _model.IsRunning = false;
-                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
                     return;
                 }
             }
