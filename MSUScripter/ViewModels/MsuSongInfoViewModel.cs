@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia;
 using Avalonia.Media;
 using AvaloniaControls.Models;
 using Material.Icons;
@@ -36,7 +37,7 @@ public class MsuSongInfoViewModel : ViewModelBase
     [Reactive] public string? OutputPath { get; set; }
 
     [Reactive] public bool IsAlt { get; set; }
-
+    
     public bool DisplayPcmFile => !Track.IsScratchPad;
     
     [Reactive, ReactiveLinkedProperties(nameof(CompleteIconKind), nameof(CompleteIconBrush))] 

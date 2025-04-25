@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using AvaloniaControls.Models;
 using MSUScripter.Models;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
@@ -34,6 +35,22 @@ public class MsuTrackInfoViewModel : ViewModelBase
     [SkipConvert] public ObservableCollection<MsuSongInfoViewModel> Songs { get; init; } = [];
 
     [SkipConvert] public string Display => ToString();
+
+    [SkipConvert, Reactive, ReactiveLinkedProperties(nameof(DisplayFloatingSongBanner))]
+    public MsuSongInfoViewModel? FloatingSongBannerSongInfo
+    { 
+        get;
+        set;
+    }
+    
+    [SkipConvert, Reactive, ReactiveLinkedProperties(nameof(DisplayFloatingSongBanner))]
+    public bool CanPlaySongs
+    {
+        get;
+        set;
+    }
+    
+    [SkipConvert] public bool DisplayFloatingSongBanner => FloatingSongBannerSongInfo != null && CanPlaySongs;
     
     public bool IsScratchPad { get; set; }
     

@@ -157,11 +157,12 @@
                 ></views:TrackOverviewPanel>
             </Grid>
             
-            <ScrollViewer IsVisible="{Binding DisplayTrackInfoPanel}">
-                <StackPanel Margin="8">
-                    <views:MsuTrackInfoPanel DataContext="{Binding SelectedTrack}"></views:MsuTrackInfoPanel>
-                </StackPanel>
-            </ScrollViewer>
+            <Panel IsVisible="{Binding DisplayTrackInfoPanel}">
+                <views:MsuTrackInfoPanel 
+                    DataContext="{Binding SelectedTrack}" 
+                    x:Name="CurrentTrackPanel"
+                />
+            </Panel>
             
         </Grid>
         
