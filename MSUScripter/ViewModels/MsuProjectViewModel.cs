@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MSURandomizerLibrary.Configs;
 using MSUScripter.Models;
 using MSUScripter.Tools;
 
@@ -13,6 +14,8 @@ public class MsuProjectViewModel
     public string BackupFilePath { get; set; } = "";
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
+    [SkipConvert]
+    public MsuType MsuType { get; set; }
     public DateTime LastSaveTime { get; set; }
     public List<string> IgnoreWarnings { get; set; } = new List<string>();
     [SkipConvert]

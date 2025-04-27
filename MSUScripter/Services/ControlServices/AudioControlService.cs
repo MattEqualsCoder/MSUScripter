@@ -45,6 +45,8 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
         return _model;
     }
 
+    public EventHandler? OnPlayStarted;
+
     public Task<bool> StopAsync()
     {
         return audioService.StopSongAsync();
@@ -107,6 +109,7 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
 
     private void PlayStarted(object? sender, EventArgs e)
     {
+        OnPlayStarted?.Invoke(this, EventArgs.Empty);
         _model.Icon = MaterialIconKind.Pause;
         _model.CanPlayPause = true;
         StartTimer();

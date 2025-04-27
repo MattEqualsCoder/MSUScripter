@@ -91,8 +91,15 @@ public class AddSongWindowService(
         {
             return;
         }
+
+        var loops = true;
+        if (_model.SelectedTrack != null)
+        {
+            var msuTypeTrack = _model.MsuProject.MsuType.Tracks.First(x => x.Number == _model.SelectedTrack.TrackNumber);
+            loops = !msuTypeTrack.NonLooping;
+        }
         
-        await audioPlayerService.PlaySongAsync(outputPath, fromEnd);
+        await audioPlayerService.PlaySongAsync(outputPath, fromEnd, loops);
     }
     
     public async Task StopSong(bool wait = true)

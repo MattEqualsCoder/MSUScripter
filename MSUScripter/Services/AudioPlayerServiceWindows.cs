@@ -178,7 +178,7 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
         return true;
     }
     
-    public async Task<bool> PlaySongAsync(string path, bool fromEnd)
+    public async Task<bool> PlaySongAsync(string path, bool fromEnd, bool isLoopingSong)
     {
         var canPlay = await StopSongAsync(path);
 

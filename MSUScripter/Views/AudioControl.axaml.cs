@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -24,13 +25,36 @@ public partial class AudioControl : UserControl
         else
         {
             _service = this.GetControlService<AudioControlService>();
+
+            if (_service != null)
+            {
+                _service.OnPlayStarted += async void (_, _) =>
+                {
+                    try
+                    {
+                        if (_model?.CanPopout != true)
+                        {
+                            return;
+                        }
+                        await Task.Delay(TimeSpan.FromSeconds(0.1));
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            this.GetControl<Button>(nameof(PlayPauseButton)).Focus();
+                        });
+                    }
+                    catch
+                    {
+                        // Do nothing
+                    }
+                };
+            }
             DataContext = _model = _service?.InitializeModel() ?? new AudioControlViewModel();
         }
 
         CanPopoutProperty.Changed.Subscribe(x =>
         {
             if (x.Sender != this) return;
-            _model.CanPopout = OperatingSystem.IsWindows() && x.NewValue is { HasValue: true, Value: true };
+            _model.CanPopout = x.NewValue is { HasValue: true, Value: true };
         });
         
         CanSetTimeSecondsProperty.Changed.Subscribe(x =>

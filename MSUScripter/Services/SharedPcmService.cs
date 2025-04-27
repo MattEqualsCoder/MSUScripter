@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using MSUScripter.Configs;
 using MSUScripter.Models;
@@ -81,8 +82,10 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         {
             return "No pcm file detected";
         }
+
+        var msuTypeTrackInfo = songInfo.Project.MsuType.Tracks.First(x => x.Number == songInfo.TrackNumber);
         
-        await audioPlayerService.PlaySongAsync(songInfo.OutputPath, testLoop);
+        await audioPlayerService.PlaySongAsync(songInfo.OutputPath, testLoop, !msuTypeTrackInfo.NonLooping);
         return null;
     }
 

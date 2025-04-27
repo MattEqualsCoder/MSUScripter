@@ -96,6 +96,7 @@ public class ConverterService(IMsuTypeService msuTypeService)
             viewModel.Tracks.Add(trackViewModel);
         }
 
+        viewModel.MsuType = project.MsuType;
         viewModel.LastSaveTime = DateTime.Now;
 
         return viewModel;

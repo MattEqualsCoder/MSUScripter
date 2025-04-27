@@ -103,7 +103,7 @@ public class PyMusicLooperPanelService(
 
             if (playSong && !string.IsNullOrEmpty(songPath))
             {
-                _ = audioPlayerService.PlaySongAsync(songPath, true);    
+                _ = audioPlayerService.PlaySongAsync(songPath, true, true);    
             }
             else
             {

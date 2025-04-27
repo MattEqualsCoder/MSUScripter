@@ -133,7 +133,7 @@ class Program
         }
         else
         {
-            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceLinux>();    
+            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundflow>();    
         }
 
         return collection;

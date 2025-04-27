@@ -254,6 +254,7 @@ public class MsuPcmService
                     message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 File.Delete(jsonPath);
                 
+                _logger.LogInformation("Generated PCM file {File} successfully", song.OutputPath);
                 _statusBarService.UpdateStatusBar(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
                 return new GeneratePcmFileResponse(true, true, message, song.OutputPath);
             }
@@ -276,6 +277,8 @@ public class MsuPcmService
                     message = $"Track #{song.TrackNumber} - {relativePath} - {message}";
                 WriteFailureToStatusBar();
             }
+
+            _logger.LogInformation(message);
            
             File.Delete(jsonPath);
             
