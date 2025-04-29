@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Media;
 using AvaloniaControls.Models;
@@ -11,11 +12,17 @@ namespace MSUScripter.ViewModels;
 
 public class MsuSongInfoViewModel : ViewModelBase
 {
+    private readonly HashSet<string> _ignorePropertyChanges =
+    [
+        nameof(LastModifiedDate), nameof(HasBeenModified), nameof(PauseStopText), nameof(PauseStopIcon),
+        nameof(CanPlaySongs)
+    ];
+    
     public MsuSongInfoViewModel()
     {
         PropertyChanged += (sender, args) =>
         {
-            if (args.PropertyName != nameof(LastModifiedDate) && args.PropertyName != nameof(HasBeenModified))
+            if (!string.IsNullOrEmpty(args.PropertyName) && !_ignorePropertyChanges.Contains(args.PropertyName))
             {
                 LastModifiedDate = DateTime.Now;
             }
