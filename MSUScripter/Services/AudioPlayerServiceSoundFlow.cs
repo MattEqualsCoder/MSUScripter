@@ -12,14 +12,14 @@ using SoundFlow.Providers;
 
 namespace MSUScripter.Services;
 
-public class AudioPlayerServiceSoundflow : IAudioPlayerService
+public class AudioPlayerServiceSoundFlow : IAudioPlayerService
 {
-    private readonly ILogger<AudioPlayerServiceSoundflow> _logger;
+    private readonly ILogger<AudioPlayerServiceSoundFlow> _logger;
     private readonly Settings _settings;
     private SoundPlayer? _soundPlayer;
     private MiniAudioEngine _audioEngine;
 
-    public AudioPlayerServiceSoundflow(ILogger<AudioPlayerServiceSoundflow> logger, Settings settings)
+    public AudioPlayerServiceSoundFlow(ILogger<AudioPlayerServiceSoundFlow> logger, Settings settings)
     {
         _logger = logger;
         _settings = settings;
@@ -191,15 +191,13 @@ public class AudioPlayerServiceSoundflow : IAudioPlayerService
                 loopSamples = 0;
             }
 
-            var bytes = File.ReadAllBytes(path)
-                .Skip(8);
-            var stream = new MemoryStream(bytes.ToArray());
-            _soundPlayer = new SoundPlayer(new RawDataProvider(stream, SampleFormat.S16, 2, 44100));
+            var bytes = File.ReadAllBytes(path).Skip(8);
+            _soundPlayer = new SoundPlayer(new RawDataProvider(bytes.ToArray(), SampleFormat.S16));
 
             if (isLoopingSong)
             {
                 _soundPlayer.IsLooping = true;
-                _soundPlayer.SetLoopPoints(loopSamples);
+                _soundPlayer.SetLoopPoints(loopSamples * 2);
             }
             else
             {
@@ -211,7 +209,7 @@ public class AudioPlayerServiceSoundflow : IAudioPlayerService
 
             // Start playback.
             _soundPlayer.Play();
-            _soundPlayer.Seek(startPosition);
+            _soundPlayer.Seek(startPosition * 2);
             _soundPlayer.Volume = (float)_settings.Volume;
             _soundPlayer.Pan = 0.5f;
             

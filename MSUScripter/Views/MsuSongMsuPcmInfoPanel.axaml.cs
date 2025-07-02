@@ -113,7 +113,7 @@ public partial class MsuSongMsuPcmInfoPanel : UserControl
         }
         
         var window = new PyMusicLooperWindow(); 
-        window.SetDetails(MsuPcmData.Project, MsuPcmData.Song, MsuPcmData);
+        // window.SetDetails(MsuPcmData.Project, MsuPcmData.Song, MsuPcmData);
         var loopResult = await window.ShowDialog();
         if (loopResult != null)
         {

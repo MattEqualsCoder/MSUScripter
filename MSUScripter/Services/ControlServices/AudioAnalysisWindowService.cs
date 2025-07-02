@@ -5,6 +5,7 @@ using System.Threading;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using MSURandomizerLibrary.Services;
+using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -14,7 +15,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
     private readonly AudioAnalysisViewModel _model = new();
     private readonly CancellationTokenSource _cts = new();
 
-    public AudioAnalysisViewModel InitializeModel(MsuProjectViewModel project)
+    public AudioAnalysisViewModel InitializeModel(MsuProject project)
     {
         _model.Project = project;
         
@@ -34,7 +35,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
                 TrackName = x.TrackName,
                 TrackNumber = x.TrackNumber,
                 Path = x.OutputPath ?? "",
-                OriginalViewModel = x,
+                MsuSongInfo = x,
             })
             .ToList();
 
@@ -69,7 +70,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
                 TrackName = x.TrackName,
                 TrackNumber = x.Number,
                 Path = x.Path ?? "",
-                OriginalViewModel = null,
+                MsuSongInfo = null,
                 CanRefresh = false
             })
             .ToList();
@@ -114,7 +115,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
         _ = ITaskService.Run(async () =>
         {
-            await audioAnalysisService!.AnalyzePcmFile(_model.Project!, song);
+            await audioAnalysisService.AnalyzePcmFile(_model.Project, song);
             CheckSongWarnings(song, GetAverageRms(), GetAveragePeak());
             UpdateBottomMessage();
         }, _cts.Token);

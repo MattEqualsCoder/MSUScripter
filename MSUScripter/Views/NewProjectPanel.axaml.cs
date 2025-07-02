@@ -59,8 +59,11 @@ public partial class NewProjectPanel : UserControl
         {
             project = backupProject;
         }
-            
-        OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
+
+        var msuProjectWindow = new MsuProjectWindow(project);
+        await msuProjectWindow.ShowDialog(this.ParentWindow);
+        //     
+        // OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
     }
     
     private async void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)

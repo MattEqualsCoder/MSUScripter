@@ -69,10 +69,10 @@ public class AddSongWindowService(
             File = _model.FilePath
         };
         
-        panel.UpdateModel(_model.MsuProjectViewModel, new MsuSongInfoViewModel
-        {
-            MsuPcmInfo = pcmData
-        }, pcmData);
+        // panel.UpdateModel(_model.MsuProjectViewModel, new MsuSongInfoViewModel
+        // {
+        //     MsuPcmInfo = pcmData
+        // }, pcmData);
     }
     
     public async Task PlaySong(bool fromEnd)

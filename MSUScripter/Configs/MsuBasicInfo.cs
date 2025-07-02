@@ -22,5 +22,6 @@ public class MsuBasicInfo
     public string? ZeldaMsuPath { get; set; }
     public string? MetroidMsuPath { get; set; }
     public bool IsSmz3Project { get; set; }
+    public bool? IncludeJson { get; set; }
     public DateTime LastModifiedDate { get; set; }
 }

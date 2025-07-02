@@ -1,4 +1,5 @@
 ﻿using AvaloniaControls.Models;
+using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
@@ -6,7 +7,7 @@ namespace MSUScripter.ViewModels;
 
 public class AudioAnalysisSongViewModel : ViewModelBase
 {
-    public MsuSongInfoViewModel? OriginalViewModel { get; set; }
+    public MsuSongInfo? MsuSongInfo { get; set; }
         
     [Reactive] public string SongName { get; set; } = "";
     

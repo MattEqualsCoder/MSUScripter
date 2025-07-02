@@ -8,7 +8,7 @@ using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class PyMusicLooperPanelViewModel : ViewModelBase
+public class PyMusicLooperPanelViewModel : TranslatedViewModelBase
 {
     [Reactive] public double MinDurationMultiplier { get; set; } = 0.25;
     [Reactive] public int? MinLoopDuration { get; set; }
@@ -17,10 +17,7 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
     [Reactive] public int? ApproximateEnd { get; set; }
     [Reactive] public List<PyMusicLooperResultViewModel> PyMusicLooperResults { get; set; } = [];
     [Reactive] public PyMusicLooperResultViewModel? SelectedResult { get; set; }
-    [Reactive] public MsuSongInfoViewModel MsuSongInfoViewModel { get; set; } = new();
-    [Reactive] public MsuProjectViewModel MsuProjectViewModel { get; set; } = new();
     [Reactive] public MsuProject MsuProject { get; set; } = new();
-    [Reactive] public MsuSongMsuPcmInfoViewModel MsuSongMsuPcmInfoViewModel { get; set; } = new();
     [Reactive] public bool DisplayGitHubLink { get; set; }
     [Reactive] public bool DisplayOldVersionWarning { get; set; }
     
@@ -44,6 +41,10 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(CurrentPageResults))]
     public List<PyMusicLooperResultViewModel> FilteredResults { get; set; } = [];
+
+    public string? FilePath { get; set; } = string.Empty;
+    
+    public double? Normalization { get; set; }
     
     public bool HasTestedPyMusicLooper { get; set; }
     public bool IsRunning { get; set; }
@@ -52,6 +53,9 @@ public class PyMusicLooperPanelViewModel : ViewModelBase
     public bool CanClickOnPrev => Page > 0 && !GeneratingPcms;
     public bool CanClickOnNext => Page < LastPage && !GeneratingPcms;
     public int NumPerPage => 8;
+    [Reactive] public bool CanRun { get; set; }
+    [Reactive] public bool DisplayAutoRun { get; set; }
+    [Reactive] public bool AutoRun { get; set; }
 
     public event EventHandler? FilteredResultsUpdated;
     

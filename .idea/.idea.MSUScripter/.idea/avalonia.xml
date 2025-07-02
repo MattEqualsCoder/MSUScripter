@@ -45,11 +45,20 @@
         <entry key="MSUScripter/Views/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/EditProjectPanelOld.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/FirstTimeSetupWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/FormLabel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/IconMenuItem.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/IconedMenuItem.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuBasicInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongAdvancedPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongBasicPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongBasicView.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongMsuPcmPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongOuterPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />

@@ -3,11 +3,12 @@ using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.Models;
+using MSUScripter.Text;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuBasicInfoViewModel : ViewModelBase
+public class MsuBasicInfoViewModel : SavableViewModelBase
 {
     public MsuBasicInfoViewModel()
     {
@@ -20,7 +21,7 @@ public class MsuBasicInfoViewModel : ViewModelBase
         };
     }
 
-    [SkipConvert] public MsuProjectViewModel Project { get; set; } = null!;
+    public MsuProject? Project { get; set; }
     [Reactive] public string MsuType { get; set; } = "";
 
     [Reactive] public string Game { get; set; } = "";
@@ -30,19 +31,49 @@ public class MsuBasicInfoViewModel : ViewModelBase
     [Reactive] public string Artist { get; set; } = "";
     [Reactive] public string Album { get; set; } = "";
     [Reactive] public string Url { get; set; } = ""; 
-    [Reactive] public double? Normalization { get; set; } 
-    [Reactive] public bool? Dither { get; set; } 
-    [Reactive] public bool IsMsuPcmProject { get; set; }
+    
     [Reactive] public bool CreateAltSwapperScript { get; set; }
     [Reactive] public bool CreateSplitSmz3Script { get; set; }
     [Reactive] public bool IsSmz3Project { get; set; }
     [Reactive] public string? ZeldaMsuPath { get; set; }
     [Reactive] public string? MetroidMsuPath { get; set; }
+    
+    [Reactive] public bool IsMsuPcmProject { get; set; }
+    [Reactive] public double? Normalization { get; set; } 
+    [Reactive] public bool? Dither { get; set; } 
+    [Reactive] public bool IncludeJson { get; set; }
 
     [Reactive, ReactiveLinkedProperties(nameof(WriteTrackList))] public string TrackList { get; set; } = "";
     [Reactive] public bool WriteYamlFile { get; set; }
     public DateTime LastModifiedDate { get; set; }
     public bool WriteTrackList => TrackList != TrackListType.Disabled;
+    [Reactive] public bool IsVisible { get; set; } = true;
+    
+    public void UpdateModel(MsuProject project)
+    {
+        Project = project;
+        MsuType = project.MsuTypeName;
+        Game = project.BasicInfo.Game;
+        
+        PackName = project.BasicInfo.PackName ?? "";
+        PackCreator = project.BasicInfo.PackCreator ?? "";
+        PackVersion = project.BasicInfo.PackVersion ?? "";
+        Artist = project.BasicInfo.Artist ?? "";
+        Album = project.BasicInfo.Album ?? "";
+        Url = project.BasicInfo.Url ?? "";
+        
+        CreateAltSwapperScript = project.BasicInfo.CreateAltSwapperScript;
+        CreateSplitSmz3Script = project.BasicInfo.CreateSplitSmz3Script;
+        IsSmz3Project = project.BasicInfo.IsSmz3Project;
+        ZeldaMsuPath = project.BasicInfo.ZeldaMsuPath;
+        MetroidMsuPath = project.BasicInfo.MetroidMsuPath;
+        WriteYamlFile = project.BasicInfo.WriteYamlFile;
+        
+        IsMsuPcmProject = project.BasicInfo.IsMsuPcmProject;
+        Normalization = project.BasicInfo.Normalization;
+        Dither = project.BasicInfo.Dither;
+        IncludeJson = project.BasicInfo.IncludeJson ?? false;
+    }
     
     public bool HasChangesSince(DateTime time)
     {
@@ -54,5 +85,31 @@ public class MsuBasicInfoViewModel : ViewModelBase
         TrackList = TrackListType.List;
         IsMsuPcmProject = true;
         return this;
+    }
+
+    public override void SaveChanges()
+    {
+        if (Project == null) return;
+        Project.BasicInfo.Game = Game;
+        
+        Project.BasicInfo.PackName = PackName;
+        Project.BasicInfo.PackCreator = PackCreator;
+        Project.BasicInfo.PackVersion = PackVersion;
+        
+        Project.BasicInfo.Artist = Artist;
+        Project.BasicInfo.Album = Album;
+        Project.BasicInfo.Url = Url;
+        
+        Project.BasicInfo.CreateAltSwapperScript = CreateAltSwapperScript;
+        Project.BasicInfo.CreateSplitSmz3Script = CreateSplitSmz3Script;
+        Project.BasicInfo.IsSmz3Project = IsSmz3Project;
+        Project.BasicInfo.ZeldaMsuPath = ZeldaMsuPath;
+        Project.BasicInfo.MetroidMsuPath = MetroidMsuPath;
+        Project.BasicInfo.WriteYamlFile = WriteYamlFile;
+
+        Project.BasicInfo.IsMsuPcmProject = IsMsuPcmProject;
+        Project.BasicInfo.Normalization = Normalization;
+        Project.BasicInfo.Dither = Dither;
+        Project.BasicInfo.IncludeJson = IncludeJson;
     }
 }

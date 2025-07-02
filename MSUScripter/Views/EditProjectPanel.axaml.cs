@@ -128,9 +128,9 @@ public partial class EditProjectPanel : UserControl
 
     private async void AnalysisButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_service?.MsuProjectViewModel == null) return;
-        var window = new AudioAnalysisWindow(_service.MsuProjectViewModel);
-        await window.ShowDialog(ParentWindow);
+        // if (_service?.MsuProjectViewModel == null) return;
+        // var window = new AudioAnalysisWindow(_service.MsuProjectViewModel);
+        // await window.ShowDialog(ParentWindow);
     }
 
     private async void ExportButton_OnClick(object? sender, RoutedEventArgs e)
@@ -282,5 +282,23 @@ public partial class EditProjectPanel : UserControl
     private void ScratchPadMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.SetPage(9999);
+    }
+
+    private void MenuButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
+        {
+            return;
+        }
+
+        var contextMenu = button.ContextMenu;
+        if (contextMenu == null)
+        {
+            return;
+        }
+        
+        contextMenu.PlacementTarget = button;
+        contextMenu.Open();
+        e.Handled = true;
     }
 }

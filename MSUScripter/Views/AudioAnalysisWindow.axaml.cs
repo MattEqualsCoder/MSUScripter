@@ -8,6 +8,7 @@ using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using System.IO;
+using MSUScripter.Configs;
 
 namespace MSUScripter.Views;
 
@@ -23,7 +24,7 @@ public partial class AudioAnalysisWindow : ScalableWindow
         DataContext = _model = (AudioAnalysisViewModel)new AudioAnalysisViewModel().DesignerExample();
     }
     
-    public AudioAnalysisWindow(MsuProjectViewModel project)
+    public AudioAnalysisWindow(MsuProject project)
     {
         InitializeComponent();
         _service = this.GetControlService<AudioAnalysisWindowService>();

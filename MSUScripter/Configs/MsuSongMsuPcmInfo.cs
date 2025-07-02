@@ -96,4 +96,59 @@ public class MsuSongMsuPcmInfo
                    SubTracks.Any(x => x.HasBothSubTracksAndSubChannels);
         }
     }
+
+    public bool HasData()
+    {
+        return Loop > 0 || TrimStart > 0 || TrimEnd > 0 || FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 ||
+               PadEnd > 0 || (Tempo.HasValue && Tempo != 0) || (Normalization.HasValue && Normalization != 0) ||
+               !string.IsNullOrEmpty(File) || SubChannels.Count > 0 || SubTracks.Count > 0;
+    }
+
+    public bool HasAdvancedData()
+    {
+        return FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 || PadEnd > 0 ||
+               (Tempo.HasValue && Tempo != 0) || SubChannels.Count > 0 || SubTracks.Count > 0;
+    }
+
+    public bool HasFiles()
+    {
+        return GetFiles().Count > 0;
+    }
+
+    public int MoveSubInfo(MsuSongMsuPcmInfo info, bool toSubTrack, int index, MsuSongMsuPcmInfo? previousParent)
+    {
+        var destination = toSubTrack ? SubTracks : SubChannels;
+
+        if (destination.Contains(info))
+        {
+            var currentIndex = destination.IndexOf(info);
+            if (index > currentIndex)
+            {
+                index--;
+            }
+        }
+        
+        previousParent?.SubTracks.Remove(info);
+        previousParent?.SubChannels.Remove(info);
+        
+        if (index > destination.Count)
+        {
+            destination.Add(info);
+        }
+        else
+        {
+            destination.Insert(index, info);
+        }
+
+        return index;
+    }
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        if (SubTracks.Any(x => x.HasChangesSince(time)))
+            return true;
+        if (SubChannels.Any(x => x.HasChangesSince(time)))
+            return true;
+        return LastModifiedDate > time;
+    }
 }

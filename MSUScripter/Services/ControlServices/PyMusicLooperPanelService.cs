@@ -12,6 +12,16 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+public class PyMusicLooperDetails
+{
+    public required MsuProject Project { get; set; }
+    public required string? FilePath { get; set; }
+    public required int? FilterStart { get; set; }
+    public double? Normalization { get; set; }
+    public bool AllowRunByDefault { get; set; }
+    public bool ForceRun { get; set; }
+}
+
 public class PyMusicLooperPanelService(
     PyMusicLooperService pyMusicLooperService,
     ConverterService converterService,
@@ -23,6 +33,7 @@ public class PyMusicLooperPanelService(
     private CancellationTokenSource? _cts;
     private Settings Settings => settingsService.Settings;
     public event EventHandler<PyMusicLooperPanelUpdatedArgs>? OnUpdated;
+    public event EventHandler<bool>? RunningUpdated;
 
     public PyMusicLooperPanelViewModel InitializeModel()
     {
@@ -41,17 +52,29 @@ public class PyMusicLooperPanelService(
         return _model;
     }
     
-    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
+    public void UpdateDetails(PyMusicLooperDetails details)
     {
-        _model.MsuProjectViewModel = msuProjectViewModel;
-        _model.MsuProject = converterService.ConvertProject(_model.MsuProjectViewModel);
-        _model.MsuSongInfoViewModel = msuSongInfoViewModel;
-        _model.MsuSongMsuPcmInfoViewModel = msuSongMsuPcmInfoViewModel;
-        _model.FilterStart = msuSongMsuPcmInfoViewModel.TrimStart;
+        _model.AutoRun = Settings.AutomaticallyRunPyMusicLooper;
+        _model.FilePath = details.FilePath;
+        _model.FilterStart = details.FilterStart;
+        _model.MsuProject = details.Project;
+        _model.Normalization = details.Normalization;
 
-        if (Settings.AutomaticallyRunPyMusicLooper)
+        if (string.IsNullOrEmpty(_model.FilePath))
+        {
+            _model.Message = "No file selected. Please select a file and click run.";
+            _model.CanRun = false;
+            _model.DisplayAutoRun = true;
+        }
+        else if (details.ForceRun || (Settings.AutomaticallyRunPyMusicLooper && details.AllowRunByDefault))
         {
             RunPyMusicLooper();
+        }
+        else
+        {
+            _model.Message = "Click run to execute PyMusicLooper.";
+            _model.CanRun = true;
+            _model.DisplayAutoRun = true;
         }
     }
 
@@ -161,12 +184,16 @@ public class PyMusicLooperPanelService(
 
     public void RunPyMusicLooper()
     {
+        _model.DisplayAutoRun = false;
+        RunningUpdated?.Invoke(this, true);
+        
         if (!_model.HasTestedPyMusicLooper)
         {
             TestPyMusicLooper();
 
             if (_model.DisplayGitHubLink)
             {
+                RunningUpdated?.Invoke(this, false);
                 return;
             }
             else if (!_model.DisplayOldVersionWarning)
@@ -175,8 +202,9 @@ public class PyMusicLooperPanelService(
             }
         }
         
-        if (string.IsNullOrEmpty(_model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()))
+        if (string.IsNullOrEmpty(_model.FilePath))
         {
+            RunningUpdated?.Invoke(this, false);
             return;
         }
 
@@ -184,6 +212,7 @@ public class PyMusicLooperPanelService(
         {
             _model.Message = "Both approximate loop start and end times must be filled out";
             OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+            RunningUpdated?.Invoke(this, false);
             return;
         }
 
@@ -192,9 +221,10 @@ public class PyMusicLooperPanelService(
         ITaskService.Run(() =>
         {
             _model.IsRunning = true;
+            _model.CanRun = false;
             _model.Message = "Running PyMusicLooper";
             
-            var inputFile = _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!;
+            var inputFile = _model.FilePath;
             var loopPoints = pyMusicLooperService.GetLoopPoints(inputFile, out string message,
                 _model.MinDurationMultiplier,
                 _model.MinLoopDuration, _model.MaxLoopDuration,
@@ -205,7 +235,9 @@ public class PyMusicLooperPanelService(
             {
                 _model.Message = "PyMusicLooper canceled";
                 _model.IsRunning = false;
+                _model.CanRun = true;
                 OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+                RunningUpdated?.Invoke(this, false);
                 return;
             }
             else if (loopPoints?.Any() == true)
@@ -224,14 +256,18 @@ public class PyMusicLooperPanelService(
                     {
                         _model.Message = "PyMusicLooper canceled";
                         _model.IsRunning = false;
+                        _model.CanRun = true;
                         OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        RunningUpdated?.Invoke(this, false);
                         return;
                     }
                     else
                     {
                         _model.Message = null;
                         _model.IsRunning = false;
+                        _model.CanRun = true;
                         OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        RunningUpdated?.Invoke(this, false);
                         return;
                     }
                 }
@@ -239,13 +275,17 @@ public class PyMusicLooperPanelService(
                 {
                     _model.Message = "No matching results found";
                     _model.IsRunning = false;
+                    _model.CanRun = true;
                     OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+                    RunningUpdated?.Invoke(this, false);
                     return;
                 }
             }
 
             _model.IsRunning = false;
+            _model.CanRun = true;
             OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+            RunningUpdated?.Invoke(this, false);
             _model.Message = message;
         }, _cts.Token);
     }
@@ -253,6 +293,12 @@ public class PyMusicLooperPanelService(
     public void StopPyMusicLooper()
     {
         _cts?.Cancel();
+    }
+
+    public void SaveAutoRun(bool? value)
+    {
+        Settings.AutomaticallyRunPyMusicLooper = value ?? false;
+        settingsService.SaveSettings();
     }
 
     private void RunMsuPcm(bool fullReload = true)
@@ -317,9 +363,8 @@ public class PyMusicLooperPanelService(
 
     private async Task<GeneratePcmFileResponse> CreateTempPcm(PyMusicLooperResultViewModel result, bool skipCleanup)
     {
-        var normalization = _model.MsuSongMsuPcmInfoViewModel.Normalization ??
-                            _model.MsuProjectViewModel.BasicInfo.Normalization;
-        return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
+        var normalization = _model.Normalization ?? _model.MsuProject.BasicInfo.Normalization;
+        return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.FilePath, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
     }
 
     private void GetLoopDuration(PyMusicLooperResultViewModel song)

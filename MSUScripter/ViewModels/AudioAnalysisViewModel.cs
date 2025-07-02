@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using AvaloniaControls.Models;
+using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
 public class AudioAnalysisViewModel : ViewModelBase
 {
-    public MsuProjectViewModel? Project { get; set; }
+    public MsuProjectViewModel? ProjectDeprecated { get; set; }
+    public MsuProject? Project { get; set; }
     
     [Reactive] public int SongsCompleted { get; set; }
 

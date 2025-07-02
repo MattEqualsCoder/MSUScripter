@@ -51,6 +51,14 @@ public class MsuSongInfo
     
     [JsonSchemaIgnore]
     public DateTime LastGeneratedDate { get; set; }
-
     
+    [JsonSchemaIgnore]
+    public bool? DisplayAdvancedMode { get; set; }
+
+    public bool HasAudioFiles() => MsuPcmInfo.HasFiles();
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        return MsuPcmInfo.HasChangesSince(time) || LastModifiedDate > time;
+    }
 }

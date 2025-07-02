@@ -126,9 +126,15 @@ public class ProjectService(
                         duplicate.IsAlt = true;
                     }
                 }
+
+                if (song.DisplayAdvancedMode == null)
+                {
+                    song.DisplayAdvancedMode = song.MsuPcmInfo.HasAdvancedData();
+                }
             }
         }
 
+        // Add the scratch pad if one doesn't exist already
         if (!project.Tracks.Any(x => x.IsScratchPad))
         {
             project.Tracks.Add(new MsuTrackInfo()
@@ -139,6 +145,7 @@ public class ProjectService(
             });
         }
 
+        // Save whether it's an SMZ3 MSU
         if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == msuTypeService.GetSMZ3MsuType())
         {
             project.BasicInfo.IsSmz3Project = true;
