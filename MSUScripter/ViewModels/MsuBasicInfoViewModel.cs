@@ -32,21 +32,21 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     [Reactive] public string Album { get; set; } = "";
     [Reactive] public string Url { get; set; } = ""; 
     
-    [Reactive] public bool CreateAltSwapperScript { get; set; }
-    [Reactive] public bool CreateSplitSmz3Script { get; set; }
-    [Reactive] public bool IsSmz3Project { get; set; }
-    [Reactive] public string? ZeldaMsuPath { get; set; }
-    [Reactive] public string? MetroidMsuPath { get; set; }
-    
     [Reactive] public bool IsMsuPcmProject { get; set; }
     [Reactive] public double? Normalization { get; set; } 
     [Reactive] public bool? Dither { get; set; } 
     [Reactive] public bool IncludeJson { get; set; }
-
-    [Reactive, ReactiveLinkedProperties(nameof(WriteTrackList))] public string TrackList { get; set; } = "";
+    
+    [Reactive] public TrackListEnum TrackList { get; set; }
     [Reactive] public bool WriteYamlFile { get; set; }
+    [Reactive] public bool CreateAltSwapperScript { get; set; }
+    
+    [Reactive] public bool IsSmz3Project { get; set; }
+    [Reactive] public bool CreateSplitSmz3Script { get; set; }
+    [Reactive] public string? ZeldaMsuPath { get; set; }
+    [Reactive] public string? MetroidMsuPath { get; set; }
+    
     public DateTime LastModifiedDate { get; set; }
-    public bool WriteTrackList => TrackList != TrackListType.Disabled;
     [Reactive] public bool IsVisible { get; set; } = true;
     
     public void UpdateModel(MsuProject project)
@@ -82,8 +82,9 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
 
     public override ViewModelBase DesignerExample()
     {
-        TrackList = TrackListType.List;
+        TrackList = TrackListEnum.List;
         IsMsuPcmProject = true;
+        IsSmz3Project = true;
         return this;
     }
 

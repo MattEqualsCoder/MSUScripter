@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using MSURandomizerLibrary.Configs;
 using MSUScripter.Models;
 using MSUScripter.Tools;
@@ -9,6 +10,7 @@ namespace MSUScripter.Configs;
 
 public class MsuProject
 {
+    public string Id { get; set; } = "";
     public string ProjectFilePath { get; set; } = "";
     public string BackupFilePath { get; set; } = "";
     public string MsuPath { get; set; } = "";
@@ -23,4 +25,59 @@ public class MsuProject
     public List<MsuTrackInfo> Tracks { get; set; } = new();
     [YamlIgnore, SkipConvert]
     public bool IsNewProject { get; set; }
+
+    public string GetMsuGenerationCacheFilePath()
+    {
+        return Path.Combine(Directories.CacheFolder, "Generation", $"{Id}.yml");
+    }
+    
+    public string GetYamlPath()
+    {
+        return Path.ChangeExtension(MsuPath, ".yml");
+    }
+    
+    public string GetMetroidMsuPath()
+    {
+        return BasicInfo.MetroidMsuPath ?? "";
+    }
+    
+    public string GetZeldaMsuPath()
+    {
+        return BasicInfo.ZeldaMsuPath ?? "";
+    }
+    
+    public string GetMetroidMsuYamlPath()
+    {
+        return Path.ChangeExtension(GetMetroidMsuPath(), ".yml");
+    }
+    
+    public string GetZeldaMsuYamlPath()
+    {
+        return Path.ChangeExtension(GetZeldaMsuPath(), ".yml");
+    }
+
+    public string GetTracksJsonPath()
+    {
+        return Path.ChangeExtension(MsuPath, "-tracks.json");
+    }
+    
+    public string GetTracksTextPath()
+    {
+        var msuFileInfo = new FileInfo(MsuPath);
+        return Path.Combine(msuFileInfo.DirectoryName!, "Track List.txt");
+    }
+    
+    public string GetAltSwapperPath()
+    {
+        var fileInfo = new FileInfo(MsuPath);
+        return Path.Combine(fileInfo.DirectoryName ?? "", "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat");
+    }
+    
+    public string GetSmz3SwapperPath()
+    {
+        var fileInfo = new FileInfo(MsuPath);
+        return Path.Combine(fileInfo.DirectoryName ?? "", "!Swap_Alt_Tracks.bat");
+    }
+
+    [YamlIgnore, SkipConvert] public MsuProjectGenerationCache GenerationCache { get; set; } = new();
 }

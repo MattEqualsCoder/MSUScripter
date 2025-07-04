@@ -1,6 +1,7 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaControls;
+using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -32,6 +33,8 @@ public partial class PackageMsuWindow : Window
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         if (_service == null) return;
+
+        MessageWindow.ShowYesNoDialog("");
         
         var zipPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.SaveFile, "Zip File:*.zip",
             _service.MsuDirectory, "Select Desired MSU Zip File");

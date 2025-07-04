@@ -10,13 +10,19 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService, IMsuLookupService msuLookupService) : ControlService
+public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService, IMsuLookupService msuLookupService, MsuPcmService msuPcmService) : ControlService
 {
     private readonly AudioAnalysisViewModel _model = new();
     private readonly CancellationTokenSource _cts = new();
 
     public AudioAnalysisViewModel InitializeModel(MsuProject project)
     {
+        if (msuPcmService.IsGeneratingPcm)
+        {
+            _model.LoadError = "Another PCM file is currently being generated";
+            return _model;
+        }
+        
         _model.Project = project;
         
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
@@ -46,6 +52,12 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
     public AudioAnalysisViewModel InitializeModel(string msuPath)
     {
         _model.ShowCompareButton = false;
+
+        if (msuPcmService.IsGeneratingPcm)
+        {
+            _model.LoadError = "Another PCM file is currently being generated";
+            return _model;
+        }
 
         var msuDirectory = new FileInfo(msuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory))

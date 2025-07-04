@@ -1,30 +1,35 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
+using FileInputControlType = MSUScripter.Models.FileInputControlType;
 
 namespace MSUScripter.Views;
 
-public partial class MsuPcmGenerationWindow : RestorableWindow
+public partial class MsuGenerationWindow : RestorableWindow
 {
-    private readonly MsuPcmGenerationWindowService? _service;
+    private readonly MsuGenerationWindowService? _service;
+    private MsuGenerationViewModel? _viewModel;
     
-    public MsuPcmGenerationWindow()
+    public MsuGenerationWindow()
     {
         InitializeComponent();
-        DataContext = new MsuPcmGenerationViewModel().DesignerExample();
+        DataContext = new MsuGenerationViewModel().DesignerExample();
     }
     
-    public MsuPcmGenerationWindow(MsuProjectViewModel project, bool exportYaml)
+    public MsuGenerationWindow(MsuProject project)
     {
         InitializeComponent();
-        _service = this.GetControlService<MsuPcmGenerationWindowService>();
-        DataContext = _service?.InitializeModel(project, exportYaml);
+        _service = this.GetControlService<MsuGenerationWindowService>();
+        DataContext = _viewModel = _service?.InitializeModel(project);
 
         if (_service != null)
         {
@@ -59,8 +64,23 @@ public partial class MsuPcmGenerationWindow : RestorableWindow
         Close();
     }
 
-    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
+        var result = await MessageWindow.ShowYesNoDialog("Do you want to compress the MSU into a zip file?",
+            "Compress MSU?", this);
+
+        if (result && _viewModel != null)
+        {
+            var storageItem = await CrossPlatformTools.OpenFileDialogAsync(this,
+                AvaloniaControls.FileInputControlType.SaveFile, "Zip File:*.zip",
+                Path.GetDirectoryName(_viewModel.MsuProject.MsuPath), "Select Desired MSU Zip File");
+            var path = storageItem?.Path.LocalPath;
+            if (!string.IsNullOrEmpty(path))
+            {
+                _service?.SetZipPath(path);
+            }
+        }
+        
         _service?.RunGeneration();
     }
 

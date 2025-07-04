@@ -18,6 +18,7 @@ public class MsuBasicInfo
     public bool CreateAltSwapperScript { get; set; } = true;
     public bool CreateSplitSmz3Script { get; set; }
     public string TrackList { get; set; } = TrackListType.List;
+    public TrackListEnum WriteTrackListEnum { get; set; } = TrackListEnum.List;
     public bool WriteYamlFile { get; set; } = true;
     public string? ZeldaMsuPath { get; set; }
     public string? MetroidMsuPath { get; set; }

@@ -3,13 +3,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"xmlns:controls="using:AvaloniaControls.Controls"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+xmlns:controls="using:AvaloniaControls.Controls"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="MSUScripter.Views.MsuPcmGenerationWindow"
+        x:Class="MSUScripter.Views.MsuGenerationWindow"
         Icon="/Assets/MSUScripterIcon.ico"
         WindowStartupLocation="CenterOwner"
         Loaded="Control_OnLoaded"
-        x:DataType="viewModels:MsuPcmGenerationViewModel"
+        x:DataType="viewModels:MsuGenerationViewModel"
         Title="MSU Export - MSU Scripter">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>
@@ -45,10 +46,19 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Track"  Binding="{Binding TrackNumber}"/>
-                    <DataGridTextColumn Header="Track Name"  Binding="{Binding TrackName}"/>
-                    <DataGridTextColumn Header="File"  Binding="{Binding SongName}"/>
-                    <DataGridTextColumn Header="Message"  Binding="{Binding Message}"/>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Title}"/>
+                    <DataGridTemplateColumn Header="Path">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock 
+                                    ToolTip.Tip="{Binding Path}" 
+                                    Text="{Binding PathDisplay}"
+                                    VerticalAlignment="Center"
+                                />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Message" Binding="{Binding Message}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>

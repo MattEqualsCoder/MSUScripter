@@ -3,73 +3,13 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
-        <entry key="MSUScripter/App.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/AddSongWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/CardControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/FileControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/GuidedWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/LabeledControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/LinkControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/LoopWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MessageWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuBasicInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuOverviewPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/MusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/PyMusicLooperPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/SelectTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/TimeNumericUpDown.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/TrackOverviewPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Controls/VideoCreatorWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Themes/Dark.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Themes/Light.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Themes/Themes.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/AddSongWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/AudioControlWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/AudioPlayerWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/DuplicateMoveTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/EditProjectPanelOld.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/FirstTimeSetupWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/FormLabel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/IconMenuItem.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/IconedMenuItem.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuBasicInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuGenerationSettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongAdvancedPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongBasicPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongBasicView.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongMsuPcmInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuSongMsuPcmPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongOuterPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MsuTrackInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/MusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/PyMusicLooperPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/PyMusicLooperWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/SelectTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/SettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/Test.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/TrackOverviewPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
-        <entry key="MSUScripter/Views/VideoCreatorWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
       </map>
     </option>
   </component>

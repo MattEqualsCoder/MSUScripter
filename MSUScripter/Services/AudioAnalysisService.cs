@@ -18,6 +18,7 @@ public class AudioAnalysisService(
     MsuPcmService msuPcmService,
     StatusBarService statusBarService,
     ConverterService converterService,
+    SharedPcmService sharedPcmService,
     ILogger<AudioAnalysisService> logger)
 {
     public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
@@ -30,7 +31,12 @@ public class AudioAnalysisService(
             {
                 await AnalyzePcmFile(project, song);
                 audioAnalysis.SongsCompleted++;
-            }); 
+            });
+
+        if (project?.BasicInfo.IsMsuPcmProject == true)
+        {
+            sharedPcmService.SaveGenerationCache(project);    
+        }
     }
     
     public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
@@ -51,19 +57,26 @@ public class AudioAnalysisService(
             song.WarningMessage = "PCM file missing";
             return;
         }
-        else if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo?.HasAudioFiles() != true && !File.Exists(song.Path))
+        else if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo == null)
         {
-            song.WarningMessage = "No input files specified for PCM file";
+            song.WarningMessage = "Song information missing";
             return;
         }
         
         // Regenerate the pcm file if it has updates that have been made to it
-        if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo != null && song.MsuSongInfo.HasAudioFiles() && (song.MsuSongInfo.HasChangesSince(song.MsuSongInfo.LastGeneratedDate) || !File.Exists(song.Path)))
+        if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo != null)
         {
-            logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
-            if (!await GeneratePcmFile(project, song.MsuSongInfo))
+            var response = await sharedPcmService.GeneratePcmFile(project, song.MsuSongInfo, false, false, true);
+            if (!response.Successful)
             {
-                song.WarningMessage = "Could not generate new PCM file";
+                if (File.Exists(song.Path))
+                {
+                    song.WarningMessage = "Could not generate new PCM file";    
+                }
+                else
+                {
+                    song.WarningMessage = "PCM file missing and could not be generated";
+                }
             }
         }
             

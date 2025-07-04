@@ -148,9 +148,9 @@ public partial class EditProjectPanel : UserControl
             return;
         }
         
-        var project = _service.MsuProjectViewModel;
-        var window = new MsuPcmGenerationWindow(project, project.BasicInfo.WriteYamlFile);
-        await window.ShowDialog(ParentWindow);
+        // var project = _service.MsuProjectViewModel;
+        // var window = new MsuGenerationWindow(project, project.BasicInfo.WriteYamlFile);
+        // await window.ShowDialog(ParentWindow);
         EnableExport();
     }
 
@@ -216,9 +216,9 @@ public partial class EditProjectPanel : UserControl
     {
         if (_service?.MsuProjectViewModel == null) return;
         DisableExport();
-        _service.WriteTrackJson();
-        var window = new MsuPcmGenerationWindow(_service.MsuProjectViewModel, false);
-        await window.ShowDialog(ParentWindow);
+        // _service.WriteTrackJson();
+        // var window = new MsuGenerationWindow(_service.MsuProjectViewModel, false);
+        // await window.ShowDialog(ParentWindow);
         EnableExport();
     }
 

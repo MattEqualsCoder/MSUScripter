@@ -13,3 +13,10 @@ public static class TrackListType
         Disabled
     ];
 }
+
+public enum TrackListEnum
+{
+    List,
+    Table,
+    Disabled
+}

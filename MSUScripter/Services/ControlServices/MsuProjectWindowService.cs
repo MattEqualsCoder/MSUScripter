@@ -10,7 +10,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService) : ControlService
+public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService) : ControlService
 {
     private MsuProjectWindowViewModel _viewModel = null!;
     private MsuProject _project = null!;
@@ -246,6 +246,11 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         }
     }
 
+    public void SaveProject()
+    {
+        projectService.SaveMsuProject(_project, false);
+    }
+
     public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false)
     {
         treeData ??= _viewModel.CurrentTreeItem;
@@ -268,6 +273,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             if (converterService.ConvertViewModel(treeData.SongInfo, newSong) &&
                 converterService.ConvertViewModel(treeData.SongInfo.MsuPcmInfo, newSong.MsuPcmInfo))
             {
+                newSong.Id = Guid.NewGuid().ToString("N");
                 newSong.OutputPath = outputPath;
                 newSong.MsuPcmInfo.Output = outputPath;
             }
@@ -847,7 +853,6 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         output.TrackNumber = 0;
         output.TrackName = null;
         output.OutputPath = null;
-        output.LastGeneratedDate = new DateTime();
         output.LastModifiedDate = new DateTime();
         output.IsComplete = false;
         output.ShowPanel = false;

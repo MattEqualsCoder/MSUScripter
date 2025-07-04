@@ -64,7 +64,7 @@ public class MsuSongPanelService(ConverterService converterService, YamlService 
     
     public void GeneratePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool asEmpty)
     {
-        var response = sharedPcmService.GeneratePcmFile(project, song, asPrimary, asEmpty);
+        var response = sharedPcmService.GeneratePcmFile(project, song, asPrimary, asEmpty, false);
     }
     
     public async Task<AnalysisDataOutput?> AnalyzeAudio(MsuProject project, MsuSongInfo song)
@@ -75,7 +75,7 @@ public class MsuSongPanelService(ConverterService converterService, YamlService 
         }
         
         await sharedPcmService.PauseSong();
-        var response = await sharedPcmService.GeneratePcmFile(project, song, false, false);
+        var response = await sharedPcmService.GeneratePcmFile(project, song, false, false, false);
         if (!response.Successful)
         {
             return null;

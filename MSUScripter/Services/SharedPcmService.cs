@@ -72,9 +72,9 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         return response;
     }
     
-    public async Task<GeneratePcmFileResponse> GeneratePcmFile(MsuProject project, MsuSongInfo songInfo, bool asPrimary, bool asEmpty)
+    public async Task<GeneratePcmFileResponse> GeneratePcmFile(MsuProject project, MsuSongInfo songInfo, bool asPrimary, bool asEmpty, bool isBulkGeneration)
     {
-        if (msuPcmService.IsGeneratingPcm)
+        if (!isBulkGeneration && msuPcmService.IsGeneratingPcm)
         {
             return new GeneratePcmFileResponse(false, false, "Currently generating another file", null);
         }
@@ -90,11 +90,7 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
 
         if (asEmpty)
         {
-            var emptySong = new MsuSongInfo();
-            converterService.ConvertViewModel(songInfo, emptySong);
-            var successful = msuPcmService.CreateEmptyPcm(emptySong);
-
-            return !successful
+            return !msuPcmService.CreateEmptyPcm(songInfo)
                 ? new GeneratePcmFileResponse(false, false, "Currently generating another file", null)
                 : new GeneratePcmFileResponse(true, true, "Successful", songInfo.OutputPath);
         }
@@ -103,29 +99,8 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
         {
             return new GeneratePcmFileResponse(false, false, "No files specified to generate into a pcm file", null);
         }
-        
-        if (asPrimary)
-        {
-            var msu = new FileInfo(project.MsuPath);
-            var path = msu.FullName.Replace(msu.Extension, $"-{songInfo.TrackNumber}.pcm");
-            songInfo.OutputPath = path;
-        }
 
-        var response = await msuPcmService.CreatePcm(true, project, songInfo);
-        if (!response.Successful)
-        {
-            if (response.GeneratedPcmFile && project.IgnoreWarnings.Contains(songInfo.OutputPath ?? ""))
-            {
-                songInfo.LastGeneratedDate = DateTime.Now;
-                return new GeneratePcmFileResponse(true, true, null, songInfo.OutputPath);
-            }
-            else
-            {
-                return response;
-            }
-        }
-        
-        songInfo.LastGeneratedDate = DateTime.Now;
+        var response = await msuPcmService.CreatePcm(project, songInfo, asPrimary, isBulkGeneration);
         return response;
     }
     
@@ -148,7 +123,7 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
 
     public async Task<string?> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
     {
-        var generateResponse = await GeneratePcmFile(project, song, false, false); 
+        var generateResponse = await GeneratePcmFile(project, song, false, false, false); 
         if (!generateResponse.Successful)
             return generateResponse.Message;
         
@@ -174,6 +149,11 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
     public async Task StopSong()
     {
         await audioPlayerService.StopSongAsync(null, true);
+    }
+
+    public void SaveGenerationCache(MsuProject project)
+    {
+        msuPcmService.SaveGenerationCache(project);
     }
 
     public bool CanPlaySongs => audioPlayerService.CanPlayMusic;

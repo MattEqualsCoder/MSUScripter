@@ -403,4 +403,21 @@ public partial class MsuProjectWindow : RestorableWindow
         var window = new AudioAnalysisWindow(_viewModel.MsuProject);
         await window.ShowDialog(this);
     }
+
+    private void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.SaveProject();
+    }
+
+    private void SaveButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.SaveProject();
+    }
+
+    private async void  GenerateButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.MsuProject == null) return;
+        var window = new MsuGenerationWindow(_viewModel.MsuProject);
+        await window.ShowDialog(this);
+    }
 }

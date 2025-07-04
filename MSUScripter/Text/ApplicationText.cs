@@ -30,6 +30,7 @@ public class ApplicationText
     public string ProjectWindowDisplayCopyrightSafeIcon { get; } = "Display copyright strike status icon";
 
     public string MsuBasicInfoMsuDetailsHeader { get; } = "MSU Details";
+    public string MsuBasicInfoGenerationSettingsHeader { get; } = "Generation Settings";
     public string MsuBasicInfoPackNameLabel { get; } = "Pack Name";
     public string MsuBasicInfoPackNameToolTip { get; } = "A friendly display name of the MSU pack. Added to the MSU Randomizer YAML file.";
     public string MsuBasicInfoPackCreatorLabel { get; } = "Pack Creator";
@@ -48,7 +49,20 @@ public class ApplicationText
     public string MsuBasicInfoMsuPcmNormalizationToolTip { get; } = "The default RMS normalization level, in dBFS (decibels), to be applied to the entire pack. Should be a negative value, typically less than -10 as values approaching 0 will likely cause audio clipping.";
     public string MsuBasicInfoMsuPcmDitherLabel { get; } = "Dither";
     public string MsuBasicInfoMsuPcmDitherToolTip { get; } = "Whether or not to apply audio dither to the final output";
-
+    public string MsuBasicInfoWriteYamlLabel { get; } = "Create YAML File";
+    public string MsuBasicInfoWriteYamlToolTip { get; } = "Generate a YAML with track information that can be read by a user, the MSU Randomizer application, or some other application that supports it.";
+    public string MsuBasicInfoWriteTrackListLabel { get; } = "Track List Text File Type";
+    public string MsuBasicInfoWriteTrackListToolTip { get; } = "Structure of the text file that lists basic information about the tracks and artists.";
+    public string MsuBasicInfoWriteAltSwapperLabel { get; } = "Create Alt Track Swapper Script";
+    public string MsuBasicInfoWriteAltSwapperToolTip { get; } = "Generate a PowerShell script to swap between primary and the first alt tracks, if any alt tracks are available.";
+    public string MsuBasicInfoCreateSplitSmz3MsuCheckbox { get; } = "";
+    public string MsuBasicInfoCreateSplitSmz3Label { get; } = "Create Separate ALttP & SM MSUs";
+    public string MsuBasicInfoCreateSplitSmz3ToolTip { get; } = "Create Separate A Link to the Past and Super Metroid MSUs and Create PowerShell Script to Split MSU.";
+    public string MsuBasicInfoZeldaMsuPathLabel { get; } = "A Link to the Past MSU Path";
+    public string MsuBasicInfoZeldaMsuPathToolTip { get; } = "The path to the separate ALttP MSU that users can split the SMZ3 MSU into.";
+    public string MsuBasicInfoMetroidMsuPathLabel { get; } = "Super Metroid MSU Path";
+    public string MsuBasicInfoMetroidMsuPathToolTip { get; } = "The path to the separate Super Metroid MSU that users can split the SMZ3 MSU into.";
+    
     public string InputAudioFileLabel { get; } = "Input Audio File";
     public string InputAudioFileToolTip { get; } = "Input audio file used by MsuPcm++ to generate the PCM file.";
     public string InputAudioFileFilter { get; } = "Supported audio files:*.wav,*.mp3,*.flac,*.ogg;All files:*.*";
@@ -138,5 +152,9 @@ public class ApplicationText
     public string MenuItemExitApp { get; } = "E_xit MSU Scripter";
     public string MenuItemDuplicateSongDetails { get; } = "Duplicate Song Details";
     public string MenuItemDeleteSongDetails { get; } = "Delete Song Details";
+    
+
+    public string MsuGenerationSettingsGenerateButton { get; } = "Generate";
+    public string MsuGenerationSettingsCancelButton { get; } = "Cancel";
 
 }

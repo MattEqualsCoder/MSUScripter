@@ -84,7 +84,6 @@ public class MsuSongInfoPanelService(SharedPcmService sharedPcmService, Settings
         output.TrackNumber = 0;
         output.TrackName = null;
         output.OutputPath = null;
-        output.LastGeneratedDate = new DateTime();
         output.LastModifiedDate = new DateTime();
         output.IsComplete = false;
         output.ShowPanel = false;

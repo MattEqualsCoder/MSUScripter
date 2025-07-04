@@ -22,6 +22,7 @@ public class MsuTrackInfo
         
         var newSong = new MsuSongInfo
         {
+            Id = Guid.NewGuid().ToString("N"),
             TrackNumber = TrackNumber,
             TrackName = TrackName,
             DisplayAdvancedMode = false
@@ -113,8 +114,12 @@ public class MsuTrackInfo
         
         var msu = new FileInfo(project.MsuPath);
         song.IsAlt = index > 0;
-            
-        if (!song.IsAlt)
+
+        if (song.TrackNumber >= 9999)
+        {
+            song.OutputPath = Path.Combine(Directories.TempFolder, project.Id, song.Id, "temp.pcm"); 
+        }
+        else if (!song.IsAlt)
         {
             song.OutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}.pcm");
         }

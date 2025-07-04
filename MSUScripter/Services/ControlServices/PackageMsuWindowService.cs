@@ -56,10 +56,10 @@ public class PackageMsuWindowService : ControlService
             validExtensions.Remove(".yml");
         }
 
-        if (!_model.Project.BasicInfo.WriteTrackList)
-        {
-            validExtensions.Remove(".txt");
-        }
+        // if (!_model.Project.BasicInfo.WriteTrackList)
+        // {
+        //     validExtensions.Remove(".txt");
+        // }
         
         try
         {

@@ -14,8 +14,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 {
     public void WriteTrackListFile(MsuProject project)
     {
-        var msuFileInfo = new FileInfo(project.MsuPath);
-        var tracklistPath = Path.Combine(msuFileInfo.DirectoryName!, "Track List.txt");
+        var tracklistPath = project.GetTracksTextPath();
         var sb = new StringBuilder();
 
         var title = $"{project.BasicInfo.PackName}";
