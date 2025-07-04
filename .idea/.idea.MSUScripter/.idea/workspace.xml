@@ -8,43 +8,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8104c5b8-e11f-460c-9f3e-1af814b87696" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Models/MsuProjectGenerationCache.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuGenerationWindowService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuGenerationSettingsViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/riderPublish.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuTrackInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuTrackInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/TrackListType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/TrackListType.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AudioAnalysisWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AudioAnalysisWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuPcmGenerationWindowService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongInfoPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongInfoPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/PackageMsuWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/PackageMsuWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/SharedPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/SharedPcmService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/TrackListService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/TrackListService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/EditProjectPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/EditProjectPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuPcmGenerationViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuGenerationViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuPcmGenerationWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuGenerationWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuPcmGenerationWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuGenerationWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/PackageMsuWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/PackageMsuWindow.axaml.cs" afterDir="false" />
-    </list>
+    <list default="true" id="8104c5b8-e11f-460c-9f3e-1af814b87696" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -146,7 +110,7 @@
       <workItem from="1751493283962" duration="1579000" />
       <workItem from="1751511687682" duration="3959000" />
       <workItem from="1751548969766" duration="17722000" />
-      <workItem from="1751570990893" duration="14706000" />
+      <workItem from="1751570990893" duration="14889000" />
     </task>
     <servers />
   </component>
