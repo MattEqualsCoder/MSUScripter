@@ -44,7 +44,7 @@ public class MsuGenerationWindowService(MsuPcmService msuPcmService, ProjectServ
             rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Yaml, project));
         }
         
-        if (project.BasicInfo.WriteTrackListEnum != TrackListEnum.Disabled)
+        if (project.BasicInfo.TrackListType != TrackList.Disabled)
         {
             rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.TrackList, project));
         }

@@ -8,7 +8,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8104c5b8-e11f-460c-9f3e-1af814b87696" name="Changes" comment="" />
+    <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/ToolTipMenuItem.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/ToolTipMenuItem.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/TrackListType.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/TrackListTypeDeprecated.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuGenerationWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuGenerationWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/VideoCreatorWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/VideoCreatorWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/TrackListService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/TrackListService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/EditProjectPanel.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/FormLabel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/FormLabel.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/FormLabel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/FormLabel.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/VideoCreatorWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/VideoCreatorWindow.axaml.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,19 +41,95 @@
     <option name="firstShow" value="false" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="set-pymusiclooper-path" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/76/986a2049/CrossPlatformTools.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e2a6f3308e3f448d8461d8edae75ad6ae26400/4f/3386daa8/String.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c2b587448e23bd69924d3d6ce2c091f8524b5e54f99b070918997a2c7540/FileSystemInfo.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/cc877ea8ae060e82ab65ac5892de72ff5fdf3562bd1265e2f6180f99746a710/ZipFileExtensions.ZipArchive.Create.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/15ec03b880534d41ac3fe61b9b54e8aa1f8600/8b/48333b01/HorizontalAlignment.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/297a3e14c3e74870b14ef896c2fca0a6572800/41/0ada8528/MaterialIconKind.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/1d/694ba728/MessageWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/50/5475e620/IconMenuItem.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4348b3e96ee242a59187687a698e6f598200/9c/9f39baae/MaterialIcon.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/72103d949a424ae4bf3dfad3841dc7dc20200/26/c6588305/RawDataProvider.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/72103d949a424ae4bf3dfad3841dc7dc20200/52/aabe2f27/SoundPlayer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/72103d949a424ae4bf3dfad3841dc7dc20200/ac/d22e4d2b/ISoundDataProvider.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/72103d949a424ae4bf3dfad3841dc7dc20200/b4/012c6599/SoundComponent.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/72103d949a424ae4bf3dfad3841dc7dc20200/d8/f54fa337/AssetDataProvider.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7a8deb1c875d48e09c9ddca8c34435d131800/2e/0740784d/RawDataProvider.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/a12c0797e3844bb8af66b3e7907afeb145400/7a/064d3b06/IMsuDetailsService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b782770b49a14e638a848fba382693e620a00/2b/9cb62482/ControlService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/b782770b49a14e638a848fba382693e620a00/c4/7359a9c0/ServiceCollectionExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c2a93378c6ab473384f7539d782d2c2343000/70/9cbf85e7/Track.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c2a93378c6ab473384f7539d782d2c2343000/89/da39a733/MsuDetailsTrack.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c5245fd62eed471a9f8d74a0989dc01523000/c9/82aa82a2/ControlExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d6c412cc42724f8bb409009fb042460023200/68/ad859500/ControlExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d7e4793d029a467daa58203099b44a91572600/72/07ea377e/MaterialIconKind.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f87ceddcdd3c42eab114e7cbb8750e9120c00/1a/51dd4f90/BoolComboBox.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/f87ceddcdd3c42eab114e7cbb8750e9120c00/cc/f16a5477/LabeledControl.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/02d8b05a9ac8402588fb7695c7c7ca891e2c00/_4b58f/ITransform.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/16a25d89779ca224b34f189688787a4b4f091751ee7706b8b396a5e88aa225/HeaderedSelectingItemsControl.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1ad855a3c5b26899e6ce6c55f0fe1a42f2b81c878868b79f7ae064f634f0d9f8/Window.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1c3f7d5c03bf77051eb8a758fb3549c4e2d4cb3dc6f6d567a94a315044961e/List.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1c69973358da5e9504cdb215423ffbf4bf349e0774e5ff94f84e814ca3f/Grid.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1edefc737d6d841fe8ded6818ca6b2f86522867bc89937ba54a07e7b7df7de/Layoutable.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2280f6b68568823fe54b6fb0be31b9cbce4c9aa7882ea9482c7f66bc84f4930/ExecutionContext.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2af0134e7ab9169f6d3ec32e105e8d59b120c335d94b12c532896058ca5fd5/Visual.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2d86dbffe729a732b764c01ea4dae0b438cf9b6f91fc57a99987da835cf778/ReactiveObject.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/45c62c1f9af1eb2248ec17220752868b3b6728095879e849b6ea733ef7f5ff/CastHelpers.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4743f513c7ddc8411223a46f0ca426ed929391acebcff993721dff2f0c6b34/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/49302399778be8eddd550e51d8f27dd5a9a8ecd52db38738ca2587bc74032a1/ControlExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4ea6e1e014844945f95328fe189dc13548cd6511aa2d628c312a4b0bda1d1/Rect.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6728f66657329080f0f419df519283a455cdca7d2617a05b18553b02da52fa/Nullable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/84e0349151eed01791468fad4c99b11e4072e28ab2ac95202e6fa612fd5181/X11PlatformThreading.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8874fa6fbc50b05ba8332188d36141eb4bba81fb1f92189ba9d7a25f545/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/92bd60126aaac4f4ad694a16c1583f493bc94e1fcfd9ec575fea6f5a74f4e0b9/Matrix.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/97c46225601f29e5c963ff9ac1a364613774434aadce79f10999e6ca8fd5c3/ColumnDefinition.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b23cb847f33b753542a42b3f20ac9361fcabd14fd166ec471fe468e3597a9b/Interactive.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c9f1e78ef04f5214281bc448c6a251bb5f9a3135b662f76745bbfb39b14150/First.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e6d04341b5ca8c55e2be617e1b6fc5a12cc8647f7272d94f614ae7fb1c0e8d/Dispatcher.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/eaa8eabc11be3914354ac07877d534b57e2b26073dfcbf87022949f71eb96/ColumnDefinitions.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ebc38fb05775fc3882ab81e1e2d2135f3a35d59f16dd8fad649dbcf1ce1797/RuntimeType.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/f71b67a2195f9edac51c3c82e40fccd25f957ac185e7c8a684189f8b5c1e387/String.Comparison.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ffc196dcaa72b99bef7ac446415884fe13cbff486fc89fe87d78638ac873/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../MSURandomizer/MSURandomizerLibrary/Services/MsuDetailsService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongMsuPcmInfo.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongInfoPanelService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/PyMusicLooperPanelService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/SettingsWindowService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/TrackOverviewPanelService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/VideoCreatorWindowService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/PyMusicLooperService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Services/PythonCommandRunnerService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/ViewModels/AddSongWindowViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongInfoViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongMsuPcmInfoViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/ViewModels/SettingsWindowViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/AddSongWindow.axaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/AddSongWindow.axaml.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/MsuSongInfoPanel.axaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/MsuSongInfoPanel.axaml.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/TrackOverviewPanel.axaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/TrackOverviewPanel.axaml.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 6
 }</component>
-  <component name="ProjectId" id="2zKwWzyCHQM37tTKCwYawrI0Qs2" />
+  <component name="ProjectId" id="2qnhPeGaoNhaG7wzxtf9woJdj93" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -38,39 +137,35 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;.NET Project.MSUScripter.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.21521862&quot;,
     &quot;git-widget-placeholder&quot;: &quot;ui-rewrite&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/matt/Source/photino.Samples-master&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.environmentSetup&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RunManager" selected=".NET Project.MSUScripter">
     <configuration name="MSUScripter" type="DotNetProject" factoryName=".NET Project">
-      <option name="EXE_PATH" value="$PROJECT_DIR$/MSUScripter/bin/Debug/net9.0/MSUScripter" />
+      <option name="EXE_PATH" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/MSUScripter/bin/Debug/net9.0" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="USE_EXTERNAL_CONSOLE" value="0" />
-      <option name="ENV_FILE_PATHS" value="" />
-      <option name="REDIRECT_INPUT_PATH" value="" />
-      <option name="PTY_MODE" value="Auto" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
-      <option name="AUTO_ATTACH_CHILDREN" value="0" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
       <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
       <option name="PROJECT_WORKING_DIRECTORY_TRACKING" value="1" />
       <option name="PROJECT_KIND" value="DotNetCore" />
-      <option name="PROJECT_TFM" value="net9.0" />
+      <option name="PROJECT_TFM" value="" />
       <method v="2">
         <option name="Build" />
       </method>
@@ -81,13 +176,8 @@
       <option name="WORKING_DIRECTORY" value="" />
       <option name="PASS_PARENT_ENVS" value="1" />
       <option name="USE_EXTERNAL_CONSOLE" value="0" />
-      <option name="ENV_FILE_PATHS" value="" />
-      <option name="REDIRECT_INPUT_PATH" value="" />
-      <option name="PTY_MODE" value="Auto" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
-      <option name="AUTO_ATTACH_CHILDREN" value="0" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/SchemaGenerator/SchemaGenerator.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
       <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
@@ -99,18 +189,38 @@
       </method>
     </configuration>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8104c5b8-e11f-460c-9f3e-1af814b87696" name="Changes" comment="" />
-      <created>1751493108631</created>
+      <changelist id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="" />
+      <created>1735304223177</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1751493108631</updated>
-      <workItem from="1751493110532" duration="163000" />
-      <workItem from="1751493283962" duration="1579000" />
-      <workItem from="1751511687682" duration="3959000" />
-      <workItem from="1751548969766" duration="17722000" />
-      <workItem from="1751570990893" duration="14889000" />
+      <updated>1735304223177</updated>
+      <workItem from="1735304224218" duration="5371000" />
+      <workItem from="1735314776715" duration="2495000" />
+      <workItem from="1735339753875" duration="4286000" />
+      <workItem from="1735344070866" duration="5004000" />
+      <workItem from="1737259870259" duration="5207000" />
+      <workItem from="1739059535754" duration="3575000" />
+      <workItem from="1739419871633" duration="659000" />
+      <workItem from="1740709369368" duration="773000" />
+      <workItem from="1744077717806" duration="1796000" />
+      <workItem from="1744080819947" duration="297000" />
+      <workItem from="1744081757937" duration="11043000" />
+      <workItem from="1745376298107" duration="4856000" />
+      <workItem from="1745460954100" duration="5646000" />
+      <workItem from="1745549009973" duration="3096000" />
+      <workItem from="1745627389888" duration="20597000" />
+      <workItem from="1745892649784" duration="50481000" />
+      <workItem from="1747930296168" duration="28382000" />
+      <workItem from="1748103862160" duration="569000" />
+      <workItem from="1748104452509" duration="48306000" />
+      <workItem from="1748698735464" duration="66960000" />
+      <workItem from="1749641940912" duration="34988000" />
+      <workItem from="1750516285082" duration="45677000" />
+      <workItem from="1750897952083" duration="61389000" />
+      <workItem from="1751659436950" duration="14082000" />
     </task>
     <servers />
   </component>
@@ -124,19 +234,31 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.OperationCanceledException" breakIfHandledByOtherCode="false" displayValue="System.OperationCanceledException" />
-          <option name="timeStamp" value="1" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.Tasks.TaskCanceledException" breakIfHandledByOtherCode="false" displayValue="System.Threading.Tasks.TaskCanceledException" />
-          <option name="timeStamp" value="2" />
-        </breakpoint>
-        <breakpoint enabled="true" type="DotNet_Exception_Breakpoints">
-          <properties exception="System.Threading.ThreadAbortException" breakIfHandledByOtherCode="false" displayValue="System.Threading.ThreadAbortException" />
-          <option name="timeStamp" value="3" />
-        </breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/MSUScripter/Views/MsuSongOuterPanel.axaml.cs</url>
+          <line>179</line>
+          <properties documentPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongOuterPanel.axaml.cs" containingFunctionPresentation="Method 'TestAudioLevelButton_OnClick'">
+            <startOffsets>
+              <option value="6215" />
+            </startOffsets>
+            <endOffsets>
+              <option value="6227" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="17" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="Type#Avalonia.Controls.ItemsControl" memberName="ItemTemplate" />
+        <PinnedItemInfo parentTag="Type#MSUScripter.ViewModels.MsuSongAdvancedPanelViewModelModelTreeData" memberName="MsuPcmInfo" />
+        <PinnedItemInfo parentTag="Type#Avalonia.Controls.ItemsControl" memberName="Items" />
+      </pinned-members>
+    </pin-to-top-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

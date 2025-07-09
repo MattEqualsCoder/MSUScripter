@@ -4,11 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="25"
              x:Name="ThisControl"
              x:Class="MSUScripter.Views.FormLabel">
     <Grid
         ColumnDefinitions="Auto, *"
+        x:Name="MainGrid"
         VerticalAlignment="Top"
         ToolTip.Tip="{Binding ElementName=ThisControl, Path=AbbreviatedToolTip}"
     >

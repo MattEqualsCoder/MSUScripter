@@ -1,11 +1,13 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using MSUScripter.Configs;
@@ -157,6 +159,8 @@ public partial class MsuProjectWindow : RestorableWindow
         
         _service?.UpdateDrag(null);
     }
+
+    private MsuProjectWindowViewModelTreeData? previousHoverTreeItem;
     
     private void TreeItemInputElement_OnPointerEntered(object? sender, PointerEventArgs e)
     {
@@ -166,12 +170,20 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
 
+        if (previousHoverTreeItem != null)
+        {
+            previousHoverTreeItem.ShowAddButton = false;
+            previousHoverTreeItem.ShowMenuButton = false;
+        }
+
         treeData.ShowAddButton = true;
 
         if (treeData.SongInfo != null)
         {
             treeData.ShowMenuButton = true;
         }
+        
+        previousHoverTreeItem = treeData;
     }
 
     private void TreeItemInputElement_OnPointerExited(object? sender, PointerEventArgs e)
@@ -184,6 +196,7 @@ public partial class MsuProjectWindow : RestorableWindow
 
         treeData.ShowAddButton = false;
         treeData.ShowMenuButton = false;
+        previousHoverTreeItem = null;
     }
 
     private void DisplayIsCompleteMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -397,11 +410,10 @@ public partial class MsuProjectWindow : RestorableWindow
         MsuSongAdvancedPanelViewModelModelTreeData.HighlightColor = summaryBorder.Background ?? Brushes.LightSlateGray;
     }
 
-    private async void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    private void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
-        var window = new AudioAnalysisWindow(_viewModel.MsuProject);
-        await window.ShowDialog(this);
+        _ = OpenDialog(new AudioAnalysisWindow(_viewModel.MsuProject));
     }
 
     private void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -414,10 +426,67 @@ public partial class MsuProjectWindow : RestorableWindow
         _service?.SaveProject();
     }
 
-    private async void  GenerateButton_OnClick(object? sender, RoutedEventArgs e)
+    private void GenerateButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
-        var window = new MsuGenerationWindow(_viewModel.MsuProject);
+        _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
+    }
+
+    private void CopyrightYouTubeVideoMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.MsuProject == null) return;
+        _ = OpenDialog(new VideoCreatorWindow(_viewModel.MsuProject));
+    }
+
+    private void GenerateMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.MsuProject == null) return;
+        _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
+    }
+
+    private async Task OpenDialog(Window window)
+    {
+        if (_viewModel == null) return;
+        _viewModel.IsBusy = true;
         await window.ShowDialog(this);
+        _viewModel.IsBusy = false;
+    }
+    
+    private async Task ShowError(string message)
+    {
+        if (_viewModel == null) return;
+        _viewModel.IsBusy = true;
+        await MessageWindow.ShowErrorDialog(message, parentWindow: this);
+        _viewModel.IsBusy = false;
+    }
+
+    private void CreateYamlMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel == null || _service == null) return;
+        if (!_service.CreateYamlFile(out var error))
+        {
+            _ = ShowError(error ?? "Failed to create YAML file(s).");
+        }
+    }
+
+    private void CreateTrackListMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel == null || _service == null) return;
+        _service.CreateTrackList();
+    }
+
+    private void CreateScriptsMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel == null || _service == null) return;
+        if (!_service.CreateScriptFiles())
+        {
+            _ = ShowError("Failed to create script file(s).");
+        }
+    }
+
+    private void OpenFolderButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrEmpty(_viewModel?.MsuProject?.MsuPath)) return;
+        CrossPlatformTools.OpenDirectory(_viewModel.MsuProject.MsuPath, true);
     }
 }

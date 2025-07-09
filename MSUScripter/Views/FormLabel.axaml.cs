@@ -2,6 +2,7 @@ using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 
 namespace MSUScripter.Views;
@@ -24,6 +25,7 @@ public partial class FormLabel : UserControl
         {
             AbbreviatedToolTip = ToolTipText;
         }
+        UpdateStretch();
     }
 
     public static readonly StyledProperty<string> LabelTextProperty = AvaloniaProperty.Register<FormLabel, string>(
@@ -89,5 +91,33 @@ public partial class FormLabel : UserControl
     {
         get => GetValue(ToolTipCharacterLimitProperty);
         set => SetValue(ToolTipCharacterLimitProperty, value);
+    }
+    
+    public static readonly StyledProperty<bool> StretchProperty = AvaloniaProperty.Register<FormLabel, bool>(
+        nameof(Stretch), defaultValue: false);
+
+    public bool Stretch
+    {
+        get => GetValue(StretchProperty);
+        set
+        {
+            SetValue(StretchProperty, value);
+            UpdateStretch();
+        }
+    }
+    
+    public void UpdateStretch()
+    {
+        var grid = this.Get<Grid>(nameof(MainGrid));
+        if (Stretch)
+        {
+            grid.ColumnDefinitions = new ColumnDefinitions("*, Auto");
+            grid.HorizontalAlignment = HorizontalAlignment.Stretch;
+        }
+        else
+        {
+            grid.ColumnDefinitions = new ColumnDefinitions("Auto, *");
+            grid.HorizontalAlignment = HorizontalAlignment.Left;
+        }
     }
 }

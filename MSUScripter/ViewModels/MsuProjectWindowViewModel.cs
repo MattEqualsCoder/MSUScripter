@@ -342,6 +342,7 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     public MsuSongOuterPanelViewModel MsuSongViewModel { get; set; } = new();
     public MsuBasicInfoViewModel BasicInfoViewModel { get; set; } = new();
     [Reactive] public bool DisplayBasicPanel { get; set; } = true;
+    [Reactive] public bool IsBusy { get; set; } = false;
     
     public override ViewModelBase DesignerExample()
     {

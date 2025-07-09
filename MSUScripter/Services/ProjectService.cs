@@ -161,6 +161,19 @@ public class ProjectService(
         {
             project.BasicInfo.IsSmz3Project = true;
         }
+        
+        // Convert track list
+        if (!string.IsNullOrEmpty(project.BasicInfo.TrackList))
+        {
+            if (project.BasicInfo.TrackList == TrackListTypeDeprecated.List)
+            {
+                project.BasicInfo.TrackListType = TrackList.ListAlbumFirst;
+            }
+            else if (project.BasicInfo.TrackList == TrackListTypeDeprecated.Table)
+            {
+                project.BasicInfo.TrackListType = TrackList.Table;
+            }
+        }
 
         if (!isBackup)
         {

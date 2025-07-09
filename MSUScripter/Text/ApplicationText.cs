@@ -18,6 +18,7 @@ public class ApplicationText
 
     public string ProjectWindowMainMenu { get; } = "Main Menu";
     public string ProjectWindowSaveProject { get; } = "Save Project";
+    public string ProjectWindowOpenMsuFolder { get; } = "Open MSU Folder";
     public string ProjectWindowAnalyzeAudio { get; } = "Analyze Audio...";
     public string ProjectWindowExportProject { get; } = "Export Project...";
     public string ProjectWindowFilterOnlyTracksMissingSongs { get; } = "Show only tracks with no added songs";
@@ -153,6 +154,16 @@ public class ApplicationText
     public string MenuItemDuplicateSongDetails { get; } = "Duplicate Song Details";
     public string MenuItemDeleteSongDetails { get; } = "Delete Song Details";
     
+    public string MenuItemGenerateMsuLabel { get; } = "Generate MSU...";
+    public string MenuItemGenerateMsuToolTip { get; } = "Generate all PCM files if needed along with all other files for the MSU and (optionally) package the files into a zip file.";
+    public string MenuItemCreateYouTubeVideoDetailsLabel { get; } = "Create Copyright Test YouTube Video...";
+    public string MenuItemCreateYouTubeVideoDetailsToolTip { get; } = "Create a video of all of the marked songs to compile into a single video that you can upload to YouTube to see if it'll get copyright strikes.";
+    public string MenuItemCreateYamlLabel { get; } = "Create MSU YAML File";
+    public string MenuItemCreateYamlToolTip { get; } = "Create a YAML file with all track details that can be read by users or applications like the MSU Randomizer. Must be re-generated when you change any track metadata or if you re-generate PCM files where you have alt tracks.";
+    public string MenuItemCreateTrackListLabel { get; } = "Create Track List File";
+    public string MenuItemCreateTrackListToolTip { get; } = "Create a track list text file with all track details that can be read by users.";
+    public string MenuItemCreateSwapScriptsLabel { get; } = "Create Track Swapping Script File(s)";
+    public string MenuItemCreateSwapScriptsToolTip { get; } = "Create a .bat script file for swapping between primary tracks and, if applicable, a file for switching between SMZ3 and split SM and ALttP MSUs.";
 
     public string MsuGenerationSettingsGenerateButton { get; } = "Generate";
     public string MsuGenerationSettingsCancelButton { get; } = "Cancel";

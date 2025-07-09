@@ -85,20 +85,65 @@
                             <Button
                                 Padding="5 5"
                                 Margin="0 0 2 0"
+                                ToolTip.Tip="{Binding Text.ProjectWindowOpenMsuFolder}"
+                                Click="OpenFolderButton_OnClick"
+                            >
+                                <avalonia:MaterialIcon Kind="FolderEye"></avalonia:MaterialIcon>
+                            </Button>
+                            
+                            <Button
+                                Padding="5 5"
+                                Margin="0 0 2 0"
                                 ToolTip.Tip="{Binding Text.ProjectWindowAnalyzeAudio}"
                                 Click="OpenAnalyzeProjectButton_OnClick"
                             >
                                 <avalonia:MaterialIcon Kind="Analytics"></avalonia:MaterialIcon>
                             </Button>
                             
-                            <Button
+                            <SplitButton
                                 Padding="5 5"
                                 Margin="0 0 2 0"
                                 ToolTip.Tip="{Binding Text.ProjectWindowExportProject}"
                                 Click="GenerateButton_OnClick"
                             >
+                                <SplitButton.Flyout>
+                                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                                        <views:ToolTipMenuItem
+                                            IconKind="ExportVariant" 
+                                            Click="GenerateMenuItem_OnClick"
+                                            LabelText="{Binding Text.MenuItemGenerateMsuLabel}" 
+                                            ToolTipText="{Binding Text.MenuItemGenerateMsuToolTip}"
+                                        />
+                                        <views:ToolTipMenuItem
+                                            IconKind="Text"
+                                            Click="CreateYamlMenuItem_OnClick"
+                                            LabelText="{Binding Text.MenuItemCreateYamlLabel}"
+                                            ToolTipText="{Binding Text.MenuItemCreateYamlToolTip}"
+                                        />
+                                        <views:ToolTipMenuItem
+                                            IconKind="Text"
+                                            Click="CreateTrackListMenuItem_OnClick"
+                                            LabelText="{Binding Text.MenuItemCreateTrackListLabel}"
+                                            ToolTipText="{Binding Text.MenuItemCreateTrackListToolTip}"
+                                        />
+                                        <views:ToolTipMenuItem
+                                            IconKind="ScriptOutline"
+                                            Click="CreateScriptsMenuItem_OnClick"
+                                            LabelText="{Binding Text.MenuItemCreateSwapScriptsLabel}"
+                                            ToolTipText="{Binding Text.MenuItemCreateSwapScriptsToolTip}"
+                                        />
+                                        <views:ToolTipMenuItem
+                                            IconKind="VideoOutline" 
+                                            Click="CopyrightYouTubeVideoMenuItem_OnClick"
+                                            LabelText="{Binding Text.MenuItemCreateYouTubeVideoDetailsLabel}" 
+                                            ToolTipText="{Binding Text.MenuItemCreateYouTubeVideoDetailsToolTip}"
+                                        />
+                                        
+                                    </MenuFlyout>
+                                </SplitButton.Flyout>
                                 <avalonia:MaterialIcon Kind="ExportVariant"></avalonia:MaterialIcon>
-                            </Button>
+                                
+                            </SplitButton>
                             
                         </StackPanel>
                     </ScrollViewer>

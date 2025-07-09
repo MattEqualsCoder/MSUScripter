@@ -4,6 +4,7 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using AvaloniaControls;
 using AvaloniaControls.Extensions;
+using MSUScripter.Configs;
 using MSUScripter.Services;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -22,7 +23,7 @@ public partial class VideoCreatorWindow : Window
         InitializeComponent();
     }
     
-    public VideoCreatorWindow(MsuProjectViewModel project)
+    public VideoCreatorWindow(MsuProject project)
     {
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         InitializeComponent();

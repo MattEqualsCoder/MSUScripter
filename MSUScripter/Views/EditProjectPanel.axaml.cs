@@ -234,8 +234,8 @@ public partial class EditProjectPanel : UserControl
     {
         if (_service?.MsuProjectViewModel == null) return;
         DisableExport();
-        var window = new VideoCreatorWindow(_service.MsuProjectViewModel);
-        await window.ShowDialog(ParentWindow);
+        // var window = new VideoCreatorWindow(_service.MsuProjectViewModel);
+        // await window.ShowDialog(ParentWindow);
         EnableExport();
     }
 

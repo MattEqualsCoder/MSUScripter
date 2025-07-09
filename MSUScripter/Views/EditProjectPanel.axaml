@@ -111,10 +111,12 @@
                             Margin="5 0 0 0"
                             Click="AnalysisButton_OnClick"
                     >_Audio Analysis</Button>
-                    <Button x:Name="ExportButton" 
+                    <SplitButton x:Name="ExportButton" 
                             IsVisible="{Binding !IsMsuPcmProject }"
                             Click="ExportButton_OnClick"
-                    >_Export</Button>
+                    >
+                        _Export
+                    </SplitButton>
                     <SplitButton Content="_Export" 
                                  Name="ExportMenuButton" 
                                  IsVisible="{Binding IsMsuPcmProject }"

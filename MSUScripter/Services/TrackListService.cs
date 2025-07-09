@@ -58,25 +58,25 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
                 !(t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2) &&
                 t.Songs.Count != 0);
 
-            if (project.BasicInfo.TrackList == TrackListType.List)
+            if (project.BasicInfo.TrackListType is TrackList.ListAlbumFirst or TrackList.ListSongFirst)
             {
                 sb.AppendLine("Zelda Tracks:");
                 sb.AppendLine();
-                AppendTrackList(zeldaTracks, sb, zeldaTrackModifier);
+                AppendTrackList(zeldaTracks, sb, zeldaTrackModifier, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
 
                 sb.AppendLine("--------------------------------------------------");
                 sb.AppendLine();
 
                 sb.AppendLine("Metroid Tracks:");
                 sb.AppendLine();
-                AppendTrackList(metroidTracks, sb, metroidTrackModifier);
+                AppendTrackList(metroidTracks, sb, metroidTrackModifier, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
 
                 sb.AppendLine("--------------------------------------------------");
                 sb.AppendLine();
 
                 sb.AppendLine("SMZ3 Tracks:");
                 sb.AppendLine();
-                AppendTrackList(smz3Tracks, sb, 0);
+                AppendTrackList(smz3Tracks, sb, 0, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
             }
             else
             {
@@ -108,9 +108,9 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         {
             var allTracks = project.Tracks.Where(t => !t.IsScratchPad && t.Songs.Count != 0);
             
-            if (project.BasicInfo.TrackList == TrackListType.List)
+            if (project.BasicInfo.TrackListType is TrackList.ListAlbumFirst or TrackList.ListSongFirst)
             {
-                AppendTrackList(allTracks, sb, 0);    
+                AppendTrackList(allTracks, sb, 0, project.BasicInfo.TrackListType == TrackList.ListSongFirst);    
             }
             else
             {
@@ -136,7 +136,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         }
     }
 
-    private void AppendTrackList(IEnumerable<MsuTrackInfo> tracks, StringBuilder sb, int trackModifier)
+    private void AppendTrackList(IEnumerable<MsuTrackInfo> tracks, StringBuilder sb, int trackModifier, bool isVariant)
     {
         foreach (var track in tracks.Where(x => !x.IsScratchPad).OrderBy(x => x.TrackNumber))
         {
@@ -144,7 +144,14 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 
             foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
             {
-                sb.AppendLine(GetTrackListSongInfo(song));
+                if (isVariant)
+                {
+                    sb.AppendLine(GetTrackListSongInfoVariant(song));
+                }
+                else
+                {
+                    sb.AppendLine(GetTrackListSongInfo(song));
+                }
             }
 
             sb.AppendLine();
@@ -165,6 +172,30 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         if (!string.IsNullOrEmpty(song.Artist))
         {
             songInfo += $" ({song.Artist?.CleanString()})";
+        }
+
+        if (song.IsAlt)
+        {
+            songInfo += " (Alt)";
+        }
+
+        return songInfo;
+    }
+    
+    private string GetTrackListSongInfoVariant(MsuSongInfo song)
+    {
+        var songInfo = "";
+        
+        songInfo += song.SongName?.CleanString();
+
+        if (!string.IsNullOrEmpty(song.Artist))
+        {
+            songInfo += $" by {song.Artist?.CleanString()}";
+        }
+        
+        if (!string.IsNullOrEmpty(song.Album))
+        {
+            songInfo += $" ({song.Album?.CleanString()})";
         }
 
         if (song.IsAlt)

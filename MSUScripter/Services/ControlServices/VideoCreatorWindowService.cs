@@ -22,7 +22,7 @@ public class VideoCreatorWindowService(ILogger<VideoCreatorWindowService> logger
     private static readonly Regex DigitsOnly = new(@"[^\d.]");
     private readonly VideoCreatorWindowViewModel _model = new();
 
-    public VideoCreatorWindowViewModel InitializeModel(MsuProjectViewModel project)
+    public VideoCreatorWindowViewModel InitializeModel(MsuProject project)
     {
         _model.PreviousPath = settings.PreviousPath;
         

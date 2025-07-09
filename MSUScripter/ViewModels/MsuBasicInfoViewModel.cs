@@ -37,7 +37,7 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     [Reactive] public bool? Dither { get; set; } 
     [Reactive] public bool IncludeJson { get; set; }
     
-    [Reactive] public TrackListEnum TrackList { get; set; }
+    [Reactive] public TrackList TrackList { get; set; }
     [Reactive] public bool WriteYamlFile { get; set; }
     [Reactive] public bool CreateAltSwapperScript { get; set; }
     
@@ -64,6 +64,7 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
         
         CreateAltSwapperScript = project.BasicInfo.CreateAltSwapperScript;
         CreateSplitSmz3Script = project.BasicInfo.CreateSplitSmz3Script;
+        TrackList = project.BasicInfo.TrackListType;
         IsSmz3Project = project.BasicInfo.IsSmz3Project;
         ZeldaMsuPath = project.BasicInfo.ZeldaMsuPath;
         MetroidMsuPath = project.BasicInfo.MetroidMsuPath;
@@ -82,7 +83,7 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
 
     public override ViewModelBase DesignerExample()
     {
-        TrackList = TrackListEnum.List;
+        TrackList = TrackList.ListAlbumFirst;
         IsMsuPcmProject = true;
         IsSmz3Project = true;
         return this;
@@ -103,6 +104,7 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
         
         Project.BasicInfo.CreateAltSwapperScript = CreateAltSwapperScript;
         Project.BasicInfo.CreateSplitSmz3Script = CreateSplitSmz3Script;
+        Project.BasicInfo.TrackListType = TrackList;
         Project.BasicInfo.IsSmz3Project = IsSmz3Project;
         Project.BasicInfo.ZeldaMsuPath = ZeldaMsuPath;
         Project.BasicInfo.MetroidMsuPath = MetroidMsuPath;

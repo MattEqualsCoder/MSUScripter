@@ -195,7 +195,7 @@ public class EditProjectPanelService(
             }
         }
 
-        if (project.BasicInfo.TrackList != TrackListType.Disabled)
+        if (project.BasicInfo.TrackList != TrackListTypeDeprecated.Disabled)
         {
             WriteTrackList(project);
         }

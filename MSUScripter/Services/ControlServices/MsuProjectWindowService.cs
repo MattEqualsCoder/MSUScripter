@@ -10,7 +10,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService) : ControlService
+public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService) : ControlService
 {
     private MsuProjectWindowViewModel _viewModel = null!;
     private MsuProject _project = null!;
@@ -220,14 +220,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         }
         else if (treeData.IsSongOrTrack)
         {
-            if (_viewModel.MsuSongViewModel.IsEnabled)
-            {
-                _viewModel.MsuSongViewModel.SaveChanges();
-            }
-            else if (_viewModel.BasicInfoViewModel.IsVisible)
-            {
-                _viewModel.BasicInfoViewModel.SaveChanges();
-            }
+            SaveCurrentPanel();
             _viewModel.CurrentTreeItem = treeData;
             _viewModel.BasicInfoViewModel.IsVisible = false;
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, treeData.TrackInfo!, treeData.SongInfo, treeData);
@@ -246,9 +239,61 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         }
     }
 
+    private void SaveCurrentPanel()
+    {
+        if (_viewModel.MsuSongViewModel.IsEnabled)
+        {
+            _viewModel.MsuSongViewModel.SaveChanges();
+        }
+        else if (_viewModel.BasicInfoViewModel.IsVisible)
+        {
+            _viewModel.BasicInfoViewModel.SaveChanges();
+        }
+    }
+
     public void SaveProject()
     {
+        SaveCurrentPanel();
         projectService.SaveMsuProject(_project, false);
+    }
+    
+    public bool CreateYamlFile(out string? error)
+    {
+        SaveCurrentPanel();
+        projectService.ExportMsuRandomizerYaml(_project, out error);
+        if (!string.IsNullOrEmpty(error))
+        {
+            return false;
+        }
+
+        if (_project.BasicInfo.IsSmz3Project && _project.BasicInfo.CreateSplitSmz3Script && !projectService.CreateSmz3SplitRandomizerYaml(_project, false, false, out error))
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
+    public void CreateTrackList()
+    {
+        SaveCurrentPanel();
+        trackListService.WriteTrackListFile(_project);
+    }
+    
+    public bool CreateScriptFiles()
+    {
+        SaveCurrentPanel();
+        if (!projectService.CreateAltSwapperFile(_project))
+        {
+            return false;
+        }
+
+        if (_project.BasicInfo is { IsSmz3Project: true, CreateSplitSmz3Script: true })
+        {
+            return projectService.CreateSmz3SplitScript(_project);
+        }
+
+        return true;
     }
 
     public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false)
