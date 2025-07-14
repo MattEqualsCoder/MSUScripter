@@ -20,10 +20,11 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
         return _model;
     }
 
-    public void SetProject(MsuProject project)
+    public void SetProject(MsuProject project, bool isCopy)
     {
         _model.OriginalProject = project;
         _model.ProjectViewModel = converterService.ConvertProject(project);
+        _model.ButtonText = isCopy ? "Copy Project" : "Open Project";
         
         var paths = new List<CopyProjectViewModel>
         {

@@ -16,6 +16,7 @@
         x:Class="MSUScripter.Views.MsuProjectWindow"
         x:DataType="viewModels:MsuProjectWindowViewModel"
         Loaded="WindowControl_OnLoaded"
+        Closing="Window_OnClosing"
         PointerPressed="Window_OnPointerPressed"
         Title="MsuProjectWindow">
     <DockPanel>

@@ -30,9 +30,9 @@ public partial class CopyProjectWindow : ScalableWindow
         }
     }
 
-    public async Task<MsuProject?> ShowDialog(Window parentWindow, MsuProject project)
+    public async Task<MsuProject?> ShowDialog(Window parentWindow, MsuProject project, bool isCopy)
     {
-        _service?.SetProject(project);
+        _service?.SetProject(project, isCopy);
         await ShowDialog(parentWindow);
         return _model.NewProject;
     }

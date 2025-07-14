@@ -1,15 +1,18 @@
+using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AvaloniaControls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
+using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MainWindowService(Settings settings, SettingsService settingsService, MsuPcmService msuPcmService, PyMusicLooperService pyMusicLooperService, ProjectService projectService, IGitHubReleaseCheckerService gitHubReleaseCheckerService) : ControlService
+public class MainWindowService(Settings settings, SettingsService settingsService, MsuPcmService msuPcmService, PyMusicLooperService pyMusicLooperService, ProjectService projectService, IGitHubReleaseCheckerService gitHubReleaseCheckerService, IMsuTypeService msuTypeService) : ControlService
 {
     private readonly MainWindowViewModel _model = new();
 
@@ -26,7 +29,11 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
             settingsService.SaveSettings();
         }
         
+        _model.MsuTypes = msuTypeService.MsuTypes
+            .OrderBy(x => x.DisplayName)
+            .ToList();
         _model.HasDoneFirstTimeSetup = settings.HasDoneFirstTimeSetup;
+        _model.RecentProjects = settings.RecentProjects.ToList();
         
         UpdateTitle();
         return _model;
@@ -59,6 +66,42 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         }
 
         _model.GitHubReleaseUrl = "";
+    }
+    
+    public (MsuProject? mainProject, MsuProject? backupProject, string? error) LoadProject(string? path = null)
+    {
+        path ??= _model.SelectedRecentProject?.ProjectPath;
+
+        if (string.IsNullOrEmpty(path))
+        {
+            return (null, null, "Invalid project path");
+        }
+        
+        try
+        {
+            var project = projectService.LoadMsuProject(path, false);
+            MsuProject? backupProject = null;
+
+            if (project == null)
+            {
+                return (null, null, "Project not found");
+            }
+            
+            if (!string.IsNullOrEmpty(project.BackupFilePath))
+            {
+                var potentialBackupProject = projectService.LoadMsuProject(project.BackupFilePath, true);
+                if (potentialBackupProject != null && potentialBackupProject.LastSaveTime > project.LastSaveTime)
+                {
+                    backupProject = potentialBackupProject;
+                }
+            }
+
+            return (project, backupProject, null);
+        }
+        catch (Exception e)
+        {
+            return (null, null, "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub");
+        }
     }
     
     public bool ValidateMsuPcm(string msupcmPath)
@@ -94,6 +137,32 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         }
     }
 
+    public MsuProject? CreateNewProject()
+    {
+        var name = _model.MsuProjectName;
+        var creator = _model.MsuCreatorName;
+        var msuPath = _model.MsuPath;
+        var projectPath = _model.MsuProjectPath;
+        var msuType = _model.SelectedMsuType;
+        var msuPcmJson = _model.MsuPcmJsonPath;
+        var msuPcmWorkingDir = _model.MsuPcmWorkingPath;
+
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(creator) || string.IsNullOrEmpty(msuPath) ||
+            string.IsNullOrEmpty(projectPath) || msuType == null)
+        {
+            return null;
+        }
+        
+        try
+        {
+            return projectService.NewMsuProject(projectPath, msuType, msuPath, msuPcmJson, msuPcmWorkingDir);
+        }
+        catch (Exception exception)
+        {
+            return null;
+        }
+    }
+    
     public bool IsEditPanelDisplayed => _model.DisplayEditPage;
 
     private void OpenCommandlineArgsProject()

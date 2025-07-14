@@ -6,10 +6,12 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
@@ -29,6 +31,7 @@ public partial class MsuProjectWindow : RestorableWindow
     private ContextMenu? _currentContextMenu;
     private MsuProjectWindowViewModelTreeData? _draggedTreeItem;
     private MsuProjectWindowViewModelTreeData? _hoverValue;
+    private MainWindow? _parentWindow;
     
     public MsuProjectWindow()
     {
@@ -38,13 +41,14 @@ public partial class MsuProjectWindow : RestorableWindow
         _performTextFilter = performSearch.Debounce();
     }
     
-    public MsuProjectWindow(MsuProject project)
+    public MsuProjectWindow(MsuProject project, MainWindow parentWindow)
     {
         _service = this.GetControlService<MsuProjectWindowService>();
         InitializeComponent();
         DataContext = _viewModel = _service!.InitViewModel(project);
         var performSearch = () => _service?.FilterTree();
         _performTextFilter = performSearch.Debounce(200);
+        _parentWindow = parentWindow;
     }
     
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -408,6 +412,7 @@ public partial class MsuProjectWindow : RestorableWindow
         var summaryBorder = this.GetControl<Border>(nameof(SummaryBorder));
         MsuProjectWindowViewModelTreeData.HighlightColor = summaryBorder.Background ?? Brushes.LightSlateGray;
         MsuSongAdvancedPanelViewModelModelTreeData.HighlightColor = summaryBorder.Background ?? Brushes.LightSlateGray;
+        _parentWindow?.Hide();
     }
 
     private void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
@@ -488,5 +493,10 @@ public partial class MsuProjectWindow : RestorableWindow
     {
         if (string.IsNullOrEmpty(_viewModel?.MsuProject?.MsuPath)) return;
         CrossPlatformTools.OpenDirectory(_viewModel.MsuProject.MsuPath, true);
+    }
+
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    {
+        _parentWindow?.Show();
     }
 }

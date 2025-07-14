@@ -60,8 +60,8 @@ public partial class NewProjectPanel : UserControl
             project = backupProject;
         }
 
-        var msuProjectWindow = new MsuProjectWindow(project);
-        await msuProjectWindow.ShowDialog(this.ParentWindow);
+        // var msuProjectWindow = new MsuProjectWindow(project);
+        // await msuProjectWindow.ShowDialog(this.ParentWindow);
         //     
         // OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
     }
@@ -155,13 +155,13 @@ public partial class NewProjectPanel : UserControl
         
         var window = new CopyProjectWindow();
         
-        var project = await window.ShowDialog(ParentWindow, oldProject);
+        // var project = await window.ShowDialog(ParentWindow, oldProject);
 
-        if (project != null)
-        {
-            _service.SaveProject(project);
-            OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
-        }
+        // if (project != null)
+        // {
+        //     _service.SaveProject(project);
+        //     OnProjectSelected?.Invoke(this, new ValueEventArgs<MsuProject>(project));
+        // }
     }
 
     private async Task<string?> OpenMsuProjectFilePicker(bool isSave)

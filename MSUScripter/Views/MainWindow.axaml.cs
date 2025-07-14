@@ -2,7 +2,9 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
@@ -49,6 +51,9 @@ public partial class MainWindow : RestorableWindow
         {
             await GetNewProjectPanel().LoadProject(_model.InitProject, _model.InitBackupProject);
         }
+
+        _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
+        _model.NewProjectBackground = _model.ActiveTabBackground;
 
         if (_model.HasDoneFirstTimeSetup) return;
         await SetupMsuPcm();
@@ -146,5 +151,115 @@ public partial class MainWindow : RestorableWindow
     private void DisableUpdatesLink_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.CloseNewReleaseBanner(true);
+    }
+
+    private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        _ = LoadProject();
+    }
+
+    private async Task LoadProject(string? path = null)
+    {
+        if (_service == null) return;
+        
+        var response = _service.LoadProject(path);
+
+        if (!string.IsNullOrEmpty(response.error))
+        {
+            await MessageWindow.ShowErrorDialog(response.error, null, this);
+            return;
+        }
+
+        OpenProject(response.mainProject!, response.backupProject);
+    }
+
+    private void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.NewProjectBackground = _model.ActiveTabBackground;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = true;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = false;
+    }
+    
+    private void OpenProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = _model.ActiveTabBackground;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = true;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = false;
+    }
+
+    private void SettingsButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = _model.ActiveTabBackground;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = true;
+        _model.DisplayAboutPage = false;
+    }
+
+    private void AboutButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = _model.ActiveTabBackground;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = true;
+    }
+
+    private void CreateProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var project = _service?.CreateNewProject();
+        if (project == null)
+        {
+            // show error
+            return;
+        }
+
+        OpenProject(project, null);
+    }
+
+    private async void OpenProject(MsuProject project, MsuProject? backupProject)
+    {
+        if (backupProject != null && await MessageWindow.ShowYesNoDialog(
+                "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                "Load Backup?", this))
+        {
+            project = backupProject;
+        }
+        
+        var msuProjectWindow = new MsuProjectWindow(project, this);
+        msuProjectWindow.Show();
+    }
+
+    private async void BrowseProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var path = await OpenMsuProjectFilePicker(false);
+        if (string.IsNullOrEmpty(path)) return;
+        await LoadProject(path);
+    }
+    
+    private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
+    {
+        var folder = string.IsNullOrEmpty(_model.MsuPath)
+            ? await this.GetDocumentsFolderPath()
+            : Path.GetDirectoryName(_model.MsuPath);
+        var path = await CrossPlatformTools.OpenFileDialogAsync(this, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
+            "MSU Scripter Project File:*.msup", folder);
+        return path?.Path.LocalPath;
     }
 }

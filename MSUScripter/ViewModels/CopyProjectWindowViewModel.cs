@@ -19,6 +19,8 @@ public class CopyProjectWindowViewModel : ViewModelBase
 
     [Reactive] public bool IsValid { get; set; }
     
+    [Reactive] public string ButtonText { get; set; } = "Update Project";
+    
     public override ViewModelBase DesignerExample()
     {
         Paths =

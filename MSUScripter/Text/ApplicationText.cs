@@ -16,6 +16,12 @@ public class ApplicationText
         LanguageChanged?.Invoke(null, newLanguage);
     }
 
+    public string MainWindowApplicationName { get; } = "MSU Scripter";
+    public string MainWindowNewProject { get; } = "New Project";
+    public string MainWindowOpenProject { get; } = "Open Project";
+    public string MainWindowSettings { get; } = "Settings";
+    public string MainWindowAbout { get; } = "About";
+    
     public string ProjectWindowMainMenu { get; } = "Main Menu";
     public string ProjectWindowSaveProject { get; } = "Save Project";
     public string ProjectWindowOpenMsuFolder { get; } = "Open MSU Folder";
@@ -36,6 +42,17 @@ public class ApplicationText
     public string MsuBasicInfoPackNameToolTip { get; } = "A friendly display name of the MSU pack. Added to the MSU Randomizer YAML file.";
     public string MsuBasicInfoPackCreatorLabel { get; } = "Pack Creator";
     public string MsuBasicInfoPackCreatorToolTip { get; } = "Who created the MSU pack. Added to the MSU Randomizer YAML file.";
+    public string MsuBasicInfoMsuTypeLabel { get; } = "MSU Type";
+    public string MsuBasicInfoMsuTypeToolTip { get; } = "The randomizer or game you are making to use this MSU with.";
+    public string MsuBasicInfoMsuPathLabel { get; } = "MSU Path";
+    public string MsuBasicInfoMsuPathToolTip { get; } = "The path the of the .msu file to generate and create the MSU Randomizer YAML file for.";
+    public string MsuBasicInfoMsuProjectPathLabel { get; } = "MSU Project Path";
+    public string MsuBasicInfoMsuProjectPathToolTip { get; } = "The path the of the .msup project file used by the MSU Scripter application.";
+
+    public string MsuBasicInfoImportJsonLabel { get; } = "Import MsuPcm++ JSON File (Optional)";
+    public string MsuBasicInfoImportJsonToolTip { get; } = "If you are importing a previously created MSU, you can select the MsuPcm++ tracks JSON to automatically import some of the details from the JSON file.";
+    public string MsuBasicInfoImportWorkingDirectoryLabel { get; } = "MsuPcm++ Working Directory (Optional)";
+    public string MsuBasicInfoImportWorkingDirectoryToolTip { get; } = "If you are importing a previously created MSU and MsuPcm++ tracks JSON file and have relative file paths in the JSON file, you can specify the folder you ran MsuPcm++ from to determine the full file paths.";
     public string MsuBasicInfoPackVersionLabel { get; } = "Pack Version";
     public string MsuBasicInfoPackVersionToolTip { get; } = "Current version of the track. Used by the MSU Randomizer to recache MSU data.";
     public string MsuBasicInfoDefaultArtistLabel { get; } = "Default Artist";
