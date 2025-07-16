@@ -169,7 +169,7 @@ public partial class MainWindow : RestorableWindow
             await MessageWindow.ShowErrorDialog(response.error, null, this);
             return;
         }
-
+        
         OpenProject(response.mainProject!, response.backupProject);
     }
 
@@ -241,6 +241,13 @@ public partial class MainWindow : RestorableWindow
         {
             project = backupProject;
         }
+
+        if (_service?.ValidateProjectPaths(project) == false)
+        {
+            var window = new CopyProjectWindow();
+            var updatedProject = await window.ShowDialog(this, project, false);
+            if (updatedProject == null) return;
+        }
         
         var msuProjectWindow = new MsuProjectWindow(project, this);
         msuProjectWindow.Show();
@@ -261,5 +268,25 @@ public partial class MainWindow : RestorableWindow
         var path = await CrossPlatformTools.OpenFileDialogAsync(this, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
             "MSU Scripter Project File:*.msup", folder);
         return path?.Path.LocalPath;
+    }
+
+    private async void CloneProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var path = await OpenMsuProjectFilePicker(false);
+        if (string.IsNullOrEmpty(path) || _service == null) return;
+        
+        var response = _service.LoadProject(path);
+        if (!string.IsNullOrEmpty(response.error))
+        {
+            await MessageWindow.ShowErrorDialog(response.error, null, this);
+            return;
+        }
+        
+        var window = new CopyProjectWindow();
+        var project = await window.ShowDialog(this, response.mainProject!, true);
+        if (project != null)
+        {
+            OpenProject(project, null);
+        }
     }
 }

@@ -71,6 +71,11 @@ public class MsuSongMsuPcmInfo
         }
     }
 
+    public bool AreFilesValid()
+    {
+        return GetFiles().All(System.IO.File.Exists);
+    }
+
     public List<string> GetFiles()
     {
         List<string> files = new List<string>();

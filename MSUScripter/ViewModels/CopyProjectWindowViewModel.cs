@@ -11,15 +11,17 @@ public class CopyProjectWindowViewModel : ViewModelBase
 {
     [Reactive] public MsuProject? OriginalProject { get; set; }
 
-    [Reactive] public MsuProjectViewModel? ProjectViewModel { get; set; }
-
     [Reactive] public MsuProject? NewProject { get; set; }
+    
+    [Reactive] public MsuProject? SavedProject { get; set; }
     
     [Reactive] public List<CopyProjectViewModel> Paths { get; set; } = new();
 
     [Reactive] public bool IsValid { get; set; }
     
     [Reactive] public string ButtonText { get; set; } = "Update Project";
+    
+    public bool IsCopy { get; set; }
     
     public override ViewModelBase DesignerExample()
     {

@@ -103,7 +103,12 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
             return (null, null, "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub");
         }
     }
-    
+
+    public bool ValidateProjectPaths(MsuProject project)
+    {
+        return project.Tracks.SelectMany(x => x.Songs).All(x => x.MsuPcmInfo.AreFilesValid());
+    }
+
     public bool ValidateMsuPcm(string msupcmPath)
     {
         return msuPcmService.ValidateMsuPcmPath(msupcmPath, out _);

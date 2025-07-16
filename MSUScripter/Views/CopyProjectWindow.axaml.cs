@@ -34,7 +34,7 @@ public partial class CopyProjectWindow : ScalableWindow
     {
         _service?.SetProject(project, isCopy);
         await ShowDialog(parentWindow);
-        return _model.NewProject;
+        return _model.SavedProject;
     }
 
     private async void UpdatePathButton_OnClick(object? sender, RoutedEventArgs e)
@@ -61,6 +61,7 @@ public partial class CopyProjectWindow : ScalableWindow
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _model.NewProject = null;
         Close();
     }
 

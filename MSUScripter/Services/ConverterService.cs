@@ -63,6 +63,33 @@ public class ConverterService(IMsuTypeService msuTypeService)
         return updated;
     }
     
+    public MsuProject CloneProject(MsuProject project)
+    {
+        var newProject = new MsuProject();
+        ConvertViewModel(project, newProject);
+        ConvertViewModel(project.BasicInfo, newProject.BasicInfo);
+        
+        foreach (var track in project.Tracks)
+        {
+            var trackViewModel = new MsuTrackInfo();
+            ConvertViewModel(track, trackViewModel);
+
+            foreach (var song in track.Songs)
+            {
+                var songViewModel = new MsuSongInfo();
+                ConvertViewModel(song, songViewModel);
+                ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
+            }
+
+            newProject.Tracks.Add(trackViewModel);
+        }
+
+        newProject.MsuType = project.MsuType;
+        newProject.LastSaveTime = DateTime.Now;
+
+        return newProject;
+    }
+    
     public MsuProjectViewModel ConvertProject(MsuProject project)
     {
         var viewModel = new MsuProjectViewModel();

@@ -260,6 +260,12 @@ public partial class MsuPcmService(
             {
                 File.Delete(outputPath);
             }
+            
+            var directory = Path.GetDirectoryName(outputPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
 
             File.Move(tempPcmPath, outputPath);
         }

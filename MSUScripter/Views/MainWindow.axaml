@@ -270,6 +270,7 @@
                         Margin="0 3 0 5"
                         Padding="10 5"
                         Content="Clone Project..."
+                        Click="CloneProjectButton_OnClick"
                     />
                 </StackPanel>
                 <Separator Grid.Row="1" Margin="4 0"></Separator>

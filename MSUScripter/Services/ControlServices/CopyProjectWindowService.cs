@@ -22,15 +22,28 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
 
     public void SetProject(MsuProject project, bool isCopy)
     {
-        _model.OriginalProject = project;
-        _model.ProjectViewModel = converterService.ConvertProject(project);
-        _model.ButtonText = isCopy ? "Copy Project" : "Open Project";
-        
-        var paths = new List<CopyProjectViewModel>
+        if (isCopy)
         {
-            new(project.ProjectFilePath),
-            new(project.MsuPath)
-        };
+            _model.OriginalProject = project;
+            _model.NewProject = converterService.CloneProject(project);
+        }
+        else
+        {
+            _model.OriginalProject = converterService.CloneProject(project);
+            _model.NewProject = project;
+        }
+
+        _model.IsCopy = isCopy;
+        _model.ButtonText = isCopy ? "Copy Project" : "Open Project";
+
+        var paths = new List<CopyProjectViewModel>();
+
+        if (isCopy)
+        {
+            paths.Add(new CopyProjectViewModel(project.ProjectFilePath));
+        }
+        
+        paths.Add(new CopyProjectViewModel(project.MsuPath));
 
         if (!string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath))
         {
@@ -82,46 +95,48 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
 
     public void ImportProject()
     {
-        if (_model.ProjectViewModel == null)
+        if (_model.NewProject == null)
         {
             return;
         }
 
-        _model.ProjectViewModel.ProjectFilePath = _model.Paths
-            .First(x => x.Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase)).NewPath;
+        if (_model.IsCopy)
+        {
+            _model.NewProject.ProjectFilePath = _model.Paths
+                .First(x => x.Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase)).NewPath;        
+        }
 
         foreach (var path in _model.Paths.Where(x => x.Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase)))
         {
-            if (_model.ProjectViewModel.MsuPath == path.PreviousPath)
+            if (_model.NewProject.MsuPath == path.PreviousPath)
             {
-                _model.ProjectViewModel.MsuPath = path.NewPath;
+                _model.NewProject.MsuPath = path.NewPath;
             }
-            else if (_model.ProjectViewModel.BasicInfo.MetroidMsuPath == path.PreviousPath)
+            else if (_model.NewProject.BasicInfo.MetroidMsuPath == path.PreviousPath)
             {
-                _model.ProjectViewModel.BasicInfo.MetroidMsuPath = path.NewPath;
+                _model.NewProject.BasicInfo.MetroidMsuPath = path.NewPath;
             }
-            else if (_model.ProjectViewModel.BasicInfo.ZeldaMsuPath == path.PreviousPath)
+            else if (_model.NewProject.BasicInfo.ZeldaMsuPath == path.PreviousPath)
             {
-                _model.ProjectViewModel.BasicInfo.ZeldaMsuPath = path.NewPath;
+                _model.NewProject.BasicInfo.ZeldaMsuPath = path.NewPath;
             }
         }
         
         var oldMsuPath = _model.OriginalProject?.MsuPath.Replace(".msu", "", StringComparison.OrdinalIgnoreCase) ?? "";
-        var newMsuPath = _model.ProjectViewModel?.MsuPath.Replace(".msu", "", StringComparison.OrdinalIgnoreCase) ?? "";
+        var newMsuPath = _model.NewProject?.MsuPath.Replace(".msu", "", StringComparison.OrdinalIgnoreCase) ?? "";
         
         foreach (var path in _model.Paths.Where(x => !x.Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase) && !x.Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase)))
         {
-            foreach (var song in _model.ProjectViewModel!.Tracks.SelectMany(x => x.Songs))
+            foreach (var song in _model.NewProject!.Tracks.SelectMany(x => x.Songs))
             {
                 UpdateSongPaths(song, path, oldMsuPath, newMsuPath);
             }
         }
-
-        _model.NewProject = converterService.ConvertProject(_model.ProjectViewModel!);
-        return;
+        
+        _model.SavedProject = _model.NewProject;
     }
     
-    private void UpdateSongPaths(MsuSongInfoViewModel song, CopyProjectViewModel update, string oldMsuPath, string newMsuPath)
+    private void UpdateSongPaths(MsuSongInfo song, CopyProjectViewModel update, string oldMsuPath, string newMsuPath)
     {
         song.OutputPath = song.OutputPath?.Replace(oldMsuPath, newMsuPath);
         if (song.MsuPcmInfo.HasFiles())
@@ -130,7 +145,7 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
         }
     }
 
-    private void UpdateMsuPcmInfo(MsuSongMsuPcmInfoViewModel pcmInfo, CopyProjectViewModel update)
+    private void UpdateMsuPcmInfo(MsuSongMsuPcmInfo pcmInfo, CopyProjectViewModel update)
     {
         pcmInfo.File = pcmInfo.File?.Replace(update.PreviousPath, update.NewPath);
         foreach (var subchannel in pcmInfo.SubChannels)
@@ -160,7 +175,7 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
             }
         }
 
-        _model.IsValid = _model.Paths.All(x => x.IsValid);
+        _model.IsValid = !_model.IsCopy || _model.Paths.All(x => x.IsValid);
     }
     
 }
