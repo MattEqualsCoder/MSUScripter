@@ -29,11 +29,24 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
             settingsService.SaveSettings();
         }
         
+        _model.Settings.LoadSettings(settings);
+        
         _model.MsuTypes = msuTypeService.MsuTypes
             .OrderBy(x => x.DisplayName)
             .ToList();
         _model.HasDoneFirstTimeSetup = settings.HasDoneFirstTimeSetup;
         _model.RecentProjects = settings.RecentProjects.ToList();
+
+        if (_model.RecentProjects.Count != 0)
+        {
+            _model.DisplayNewProjectPage = false;
+            _model.DisplayOpenProjectPage = true;
+        }
+        else
+        {
+            _model.DisplayNewProjectPage = true;
+            _model.DisplayOpenProjectPage = false;
+        }
         
         UpdateTitle();
         return _model;
@@ -61,7 +74,7 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
     {
         if (permanently)
         {
-            settings.PromptOnUpdate = false;
+            settings.CheckForUpdates = false;
             settingsService.SaveSettings();
         }
 
@@ -167,6 +180,17 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
             return null;
         }
     }
+
+    public void SaveSettings()
+    {
+        if (!_model.DisplaySettingsPage)
+        {
+            return;
+        }
+        
+        _model.Settings.SaveChanges();
+        settingsService.SaveSettings();
+    }
     
     public bool IsEditPanelDisplayed => _model.DisplayEditPage;
 
@@ -190,7 +214,7 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
     
     private async Task CheckForNewRelease()
     {
-        if (settings.PromptOnUpdate == false) return;
+        if (settings.CheckForUpdates == false) return;
 
         var newerGitHubRelease = await gitHubReleaseCheckerService.GetGitHubReleaseToUpdateToAsync("MattEqualsCoder",
             "MSUScripter", App.Version, settings.PromptOnPreRelease);

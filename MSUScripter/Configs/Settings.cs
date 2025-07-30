@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using MSUScripter.ViewModels;
 
 namespace MSUScripter.Configs;
 
 public class Settings
 {
     public string? MsuPcmPath { get; set; }
-    public bool PromptOnUpdate { get; set; } = true;
+    public bool CheckForUpdates { get; set; } = true;
     public bool PromptOnPreRelease { get; set; }
     public bool DarkTheme { get; set; } = true;
     public int LoopDuration { get; set; } = 5;
@@ -18,4 +19,5 @@ public class Settings
     public bool RunMsuPcmWithKeepTemps { get; set; }
     public bool HasDoneFirstTimeSetup { get; set; }
     public string? PyMusicLooperPath { get; set; }
+    public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Basic;
 }

@@ -306,6 +306,16 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </Grid>
+            <StackPanel 
+                Orientation="Vertical" 
+                Grid.Column="1"
+                Margin="15"
+                IsVisible="{Binding DisplaySettingsPage}"
+            >
+                <views:SettingsPanel
+                    DataContext="{Binding Settings}"
+                />
+            </StackPanel>
         </Grid>
     </LayoutTransformControl>
 </Window>

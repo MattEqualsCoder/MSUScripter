@@ -48,6 +48,7 @@ public class MainWindowViewModel : TranslatedViewModelBase
     [Reactive] public IBrush OpenProjectBackground { get; set; } = Brushes.Transparent;
     [Reactive] public IBrush SettingsBackground { get; set; } = Brushes.Transparent;
     [Reactive] public IBrush AboutBackground { get; set; } = Brushes.Transparent;
+    public SettingsPanelViewModel Settings { get; set; } = new();
 
     public IBrush ActiveTabBackground = Brushes.Transparent;
     

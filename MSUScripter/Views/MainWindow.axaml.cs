@@ -55,6 +55,21 @@ public partial class MainWindow : RestorableWindow
         _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
         _model.NewProjectBackground = _model.ActiveTabBackground;
 
+        if (_model.RecentProjects.Count == 0)
+        {
+            _model.NewProjectBackground = _model.ActiveTabBackground;
+            _model.OpenProjectBackground = Brushes.Transparent;
+            _model.DisplayNewProjectPage = true;
+            _model.DisplayOpenProjectPage = false;
+        }
+        else
+        {
+            _model.NewProjectBackground = Brushes.Transparent;
+            _model.OpenProjectBackground = _model.ActiveTabBackground;
+            _model.DisplayNewProjectPage = false;
+            _model.DisplayOpenProjectPage = true;
+        }
+
         if (_model.HasDoneFirstTimeSetup) return;
         await SetupMsuPcm();
     }
@@ -175,6 +190,7 @@ public partial class MainWindow : RestorableWindow
 
     private void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _service?.SaveSettings();
         _model.NewProjectBackground = _model.ActiveTabBackground;
         _model.OpenProjectBackground = Brushes.Transparent;
         _model.SettingsBackground = Brushes.Transparent;
@@ -187,6 +203,7 @@ public partial class MainWindow : RestorableWindow
     
     private void OpenProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _service?.SaveSettings();
         _model.NewProjectBackground = Brushes.Transparent;
         _model.OpenProjectBackground = _model.ActiveTabBackground;
         _model.SettingsBackground = Brushes.Transparent;
@@ -199,6 +216,7 @@ public partial class MainWindow : RestorableWindow
 
     private void SettingsButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _model.Settings.LoadSettings();
         _model.NewProjectBackground = Brushes.Transparent;
         _model.OpenProjectBackground = Brushes.Transparent;
         _model.SettingsBackground = _model.ActiveTabBackground;
@@ -211,6 +229,7 @@ public partial class MainWindow : RestorableWindow
 
     private void AboutButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _service?.SaveSettings();
         _model.NewProjectBackground = Brushes.Transparent;
         _model.OpenProjectBackground = Brushes.Transparent;
         _model.SettingsBackground = Brushes.Transparent;

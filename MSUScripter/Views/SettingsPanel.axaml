@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             xmlns:msuScripter="clr-namespace:MSUScripter"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="MSUScripter.Views.SettingsPanel"
+             x:DataType="viewModels:SettingsPanelViewModel">
+    <StackPanel Orientation="Vertical">
+        <views:FormLabel 
+            LabelText="Check for Updates"
+            ToolTipText="Check for any updates when launching the MSU Scripter and open a popup notifying you that it has completed successfully."
+        />
+        <controls:BoolComboBox 
+            AllowNulls="False"
+            Value="{Binding CheckForUpdates}"
+        />
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="Default Song Details View"
+            ToolTipText=""
+        />
+        <controls:EnumComboBox
+            EnumType="{Binding DefaultSongPanel, Converter={StaticResource TypeConverter}}"
+            Value="{Binding DefaultSongPanel, Mode=TwoWay}"
+        />
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="Automatically Run PyMusicLooper"
+            ToolTipText="When using the basic song details view, automatically run PyMusicLooper after selecting an input audio file."
+        />
+        <controls:BoolComboBox 
+            AllowNulls="False"
+            Value="{Binding !AutomaticallyRunPyMusicLooper}"
+        />
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="Show MsuPcm++ Sub Track and Sub Channel Warning"
+            ToolTipText="Displays a popup warning when you add both a sub track and a sub channel to the same MsuPcm++ details object."
+        />
+        <controls:BoolComboBox 
+            AllowNulls="False"
+            Value="{Binding !HideSubTracksSubChannelsWarning}"
+        />
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="Run MsuPcm++ With Keep Temps Options"
+            ToolTipText="Enables the keep_temps flag when running MsuPcm++ for troubleshooting."
+        />
+        <controls:BoolComboBox 
+            AllowNulls="False"
+            Value="{Binding RunMsuPcmWithKeepTemps}"
+        />
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="Test Loop Track Duration"
+            ToolTipText="Number of seconds to play before looping the track when using the test loop button."
+        />
+        <Grid ColumnDefinitions="*, Auto">
+            <Slider 
+                Grid.Column="0" x:Name="LoopDurationSlider" 
+                Value="{Binding LoopDuration}" 
+                Minimum="1" 
+                Maximum="30" 
+            />
+            <TextBox 
+                Grid.Column="1" 
+                Width="50"
+                Text="{Binding LoopDuration}" 
+                IsReadOnly="True"
+                IsEnabled="False"
+                TextAlignment="Center"
+            />
+        </Grid>
+        
+        <Panel Height="10"/>
+        
+        <views:FormLabel 
+            LabelText="UI Scaling Factor"
+            ToolTipText="Enables the keep_temps flag when running MsuPcm++ for troubleshooting."
+        />
+        <Grid ColumnDefinitions="*,Auto">
+            <Slider 
+                Grid.Column="0" 
+                Minimum="1" 
+                Maximum="3"
+                IsSnapToTickEnabled="True"
+                TickFrequency=".1"
+                Value="{Binding UiScaling}"
+            />
+            <TextBox 
+                Grid.Column="1" 
+                 Width="50" 
+                 Text="{Binding UiScaling}" 
+                 TextAlignment="Center" 
+                 IsReadOnly="True" 
+                 IsEnabled="False"
+            />
+        </Grid>
+        
+    </StackPanel>
+</UserControl>
