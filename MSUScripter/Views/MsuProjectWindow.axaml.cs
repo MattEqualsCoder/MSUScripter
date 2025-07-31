@@ -550,6 +550,12 @@ public partial class MsuProjectWindow : RestorableWindow
         CloseReason = MsuProjectWindowCloseReason.ExitApplication;
         Close();
     }
+
+    private void CloseProjectMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        CloseReason = MsuProjectWindowCloseReason.CloseProject;
+        Close();
+    }
 }
 
 public enum MsuProjectWindowCloseReason

@@ -61,6 +61,7 @@
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemCloseProject}"
                                             IconKind="ExitToApp"
+                                            Click="CloseProjectMenuItem_OnClick"
                                         />
                                         <Separator />
                                         <controls:IconMenuItem 
