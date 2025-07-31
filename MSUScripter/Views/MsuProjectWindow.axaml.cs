@@ -17,6 +17,7 @@ using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
+using FileInputControlType = AvaloniaControls.FileInputControlType;
 
 namespace MSUScripter.Views;
 
@@ -50,6 +51,10 @@ public partial class MsuProjectWindow : RestorableWindow
         _performTextFilter = performSearch.Debounce(200);
         _parentWindow = parentWindow;
     }
+    
+    public MsuProjectWindowCloseReason CloseReason { get; private set; }
+    
+    public string OpenProjectPath { get; private set; } = string.Empty;
     
     protected override void OnPointerMoved(PointerEventArgs e)
     {
@@ -413,6 +418,20 @@ public partial class MsuProjectWindow : RestorableWindow
         MsuProjectWindowViewModelTreeData.HighlightColor = summaryBorder.Background ?? Brushes.LightSlateGray;
         MsuSongAdvancedPanelViewModelModelTreeData.HighlightColor = summaryBorder.Background ?? Brushes.LightSlateGray;
         _parentWindow?.Hide();
+
+        foreach (var recentProject in _viewModel?.RecentProjects ?? [])
+        {
+            var menuItem = new MenuItem { Header = recentProject.ProjectName, Tag = recentProject.ProjectPath };
+            menuItem.SetValue(ToolTip.TipProperty, recentProject.ProjectPath);
+            menuItem.Click += (_, _) =>
+            {
+                CloseReason = MsuProjectWindowCloseReason.OpenProject;
+                OpenProjectPath = recentProject.ProjectPath;
+                Close();
+            };
+            BrowseMenu.Items.Add(menuItem);
+        }
+        
     }
 
     private void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
@@ -499,4 +518,44 @@ public partial class MsuProjectWindow : RestorableWindow
     {
         _parentWindow?.Show();
     }
+    
+    private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
+    {
+        var folder = await this.GetDocumentsFolderPath();
+        var path = await CrossPlatformTools.OpenFileDialogAsync(this, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
+            "MSU Scripter Project File:*.msup", folder);
+        return path?.Path.LocalPath;
+    }
+
+    private async void BrowseMsuProjectMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var path = await OpenMsuProjectFilePicker(false);
+            if (!string.IsNullOrEmpty(path))
+            {
+                CloseReason = MsuProjectWindowCloseReason.OpenProject;
+                OpenProjectPath = path;
+                Close();
+            }
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+        }
+    }
+
+    private void ExitApplicationMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        CloseReason = MsuProjectWindowCloseReason.ExitApplication;
+        Close();
+    }
+}
+
+public enum MsuProjectWindowCloseReason
+{
+    CloseProject,
+    NewProject,
+    OpenProject,
+    ExitApplication
 }

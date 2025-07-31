@@ -270,6 +270,24 @@ public partial class MainWindow : RestorableWindow
         
         var msuProjectWindow = new MsuProjectWindow(project, this);
         msuProjectWindow.Show();
+        msuProjectWindow.Closed += (sender, args) =>
+        {
+            _model.MsuProjectName = "";
+            _model.MsuCreatorName = "";
+            _model.SelectedMsuType = null;
+            _model.MsuPath = "";
+            _model.MsuProjectPath = "";
+            _model.MsuPcmJsonPath = "";
+            _model.MsuPcmWorkingPath = "";
+            if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.ExitApplication)
+            {
+                Close();
+            }
+            else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.OpenProject)
+            {
+                _ = LoadProject(msuProjectWindow.OpenProjectPath);
+            }
+        };
     }
 
     private async void BrowseProjectButton_OnClick(object? sender, RoutedEventArgs e)

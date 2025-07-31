@@ -173,7 +173,7 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         
         try
         {
-            return projectService.NewMsuProject(projectPath, msuType, msuPath, msuPcmJson, msuPcmWorkingDir);
+            return projectService.NewMsuProject(projectPath, msuType, msuPath, msuPcmJson, msuPcmWorkingDir, name, creator);
         }
         catch (Exception exception)
         {

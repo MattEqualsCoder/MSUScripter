@@ -30,14 +30,22 @@ public class MainWindowViewModel : TranslatedViewModelBase
     public object? NullValue => null;
     public event EventHandler? CurrentMsuProjectChanged;
 
-    [Reactive] public string MsuProjectName { get; set; } = string.Empty;
-    [Reactive] public string MsuCreatorName { get; set; } = string.Empty;
-    [Reactive] public string MsuPath { get; set; } = string.Empty;
-    [Reactive] public string MsuProjectPath { get; set; } = string.Empty;
-    [Reactive] public string MsuPcmJsonPath { get; set; } = string.Empty;
+    [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
+    public string MsuProjectName { get; set; } = string.Empty;
+    [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
+    public string MsuCreatorName { get; set; } = string.Empty;
+    [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
+    public string MsuPath { get; set; } = string.Empty;
+    [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
+    public string MsuProjectPath { get; set; } = string.Empty;
+    [Reactive, ReactiveLinkedProperties(nameof(CanSetMsuPcmWorkingPath))]
+    public string MsuPcmJsonPath { get; set; } = string.Empty;
     [Reactive] public string MsuPcmWorkingPath { get; set; } = string.Empty;
+    public bool CanSetMsuPcmWorkingPath => !string.IsNullOrEmpty(MsuPcmJsonPath);
+    public bool CanCreateProject => !string.IsNullOrEmpty(MsuProjectName) && !string.IsNullOrEmpty(MsuCreatorName) && !string.IsNullOrEmpty(MsuPath) && !string.IsNullOrEmpty(MsuProjectPath) && SelectedMsuType != null;
     [Reactive] public List<MsuType> MsuTypes { get; set; } = [];
-    [Reactive] public MsuType? SelectedMsuType { get; set; } 
+    [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
+    public MsuType? SelectedMsuType { get; set; } 
     [Reactive] public bool DisplayNewProjectPage { get; set; } = false;
     [Reactive] public bool DisplayOpenProjectPage { get; set; } = true;
     [Reactive] public bool DisplaySettingsPage { get; set; }

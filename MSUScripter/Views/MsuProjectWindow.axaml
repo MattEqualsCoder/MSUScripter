@@ -44,10 +44,12 @@
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemOpenProject}"
                                             IconKind="FolderOpenOutline"
+                                            x:Name="BrowseMenu"
                                         >
                                             <controls:IconMenuItem  
                                                 Header="{Binding Text.MenuItemOpenFromFile}"
                                                 IconKind="FolderOpenOutline"
+                                                Click="BrowseMsuProjectMenuItem_OnClick"
                                             />
                                             <Separator></Separator>
                                         </controls:IconMenuItem>
@@ -68,6 +70,7 @@
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemExitApp}"
                                             IconKind="Power"
+                                            Click="ExitApplicationMenuItem_OnClick"
                                         />
                                     </ContextMenu>
                                 </Button.ContextMenu>

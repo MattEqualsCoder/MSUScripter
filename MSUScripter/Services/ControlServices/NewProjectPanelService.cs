@@ -46,9 +46,11 @@ public class NewProjectPanelService(IMsuTypeService msuTypeService, ProjectServi
         
         try
         {
-            newProject = projectService.NewMsuProject(path, _model.SelectedMsuType, _model.MsuPath, _model.MsuPcmTracksJsonPath, _model.MsuPcmWorkingDirectoryPath);
-            isLegacySmz3 = newProject.MsuType == msuTypeService.GetSMZ3LegacyMSUType() &&
-                           msuTypeService.GetSMZ3MsuType() != null;
+            // newProject = projectService.NewMsuProject(path, _model.SelectedMsuType, _model.MsuPath, _model.MsuPcmTracksJsonPath, _model.MsuPcmWorkingDirectoryPath);
+            // isLegacySmz3 = newProject.MsuType == msuTypeService.GetSMZ3LegacyMSUType() &&
+            //                msuTypeService.GetSMZ3MsuType() != null;
+            newProject = null;
+            isLegacySmz3 = false;
             error = null;
             return true;
         }

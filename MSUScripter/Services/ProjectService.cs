@@ -205,10 +205,10 @@ public class ProjectService(
     {
         var msuType = msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
 
-        return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
+        return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory, null, null);
     }
     
-    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
+    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory, string? projectName, string? creatorName)
     {
         var project = new MsuProject()
         {
@@ -219,11 +219,14 @@ public class ProjectService(
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
             IsNewProject = true,
+            BasicInfo = new MsuBasicInfo
+            {
+                PackName = projectName,
+                PackCreator = creatorName,
+                PackVersion = "",
+            }
         };
 
-        project.BasicInfo.MsuType = project.MsuType.Name;
-        project.BasicInfo.Game = project.MsuType.Name;
-        
         foreach (var track in project.MsuType.Tracks.OrderBy(x => x.Number))
         {
             project.Tracks.Add(new MsuTrackInfo()

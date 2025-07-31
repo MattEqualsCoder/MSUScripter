@@ -63,7 +63,7 @@
                     Grid.Column="2"
                     Grid.Row="1"
                     Margin="3 5 0 2"
-                    Text="{Binding Path=PackCreator, Mode=TwoWay}"
+                    Text="{Binding Path=PackVersion, Mode=TwoWay}"
                 />
                 
                 <!-- Default Artist -->

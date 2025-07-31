@@ -235,6 +235,7 @@
                     FileInputType="Folder" 
                     Name="MsuPcmWorkingDirectory"
                     FilePath="{Binding MsuPcmWorkingPath, Mode=TwoWay}"
+                    IsEnabled="{Binding CanSetMsuPcmWorkingPath}"
                 />
                 
                 <Panel Height="15"/>
@@ -243,6 +244,7 @@
                     HorizontalAlignment="Center"
                     Padding="10 5"
                     Click="CreateProjectButton_OnClick"
+                    IsEnabled="{Binding CanCreateProject}"
                 >
                     Create Project
                 </Button>

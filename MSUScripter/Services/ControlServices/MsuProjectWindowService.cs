@@ -10,7 +10,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService) : ControlService
+public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService, Settings settings) : ControlService
 {
     private MsuProjectWindowViewModel _viewModel = null!;
     private MsuProject _project = null!;
@@ -126,6 +126,9 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             _viewModel.StatusBarText = args.Data;
         };
+
+        _viewModel.RecentProjects = settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath)
+            .ToList();
 
         return _viewModel;
     }
