@@ -1,26 +1,11 @@
 ﻿using System;
-using AvaloniaControls.Models;
-using Material.Icons;
 using MSUScripter.Configs;
-using MSUScripter.Models;
-using MSUScripter.Text;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
 public class MsuBasicInfoViewModel : SavableViewModelBase
 {
-    public MsuBasicInfoViewModel()
-    {
-        PropertyChanged += (sender, args) =>
-        {
-            if (args.PropertyName != nameof(LastModifiedDate) && args.PropertyName != nameof(HasBeenModified))
-            {
-                LastModifiedDate = DateTime.Now;
-            }
-        };
-    }
-
     public MsuProject? Project { get; set; }
     [Reactive] public string MsuType { get; set; } = "";
 
@@ -45,8 +30,6 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     [Reactive] public bool CreateSplitSmz3Script { get; set; }
     [Reactive] public string? ZeldaMsuPath { get; set; }
     [Reactive] public string? MetroidMsuPath { get; set; }
-    
-    public DateTime LastModifiedDate { get; set; }
     [Reactive] public bool IsVisible { get; set; } = true;
     
     public void UpdateModel(MsuProject project)
@@ -74,6 +57,8 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
         Normalization = project.BasicInfo.Normalization;
         Dither = project.BasicInfo.Dither;
         IncludeJson = project.BasicInfo.IncludeJson ?? false;
+
+        LastModifiedDate = project.BasicInfo.LastModifiedDate;
     }
     
     public bool HasChangesSince(DateTime time)

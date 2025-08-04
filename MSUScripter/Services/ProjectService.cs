@@ -78,7 +78,12 @@ public class ProjectService(
         if (!isBackup)
         {
             logger.LogInformation("Saved project");
-            statusBarService?.UpdateStatusBar("Project Saved");
+            statusBarService.UpdateStatusBar("Project Saved");
+        }
+        else
+        {
+            logger.LogInformation("Saved project backup");
+            statusBarService.UpdateStatusBar("Backup Created");
         }
     }
 

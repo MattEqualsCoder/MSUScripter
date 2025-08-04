@@ -1,17 +1,16 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Timers;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
@@ -33,6 +32,7 @@ public partial class MsuProjectWindow : RestorableWindow
     private MsuProjectWindowViewModelTreeData? _draggedTreeItem;
     private MsuProjectWindowViewModelTreeData? _hoverValue;
     private MainWindow? _parentWindow;
+    private readonly Timer _backupTimer = new(TimeSpan.FromSeconds(60));
     
     public MsuProjectWindow()
     {
@@ -50,6 +50,8 @@ public partial class MsuProjectWindow : RestorableWindow
         var performSearch = () => _service?.FilterTree();
         _performTextFilter = performSearch.Debounce(200);
         _parentWindow = parentWindow;
+        _backupTimer.Elapsed += BackupTimerOnElapsed;
+        _backupTimer.Start();
     }
     
     public MsuProjectWindowCloseReason CloseReason { get; private set; }
@@ -514,9 +516,32 @@ public partial class MsuProjectWindow : RestorableWindow
         CrossPlatformTools.OpenDirectory(_viewModel.MsuProject.MsuPath, true);
     }
 
+    private bool _forceClose = false;
+
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        _service?.SaveCurrentPanel();
+        if (_viewModel?.MsuProject != null && _viewModel.LastModifiedDate > _viewModel.MsuProject.LastSaveTime && !_forceClose)
+        {
+            e.Cancel = true;
+            _ = ShowUnsavedChangesWindow();
+            return;
+        }
+        _backupTimer.Stop();
         _parentWindow?.Show();
+    }
+
+    private async Task ShowUnsavedChangesWindow()
+    {
+        if (!await MessageWindow.ShowYesNoDialog(
+                "You currently have unsaved changes. Are you sure you want to close this window?", parentWindow: this))
+        {
+            CloseReason = MsuProjectWindowCloseReason.CloseProject;
+            return;
+        }
+        
+        _forceClose = true;
+        Close();
     }
     
     private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
@@ -555,6 +580,17 @@ public partial class MsuProjectWindow : RestorableWindow
     {
         CloseReason = MsuProjectWindowCloseReason.CloseProject;
         Close();
+    }
+
+    private void NewProjectMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        CloseReason = MsuProjectWindowCloseReason.NewProject;
+        Close();
+    }
+    
+    private void BackupTimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        _service?.SaveProject(true);
     }
 }
 

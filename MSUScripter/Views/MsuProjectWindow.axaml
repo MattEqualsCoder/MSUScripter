@@ -40,6 +40,7 @@
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemNewProject}"
                                             IconKind="InvoiceTextNewOutline"
+                                            Click="NewProjectMenuItem_OnClick"
                                         />
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemOpenProject}"

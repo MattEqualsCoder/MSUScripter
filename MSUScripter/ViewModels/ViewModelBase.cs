@@ -1,5 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Reflection;
 using AvaloniaControls.Extensions;
 using MSUScripter.Models;
+using MSUScripter.Tools;
 using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
@@ -10,19 +14,34 @@ public abstract class ViewModelBase : ReactiveObject
     protected ViewModelBase()
     {
         this.LinkProperties();
-        
-        PropertyChanged += (sender, args) =>
+        SkipLastModifiedProperties = this.GetSkipLastModifiedPropertyNames();
+        if (GetType().GetCustomAttribute<SkipLastModifiedAttribute>() != null)
         {
-            if (args.PropertyName != nameof(HasBeenModified))
+            return;
+        }
+        
+        PropertyChanged += (_, args) =>
+        {
+            try
             {
-                HasBeenModified = true;
+                if (args.PropertyName != null && !SkipLastModifiedProperties.Contains(args.PropertyName))
+                {
+                    LastModifiedDate = DateTime.Now;
+                    HasBeenModified = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                var a = "1";
             }
         };
     }
 
     public abstract ViewModelBase DesignerExample();
     
-    [Reactive, SkipConvert] public bool HasBeenModified { get; set; }
-    
-    
+    [Reactive, SkipConvert, SkipLastModified] public DateTime LastModifiedDate { get; set; }
+    [Reactive, SkipConvert, SkipLastModified] public bool HasBeenModified { get; set; }
+    private HashSet<string> SkipLastModifiedProperties { get; } = [];
+
+
 }

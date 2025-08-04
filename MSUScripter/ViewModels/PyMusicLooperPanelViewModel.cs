@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 #pragma warning disable CS0067 // Event is never used
 
 namespace MSUScripter.ViewModels;
 
+[SkipLastModified]
 public class PyMusicLooperPanelViewModel : TranslatedViewModelBase
 {
     [Reactive] public double MinDurationMultiplier { get; set; } = 0.25;

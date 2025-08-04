@@ -1,34 +1,35 @@
 using System.ComponentModel;
 using System.Linq;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
 public class MsuSongOuterPanelViewModel : SavableViewModelBase
 {
-    [Reactive] public string TrackTitleText { get; set; } = "";
+    [Reactive, SkipLastModified] public string TrackTitleText { get; set; } = "";
     
-    [Reactive] public string? TrackDescriptionText { get; set; }
+    [Reactive, SkipLastModified] public string? TrackDescriptionText { get; set; }
     
-    [Reactive] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
     
-    [Reactive] public bool DisplayAddSong { get; set; }
+    [Reactive, SkipLastModified] public bool DisplayAddSong { get; set; }
     
     public MsuProject? Project { get; set; }
     public MsuTrackInfo? TrackInfo { get; set; }
     public MsuSongInfo? SongInfo { get; set; }
     
-    [Reactive] public bool HasTrackDescription { get; set; }
+    [Reactive, SkipLastModified] public bool HasTrackDescription { get; set; }
     
-    [Reactive] public bool IsEnabled { get; set; }
+    [Reactive, SkipLastModified] public bool IsEnabled { get; set; }
     
     [Reactive] public bool IsComplete { get; set; }
-    [Reactive] public bool DisplayCompleteCheckbox { get; set; }
-    [Reactive] public string AverageAudioLevel { get; set; } = "";
-    [Reactive] public string PeakAudioLevel { get; set; } = "";
-    [Reactive] public bool DisplaySecondAudioLine { get; set; }
-    [Reactive] public bool CanGeneratePcmFiles { get; set; } = true;
+    [Reactive, SkipLastModified] public bool DisplayCompleteCheckbox { get; set; }
+    [Reactive, SkipLastModified] public string AverageAudioLevel { get; set; } = "";
+    [Reactive, SkipLastModified] public string PeakAudioLevel { get; set; } = "";
+    [Reactive, SkipLastModified] public bool DisplaySecondAudioLine { get; set; }
+    [Reactive, SkipLastModified] public bool CanGeneratePcmFiles { get; set; } = true;
 
     public MsuSongBasicPanelViewModel BasicPanelViewModel { get; set; } = new();
     
@@ -105,6 +106,11 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
         IsEnabled = true;
         TreeData = treeData;
         HasBeenModified = false;
+
+        if (songInfo != null)
+        {
+            LastModifiedDate = songInfo.LastModifiedDate;
+        }
     }
     
     public override ViewModelBase DesignerExample()
@@ -131,11 +137,19 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     {
         if (BasicPanelViewModel.IsEnabled)
         {
-            BasicPanelViewModel.SaveChanges();    
+            BasicPanelViewModel.SaveChanges();
+            if (BasicPanelViewModel.LastModifiedDate > LastModifiedDate)
+            {
+                LastModifiedDate = BasicPanelViewModel.LastModifiedDate;
+            }
         }
         else if (AdvancedPanelViewModel.IsEnabled)
         {
             AdvancedPanelViewModel.SaveChanges();
+            if (AdvancedPanelViewModel.LastModifiedDate > LastModifiedDate)
+            {
+                LastModifiedDate = AdvancedPanelViewModel.LastModifiedDate;
+            }
         }
         
         HasBeenModified = false;

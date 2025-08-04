@@ -1,8 +1,10 @@
 using Material.Icons;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
+[SkipLastModified]
 public class AudioControlViewModel : ViewModelBase
 {
     [Reactive] public MaterialIconKind Icon { get; set; } = MaterialIconKind.Stop;

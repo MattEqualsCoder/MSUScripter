@@ -287,6 +287,17 @@ public partial class MainWindow : RestorableWindow
             {
                 _ = LoadProject(msuProjectWindow.OpenProjectPath);
             }
+            else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.NewProject)
+            {
+                _model.NewProjectBackground = _model.ActiveTabBackground;
+                _model.OpenProjectBackground = Brushes.Transparent;
+                _model.SettingsBackground = Brushes.Transparent;
+                _model.AboutBackground = Brushes.Transparent;
+                _model.DisplayNewProjectPage = true;
+                _model.DisplayOpenProjectPage = false;
+                _model.DisplaySettingsPage = false;
+                _model.DisplayAboutPage = false;
+            }
         };
     }
 

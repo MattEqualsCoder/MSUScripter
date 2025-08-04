@@ -9,13 +9,14 @@ using Avalonia.Media;
 using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
 public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 {
-    [Reactive] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
     
     [Reactive] public string? SongName { get; set; }
 
@@ -30,8 +31,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     [Reactive] public bool? IsCopyrightSafe { get; set; }
     
-    [Reactive] public bool IsEnabled { get; set; }
-    [Reactive] public bool IsAdvancedMode { get; set; } = true;
+    [Reactive, SkipLastModified] public bool IsEnabled { get; set; }
+    [Reactive, SkipLastModified] public bool IsAdvancedMode { get; set; } = true;
     
     [Reactive] public int? Loop { get; set; }
 
@@ -59,8 +60,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     [Reactive] public string? Input { get; set; }
     
-    [Reactive] public bool DisplayOutputPcmFile { get; set; }
-    [Reactive] public bool CanUpdateOutputPcmFile { get; set; }
+    [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
+    [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
     public MsuProject Project { get; set; }
 
     public MsuSongAdvancedPanelViewModelModelTreeData CurrentTreeItem { get; set; } = null!;
@@ -69,7 +70,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public bool IsDraggingItem => _draggedItem != null;
     
     public ObservableCollection<MsuSongAdvancedPanelViewModelModelTreeData> TreeItems { get; set; } = [];
-    [Reactive] public MsuSongAdvancedPanelViewModelModelTreeData SelectedTreeItem { get; set; }
+    [Reactive, SkipLastModified] public MsuSongAdvancedPanelViewModelModelTreeData SelectedTreeItem { get; set; }
     
     public ContextMenu? CurrentContextMenu { get; set; }
     
@@ -128,6 +129,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         IsEnabled = true;
         HasBeenModified = false;
         _updatingModel = false;
+        LastModifiedDate = songInfo.LastModifiedDate;
     }
     
     private int AddTreeItem(MsuSongMsuPcmInfo msuPcmInfo, int level, bool isChannel, int index, int sortIndex, int parentSortIndex, MsuSongAdvancedPanelViewModelModelTreeData? parentTreeData)
@@ -237,6 +239,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             SaveChanges();
         }
         
+        var currentLastModifiedTime = LastModifiedDate;
+        
         Loop = treeData.MsuPcmInfo.Loop;
         TrimStart = treeData.MsuPcmInfo.TrimStart;
         TrimEnd = treeData.MsuPcmInfo.TrimEnd;
@@ -262,6 +266,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         CanUpdateOutputPcmFile = treeData.SongInfo?.IsAlt == true;
         _currentSongMsuPcmInfo = treeData.MsuPcmInfo;
         CurrentTreeItem = treeData;
+        
+        LastModifiedDate = currentLastModifiedTime;
     }
     
     public override void SaveChanges()
@@ -707,6 +713,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     }
 }
 
+[SkipLastModified]
 public class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBase
 {
     public static IBrush HighlightColor { get; set; } = Brushes.SlateGray;

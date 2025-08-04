@@ -130,6 +130,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         _viewModel.RecentProjects = settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath)
             .ToList();
 
+        _viewModel.LastModifiedDate = project.LastSaveTime;
+
         return _viewModel;
     }
 
@@ -242,22 +244,30 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         }
     }
 
-    private void SaveCurrentPanel()
+    public void SaveCurrentPanel()
     {
         if (_viewModel.MsuSongViewModel.IsEnabled)
         {
             _viewModel.MsuSongViewModel.SaveChanges();
+            if (_viewModel.MsuSongViewModel.LastModifiedDate > _viewModel.LastModifiedDate)
+            {
+                _viewModel.LastModifiedDate = _viewModel.MsuSongViewModel.LastModifiedDate;
+            }
         }
         else if (_viewModel.BasicInfoViewModel.IsVisible)
         {
             _viewModel.BasicInfoViewModel.SaveChanges();
+            if (_viewModel.BasicInfoViewModel.LastModifiedDate > _viewModel.LastModifiedDate)
+            {
+                _viewModel.LastModifiedDate = _viewModel.BasicInfoViewModel.LastModifiedDate;
+            }
         }
     }
 
-    public void SaveProject()
+    public void SaveProject(bool isBackup = false)
     {
         SaveCurrentPanel();
-        projectService.SaveMsuProject(_project, false);
+        projectService.SaveMsuProject(_project, isBackup);
     }
     
     public bool CreateYamlFile(out string? error)

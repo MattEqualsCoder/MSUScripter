@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -5,35 +6,37 @@ using Avalonia.Media;
 using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
+[SkipLastModified]
 public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
 {
     public static IBrush HighlightColor { get; set; } = Brushes.SlateGray;
 
-    [Reactive] public required MaterialIconKind CollapseIcon { get; set; }
-    [Reactive] public double CollapseIconOpacity { get; set; } = 1;
-    [Reactive] public MaterialIconKind CompletedIconKind { get; set; } = MaterialIconKind.FlagOutline;
-    [Reactive] public IBrush CompletedIconColor { get; set; } = Brushes.DimGray;
-    [Reactive] public MaterialIconKind HasSongIconKind { get; set; } = MaterialIconKind.VolumeSource;
-    [Reactive] public IBrush HasSongIconColor { get; set; } = Brushes.DimGray;
-    [Reactive] public MaterialIconKind CheckCopyrightIconKind { get; set; } = MaterialIconKind.Video;
-    [Reactive] public IBrush CheckCopyrightIconColor { get; set; } = Brushes.DimGray;
-    [Reactive] public MaterialIconKind CopyrightSafeIconKind { get; set; } = MaterialIconKind.Copyright;
-    [Reactive] public IBrush CopyrightSafeIconColor { get; set; } = Brushes.DimGray;
+    [Reactive, SkipLastModified] public required MaterialIconKind CollapseIcon { get; set; }
+    [Reactive, SkipLastModified] public double CollapseIconOpacity { get; set; } = 1;
+    [Reactive, SkipLastModified] public MaterialIconKind CompletedIconKind { get; set; } = MaterialIconKind.FlagOutline;
+    [Reactive, SkipLastModified] public IBrush CompletedIconColor { get; set; } = Brushes.DimGray;
+    [Reactive, SkipLastModified] public MaterialIconKind HasSongIconKind { get; set; } = MaterialIconKind.VolumeSource;
+    [Reactive, SkipLastModified] public IBrush HasSongIconColor { get; set; } = Brushes.DimGray;
+    [Reactive, SkipLastModified] public MaterialIconKind CheckCopyrightIconKind { get; set; } = MaterialIconKind.Video;
+    [Reactive, SkipLastModified] public IBrush CheckCopyrightIconColor { get; set; } = Brushes.DimGray;
+    [Reactive, SkipLastModified] public MaterialIconKind CopyrightSafeIconKind { get; set; } = MaterialIconKind.Copyright;
+    [Reactive, SkipLastModified] public IBrush CopyrightSafeIconColor { get; set; } = Brushes.DimGray;
 
     [Reactive] public required string Name { get; set; }
     public required int LeftSpacing { get; init; }
     public required bool ShowCheckbox { get; init; }
-    [Reactive] public IBrush GridBackground { get; set; } = Brushes.Transparent;
-    [Reactive] public IBrush BorderColor { get; set; } = Brushes.Transparent;
+    [Reactive, SkipLastModified] public IBrush GridBackground { get; set; } = Brushes.Transparent;
+    [Reactive, SkipLastModified] public IBrush BorderColor { get; set; } = Brushes.Transparent;
 
-    [Reactive, ReactiveLinkedProperties(nameof(IsVisible))]
+    [Reactive, ReactiveLinkedProperties(nameof(IsVisible)), SkipLastModified]
     public bool IsCollapsed { get; set; }
 
-    [Reactive, ReactiveLinkedProperties(nameof(IsVisible))]
+    [Reactive, ReactiveLinkedProperties(nameof(IsVisible)), SkipLastModified]
     public bool IsFilteredOut { get; set; }
 
     public bool IsVisible => !IsCollapsed && !IsFilteredOut;
@@ -317,6 +320,7 @@ public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
 
 }
 
+[SkipLastModified]
 public class MsuProjectWindowViewModel : TranslatedViewModelBase
 {
     public ObservableCollection<MsuProjectWindowViewModelTreeData> TreeItems { get; set; } = [];

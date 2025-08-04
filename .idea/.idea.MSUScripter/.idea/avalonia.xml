@@ -13,6 +13,7 @@
         <entry key="MSUScripter/Views/MsuPcmGenerationWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongAdvancedPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/MsuSongBasicPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuSongOuterPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/NewProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/PackageMsuWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

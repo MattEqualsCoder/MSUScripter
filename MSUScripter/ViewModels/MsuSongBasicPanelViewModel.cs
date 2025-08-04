@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Text;
 using ReactiveUI.Fody.Helpers;
 
@@ -9,7 +11,7 @@ namespace MSUScripter.ViewModels;
 
 public class MsuSongBasicPanelViewModel : SavableViewModelBase
 {
-    [Reactive] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
     
     [Reactive] public string? SongName { get; set; }
 
@@ -25,8 +27,8 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(HasSelectedInputFile))] public string? InputFilePath { get; set; }
 
-    [Reactive] public bool PyMusicLooperRunning { get; set; }
-    [Reactive] public bool CanUpdatePcmFile { get; set; }
+    [Reactive, SkipLastModified] public bool PyMusicLooperRunning { get; set; }
+    [Reactive, SkipLastModified] public bool CanUpdatePcmFile { get; set; }
     [Reactive] public int? TrimStart { get; set; }
     [Reactive] public int? TrimEnd { get; set; }
     [Reactive] public int? LoopPoint { get; set; }
@@ -35,15 +37,15 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     [Reactive] public bool? CheckCopyright { get; set; }
     
     [Reactive] public bool? IsCopyrightSafe { get; set; }
-    [Reactive] public bool DisplayOutputFile { get; set; } = true;
-    [Reactive] public bool DisplayInputFile { get; set; } = true;
-    [Reactive] public bool IsEnabled { get; set; } = true;
-    [Reactive] public bool IsAdvancedMode { get; set; }
-    [Reactive] public bool EnableMsuPcm { get; set; } = true;
-    [Reactive] public int InputColumnSpan { get; set; } = 2;
-    [Reactive] public int OutputColumn { get; set; } = 2;
-    [Reactive] public int OutputColumnSpan { get; set; } = 2;
-    [Reactive] public ApplicationText Text { get; set; } = ApplicationText.CurrentLanguageText;
+    [Reactive, SkipLastModified] public bool DisplayOutputFile { get; set; } = true;
+    [Reactive, SkipLastModified] public bool DisplayInputFile { get; set; } = true;
+    [Reactive, SkipLastModified] public bool IsEnabled { get; set; } = true;
+    [Reactive, SkipLastModified] public bool IsAdvancedMode { get; set; }
+    [Reactive, SkipLastModified] public bool EnableMsuPcm { get; set; } = true;
+    [Reactive, SkipLastModified] public int InputColumnSpan { get; set; } = 2;
+    [Reactive, SkipLastModified] public int OutputColumn { get; set; } = 2;
+    [Reactive, SkipLastModified] public int OutputColumnSpan { get; set; } = 2;
+    [Reactive, SkipLastModified] public ApplicationText Text { get; set; } = ApplicationText.CurrentLanguageText;
     public MsuProject? Project { get; set; }
     public bool HasSelectedInputFile => !string.IsNullOrEmpty(InputFilePath);
     
@@ -54,8 +56,9 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
 
     public event EventHandler? ViewModelUpdated;
 
-    public MsuSongBasicPanelViewModel()
+    public MsuSongBasicPanelViewModel() : base()
     {
+        
         PropertyChanged += OnPropertyChanged;
         return;
 
@@ -137,6 +140,7 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
         IsEnabled = true;
         HasBeenModified = false;
         _updatingModel = false;
+        LastModifiedDate = songInfo.LastModifiedDate;
         ViewModelUpdated?.Invoke(this, EventArgs.Empty);
     }
 
