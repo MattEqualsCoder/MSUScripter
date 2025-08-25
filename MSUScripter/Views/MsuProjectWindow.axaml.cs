@@ -534,7 +534,7 @@ public partial class MsuProjectWindow : RestorableWindow
     private async Task ShowUnsavedChangesWindow()
     {
         if (!await MessageWindow.ShowYesNoDialog(
-                "You currently have unsaved changes. Are you sure you want to close this window?", parentWindow: this))
+                "You currently have unsaved changes. Are you sure you want to close this window?", "Unsaved Changes", parentWindow: this))
         {
             CloseReason = MsuProjectWindowCloseReason.CloseProject;
             return;

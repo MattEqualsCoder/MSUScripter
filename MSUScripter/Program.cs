@@ -121,6 +121,7 @@ class Program
             .AddSingleton<PyMusicLooperService>()
             .AddSingleton<TrackListService>()
             .AddSingleton<StatusBarService>()
+            .AddSingleton<PythonCompanionService>()
             .AddTransient<PythonCommandRunnerService>()
             .AddTransient<VideoCreatorWindowService>()
             .AddTransient<SharedPcmService>()

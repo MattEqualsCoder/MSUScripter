@@ -9,23 +9,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Models/SkipLastModifiedAttribute.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Tools/ReactiveObjectExtensions.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/AudioControlViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/AudioControlViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongBasicPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongBasicPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongOuterPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongOuterPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/PyMusicLooperPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/PyMusicLooperPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/ViewModelBase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/ViewModelBase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +35,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/57/9ce1562e/ReactiveObjectsExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/76/986a2049/CrossPlatformTools.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5094e71058416d72278f32a6913f67a9c664bd46c296c5cce3ee63993dde3f/Type.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8874fa6fbc50b05ba8332188d36141eb4bba81fb1f92189ba9d7a25f545/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8e0fef0a3581a742cd9a23bb5cdf652475d82f568a56e2098f7c18db8ce54/ObjectExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/91e1808e96bf3c47c67094995d2c7c3c22a44234aad11037accab93917a/AttributeUsageAttribute.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/5f/577312f9/IconCheckbox.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongMsuPcmInfo.cs" root0="FORCE_HIGHLIGHTING" />
@@ -88,23 +74,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Project.MSUScripter.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "XThreadsFramesViewSplitterKey": "0.07832009",
-    "git-widget-placeholder": "ui-rewrite",
-    "last_opened_file_path": "/home/matt/.dotnet/dotnet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "coverage",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Project.MSUScripter.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.07832009&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;ui-rewrite&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/matt/.dotnet/dotnet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;coverage&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Project.MSUScripter">
     <configuration name="MSUScripter" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/MSUScripter/bin/Debug/net9.0/MSUScripter" />
@@ -119,7 +105,7 @@
       <option name="RUNTIME_ARGUMENTS" value="" />
       <option name="AUTO_ATTACH_CHILDREN" value="0" />
       <option name="MIXED_MODE_DEBUG" value="0" />
-      <option name="RUNTIME_TYPE" value="custom:e3345dda-ac8b-4c85-b0bc-4285857af553" />
+      <option name="RUNTIME_TYPE" value="coreclr" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
       <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
@@ -196,6 +182,9 @@
       <workItem from="1753918710314" duration="129000" />
       <workItem from="1753918918261" duration="7850000" />
       <workItem from="1754244616438" duration="10854000" />
+      <workItem from="1754962714492" duration="1241000" />
+      <workItem from="1755823413568" duration="6338000" />
+      <workItem from="1756081563122" duration="3816000" />
     </task>
     <servers />
   </component>
@@ -221,6 +210,32 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="17" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs</url>
+          <line>28</line>
+          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" containingFunctionPresentation="Method 'Verify'">
+            <startOffsets>
+              <option value="740" />
+            </startOffsets>
+            <endOffsets>
+              <option value="752" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs</url>
+          <line>69</line>
+          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" containingFunctionPresentation="Method 'RunInternalInstalled'">
+            <startOffsets>
+              <option value="2960" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3009" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="21" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

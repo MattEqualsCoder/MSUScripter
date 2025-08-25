@@ -424,8 +424,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         _viewModel.SelectedTreeItem = treeData;
         treeData.UpdateCompletedFlag();
         UpdateCompletedSummary();
-
-        Console.WriteLine("Added song");
+        _viewModel.LastModifiedDate = DateTime.Now;
     }
 
     public void RemoveSong(MsuProjectWindowViewModelTreeData treeData)
@@ -475,6 +474,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         }
         
         UpdateCompletedSummary();
+        _viewModel.LastModifiedDate = DateTime.Now;
     }
 
     public void UpdateDrag(MsuProjectWindowViewModelTreeData? treeData)
@@ -525,6 +525,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             treeData.UpdateCompletedFlag();
             treeData.ParentTreeData?.UpdateCompletedFlag();
         }
+        
+        _viewModel.LastModifiedDate = DateTime.Now;
     }
 
     public void UpdateCheckCopyright(MsuProjectWindowViewModelTreeData treeData)
@@ -573,6 +575,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             treeData.UpdateCompletedFlag();
             treeData.ParentTreeData?.UpdateCompletedFlag();
         }
+        
+        _viewModel.LastModifiedDate = DateTime.Now;
     }
     
     public void UpdateCopyrightSafe(MsuProjectWindowViewModelTreeData treeData)
@@ -633,6 +637,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             treeData.UpdateCompletedFlag();
             treeData.ParentTreeData?.UpdateCompletedFlag();
         }
+        
+        _viewModel.LastModifiedDate = DateTime.Now;
     }
 
     private void HandleDragged(MsuProjectWindowViewModelTreeData from, MsuProjectWindowViewModelTreeData to)

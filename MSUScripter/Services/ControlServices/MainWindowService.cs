@@ -12,7 +12,15 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MainWindowService(Settings settings, SettingsService settingsService, MsuPcmService msuPcmService, PyMusicLooperService pyMusicLooperService, ProjectService projectService, IGitHubReleaseCheckerService gitHubReleaseCheckerService, IMsuTypeService msuTypeService) : ControlService
+public class MainWindowService(
+    Settings settings,
+    SettingsService settingsService,
+    MsuPcmService msuPcmService,
+    PyMusicLooperService pyMusicLooperService,
+    ProjectService projectService,
+    IGitHubReleaseCheckerService gitHubReleaseCheckerService,
+    PythonCompanionService pythonCompanionService,
+    IMsuTypeService msuTypeService) : ControlService
 {
     private readonly MainWindowViewModel _model = new();
 
@@ -20,6 +28,7 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
     {
         _ = CheckForNewRelease();
         _ = CleanUpFolders();
+        pythonCompanionService.Verify();
         OpenCommandlineArgsProject();
         _model.AppVersion = $" v{App.Version}";
         

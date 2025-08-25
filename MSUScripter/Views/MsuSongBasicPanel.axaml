@@ -12,7 +12,7 @@
         <controls:CardControl HeaderText="{Binding Text.SongPanelBasicHeader}" DisplayHeaderButtons="True">
             <controls:CardControl.HeaderButtons>
                 <controls:IconCheckbox
-                    Text="{Binding Text.SongPanelAdvancedModeCheckBox}"
+                    Text="Advanced Mode"
                     Value="{Binding IsAdvancedMode}"
                     IsVisible="{Binding EnableMsuPcm}"
                     ToolTip.Tip="{Binding Text.SongPanelAdvancedModeToolTip}"

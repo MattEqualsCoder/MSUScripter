@@ -4,7 +4,6 @@ using Avalonia.Interactivity;
 using AvaloniaControls;
 using MSUScripter.Events;
 using MSUScripter.Services.ControlServices;
-using MSUScripter.Text;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -28,7 +27,7 @@ public partial class MsuSongBasicPanel : UserControl
     {
         base.OnLoaded(e);
         _viewModel = DataContext as MsuSongBasicPanelViewModel ?? new MsuSongBasicPanelViewModel();
-        _viewModel.ViewModelUpdated += (sender, args) =>
+        _viewModel.ViewModelUpdated += (_, _) =>
         {
             PyMusicLooperPanel.UpdateDetails(new PyMusicLooperDetails
             {
