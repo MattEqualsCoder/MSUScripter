@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using AvaloniaControls.Controls;
+using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Models;
@@ -12,12 +13,14 @@ namespace MSUScripter.Services;
 public class SettingsService
 {
     private readonly YamlService _yamlService;
+    private readonly ILogger<SettingsService> _logger;
 
     public Settings Settings { get; set; } = null!;
 
-    public SettingsService(YamlService yamlService)
+    public SettingsService(YamlService yamlService, ILogger<SettingsService> logger)
     {
         _yamlService = yamlService;
+        _logger = logger;
         LoadSettings();
     }
 
@@ -58,6 +61,21 @@ public class SettingsService
         File.WriteAllText(GetSettingsPath(), yaml);
 
         ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
+    }
+
+    public void TrySaveSettings()
+    {
+        _ = ITaskService.Run(() =>
+        {
+            try
+            {
+                SaveSettings();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error saving settings");
+            }
+        });
     }
 
     public void AddRecentProject(MsuProject project)

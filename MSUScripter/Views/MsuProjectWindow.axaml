@@ -68,6 +68,7 @@
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemSettings}"
                                             IconKind="SettingsOutline"
+                                            Click="OpenSettingsMenuItem_OnClick"
                                         />
                                         <controls:IconMenuItem 
                                             Header="{Binding Text.MenuItemExitApp}"
@@ -190,6 +191,11 @@
                                         IsChecked="{Binding FilterOnlyCopyrightUntested}"
                                         Click="ToggleCopyrightUntestedMenuItem_OnClick"
                                     />
+                                    <controls:IconMenuItem
+                                        IconKind="Refresh"
+                                        Header="Reapply Filters"
+                                        Click="ReapplyFiltersMenuItem_OnClick"
+                                    />
                                     <Separator />
                                     <controls:CheckedMenuItem 
                                         Header="{Binding Text.ProjectWindowDisplayIsCompleteIcon}"
@@ -214,7 +220,7 @@
                                 </ContextMenu>
                                 
                             </Button.ContextMenu>
-                            <avalonia:MaterialIcon Kind="Eye" Width="14"></avalonia:MaterialIcon>
+                            <avalonia:MaterialIcon Kind="{Binding FilterEyeIcon}" Width="14"></avalonia:MaterialIcon>
                         </controls:ContextMenuButton>
                     </Grid>
                     
@@ -414,7 +420,10 @@
                 />
             </controls:HeaderFooter>
             <controls:HeaderFooter Grid.Row="1" Grid.Column="2">
-                <views:AudioControl Margin="5" />
+                <views:AudioControl 
+                    Margin="5" 
+                    CanSetTimeSeconds="True"
+                />
             </controls:HeaderFooter>
         </Grid>
     </DockPanel>

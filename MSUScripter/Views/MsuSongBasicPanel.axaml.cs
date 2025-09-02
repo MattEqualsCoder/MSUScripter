@@ -2,6 +2,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaControls;
+using AvaloniaControls.Services;
 using MSUScripter.Events;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -36,6 +37,8 @@ public partial class MsuSongBasicPanel : UserControl
                 Project = _viewModel.Project!,
                 AllowRunByDefault = false
             });
+            
+            Service?.CheckSampleRate(_viewModel);
         };
         PyMusicLooperPanel.UpdateDetails(new PyMusicLooperDetails
         {
@@ -44,6 +47,7 @@ public partial class MsuSongBasicPanel : UserControl
             Project = _viewModel.Project!,
             AllowRunByDefault = false
         });
+        Service?.CheckSampleRate(_viewModel);
     }
     
     public event EventHandler? AdvancedModeToggled;
@@ -90,6 +94,8 @@ public partial class MsuSongBasicPanel : UserControl
             _viewModel.Album = metadata?.Album;
             _viewModel.Url = metadata?.Url;
         }
+
+        Service?.CheckSampleRate(_viewModel);
         
         PyMusicLooperPanel.UpdateDetails(new PyMusicLooperDetails
         {
@@ -105,6 +111,6 @@ public partial class MsuSongBasicPanel : UserControl
     private void PyMusicLooperPanel_OnRunningUpdated(object? sender, bool e)
     {
         if (_viewModel == null) return;
-        _viewModel.PyMusicLooperRunning = !e;
+        _viewModel.PyMusicLooperRunning = e;
     }
 }

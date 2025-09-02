@@ -340,7 +340,9 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     [Reactive] public bool FilterOnlyIncomplete { get; set; }
     [Reactive] public bool FilterOnlyMissingAudio { get; set; }
     [Reactive] public bool FilterOnlyCopyrightUntested { get; set; }
+    [Reactive] public MaterialIconKind FilterEyeIcon { get; set; } = MaterialIconKind.Eye;
     [Reactive] public string StatusBarText { get; set; } = "Loaded Project";
+    
     public MsuProjectWindowViewModelTreeData? CurrentTreeItem { get; set; }
     public MsuProject? MsuProject { get; set; }
     public MsuSongOuterPanelViewModel MsuSongViewModel { get; set; } = new();
@@ -348,6 +350,7 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     [Reactive] public bool DisplayBasicPanel { get; set; } = true;
     [Reactive] public bool IsBusy { get; set; } = false;
     public List<RecentProject> RecentProjects { get; set; } = [];
+    public DefaultSongPanel DefaultSongPanel { get; set; }
     
     public override ViewModelBase DesignerExample()
     {

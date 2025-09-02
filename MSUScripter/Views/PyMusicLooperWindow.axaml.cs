@@ -53,6 +53,7 @@ public partial class PyMusicLooperWindow : ScalableWindow
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        this.FindControl<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.Stop();
         _ = this.FindControl<AudioControl>(nameof(AudioControl))?.StopAsync();
     }
 }

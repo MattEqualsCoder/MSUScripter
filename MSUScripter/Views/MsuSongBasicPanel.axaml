@@ -5,19 +5,33 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
              xmlns:views="clr-namespace:MSUScripter.Views"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:MsuSongBasicPanelViewModel"
              x:Class="MSUScripter.Views.MsuSongBasicPanel">
     <StackPanel Orientation="Vertical">
         <controls:CardControl HeaderText="{Binding Text.SongPanelBasicHeader}" DisplayHeaderButtons="True">
             <controls:CardControl.HeaderButtons>
-                <controls:IconCheckbox
-                    Text="Advanced Mode"
-                    Value="{Binding IsAdvancedMode}"
-                    IsVisible="{Binding EnableMsuPcm}"
-                    ToolTip.Tip="{Binding Text.SongPanelAdvancedModeToolTip}"
-                    OnChecked="AdvancedModeCheckbox_OnOnChecked"
-                ></controls:IconCheckbox>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Margin="10 0 10 0"
+                        IsVisible="{Binding DisplaySampleRateWarning}"
+                        ToolTip.Tip="This is a non-44100Hz file. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center">
+                            Non-44100Hz File
+                        </TextBlock>
+                    </StackPanel>
+                    <controls:IconCheckbox
+                        Text="Advanced View"
+                        Value="{Binding IsAdvancedMode}"
+                        IsVisible="{Binding EnableMsuPcm}"
+                        ToolTip.Tip="{Binding Text.SongPanelAdvancedModeToolTip}"
+                        OnChecked="AdvancedModeCheckbox_OnOnChecked"
+                    ></controls:IconCheckbox>
+                </StackPanel>
             </controls:CardControl.HeaderButtons>
             <Grid ColumnDefinitions="* * * *" RowDefinitions="* * * * * * *" Margin="5">
                 
@@ -48,6 +62,7 @@
                     Margin="3 0 0 2"
                     LabelText="{Binding Text.OutputAudioFileLabel}" 
                     ToolTipText="{Binding Text.OutputAudioFileToolTip}"
+                    IsVisible="{Binding DisplayOutputFile}"
                 />
                 <controls:FileControl Grid.Row="1" Grid.Column="{Binding OutputColumn}" Grid.ColumnSpan="{Binding OutputColumnSpan}"
                                       Name="OutputFileControl"

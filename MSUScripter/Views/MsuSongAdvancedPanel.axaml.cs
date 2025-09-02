@@ -31,6 +31,10 @@ public partial class MsuSongAdvancedPanel : UserControl
     {
         base.OnLoaded(e);
         _viewModel = DataContext as MsuSongAdvancedPanelViewModel ?? new MsuSongAdvancedPanelViewModel();
+        _viewModel.ViewModelUpdated += (_, _) =>
+        {
+            Service?.CheckFileErrors(_viewModel);
+        };
     }
     
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -97,9 +101,14 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void InputFileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
     {
-        _viewModel?.SaveChanges();
+        if (_viewModel == null)
+        {
+            return;
+        }
         
-        if (!string.IsNullOrEmpty(_viewModel?.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+        _viewModel.SaveChanges();
+        
+        if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
         {
             var metadata = Service?.GetAudioMetadata(_viewModel.Input);
             _viewModel.SongName = metadata?.SongName;
@@ -108,8 +117,9 @@ public partial class MsuSongAdvancedPanel : UserControl
             _viewModel.Url = metadata?.Url;
         }
         
-        _viewModel?.UpdateTreeItemName();
+        _viewModel.UpdateTreeItemName();
         InputFileUpdated?.Invoke(this, EventArgs.Empty);
+        Service?.CheckFileErrors(_viewModel);
     }
 
     private void TreeInputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -180,12 +190,13 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void AddMsuPcmInfoButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData)
+        if (_viewModel == null || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData)
         {
             return;
         }
 
-        _viewModel?.AddMsuPcmInfo(treeData);
+        _viewModel.AddMsuPcmInfo(treeData);
+        Service?.CheckFileErrors(_viewModel);
     }
 
     private void TreeMenuButton_OnClick(object? sender, RoutedEventArgs e)
@@ -227,6 +238,11 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private async void PasteMsuPcmInfoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (_viewModel == null)
+        {
+            return;
+        }
+        
         try
         {
             if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData || treeData.MsuPcmInfo == null)
@@ -234,7 +250,7 @@ public partial class MsuSongAdvancedPanel : UserControl
                 return;
             }
             
-            _viewModel?.SaveChanges();
+            _viewModel.SaveChanges();
 
             var clipboardText = await this.GetClipboardAsync();
             if (string.IsNullOrEmpty(clipboardText)) return;
@@ -261,7 +277,8 @@ public partial class MsuSongAdvancedPanel : UserControl
                 }
             }
                     
-            _viewModel?.ReplaceMsuPcmInfo(treeData, msuPcmInfoFromClipboard);
+            _viewModel.ReplaceMsuPcmInfo(treeData, msuPcmInfoFromClipboard);
+            Service?.CheckFileErrors(_viewModel);
         }
         catch
         {
@@ -284,6 +301,7 @@ public partial class MsuSongAdvancedPanel : UserControl
         
         var newTreeData = _viewModel.AddMsuPcmInfo(treeData);
         _viewModel.ReplaceMsuPcmInfo(newTreeData, msuPcmInfo);
+        Service?.CheckFileErrors(_viewModel);
     }
 
     private void TreeItemMenuBase_OnOpened(object? sender, RoutedEventArgs e)
@@ -298,6 +316,11 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private async void DeleteMsuPcmInfoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
+        if (_viewModel == null)
+        {
+            return;
+        }
+        
         try
         {
             if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData ||
@@ -319,7 +342,8 @@ public partial class MsuSongAdvancedPanel : UserControl
                 }
             }
 
-            _viewModel?.RemoveMsuPcmInfo(treeData);
+            _viewModel.RemoveMsuPcmInfo(treeData);
+            Service?.CheckFileErrors(_viewModel);
         }
         catch
         {

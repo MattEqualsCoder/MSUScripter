@@ -6,6 +6,7 @@ using AvaloniaControls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
@@ -16,11 +17,11 @@ public class MainWindowService(
     Settings settings,
     SettingsService settingsService,
     MsuPcmService msuPcmService,
-    PyMusicLooperService pyMusicLooperService,
     ProjectService projectService,
     IGitHubReleaseCheckerService gitHubReleaseCheckerService,
     PythonCompanionService pythonCompanionService,
-    IMsuTypeService msuTypeService) : ControlService
+    IMsuTypeService msuTypeService,
+    ILogger<MainWindowService> logger) : ControlService
 {
     private readonly MainWindowViewModel _model = new();
 
@@ -28,7 +29,28 @@ public class MainWindowService(
     {
         _ = CheckForNewRelease();
         _ = CleanUpFolders();
-        pythonCompanionService.Verify();
+        _ = CheckPythonCompanionService();
+
+        // var sampleRate = pythonCompanionService.GetSampleRate(new GetSampleRateRequest()
+        // {
+        //     File = "/home/matt/Music/23 - Town of a wind and ruins.mp3"
+        // });
+        
+        // var pyMusicLooperResults = pythonCompanionService.RunPyMusicLooper(new RunPyMusicLooperRequest()
+        // {
+        //     File = "/home/matt/Music/23 - Town of a wind and ruins.mp3"
+        // });
+        //
+        // var createVideoResponse = pythonCompanionService.CreateVideo(new CreateVideoRequest()
+        // {
+        //     OutputVideo = "/home/matt/Source/PyMsuScripterApp/out/create_video_out.mp4",
+        //     Files = ["/home/matt/Documents/MSUProjects/When The Fates Cry/Output/WhenTheFatesCry_SMZ3-2.pcm"],
+        //     ProgressFile = "/home/matt/Source/PyMsuScripterApp/out/tmp.txt"
+        // }, currentValue =>
+        // {
+        //     logger.LogInformation("Progress: {Progress}", currentValue);
+        // });
+        //
         OpenCommandlineArgsProject();
         _model.AppVersion = $" v{App.Version}";
         
@@ -241,9 +263,14 @@ public class MainWindowService(
             msuPcmService.DeleteTempPcms();
             msuPcmService.DeleteTempJsonFiles();
             msuPcmService.ClearCache();
-            pyMusicLooperService.ClearCache();
         });
     }
-    
-    
+
+    private async Task CheckPythonCompanionService()
+    {
+        await ITaskService.Run(() =>
+        {
+            pythonCompanionService.Verify();
+        });
+    }
 }

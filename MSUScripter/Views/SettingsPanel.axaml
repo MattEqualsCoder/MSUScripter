@@ -39,7 +39,7 @@
         />
         <controls:BoolComboBox 
             AllowNulls="False"
-            Value="{Binding !AutomaticallyRunPyMusicLooper}"
+            Value="{Binding AutomaticallyRunPyMusicLooper}"
         />
         
         <Panel Height="10"/>

@@ -33,6 +33,13 @@
                        TextAlignment="Center" 
                        Text="{Binding DisplayText}" />
             
+            <ProgressBar 
+                Minimum="0"
+                Maximum="1"
+                Value="{Binding Percentage}" 
+                IsVisible="{Binding IsRunning}"
+            ></ProgressBar>
+            
             <controls1:LinkControl Name="GitHubLink" 
                                   HorizontalAlignment="Center"
                                   IsVisible="{Binding DisplayGitHubLink}"

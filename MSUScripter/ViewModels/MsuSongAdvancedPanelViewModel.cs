@@ -58,7 +58,11 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
     [Reactive] public string? Output { get; set; }
     
-    [Reactive] public string? Input { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public string? Input { get; set; }
+    
+    [Reactive, SkipLastModified] public bool DisplaySampleRateWarning { get; set; }
+    [Reactive, SkipLastModified] public bool DisplayMultipleTracksWarning { get; set; }
+    [Reactive, SkipLastModified] public bool DisplayDualTrackTypeWarning { get; set; }
     
     [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
     [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
@@ -71,11 +75,14 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     public ObservableCollection<MsuSongAdvancedPanelViewModelModelTreeData> TreeItems { get; set; } = [];
     [Reactive, SkipLastModified] public MsuSongAdvancedPanelViewModelModelTreeData SelectedTreeItem { get; set; }
+    public bool CanPressPyMusicLooperButton => !string.IsNullOrEmpty(Input);
     
     public ContextMenu? CurrentContextMenu { get; set; }
     
+    public event EventHandler? ViewModelUpdated;
+    
     private MsuTrackInfo? _currentTrackInfo;
-    private MsuSongInfo? _currentSongInfo;
+    public MsuSongInfo? CurrentSongInfo { get; private set; }
     private MsuSongMsuPcmInfo? _currentSongMsuPcmInfo;
     private MsuProjectWindowViewModelTreeData? _treeData;
     private MsuSongAdvancedPanelViewModelModelTreeData? _hoveredItem;
@@ -110,7 +117,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         _currentSongMsuPcmInfo = null;
         _updatingModel = true;
         _currentTrackInfo = trackInfo;
-        _currentSongInfo = songInfo;
+        CurrentSongInfo = songInfo;
         _treeData = treeData;
         
         SongName = songInfo.SongName;
@@ -130,6 +137,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         HasBeenModified = false;
         _updatingModel = false;
         LastModifiedDate = songInfo.LastModifiedDate;
+        ViewModelUpdated?.Invoke(this, EventArgs.Empty);
     }
     
     private int AddTreeItem(MsuSongMsuPcmInfo msuPcmInfo, int level, bool isChannel, int index, int sortIndex, int parentSortIndex, MsuSongAdvancedPanelViewModelModelTreeData? parentTreeData)
@@ -163,7 +171,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             MsuPcmInfo = msuPcmInfo,
             ParentIndex = parentSortIndex,
             ShowOutput = level == 0,
-            SongInfo = _currentSongInfo,
+            SongInfo = CurrentSongInfo,
             ParentTreeData = parentTreeData,
             IsSubChannel = parentTreeData != null && isChannel,
             IsSubTrack = parentTreeData != null && !isChannel,
@@ -255,14 +263,14 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         _isTopLevelMsuPcmInfo = treeData.ParentIndex < 0;
         if (_isTopLevelMsuPcmInfo)
         {
-            Output = _currentSongInfo?.OutputPath ?? treeData.MsuPcmInfo.Output;
+            Output = CurrentSongInfo?.OutputPath ?? treeData.MsuPcmInfo.Output;
         }
         else
         {
             Output = "";
         }
         Input = treeData.MsuPcmInfo.File;
-        DisplayOutputPcmFile = treeData.ShowOutput;
+        DisplayOutputPcmFile = treeData.ShowOutput && !IsScratchPad;;
         CanUpdateOutputPcmFile = treeData.SongInfo?.IsAlt == true;
         _currentSongMsuPcmInfo = treeData.MsuPcmInfo;
         CurrentTreeItem = treeData;
@@ -272,13 +280,13 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     public override void SaveChanges()
     {
-        if (_currentSongInfo == null || _currentSongMsuPcmInfo == null) return;
-        _currentSongInfo.SongName = SongName;
-        _currentSongInfo.Artist = ArtistName;
-        _currentSongInfo.Album = Album;
-        _currentSongInfo.Url = Url;
-        _currentSongInfo.CheckCopyright = CheckCopyright;
-        _currentSongInfo.IsCopyrightSafe = IsCopyrightSafe;
+        if (CurrentSongInfo == null || _currentSongMsuPcmInfo == null) return;
+        CurrentSongInfo.SongName = SongName;
+        CurrentSongInfo.Artist = ArtistName;
+        CurrentSongInfo.Album = Album;
+        CurrentSongInfo.Url = Url;
+        CurrentSongInfo.CheckCopyright = CheckCopyright;
+        CurrentSongInfo.IsCopyrightSafe = IsCopyrightSafe;
         _currentSongMsuPcmInfo.Loop = Loop;
         _currentSongMsuPcmInfo.TrimStart = TrimStart;
         _currentSongMsuPcmInfo.TrimEnd = TrimEnd;
@@ -293,8 +301,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
         if (_isTopLevelMsuPcmInfo)
         {
-            _currentSongInfo.OutputPath = _currentSongInfo.OutputPath;
-            _currentSongMsuPcmInfo.Output = _currentSongInfo.OutputPath;
+            CurrentSongInfo.OutputPath = CurrentSongInfo.OutputPath;
+            _currentSongMsuPcmInfo.Output = CurrentSongInfo.OutputPath;
         }
         
         _currentSongMsuPcmInfo.File = Input;
@@ -398,9 +406,9 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             }
             treeData.ParentTreeData?.ChildrenTreeData.Remove(treeData);    
         }
-        else if (_currentSongInfo != null)
+        else if (CurrentSongInfo != null)
         {
-            _currentSongInfo.MsuPcmInfo = pcmInfo;
+            CurrentSongInfo.MsuPcmInfo = pcmInfo;
             _currentSongMsuPcmInfo = pcmInfo;
         }
 
@@ -554,7 +562,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             MsuPcmInfo = newMsuPcmInfo,
             ParentIndex = parentTreeData.SortIndex,
             ShowOutput = false,
-            SongInfo = _currentSongInfo,
+            SongInfo = CurrentSongInfo,
             ParentTreeData = parentTreeData,
             IsSubChannel = parentTreeData.IsSubChannel,
             IsSubTrack = parentTreeData.IsSubTrack,
@@ -604,6 +612,13 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         }
 
         return newData;
+    }
+    
+    public void UpdateTrackWarnings(bool sampleRateWarning, bool multiWarning, bool dualTypes)
+    {
+        DisplaySampleRateWarning = sampleRateWarning;
+        DisplayMultipleTracksWarning = multiWarning;
+        DisplayDualTrackTypeWarning = dualTypes;
     }
 
     public override ViewModelBase DesignerExample()

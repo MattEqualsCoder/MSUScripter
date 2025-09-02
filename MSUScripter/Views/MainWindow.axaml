@@ -318,6 +318,11 @@
                     DataContext="{Binding Settings}"
                 />
             </StackPanel>
+            <views:AboutPanel
+                Grid.Column="1"
+                Margin="15"
+                IsVisible="{Binding DisplayAboutPage}"
+            ></views:AboutPanel>
         </Grid>
     </LayoutTransformControl>
 </Window>

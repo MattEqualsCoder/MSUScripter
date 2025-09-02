@@ -23,6 +23,7 @@ public class MsuProject
     public MsuBasicInfo BasicInfo { get; set; } = new();
     [SkipConvert]
     public List<MsuTrackInfo> Tracks { get; set; } = new();
+    public Dictionary<string, FileSampleInfo> SampleRates { get; set; } = [];
     [YamlIgnore, SkipConvert]
     public bool IsNewProject { get; set; }
 
@@ -80,4 +81,10 @@ public class MsuProject
     }
 
     [YamlIgnore, SkipConvert] public MsuProjectGenerationCache GenerationCache { get; set; } = new();
+}
+
+public class FileSampleInfo
+{
+    public long FileLength { get; set; }
+    public int SampleRate { get; set; }
 }

@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
@@ -111,6 +112,11 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
         
+        var songOuterPanel = this.Get<MsuSongOuterPanel>(nameof(MsuSongPanel));
+        var songBasicPanel = songOuterPanel.Get<MsuSongBasicPanel>(nameof(songOuterPanel.MsuSongBasicPanel));
+        var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
+        pyMusicLooperPanel.Stop();
+        
         _service.SelectedTreeItem(treeData);
     }
 
@@ -120,6 +126,11 @@ public partial class MsuProjectWindow : RestorableWindow
         {
             return;
         }
+        
+        var songOuterPanel = this.Get<MsuSongOuterPanel>(nameof(MsuSongPanel));
+        var songBasicPanel = songOuterPanel.Get<MsuSongBasicPanel>(nameof(songOuterPanel.MsuSongBasicPanel));
+        var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
+        pyMusicLooperPanel.Stop();
         
         _service?.SelectedTreeItem(treeData);
     }
@@ -187,7 +198,10 @@ public partial class MsuProjectWindow : RestorableWindow
             previousHoverTreeItem.ShowMenuButton = false;
         }
 
-        treeData.ShowAddButton = true;
+        if (treeData.TrackInfo != null || treeData.SongInfo != null)
+        {
+            treeData.ShowAddButton = true;
+        }
 
         if (treeData.SongInfo != null)
         {
@@ -234,13 +248,18 @@ public partial class MsuProjectWindow : RestorableWindow
     {
         if (e.AddedItems is [MsuProjectWindowViewModelTreeData { ChildTreeData.Count: 0 } treeData])
         {
+            var songOuterPanel = this.Get<MsuSongOuterPanel>(nameof(MsuSongPanel));
+            var songBasicPanel = songOuterPanel.Get<MsuSongBasicPanel>(nameof(songOuterPanel.MsuSongBasicPanel));
+            var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
+            pyMusicLooperPanel.Stop();
+            
             _service?.SelectedTreeItem(treeData);
         }
     }
 
     private void MsuSongPanel_OnNewSongClicked(object? sender, EventArgs e)
     {
-        _service?.AddNewSong();
+        AddNewSong();
     }
     
     private void MsuSongPanel_OnInputFileUpdated(object? sender, EventArgs e)
@@ -255,7 +274,7 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
         
-        _service?.AddNewSong(treeData);
+        AddNewSong(treeData);
     }
 
     private void TreeContextMenuBase_OnOpened(object? sender, RoutedEventArgs e)
@@ -328,7 +347,7 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
         
-        _service?.AddNewSong(treeData, true);
+        AddNewSong(treeData, true);
     }
 
     private void Window_OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -455,18 +474,21 @@ public partial class MsuProjectWindow : RestorableWindow
     private void GenerateButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
+        _service?.SaveProject();
         _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
     }
 
     private void CopyrightYouTubeVideoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
+        _service?.SaveProject();
         _ = OpenDialog(new VideoCreatorWindow(_viewModel.MsuProject));
     }
 
     private void GenerateMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
+        _service?.SaveProject();
         _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
     }
 
@@ -527,6 +549,7 @@ public partial class MsuProjectWindow : RestorableWindow
             _ = ShowUnsavedChangesWindow();
             return;
         }
+        _service?.OnClose();
         _backupTimer.Stop();
         _parentWindow?.Show();
     }
@@ -591,6 +614,45 @@ public partial class MsuProjectWindow : RestorableWindow
     private void BackupTimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
         _service?.SaveProject(true);
+    }
+
+    private void OpenSettingsMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var settingsWindow = new SettingsWindow();
+        settingsWindow.Closed += (_, _) =>
+        {
+            _service?.LoadSettings();
+        };
+        settingsWindow.ShowDialog(this);
+        
+    }
+
+    private void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false)
+    {
+        var songPanel = _viewModel?.DefaultSongPanel ?? DefaultSongPanel.Prompt;
+        if (songPanel == DefaultSongPanel.Prompt)
+        {
+            _ = Dispatcher.UIThread.Invoke(async () =>
+            {
+                var promptWindow = new SongPanelPromptWindow();
+                var response = await promptWindow.ShowDialog<SongPanelPromptWindowViewModel>(this);
+                if (response.Advanced || response.Basic)
+                {
+                    _service?.AddNewSong(treeData, duplicate, response.Advanced, response.DontAskAgain);
+                }
+            });
+        }
+        else
+        {
+            _service?.AddNewSong(treeData, duplicate, songPanel ==  DefaultSongPanel.Advanced);
+        }
+
+        
+    }
+
+    private void ReapplyFiltersMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.FilterTree();
     }
 }
 

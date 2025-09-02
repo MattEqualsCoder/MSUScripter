@@ -19,6 +19,7 @@ public class AudioAnalysisService(
     StatusBarService statusBarService,
     ConverterService converterService,
     SharedPcmService sharedPcmService,
+    PythonCompanionService pythonCompanionService,
     ILogger<AudioAnalysisService> logger)
 {
     public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
@@ -102,7 +103,7 @@ public class AudioAnalysisService(
 
     public int GetAudioSampleRate(string? path)
     {
-        if (!OperatingSystem.IsWindows() || string.IsNullOrEmpty(path) || !File.Exists(path))
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
         {
             return 44100;
         }
@@ -113,6 +114,15 @@ public class AudioAnalysisService(
         {
             logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
             return 44100;
+        }
+
+        if (OperatingSystem.IsLinux())
+        {
+            var response = pythonCompanionService.GetSampleRate(new GetSampleRateRequest()
+            {
+                File = path
+            });
+            return response.Successful ? response.SampleRate : 44100;
         }
         
         try

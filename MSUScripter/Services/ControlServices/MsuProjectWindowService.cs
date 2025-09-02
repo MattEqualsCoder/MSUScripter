@@ -10,8 +10,10 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService, Settings settings) : ControlService
+public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService, SettingsService settingsService, IAudioPlayerService audioPlayerService) : ControlService
 {
+    private Settings Settings => settingsService.Settings;
+    
     private MsuProjectWindowViewModel _viewModel = null!;
     private MsuProject _project = null!;
     private MsuProjectWindowViewModelTreeData? _draggedItem;
@@ -120,19 +122,50 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
 
         _viewModel.TreeItems.AddRange(sidebarItems.OrderBy(x => x.SortIndex));
 
-        ToggleCompletedIcons(true);
+        if (Settings.ProjectTreeDisplayIsCompleteIcon)
+        {
+            ToggleCompletedIcons(true);
+        }
+        
+        if (Settings.ProjectTreeDisplayCheckCopyrightIcon)
+        {
+            ToggleCheckCopyrightIcons(true);
+        }
+        
+        if (Settings.ProjectTreeDisplayCopyrightSafeIcon)
+        {
+            ToggleCopyrightStatusIcons(true);
+        }
+        
+        if (Settings.ProjectTreeDisplayHasSongIcon)
+        {
+            ToggleHasAudioIcons(true);
+        }
+
+        _viewModel.FilterOnlyTracksMissingSongs = Settings.ProjectTreeFilterOnlyTracksMissingSongs;
+        _viewModel.FilterOnlyCopyrightUntested = Settings.ProjectTreeFilterOnlyCopyrightUntested;
+        _viewModel.FilterOnlyIncomplete = Settings.ProjectTreeFilterOnlyIncomplete;
+        _viewModel.FilterOnlyMissingAudio = Settings.ProjectTreeFilterOnlyMissingAudio;
+        FilterTree();
 
         statusBarService.StatusBarTextUpdated += (sender, args) =>
         {
             _viewModel.StatusBarText = args.Data;
         };
 
-        _viewModel.RecentProjects = settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath)
+        _viewModel.RecentProjects = settingsService.Settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath)
             .ToList();
+        
+        LoadSettings();
 
         _viewModel.LastModifiedDate = project.LastSaveTime;
 
         return _viewModel;
+    }
+
+    public void LoadSettings()
+    {
+        _viewModel.DefaultSongPanel = settingsService.Settings.DefaultSongPanel;
     }
 
     public void UpdateCompletedSummary()
@@ -162,28 +195,39 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
     {
         _viewModel.FilterOnlyTracksMissingSongs = !_viewModel.FilterOnlyTracksMissingSongs;
         FilterTree();
+        settingsService.Settings.ProjectTreeFilterOnlyTracksMissingSongs = _viewModel.FilterOnlyTracksMissingSongs;
+        settingsService.TrySaveSettings();
     }
     
     public void ToggleFilterIncomplete()
     {
         _viewModel.FilterOnlyIncomplete = !_viewModel.FilterOnlyIncomplete;
         FilterTree();
+        settingsService.Settings.ProjectTreeFilterOnlyIncomplete = _viewModel.FilterOnlyIncomplete;
+        settingsService.TrySaveSettings();
     }
 
     public void ToggleFilterMissingAudio()
     {
         _viewModel.FilterOnlyMissingAudio = !_viewModel.FilterOnlyMissingAudio;
         FilterTree();
+        settingsService.Settings.ProjectTreeFilterOnlyMissingAudio = _viewModel.FilterOnlyMissingAudio;
+        settingsService.TrySaveSettings();
     }
 
     public void ToggleFilterCopyrightUntested()
     {
         _viewModel.FilterOnlyCopyrightUntested = !_viewModel.FilterOnlyCopyrightUntested;
         FilterTree();
+        settingsService.Settings.ProjectTreeFilterOnlyCopyrightUntested = _viewModel.FilterOnlyCopyrightUntested;
+        settingsService.TrySaveSettings();
     }
 
     public void FilterTree()
     {
+        var hasFilterToggle = _viewModel.FilterOnlyTracksMissingSongs || _viewModel.FilterOnlyIncomplete ||
+                              _viewModel.FilterOnlyMissingAudio || _viewModel.FilterOnlyCopyrightUntested;
+        _viewModel.FilterEyeIcon = hasFilterToggle ? MaterialIconKind.EyeCheck : MaterialIconKind.Eye;
         List<MsuProjectWindowViewModelTreeData> parentTreeItems = [];
         var filterText = string.IsNullOrEmpty(_viewModel.FilterText) ? null : _viewModel.FilterText.ToLower();
         foreach (var treeData in _viewModel.TreeItems)
@@ -309,8 +353,15 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         return true;
     }
 
-    public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false)
+    public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false, bool advancedMode = false, bool rememberSetting = false)
     {
+        if (rememberSetting)
+        {
+            settingsService.Settings.DefaultSongPanel = advancedMode ? DefaultSongPanel.Advanced : DefaultSongPanel.Basic;
+            settingsService.SaveSettings();
+            _viewModel.DefaultSongPanel = settingsService.Settings.DefaultSongPanel;
+        }
+        
         treeData ??= _viewModel.CurrentTreeItem;
         if (treeData?.TrackInfo == null || _viewModel.MsuProject == null)
         {
@@ -323,7 +374,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             index = trackInfo.Songs.IndexOf(treeData.SongInfo) + 1;
         }
-        var newSong = trackInfo.AddSong(_viewModel.MsuProject, index);
+        var newSong = trackInfo.AddSong(_viewModel.MsuProject, index, advancedMode);
 
         if (duplicate && treeData.SongInfo != null)
         {
@@ -337,7 +388,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             }
         }
         
-        var parentSortIndex = treeData.ParentIndex > 0 ? treeData.ParentIndex : treeData.SortIndex;
+        var parentSortIndex = treeData.ParentIndex != 0 ? treeData.ParentIndex : treeData.SortIndex;
         var parentTreeData = _viewModel.TreeItems.First(x => x.SortIndex == parentSortIndex);
         var parentIndex = _viewModel.TreeItems.IndexOf(parentTreeData);
 
@@ -436,7 +487,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         
         var trackInfo = treeData.TrackInfo;
         var songInfo = treeData.SongInfo;
-        var parentSortIndex = treeData.ParentIndex > 0 ? treeData.ParentIndex : treeData.SortIndex;
+        var parentSortIndex = treeData.ParentIndex != 0 ? treeData.ParentIndex : treeData.SortIndex;
         var parentTreeData = _viewModel.TreeItems.First(x => x.SortIndex == parentSortIndex);
         
         trackInfo.RemoveSong(songInfo);
@@ -840,6 +891,9 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                 treeData.DisplayIsCompleteIcon = newValue;
             }
         }
+        
+        settingsService.Settings.ProjectTreeDisplayIsCompleteIcon = _viewModel.DisplayIsCompleteIcon;
+        settingsService.TrySaveSettings();
     }
     
     public void ToggleHasAudioIcons(bool? value = null)
@@ -861,6 +915,9 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                 treeData.DisplayHasSongIcon = newValue;
             }
         }
+        
+        settingsService.Settings.ProjectTreeDisplayHasSongIcon = _viewModel.DisplayHasSongIcon;
+        settingsService.TrySaveSettings();
     }
     
     public void ToggleCheckCopyrightIcons(bool? value = null)
@@ -882,6 +939,9 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                 treeData.DisplayCheckCopyrightIcon = newValue;
             }
         }
+        
+        settingsService.Settings.ProjectTreeDisplayCheckCopyrightIcon = _viewModel.DisplayCheckCopyrightIcon;
+        settingsService.TrySaveSettings();
     }
     
     public void ToggleCopyrightStatusIcons(bool? value = null)
@@ -903,6 +963,9 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                 treeData.DisplayCopyrightSafeIcon = newValue;
             }
         }
+        
+        settingsService.Settings.ProjectTreeDisplayCopyrightSafeIcon = _viewModel.DisplayCopyrightSafeIcon;
+        settingsService.TrySaveSettings();
     }
 
     public string? GetSongCopyDetails(MsuProjectWindowViewModelTreeData treeData)
@@ -954,5 +1017,10 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
     public void InputFileUpdated()
     {
         _viewModel.CurrentTreeItem?.UpdateCompletedFlag();
+    }
+
+    public void OnClose()
+    {
+        _ = audioPlayerService.StopSongAsync();
     }
 }

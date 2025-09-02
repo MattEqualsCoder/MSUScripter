@@ -16,7 +16,7 @@ public class MsuTrackInfo
     [SkipConvert]
     public List<MsuSongInfo> Songs { get; set; } = [];
 
-    public MsuSongInfo AddSong(MsuProject project, int index = 0)
+    public MsuSongInfo AddSong(MsuProject project, int index = 0, bool advancedMode = false)
     {
         var msu = new FileInfo(project.MsuPath);
         
@@ -25,7 +25,7 @@ public class MsuTrackInfo
             Id = Guid.NewGuid().ToString("N"),
             TrackNumber = TrackNumber,
             TrackName = TrackName,
-            DisplayAdvancedMode = false
+            DisplayAdvancedMode = advancedMode
         };
 
         UpdateSongPath(project, newSong, index);

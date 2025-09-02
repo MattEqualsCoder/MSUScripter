@@ -51,6 +51,11 @@ public partial class PyMusicLooperPanel : UserControl
         _service?.UpdateFilterStart(filterStart);
     }
 
+    public void Stop()
+    {
+        _service?.StopPyMusicLooper();
+    }
+
     public PyMusicLooperResultViewModel? SelectedResult => _model.SelectedResult;
     
     private void NextPageButton_OnClick(object? sender, RoutedEventArgs e)

@@ -239,7 +239,7 @@ public partial class MsuPcmService(
 
         if (MsuProjectSongCache.IsValid(previousCache, currentCache))
         {
-            logger.LogInformation("Song #{SongId} matches cached data", outputPath);
+            logger.LogInformation("Song {SongId} matches cached data", outputPath);
             return new GeneratePcmFileResponse(true, false, null, outputPath);
         }
 

@@ -10,6 +10,8 @@ public class VideoCreatorWindowViewModel : ViewModelBase
     [Reactive] public bool CanRunVideoCreator { get; set; }
     [Reactive] public List<string?> PcmPaths { get; set; } = [];
     [Reactive] public string CloseButtonText { get; set; } = "Cancel";
+    [Reactive] public bool IsRunning { get; set; }
+    [Reactive] public double Percentage { get; set; }
     public string? PreviousPath { get; set; }
         
     public override ViewModelBase DesignerExample()

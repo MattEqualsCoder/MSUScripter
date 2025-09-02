@@ -18,8 +18,7 @@ public class AddSongWindowService(
     AudioAnalysisService audioAnalysisService,
     MsuPcmService msuPcmService,
     ConverterService converterService,
-    IAudioPlayerService audioPlayerService,
-    PyMusicLooperService pyMusicLooperService) : ControlService
+    IAudioPlayerService audioPlayerService) : ControlService
 {
     private readonly AddSongWindowViewModel _model = new();
 
@@ -240,7 +239,7 @@ public class AddSongWindowService(
         });
     }
     
-    public bool IsPyMusicLooperRunning() => pyMusicLooperService.IsRunning;
+    // public bool IsPyMusicLooperRunning() => pyMusicLooperService.IsRunning;
 
     public bool HasChanges => !string.IsNullOrEmpty(_model.FilePath);
 }

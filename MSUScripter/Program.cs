@@ -118,7 +118,6 @@ class Program
             .AddSingleton<ConverterService>()
             .AddSingleton<AudioAnalysisService>()
             .AddSingleton<ProjectService>()
-            .AddSingleton<PyMusicLooperService>()
             .AddSingleton<TrackListService>()
             .AddSingleton<StatusBarService>()
             .AddSingleton<PythonCompanionService>()

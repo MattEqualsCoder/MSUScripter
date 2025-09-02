@@ -44,11 +44,6 @@ public partial class AddSongWindow : ScalableWindow
 
     private void DropFile(object? sender, DragEventArgs e)
     {
-        if (_service?.IsPyMusicLooperRunning() == true)
-        {
-            return;
-        }
-        
         var file = e.Data.GetFiles()?.FirstOrDefault();
         if (file == null)
         {

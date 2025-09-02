@@ -5,6 +5,7 @@ namespace MSUScripter.ViewModels;
 
 public enum DefaultSongPanel
 {
+    Prompt,
     Basic,
     Advanced,
 }
@@ -13,13 +14,13 @@ public class SettingsPanelViewModel : SavableViewModelBase
 {
     [Reactive] public bool CheckForUpdates { get; set; }
     
-    [Reactive] public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Basic;
+    [Reactive] public DefaultSongPanel DefaultSongPanel { get; set; }
     
     [Reactive] public int LoopDuration { get; set; } = 5;
     [Reactive] public decimal UiScaling { get; set; } = 1;
     [Reactive] public bool HideSubTracksSubChannelsWarning { get; set; }
     
-    [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
+    [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
     
     [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
 
@@ -27,7 +28,7 @@ public class SettingsPanelViewModel : SavableViewModelBase
      
     public override ViewModelBase DesignerExample()
     {
-        throw new System.NotImplementedException();
+        return new SettingsPanelViewModel();
     }
 
     public override void SaveChanges()

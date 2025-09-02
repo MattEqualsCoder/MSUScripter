@@ -19,5 +19,13 @@ public class Settings
     public bool RunMsuPcmWithKeepTemps { get; set; }
     public bool HasDoneFirstTimeSetup { get; set; }
     public string? PyMusicLooperPath { get; set; }
+    public bool ProjectTreeFilterOnlyTracksMissingSongs { get; set; }
+    public bool ProjectTreeFilterOnlyIncomplete { get; set; }
+    public bool ProjectTreeFilterOnlyMissingAudio { get; set; }
+    public bool ProjectTreeFilterOnlyCopyrightUntested { get; set; }
+    public bool ProjectTreeDisplayIsCompleteIcon { get; set; }
+    public bool ProjectTreeDisplayHasSongIcon { get; set; }
+    public bool ProjectTreeDisplayCheckCopyrightIcon { get; set; }
+    public bool ProjectTreeDisplayCopyrightSafeIcon { get; set; }
     public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Basic;
 }

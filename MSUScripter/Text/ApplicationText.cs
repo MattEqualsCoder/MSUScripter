@@ -131,8 +131,8 @@ public class ApplicationText
     public string IsCopyrightSafeToolTipText { get; } = "If this song has been tested and is known to be safe from potential copyright strikes.";
 
     public string SongPanelBasicHeader { get; } = "Song Details";
-    public string SongPanelAdvancedModeCheckBox { get; } = "Advanced Mode";
-    public string SongPanelBasicModeCheckBox { get; } = "Basic Mode";
+    public string SongPanelAdvancedModeCheckBox { get; } = "Advanced View";
+    public string SongPanelBasicModeCheckBox { get; } = "Advanced View";
     public string SongPanelAdvancedModeToolTip { get; } = "Toggle advanced mode where you can set all msupcm++ settings, including adding subtracks and subchannels.";
     public string SongPanelBasicMetadataHeader { get; } = "Song Metadata Details";
     
