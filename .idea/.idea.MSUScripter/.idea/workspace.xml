@@ -9,51 +9,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/SongPanelPromptWindowViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/AboutPanel.axaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/AboutPanel.axaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuTrackInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuTrackInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/PyMusicLooperPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/PyMusicLooperPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/SettingsWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/SettingsWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/VideoCreatorWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/VideoCreatorWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/PyMusicLooperService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/SettingsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/SettingsService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongBasicPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongBasicPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/VideoCreatorWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/VideoCreatorWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/AddSongWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/AddSongWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongBasicPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongOuterPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongOuterPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/PyMusicLooperPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/PyMusicLooperPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/PyMusicLooperWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/PyMusicLooperWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/VideoCreatorWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/VideoCreatorWindow.axaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -229,7 +185,7 @@
       <workItem from="1754962714492" duration="1241000" />
       <workItem from="1755823413568" duration="6338000" />
       <workItem from="1756081563122" duration="37043000" />
-      <workItem from="1756603472857" duration="23952000" />
+      <workItem from="1756603472857" duration="24790000" />
     </task>
     <servers />
   </component>
@@ -242,6 +198,36 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs</url>
+          <line>105</line>
+          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" containingFunctionPresentation="Method 'GetAudioSampleRate'">
+            <startOffsets>
+              <option value="3614" />
+            </startOffsets>
+            <endOffsets>
+              <option value="3667" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="25" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs</url>
+          <line>66</line>
+          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" containingFunctionPresentation="Method 'CheckSampleRate'">
+            <startOffsets>
+              <option value="2271" />
+            </startOffsets>
+            <endOffsets>
+              <option value="2302" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#Avalonia.Controls.ItemsControl" memberName="ItemTemplate" />
