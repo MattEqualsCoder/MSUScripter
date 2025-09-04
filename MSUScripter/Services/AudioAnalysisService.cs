@@ -101,10 +101,11 @@ public class AudioAnalysisService(
         return response.GeneratedPcmFile;
     }
 
-    public int GetAudioSampleRate(string? path)
+    public int GetAudioSampleRate(string? path, out bool successful)
     {
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
         {
+            successful = false;
             return 44100;
         }
 
@@ -112,7 +113,8 @@ public class AudioAnalysisService(
 
         if (incompatibleFileTypes.Contains(new FileInfo(path).Extension.ToLower()))
         {
-            logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
+            logger.LogInformation("AudioSampleRate Incompatible file {File}. Assuming 44100.", path);
+            successful = false;
             return 44100;
         }
 
@@ -122,17 +124,31 @@ public class AudioAnalysisService(
             {
                 File = path
             });
+            successful = response.Successful;
+
+            if (successful)
+            {
+                logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", response.SampleRate, path);
+            }
+            else
+            {
+                logger.LogError("Failed to retrieve sample rate for {File}. Assuming 44100.", path);
+            }
+            
             return response.Successful ? response.SampleRate : 44100;
         }
         
         try
         {
             var mp3 = new AudioFileReader(path);
+            successful = true;
+            logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", mp3.WaveFormat.SampleRate, path);
             return mp3.WaveFormat.SampleRate;
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Unable to retrieve audio sample rate");
+            logger.LogError(e, "Failed to retrieve sample rate for {File}. Assuming 44100.", path);
+            successful = false;
             return 44100;
         }
         

@@ -5,9 +5,11 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Services;
 using MSUScripter.Configs;
 using MSUScripter.Events;
 using MSUScripter.Models;
@@ -70,47 +72,60 @@ public partial class MainWindow : RestorableWindow
             _model.DisplayOpenProjectPage = true;
         }
 
-        if (_model.HasDoneFirstTimeSetup) return;
-        await SetupMsuPcm();
+        ValidateDependencies();
     }
-
-    private async Task SetupMsuPcm()
+    
+    private void ValidateDependencies()
     {
-        if (_service == null) return;
-        
-        var result = await MessageWindow.ShowYesNoDialog(
-            "If you want to use msupcm++, you'll need to point the MSU Scripter to its location. Would you like to set the msupcm++ path now? You can always set it later in the settings if needed.",
-            "Setup msupcm++", this);
-        if (!result)
+        Dispatcher.UIThread.Invoke(async () =>
         {
-            _service.UpdateHasDoneFirstTimeSetup(null);
-        }
+            await Task.Delay(100);
+            if (_service?.ValidateDependencies() == false)
+            {
+                var dependencyWindow = new InstallDependenciesWindow();
+                await dependencyWindow.ShowDialog(this);
+            }
+        });
 
-        var documentsFolderPath = await this.GetDocumentsFolderPath();
-        var filter = OperatingSystem.IsWindows()
-            ? "msupcm Executable:msupcm.exe;All Files:*.*"
-            : "msupcm Executable:msupcm;All Files:*";
-        var msuPcmPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.OpenFile, filter, documentsFolderPath);
-
-        if (msuPcmPath == null)
-        {
-            _service.UpdateHasDoneFirstTimeSetup(null);
-            return;
-        }
-
-        _service.UpdateHasDoneFirstTimeSetup(msuPcmPath.Path.LocalPath);
-        
-        if (!_service.ValidateMsuPcm(msuPcmPath.Path.LocalPath))
-        {
-            await MessageWindow.ShowErrorDialog(
-                "msupcm++ failed to run successfully. Make sure you can run msupcm -v in the commandline.",
-                "msupcm++ Error", this);
-        }
-        else
-        {
-            await MessageWindow.ShowInfoDialog("msupcm++ setup successful.", "Success", this);
-        }
     }
+    //
+    // private async Task SetupMsuPcm()
+    // {
+    //     if (_service == null) return;
+    //     
+    //     var result = await MessageWindow.ShowYesNoDialog(
+    //         "If you want to use msupcm++, you'll need to point the MSU Scripter to its location. Would you like to set the msupcm++ path now? You can always set it later in the settings if needed.",
+    //         "Setup msupcm++", this);
+    //     if (!result)
+    //     {
+    //         _service.UpdateHasDoneFirstTimeSetup(null);
+    //     }
+    //
+    //     var documentsFolderPath = await this.GetDocumentsFolderPath();
+    //     var filter = OperatingSystem.IsWindows()
+    //         ? "msupcm Executable:msupcm.exe;All Files:*.*"
+    //         : "msupcm Executable:msupcm;All Files:*";
+    //     var msuPcmPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.OpenFile, filter, documentsFolderPath);
+    //
+    //     if (msuPcmPath == null)
+    //     {
+    //         _service.UpdateHasDoneFirstTimeSetup(null);
+    //         return;
+    //     }
+    //
+    //     _service.UpdateHasDoneFirstTimeSetup(msuPcmPath.Path.LocalPath);
+    //     
+    //     if (!_service.ValidateMsuPcm(msuPcmPath.Path.LocalPath))
+    //     {
+    //         await MessageWindow.ShowErrorDialog(
+    //             "msupcm++ failed to run successfully. Make sure you can run msupcm -v in the commandline.",
+    //             "msupcm++ Error", this);
+    //     }
+    //     else
+    //     {
+    //         await MessageWindow.ShowInfoDialog("msupcm++ setup successful.", "Success", this);
+    //     }
+    // }
 
     private async void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {

@@ -121,6 +121,7 @@ class Program
             .AddSingleton<TrackListService>()
             .AddSingleton<StatusBarService>()
             .AddSingleton<PythonCompanionService>()
+            .AddSingleton<DependencyInstallerService>()
             .AddTransient<PythonCommandRunnerService>()
             .AddTransient<VideoCreatorWindowService>()
             .AddTransient<SharedPcmService>()

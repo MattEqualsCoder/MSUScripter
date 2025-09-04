@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
@@ -19,7 +20,7 @@ public partial class MsuBasicInfoPanel : UserControl
             DataContext = (MsuBasicInfoViewModel)new MsuBasicInfoViewModel().DesignerExample();
         }
     }
-    
+
     private void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);

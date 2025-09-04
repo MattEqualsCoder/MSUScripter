@@ -268,7 +268,7 @@ public class MsuSongMsuPcmInfoPanelService(
 
         if (string.IsNullOrEmpty(_model.File) || !File.Exists(_model.File))
         {
-            topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File));
+            topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File, out _));
             topLevelPcmInfo.UpdateMultiWarning();
             return;
         }
@@ -276,7 +276,7 @@ public class MsuSongMsuPcmInfoPanelService(
         var metadata =  audioMetadataService.GetAudioMetadata(_model.File);
         _model.Song.ApplyAudioMetadata(metadata, false);
    
-        topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File));
+        topLevelPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(_model.File, out _));
         topLevelPcmInfo.UpdateMultiWarning();
     }
 }

@@ -10,6 +10,8 @@ public class Directories
 
     public static string LogFolder => Path.Combine(BaseFolder, "logs");
     
+    public static string Dependencies => Path.Combine(BaseFolder, "dependencies");
+    
     public static string CacheFolder
     {
         get

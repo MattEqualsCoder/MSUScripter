@@ -112,5 +112,9 @@
             />
         </Grid>
         
+        <Button HorizontalAlignment="Center" Click="CheckDependenciesButton_OnClick" Margin="0 10 0 0">
+            Check Dependencies
+        </Button>
+        
     </StackPanel>
 </UserControl>

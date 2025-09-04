@@ -154,13 +154,16 @@ public class MsuSongPanelService(ConverterService converterService, YamlService 
 
     private int GetSampleRate(MsuProject project, string path)
     {
-        var sampleRate = audioAnalysisService.GetAudioSampleRate(path);
+        var sampleRate = audioAnalysisService.GetAudioSampleRate(path, out var successful);
         var fileInfo = new FileInfo(path);
-        project.SampleRates[path] = new FileSampleInfo
+        if (successful)
         {
-            FileLength = fileInfo.Length,
-            SampleRate = sampleRate
-        };
+            project.SampleRates[path] = new FileSampleInfo
+            {
+                FileLength = fileInfo.Length,
+                SampleRate = sampleRate
+            };
+        }
         return sampleRate;
     }
 

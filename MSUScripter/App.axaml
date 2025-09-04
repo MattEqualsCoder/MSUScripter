@@ -21,6 +21,7 @@
                  <SimpleTheme />
                  <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Simple.xaml"/>
                  <StyleInclude Source="avares://AvaloniaControls/Themes/Themes.axaml"></StyleInclude>
+                 <StyleInclude Source="avares://AvaloniaProgressRing/Styles/ProgressRing.xaml"/>
              </Application.Styles>
              
 </Application>

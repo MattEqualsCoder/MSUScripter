@@ -29,7 +29,6 @@ public class MainWindowService(
     {
         _ = CheckForNewRelease();
         _ = CleanUpFolders();
-        _ = CheckPythonCompanionService();
 
         // var sampleRate = pythonCompanionService.GetSampleRate(new GetSampleRateRequest()
         // {
@@ -153,16 +152,15 @@ public class MainWindowService(
         return project.Tracks.SelectMany(x => x.Songs).All(x => x.MsuPcmInfo.AreFilesValid());
     }
 
-    public bool ValidateMsuPcm(string msupcmPath)
+    public bool ValidateDependencies()
     {
-        return msuPcmService.ValidateMsuPcmPath(msupcmPath, out _);
-    }
-
-    public void UpdateHasDoneFirstTimeSetup(string? msupcmPath)
-    {
-        settings.HasDoneFirstTimeSetup = true;
-        settings.MsuPcmPath = msupcmPath;
-        settingsService.SaveSettings();
+        var isMsuPcmServiceValid = msuPcmService.VerifyInstalled(out _);
+        var isCompanionServiceValid = pythonCompanionService.VerifyInstalled();
+        if (settings.IgnoreMissingDependencies)
+        {
+            return true;
+        }
+        return isMsuPcmServiceValid && isCompanionServiceValid;
     }
     
     public void Shutdown()
@@ -263,14 +261,6 @@ public class MainWindowService(
             msuPcmService.DeleteTempPcms();
             msuPcmService.DeleteTempJsonFiles();
             msuPcmService.ClearCache();
-        });
-    }
-
-    private async Task CheckPythonCompanionService()
-    {
-        await ITaskService.Run(() =>
-        {
-            pythonCompanionService.Verify();
         });
     }
 }

@@ -9,7 +9,36 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/InstallDependenciesWindowService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/DependencyInstallerService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/InstallDependenciesWindowViewModel.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/InstallDependenciesWindow.axaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/InstallDependenciesWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/App.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/App.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Models/Directories.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Models/Directories.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongMsuPcmInfoPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongMsuPcmInfoPanelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyMsuScripterApp/py_msu_scripter_app/sample_rate_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyMsuScripterApp/py_msu_scripter_app/sample_rate_analyzer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyMsuScripterApp/test_files/samples.yml" beforeDir="false" afterPath="$PROJECT_DIR$/PyMsuScripterApp/test_files/samples.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,14 +57,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/5f/577312f9/IconCheckbox.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/b0/84e72934/ITaskService.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/d4/3d5863cf/ScalableWindow.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1ad855a3c5b26899e6ce6c55f0fe1a42f2b81c878868b79f7ae064f634f0d9f8/Window.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/3c32b6774a69464667352a9e262bc924c57674f811c382e29abe8dbe3639f4c/CancellationToken.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/821eadf8c89b36691b3def72d04889d8d4cd791563a97558876f873a81a1a085/StackFrameIterator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a984a133191d26625f45e85cc27e20cad64f4a6ecb6263b4c17bc55965a5/String.Manipulation.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c1cc58cc78a2d269eeb5ef89ead64de20ef815d24de2c8a762b3ef6702092/DefaultInterpolatedStringHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongMsuPcmInfo.cs" root0="FORCE_HIGHLIGHTING" />
@@ -74,23 +96,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Project.MSUScripter.executor": "Debug",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "XThreadsFramesViewSplitterKey": "0.38258165",
-    "git-widget-placeholder": "ui-rewrite",
-    "last_opened_file_path": "/home/matt/.dotnet/dotnet",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "editor.preferences.smartKeys_rider",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Project.MSUScripter.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.38258165&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;ui-rewrite&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/matt/.dotnet/dotnet&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Project.MSUScripter">
     <configuration name="MSUScripter" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="$PROJECT_DIR$/MSUScripter/bin/Debug/net9.0/MSUScripter" />
@@ -101,10 +123,10 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
       <option name="AUTO_ATTACH_CHILDREN" value="0" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="RUNTIME_TYPE" value="coreclr" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
@@ -125,10 +147,10 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
       <option name="AUTO_ATTACH_CHILDREN" value="0" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/SchemaGenerator/SchemaGenerator.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
       <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
@@ -185,7 +207,11 @@
       <workItem from="1754962714492" duration="1241000" />
       <workItem from="1755823413568" duration="6338000" />
       <workItem from="1756081563122" duration="37043000" />
-      <workItem from="1756603472857" duration="24790000" />
+      <workItem from="1756603472857" duration="23952000" />
+      <workItem from="1756817923146" duration="543000" />
+      <workItem from="1756818486361" duration="13477000" />
+      <workItem from="1756867477426" duration="23837000" />
+      <workItem from="1756940896145" duration="5420000" />
     </task>
     <servers />
   </component>
@@ -198,40 +224,11 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs</url>
-          <line>105</line>
-          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" containingFunctionPresentation="Method 'GetAudioSampleRate'">
-            <startOffsets>
-              <option value="3614" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3667" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="25" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs</url>
-          <line>66</line>
-          <properties documentPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" containingFunctionPresentation="Method 'CheckSampleRate'">
-            <startOffsets>
-              <option value="2271" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2302" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="26" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#Avalonia.Controls.ItemsControl" memberName="ItemTemplate" />
         <PinnedItemInfo parentTag="Type#MSUScripter.ViewModels.MsuSongAdvancedPanelViewModelModelTreeData" memberName="MsuPcmInfo" />
+        <PinnedItemInfo parentTag="Type#SharpCompress.Readers.AbstractReader`2" memberName="ArchiveType" />
         <PinnedItemInfo parentTag="Type#Avalonia.Controls.ItemsControl" memberName="Items" />
         <PinnedItemInfo parentTag="Type#MSUScripter.ViewModels.MsuProjectWindowViewModelTreeData" memberName="TrackInfo" />
       </pinned-members>

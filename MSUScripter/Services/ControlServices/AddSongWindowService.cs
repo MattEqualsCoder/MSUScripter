@@ -56,7 +56,7 @@ public class AddSongWindowService(
         _model.SongName = metadata.SongName ?? _model.SongName;
         _model.ArtistName = metadata.Artist ?? _model.ArtistName;
         _model.AlbumName = metadata.Album ?? _model.AlbumName;
-        _model.DisplayHertzWarning = audioAnalysisService.GetAudioSampleRate(path) != 44100;
+        _model.DisplayHertzWarning = audioAnalysisService.GetAudioSampleRate(path, out _) != 44100;
     }
 
     public void UpdatePyMusicLooperPanel(PyMusicLooperPanel? panel)

@@ -342,6 +342,7 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     [Reactive] public bool FilterOnlyCopyrightUntested { get; set; }
     [Reactive] public MaterialIconKind FilterEyeIcon { get; set; } = MaterialIconKind.Eye;
     [Reactive] public string StatusBarText { get; set; } = "Loaded Project";
+    [Reactive] public string WindowTitle { get; set; } = "MSU Scripter";
     
     public MsuProjectWindowViewModelTreeData? CurrentTreeItem { get; set; }
     public MsuProject? MsuProject { get; set; }

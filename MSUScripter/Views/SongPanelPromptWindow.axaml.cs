@@ -1,10 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using AvaloniaControls.Controls;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
 
-public partial class SongPanelPromptWindow : Window
+public partial class SongPanelPromptWindow : ScalableWindow
 {
     private SongPanelPromptWindowViewModel _model;
     

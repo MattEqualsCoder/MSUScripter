@@ -3,14 +3,17 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="MSUScripter/App.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AboutPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AddSongWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AudioAnalysisWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/AudioControl.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/AudioPlayerWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/CopyProjectWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/DuplicateMoveTrackWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/EditProjectPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/FormLabel.axaml" value="MSUScripter/MSUScripter.csproj" />
+        <entry key="MSUScripter/Views/InstallDependenciesWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MainWindow.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuBasicInfoPanel.axaml" value="MSUScripter/MSUScripter.csproj" />
         <entry key="MSUScripter/Views/MsuGenerationSettingsWindow.axaml" value="MSUScripter/MSUScripter.csproj" />

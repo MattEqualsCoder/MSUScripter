@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -17,15 +18,26 @@ using Newtonsoft.Json;
 
 namespace MSUScripter.Services;
 
+public class MsuPcmInstallResponse
+{
+    public bool Success { get; set; }
+    public bool MissingSharedLibraries { get; set; }
+}
+
 public partial class MsuPcmService(
     ILogger<MsuPcmService> logger,
     Settings settings,
     StatusBarService statusBarService,
     ConverterService converterService,
     YamlService yamlService,
-    IAudioPlayerService audioPlayerService)
+    IAudioPlayerService audioPlayerService,
+    DependencyInstallerService dependencyInstallerService)
 {
+    private const string WindowsDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm.exe";
+    private const string LinuxDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm";
+
     private string _cacheFolder2 = "";
+    private string _msuPcmPath = string.Empty;
 
     protected string CacheFolder
     {
@@ -80,6 +92,8 @@ public partial class MsuPcmService(
             }
         }
     }
+    
+    public bool IsValid { get; private set; }
 
     public async Task<GeneratePcmFileResponse> CreateTempPcm(bool standAlone, MsuProject project, string inputFile, int? loop = null, int? trimEnd = null, double? normalization = -25, int? trimStart = null, bool skipCleanup = false)
     {
@@ -590,12 +604,50 @@ public partial class MsuPcmService(
         return toReturn;
     }
 
-    public bool ValidateMsuPcmPath(string msuPcmPath, out string error)
+    public bool VerifyInstalled(out string error)
     {
-        var successful = RunMsuPcmInternal("-v", "", out var result, out error, msuPcmPath);
-        return successful && result.StartsWith("msupcm v");
+        var fileName = OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm";
+        _msuPcmPath = Path.Combine(Directories.Dependencies, fileName);
+        IsValid = RunMsuPcmInternal("-v", "", out var result, out error) && result.StartsWith("msupcm v");
+        
+        if (!IsValid)
+        {
+            logger.LogError("msupcm++ could not be validated at path {Path}: {Error}", _msuPcmPath, error);
+        }
+
+        return IsValid;
     }
 
+    public async Task<MsuPcmInstallResponse> Install(Action<string> progress)
+    {
+        var response = await dependencyInstallerService.InstallMsuPcm(progress);
+
+        if (!response)
+        {
+            return new MsuPcmInstallResponse
+            {
+                Success = false,
+            };
+        }
+        
+        var verified = VerifyInstalled(out var error);
+
+        if (error.Contains("error while loading shared libraries"))
+        {
+            return new MsuPcmInstallResponse
+            {
+                Success = false,
+                MissingSharedLibraries = true
+            };
+        }
+        
+        return new MsuPcmInstallResponse
+        {
+            Success = verified,
+            MissingSharedLibraries = false
+        };
+    }
+    
     private bool IsCached(ICollection<string> inputPaths, string outputPath, string jsonPath)
     {
         if (!File.Exists(outputPath))
@@ -647,11 +699,10 @@ public partial class MsuPcmService(
         return (filePath, value);
     }
 
-    private bool RunMsuPcmInternal(string innerCommand, string expectedOutputPath, out string result, out string error, string? msuPcmPath = null)
+    private bool RunMsuPcmInternal(string innerCommand, string expectedOutputPath, out string result, out string error)
     {
-        msuPcmPath ??= settings.MsuPcmPath;
-        if (string.IsNullOrEmpty(msuPcmPath) ||
-            !File.Exists(msuPcmPath))
+        if (string.IsNullOrEmpty(_msuPcmPath) ||
+            !File.Exists(_msuPcmPath))
         {
             result = "";
             error = "MsuPcm++ path not specified or is invalid";
@@ -667,7 +718,7 @@ public partial class MsuPcmService(
                 modifiedTime = fileInfo.LastWriteTime;
             }
 
-            var msuPcmFile = new FileInfo(msuPcmPath);
+            var msuPcmFile = new FileInfo(_msuPcmPath);
             
             ProcessStartInfo procStartInfo;
 

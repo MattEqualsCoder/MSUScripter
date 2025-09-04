@@ -39,7 +39,7 @@ public class EditProjectPanelService(
         
         foreach (var songViewModel in projectModel.Tracks.SelectMany(x => x.Songs))
         {
-            songViewModel.MsuPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File));
+            songViewModel.MsuPcmInfo.UpdateHertzWarning(audioAnalysisService.GetAudioSampleRate(songViewModel.MsuPcmInfo.File, out _));
             songViewModel.MsuPcmInfo.UpdateMultiWarning();
             songViewModel.MsuPcmInfo.UpdateSubTrackSubChannelWarning();
         }

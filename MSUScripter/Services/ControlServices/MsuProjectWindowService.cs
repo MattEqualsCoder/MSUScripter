@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Avalonia.Media;
 using AvaloniaControls.ControlServices;
@@ -22,6 +23,17 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
     public MsuProjectWindowViewModel InitViewModel(MsuProject project)
     {
         _project = project;
+
+        var windowTitle = "MSU Scripter";
+        if (!string.IsNullOrEmpty(project.BasicInfo.PackName))
+        {
+            windowTitle = $"{project.BasicInfo.PackName} - MSU Scripter";
+        }
+        else if(!string.IsNullOrEmpty(project.MsuPath))
+        {
+            var baseName = Path.GetFileName(project.MsuPath);
+            windowTitle = $"{baseName} - MSU Scripter";
+        }
 
         var sidebarItems = new List<MsuProjectWindowViewModelTreeData>
         {
@@ -116,6 +128,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             MsuProject = project,
             SongSummary = $"{completedSongs}/{totalSongs} Songs Completed",
             TrackSummary = $"{completedTracks}/{totalTracks} Tracks With Songs Added",
+            WindowTitle = windowTitle,
         };
         
         _viewModel.BasicInfoViewModel.UpdateModel(project);
@@ -159,6 +172,22 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         LoadSettings();
 
         _viewModel.LastModifiedDate = project.LastSaveTime;
+
+        _viewModel.BasicInfoViewModel.PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName == "PackName")
+            {
+                if (!string.IsNullOrEmpty(_viewModel.BasicInfoViewModel.PackName))
+                {
+                    _viewModel.WindowTitle = $"{_viewModel.BasicInfoViewModel.PackName} - MSU Scripter";
+                }
+                else if(!string.IsNullOrEmpty(project.MsuPath))
+                {
+                    var baseName = Path.GetFileName(project.MsuPath);
+                    _viewModel.WindowTitle = $"{baseName} - MSU Scripter";
+                }
+            }
+        };
 
         return _viewModel;
     }

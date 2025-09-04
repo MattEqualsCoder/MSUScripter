@@ -1,3 +1,4 @@
+import os
 import time
 
 import librosa
@@ -22,13 +23,24 @@ class SampleRateAnalyzer:
 
         start_time = time.time()
 
+        from pydub import AudioSegment
+        AudioSegment.converter = "/home/matt/.local/share/MSUScripter/dependencies/ffmpeg/bin/ffmpeg"
+        AudioSegment.ffmpeg = "/home/matt/.local/share/MSUScripter/dependencies/ffmpeg/bin/ffmpeg"
+        AudioSegment.ffprobe = "/home/matt/.local/share/MSUScripter/dependencies/ffmpeg/bin/ffprobe"
+
+        # audio = AudioSegment.from_file(self.file)
+        # sr = audio.frame_rate
+
+        os.chdir("/home/matt/.local/share/MSUScripter/dependencies/ffmpeg/bin/")
+
         try:
             data = mediainfo(self.file)
             sample_rate = int(data['sample_rate'])
             duration = float(data['duration'])
             return self.print_yaml(True, "", sample_rate, duration)
         except Exception as e:
-            return self.print_yaml(False, f"Error analyzing audio {str(e)}")
+            print(str(e))
+            return self.print_yaml(False, f"Error analyzing audio {str(e)}", 0, 0)
 
 
     def print_yaml(self, successful: bool, error: str, sample_rate: int, duration: float) -> bool:
