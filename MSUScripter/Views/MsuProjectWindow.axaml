@@ -18,6 +18,7 @@
         Loaded="WindowControl_OnLoaded"
         Closing="Window_OnClosing"
         PointerPressed="Window_OnPointerPressed"
+        DragDrop.AllowDrop="True"
         Title="{Binding WindowTitle}">
     <DockPanel>
         <Grid RowDefinitions="*, Auto">

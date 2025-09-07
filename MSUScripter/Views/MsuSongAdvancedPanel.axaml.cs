@@ -35,6 +35,20 @@ public partial class MsuSongAdvancedPanel : UserControl
         {
             Service?.CheckFileErrors(_viewModel);
         };
+        _viewModel.FileDragDropped += (_, _) =>
+        {
+            if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+            {
+                var metadata = Service?.GetAudioMetadata(_viewModel.Input);
+                _viewModel.SongName = metadata?.SongName;
+                _viewModel.ArtistName = metadata?.Artist;
+                _viewModel.Album = metadata?.Album;
+                _viewModel.Url = metadata?.Url;
+            }
+        
+            _viewModel.UpdateTreeItemName();
+            Service?.CheckFileErrors(_viewModel);
+        };
     }
     
     protected override void OnPointerMoved(PointerEventArgs e)

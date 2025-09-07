@@ -40,6 +40,31 @@ public partial class MsuSongBasicPanel : UserControl
             
             Service?.CheckSampleRate(_viewModel);
         };
+
+        _viewModel.FileDragDropped += (_, _) =>
+        {
+            PyMusicLooperPanel.UpdateDetails(new PyMusicLooperDetails
+            {
+                FilePath = _viewModel.InputFilePath ?? "",
+                FilterStart = _viewModel.TrimStart,
+                Project = _viewModel.Project!,
+                AllowRunByDefault = true
+            });
+            
+            if (!string.IsNullOrEmpty(_viewModel.InputFilePath) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+            {
+                var metadata = Service?.GetAudioMetadata(_viewModel.InputFilePath);
+                _viewModel.SongName = metadata?.SongName;
+                _viewModel.ArtistName = metadata?.Artist;
+                _viewModel.Album = metadata?.Album;
+                _viewModel.Url = metadata?.Url;
+            }
+            
+            Service?.CheckSampleRate(_viewModel);
+            
+            InputFileUpdated?.Invoke(this, EventArgs.Empty);
+        };
+        
         PyMusicLooperPanel.UpdateDetails(new PyMusicLooperDetails
         {
             FilePath = _viewModel.InputFilePath ?? "",

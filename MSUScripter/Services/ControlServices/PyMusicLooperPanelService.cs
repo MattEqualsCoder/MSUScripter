@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Controls;
+using AvaloniaControls.Controls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using MSUScripter.Configs;
@@ -288,7 +290,7 @@ public class PyMusicLooperPanelService(
             _model.Message = response.Error;
         }, cts.Token);
     }
-
+    
     public void StopPyMusicLooper()
     {
         _cts?.Cancel();

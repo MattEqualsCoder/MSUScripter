@@ -80,6 +80,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public ContextMenu? CurrentContextMenu { get; set; }
     
     public event EventHandler? ViewModelUpdated;
+    public event EventHandler? FileDragDropped;
     
     private MsuTrackInfo? _currentTrackInfo;
     public MsuSongInfo? CurrentSongInfo { get; private set; }
@@ -416,6 +417,12 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         AddTreeItem(pcmInfo, treeData.Level, treeData.ParentTreeData?.Name == "Sub Channels", index, treeData.SortIndex, treeData.ParentIndex, treeData.ParentTreeData);
         UpdateSortIndexes();
         SetSelectedTreeData(TreeItems.First(x => x.MsuPcmInfo == pcmInfo));
+    }
+    
+    public void DragDropFile(string fileName)
+    {
+        Input = fileName;
+        FileDragDropped?.Invoke(this, EventArgs.Empty);
     }
 
     private void HandleDragged(MsuSongAdvancedPanelViewModelModelTreeData from, MsuSongAdvancedPanelViewModelModelTreeData to)

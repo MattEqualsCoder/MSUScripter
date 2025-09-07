@@ -382,7 +382,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         return true;
     }
 
-    public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false, bool advancedMode = false, bool rememberSetting = false)
+    public void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false, bool advancedMode = false, bool rememberSetting = false, string? initialFile = null)
     {
         if (rememberSetting)
         {
@@ -504,6 +504,16 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         _viewModel.SelectedTreeItem = treeData;
         treeData.UpdateCompletedFlag();
         UpdateCompletedSummary();
+
+        if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled && !string.IsNullOrEmpty(initialFile))
+        {
+            _viewModel.MsuSongViewModel.BasicPanelViewModel.DragDropFile(initialFile);    
+        }
+        else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsEnabled && !string.IsNullOrEmpty(initialFile))
+        {
+            _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(initialFile);    
+        }
+        
         _viewModel.LastModifiedDate = DateTime.Now;
     }
 
@@ -1051,5 +1061,35 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
     public void OnClose()
     {
         _ = audioPlayerService.StopSongAsync();
+    }
+
+    public void DragDropFile(string filePath)
+    {
+        if (_viewModel.CurrentTreeItem?.TrackInfo == null)
+        {
+            Console.WriteLine("Ignore");
+            var a = "a";
+            return;
+        }
+        
+        if (_viewModel.CurrentTreeItem?.SongInfo != null)
+        {
+            if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled)
+            {
+                Console.WriteLine("Update Basic");
+                _viewModel.MsuSongViewModel.BasicPanelViewModel.DragDropFile(filePath);
+                
+            }
+            else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsEnabled && _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CurrentTreeItem.MsuPcmInfo != null)
+            {
+                Console.WriteLine("Update Advanced");
+                _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(filePath);
+            }
+        }
+        else
+        {
+            AddNewSong(_viewModel.CurrentTreeItem);
+            Console.WriteLine("Create New Song");
+        }
     }
 }

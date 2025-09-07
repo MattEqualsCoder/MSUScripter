@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia;
@@ -53,6 +54,24 @@ public partial class MsuProjectWindow : RestorableWindow
         _parentWindow = parentWindow;
         _backupTimer.Elapsed += BackupTimerOnElapsed;
         _backupTimer.Start();
+        AddHandler(DragDrop.DropEvent, DropFile);
+    }
+
+    private void DropFile(object? sender, DragEventArgs e)
+    {
+        var file = e.Data.GetFiles()?.FirstOrDefault();
+        if (file == null || _viewModel?.CurrentTreeItem?.TrackInfo == null || _service == null)
+        {
+            return;
+        }
+
+        if (_viewModel.CurrentTreeItem.SongInfo == null)
+        {
+            AddNewSong(_viewModel.CurrentTreeItem, false, file.Path.LocalPath);
+            return;
+        }
+        
+        _service?.DragDropFile(file.Path.LocalPath);
     }
     
     public MsuProjectWindowCloseReason CloseReason { get; private set; }
@@ -473,7 +492,7 @@ public partial class MsuProjectWindow : RestorableWindow
 
     private void GenerateButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.MsuProject == null) return;
+        if (_viewModel?.MsuProject == null || _viewModel.IsBusy) return;
         _service?.SaveProject();
         _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
     }
@@ -627,7 +646,8 @@ public partial class MsuProjectWindow : RestorableWindow
         
     }
 
-    private void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false)
+    private void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false,
+        string? initialFile = null)
     {
         var songPanel = _viewModel?.DefaultSongPanel ?? DefaultSongPanel.Prompt;
         if (songPanel == DefaultSongPanel.Prompt)
@@ -638,16 +658,14 @@ public partial class MsuProjectWindow : RestorableWindow
                 var response = await promptWindow.ShowDialog<SongPanelPromptWindowViewModel>(this);
                 if (response.Advanced || response.Basic)
                 {
-                    _service?.AddNewSong(treeData, duplicate, response.Advanced, response.DontAskAgain);
+                    _service?.AddNewSong(treeData, duplicate, response.Advanced, response.DontAskAgain, initialFile);
                 }
             });
         }
         else
         {
-            _service?.AddNewSong(treeData, duplicate, songPanel ==  DefaultSongPanel.Advanced);
+            _service?.AddNewSong(treeData, duplicate, songPanel ==  DefaultSongPanel.Advanced, false, initialFile);
         }
-
-        
     }
 
     private void ReapplyFiltersMenuItem_OnClick(object? sender, RoutedEventArgs e)

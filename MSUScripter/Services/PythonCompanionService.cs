@@ -479,13 +479,28 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                if (!string.IsNullOrEmpty(workingDirectory))
+                string fileName;
+                string argumentString;
+                
+                if (!string.IsNullOrEmpty(workingDirectory) && command.StartsWith(workingDirectory, StringComparison.OrdinalIgnoreCase))
                 {
                     var file = Path.GetFileName(command);
-                    innerCommand = $"{file} {arguments}";
+                    fileName = "cmd";
+                    argumentString = $"/c {file} {arguments}";
+                }
+                else if (Path.IsPathRooted(command))
+                {
+                    fileName = command;
+                    argumentString = arguments;
+                }
+                else
+                {
+                    var file = Path.GetFileName(command);
+                    fileName = "cmd";
+                    argumentString = $"/c {file} {arguments}";
                 }
                 
-                procStartInfo= new ProcessStartInfo("cmd", "/c " + innerCommand)
+                procStartInfo= new ProcessStartInfo(fileName, argumentString)
                 {
                     RedirectStandardOutput = redirectOutput,
                     RedirectStandardError = redirectOutput,

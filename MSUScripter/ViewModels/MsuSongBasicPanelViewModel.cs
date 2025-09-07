@@ -56,10 +56,10 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     private bool _updatingModel;
 
     public event EventHandler? ViewModelUpdated;
+    public event EventHandler? FileDragDropped;
 
     public MsuSongBasicPanelViewModel() : base()
     {
-        
         PropertyChanged += OnPropertyChanged;
         return;
 
@@ -179,5 +179,12 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     public void SetSampleRate(int sampleRate)
     {
         DisplaySampleRateWarning = sampleRate != 44100;
+    }
+    
+    public void DragDropFile(string fileName)
+    {
+        if (!DisplayInputFile) return;
+        InputFilePath = fileName;
+        FileDragDropped?.Invoke(this, EventArgs.Empty);
     }
 }
