@@ -122,20 +122,12 @@ class Program
             .AddSingleton<StatusBarService>()
             .AddSingleton<PythonCompanionService>()
             .AddSingleton<DependencyInstallerService>()
+            .AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundFlow>()
             .AddTransient<PythonCommandRunnerService>()
             .AddTransient<VideoCreatorWindowService>()
             .AddTransient<SharedPcmService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
-
-        if (OperatingSystem.IsWindows())
-        {
-            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceWindows>();
-        }
-        else
-        {
-            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundFlow>();    
-        }
 
         return collection;
     }

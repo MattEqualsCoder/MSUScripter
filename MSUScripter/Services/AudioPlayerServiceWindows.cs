@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -224,11 +224,7 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
                 using (var loop = new LoopStream(rs))
                 using (var waveOutEvent = new WaveOutEvent())
                 {
-                    if (isLoopingSong)
-                    {
-                        loop.EnableLooping = enableLoop;    
-                    }
-                    
+                    loop.EnableLooping = enableLoop;
                     _waveOutEvent = waveOutEvent;
                     _waveOutEvent.Volume = (float)_settings.Volume;
                     _loopStream = loop;
@@ -238,31 +234,14 @@ public class AudioPlayerServiceWindows : IAudioPlayerService
                     Play();
                     _logger.LogInformation("Playing audio file");
                     PlayStarted?.Invoke(this, EventArgs.Empty);
-
-                    while (_waveOutEvent == waveOutEvent)
+                    Thread.Sleep(200);
+                    while (waveOutEvent.PlaybackState != PlaybackState.Stopped)
                     {
                         Thread.Sleep(200);
-                        while (waveOutEvent.PlaybackState != PlaybackState.Stopped)
-                        {
-                            Thread.Sleep(200);
-                        }
-
-                        if (!isLoopingSong)
-                        {
-                            Thread.Sleep(TimeSpan.FromSeconds(1.8));
-                            if (_waveOutEvent == waveOutEvent)
-                            {
-                                Play();  
-                            } 
-                        }
                     }
-
-                    if (_waveOutEvent == waveOutEvent)
-                    {
-                        _waveOutEvent = null;
-                        _loopStream = null;
-                        PlayStopped?.Invoke(this, EventArgs.Empty);
-                    }
+                    _waveOutEvent = null;
+                    _loopStream = null;
+                    PlayStopped?.Invoke(this, EventArgs.Empty);
                 }
             }
             catch (Exception e)
