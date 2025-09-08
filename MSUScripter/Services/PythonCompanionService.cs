@@ -68,7 +68,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
 
         if (File.Exists(ffmpegPath))
         {
-            var installedResult = RunInternal(ffmpegPath, "-version", true);
+            var installedResult = ValidateInstalledFfmpeg(ffmpegPath);
             if (installedResult.Success && installedResult.Result.StartsWith("ffmpeg version"))
             {
                 logger.LogInformation("FFmpeg validated successfully at {Path}: {Result}", ffmpegPath, installedResult.Result);
@@ -91,6 +91,28 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         }
         
         return IsFfMpegValid;
+    }
+
+    private RunPyResult ValidateInstalledFfmpeg(string ffmpegPath, int attempt = 3)
+    {
+        var installedResult = RunInternal(ffmpegPath, "-version", true);
+        if (installedResult.Success && installedResult.Result.StartsWith("ffmpeg version"))
+        {
+            return installedResult;
+        }
+        else if (installedResult.Success && installedResult.Result.Equals("") && installedResult.Error.Equals("") && attempt > 0)
+        {
+            logger.LogWarning("FFmpeg completed successfully without result. Retrying");
+            return ValidateInstalledFfmpeg(ffmpegPath, attempt - 1);
+        }
+        else
+        {
+            return new RunPyResult()
+            {
+                Success = false,
+                Error = string.IsNullOrEmpty(installedResult.Error) ? "Unknown error running PyMusicLooper" : installedResult.Error
+            };
+        }
     }
 
     public async Task<bool> InstallPyApp(Action<string> response)

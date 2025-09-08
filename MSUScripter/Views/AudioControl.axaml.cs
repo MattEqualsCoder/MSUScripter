@@ -32,10 +32,6 @@ public partial class AudioControl : UserControl
                 {
                     try
                     {
-                        if (_model?.CanPopout != true)
-                        {
-                            return;
-                        }
                         await Task.Delay(TimeSpan.FromSeconds(0.1));
                         Dispatcher.UIThread.Post(() =>
                         {

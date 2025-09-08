@@ -304,8 +304,9 @@ public class PyMusicLooperPanelService(
 
     private void RunMsuPcm(bool fullReload, CancellationTokenSource cts)
     {
-        if (_model.CurrentPageResults.All(x => x.Generated))
+        if (_model.CurrentPageResults.All(x => x.Generated && File.Exists(x.TempPath)))
         {
+            _model.Message = null;
             _model.GeneratingPcms = false;
             return;
         }
@@ -348,7 +349,7 @@ public class PyMusicLooperPanelService(
                 }
             }
 
-            Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated), new ParallelOptions()
+            Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated || !File.Exists(x.TempPath)), new ParallelOptions()
                 {
                     CancellationToken = cts.Token
                 },
