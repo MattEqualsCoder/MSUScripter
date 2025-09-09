@@ -121,6 +121,9 @@ public class ApplicationText
     public string MsuPcmTempoToolTip { get; } = "Alter the tempo of the current track by a specified ratio.";
     public string MsuPcmCompressionLabel { get; } = "Compression";
     public string MsuPcmCompressionToolTip { get; } = "Apply dynamic range compression to the current track. Helps to minimize very loud and very quiet portions of the track.";
+    public string MsuPcmDitherLabel { get; } = "Dither";
+    public string MsuPcmDitherToolTip { get; } = "Whether or not to apply audio dither to the final output. If set, overrides the default value.";
+
     
     public string CheckCopyrightCheckedText { get; } = "Add to copyright test video";
     public string CheckCopyrightUncheckedText { get; } = "Do not add to copyright test video";

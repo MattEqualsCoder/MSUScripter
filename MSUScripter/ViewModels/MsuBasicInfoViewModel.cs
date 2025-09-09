@@ -20,6 +20,8 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     [Reactive] public bool IsMsuPcmProject { get; set; }
     [Reactive] public double? Normalization { get; set; } 
     [Reactive] public bool? Dither { get; set; } 
+    [Reactive] public DitherType DitherType { get; set; }
+    public bool HasSeenDitherWarning { get; set; }
     [Reactive] public bool IncludeJson { get; set; }
     
     [Reactive] public TrackList TrackList { get; set; }
@@ -55,7 +57,8 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
         
         IsMsuPcmProject = project.BasicInfo.IsMsuPcmProject;
         Normalization = project.BasicInfo.Normalization;
-        Dither = project.BasicInfo.Dither;
+        DitherType = project.BasicInfo.DitherType;
+        HasSeenDitherWarning = project.BasicInfo.HasSeenDitherWarning;
         IncludeJson = project.BasicInfo.IncludeJson ?? false;
 
         LastModifiedDate = project.BasicInfo.LastModifiedDate;
@@ -97,7 +100,8 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
 
         Project.BasicInfo.IsMsuPcmProject = IsMsuPcmProject;
         Project.BasicInfo.Normalization = Normalization;
-        Project.BasicInfo.Dither = Dither;
+        Project.BasicInfo.DitherType = DitherType;
+        Project.BasicInfo.HasSeenDitherWarning = HasSeenDitherWarning;
         Project.BasicInfo.IncludeJson = IncludeJson;
     }
 }

@@ -52,6 +52,9 @@ public class MsuSongMsuPcmInfo
     [Description("The file to be used as the input for this track/sub-track/sub-channel")]
     public string? File { get; set; }
     
+    [Description("Whether or not to apply audio dither to the final output.")]
+    public bool? Dither { get; set; }
+    
     [JsonSchemaIgnore]
     public bool ShowPanel { get; set; } = true;
     

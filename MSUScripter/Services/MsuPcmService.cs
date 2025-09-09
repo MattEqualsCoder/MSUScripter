@@ -24,6 +24,12 @@ public class MsuPcmInstallResponse
     public bool MissingSharedLibraries { get; set; }
 }
 
+public class MsuPcmJsonInfo
+{
+    public required string JsonFilePath { get; set; }
+    public required string JsonText { get; set; }
+}
+
 public partial class MsuPcmService(
     ILogger<MsuPcmService> logger,
     Settings settings,
@@ -106,7 +112,7 @@ public partial class MsuPcmService(
         {
             File.Delete(outputPath);
         }
-        var result = await CreatePcm(standAlone, project, new MsuSongInfo()
+        var result = await CreatePcm(project, new MsuSongInfo()
             {
                 TrackNumber = project.MsuType.Tracks.First().Number,
                 OutputPath = outputPath,
@@ -223,9 +229,9 @@ public partial class MsuPcmService(
         var tempPath = GetSongGenerationDirectory(project, song);
         var tempJsonPath = Path.Combine(tempPath, "temp.json");
         var tempPcmPath = Path.Combine(tempPath, "temp.pcm");
-        var json = GetMsuPcmSongJson(project, song, tempJsonPath, tempPcmPath);
+        var jsonResponse = ExportMsuPcmTracksJson(project, song, tempJsonPath, tempPcmPath);
         
-        if (string.IsNullOrEmpty(json))
+        if (string.IsNullOrEmpty(jsonResponse.JsonText))
         {
             WriteFailureToStatusBar();
             return new GeneratePcmFileResponse(false, false, "Failed to generate MsuPcm++ JSON file", null);
@@ -249,7 +255,7 @@ public partial class MsuPcmService(
         }
         
         project.GenerationCache.Songs.TryGetValue(song.Id, out var previousCache);
-        var currentCache = GetSongCacheData(json, outputPath);
+        var currentCache = GetSongCacheData(jsonResponse.JsonText, outputPath);
 
         if (MsuProjectSongCache.IsValid(previousCache, currentCache))
         {
@@ -289,7 +295,7 @@ public partial class MsuPcmService(
             return new GeneratePcmFileResponse(false, false, "MsuPcm++ succeeded, but could not move generated file", null);
         }
         
-        currentCache = GetSongCacheData(json, outputPath);
+        currentCache = GetSongCacheData(jsonResponse.JsonText, outputPath);
 
         if (currentCache != null)
         {
@@ -342,7 +348,7 @@ public partial class MsuPcmService(
         };
     }
 
-    public async Task<GeneratePcmFileResponse> CreatePcm(bool standAlone, MsuProject project, MsuSongInfo song, bool addTrackDetailsToMessage = true)
+    public async Task<GeneratePcmFileResponse> CreatePcm(MsuProject project, MsuSongInfo song, bool addTrackDetailsToMessage = true)
     {
         if (!audioPlayerService.IsStopped)
         {
@@ -378,7 +384,7 @@ public partial class MsuPcmService(
         var jsonPath = Path.Combine(jsonDirectory, msu.Name.Replace(msu.Extension, $"-msupcm-temp-{guid}.json"));
         try
         {
-            ExportMsuPcmTracksJson(standAlone, project, song, jsonPath);
+            ExportMsuPcmTracksJson(project, song, jsonPath);
             
             var msuPath = new FileInfo(project.MsuPath).DirectoryName;
             var relativePath = Path.GetRelativePath(msuPath!, song.OutputPath);
@@ -816,81 +822,27 @@ public partial class MsuPcmService(
         }
     }
 
-    public string? GetMsuPcmSongJson(MsuProject project, MsuSongInfo songInfo, string jsonPath, string pcmPath)
-    {
-        if (converterService.ConvertMsuPcmTrackInfo(songInfo.MsuPcmInfo, false, false) is not Track track)
-        {
-            return null;
-        }
-
-        track.Output = pcmPath;
-        
-        
-        var output = new MsuPcmPlusPlusConfig()
-        {
-            Game = project.BasicInfo.Game,
-            Pack = project.BasicInfo.PackName,
-            Artist = project.BasicInfo.Artist,
-            Output_prefix = jsonPath.Replace(".json", ""),
-            Normalization = project.BasicInfo.Normalization,
-            Dither = project.BasicInfo.Dither,
-            Verbosity = 2,
-            Keep_temps = settings.RunMsuPcmWithKeepTemps,
-            Tracks = [track]
-        };
-        
-        var json = JsonConvert.SerializeObject(output, Formatting.Indented);
-        File.WriteAllText(jsonPath, json);
-        logger.LogInformation("Wrote {Input} MsuPcm++ json file to {Output}", songInfo.OutputPath, jsonPath);
-        return json;
-    }
-    
-    public string? ExportMsuPcmTracksJson(MsuProject project)
-    {
-        var msu = new FileInfo(project.MsuPath);
-        var exportPath = project.GetTracksJsonPath();
-        
-        var output = new MsuPcmPlusPlusConfig()
-        {
-            Game = project.BasicInfo.Game,
-            Pack = project.BasicInfo.PackName,
-            Artist = project.BasicInfo.Artist,
-            Output_prefix = msu.FullName.Replace(msu.Extension, ""),
-            Normalization = project.BasicInfo.Normalization,
-            Dither = project.BasicInfo.Dither,
-            Verbosity = 2,
-            Keep_temps = settings.RunMsuPcmWithKeepTemps,
-            First_track = project.Tracks.Min(x => x.TrackNumber),
-            Last_track = project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackNumber)
-        };
-        var tracks = new List<Track>();
-
-        var songs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
-        
-        foreach (var song in songs)
-        {
-            if (converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
-            track.Output = song.OutputPath;
-            track.Track_number = song.TrackNumber;
-            track.Title = song.TrackName ?? "";
-            tracks.Add(track);
-        }
-
-        output.Tracks = tracks;
-        var json = JsonConvert.SerializeObject(output, Formatting.Indented);
-        File.WriteAllText(exportPath, json);
-        statusBarService.UpdateStatusBar("Json File Written");
-        return exportPath;
-    }
-    
-    public string? ExportMsuPcmTracksJson(bool standAlone, MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null)
+    public MsuPcmJsonInfo ExportMsuPcmTracksJson(MsuProject project, MsuSongInfo? singleSong = null, string? exportPath = null, string? pcmPath = null)
     {
         var msu = new FileInfo(project.MsuPath);
         
         if (string.IsNullOrEmpty(exportPath))
         {
-            exportPath = msu.FullName.Replace(msu.Extension, "-tracks.json");
+            exportPath = project.GetTracksJsonPath();
         }
+        
+        bool? ditherValue = project.BasicInfo.DitherType switch
+        {
+            DitherType.All => true,
+            DitherType.None => false,
+            DitherType.DefaultOn => singleSong?.MsuPcmInfo.Dither ?? true,
+            DitherType.DefaultOff => singleSong?.MsuPcmInfo.Dither ?? false,
+            _ => null
+        };
+        
+        var songs = singleSong == null 
+            ? project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList()
+            : [singleSong];
         
         var output = new MsuPcmPlusPlusConfig()
         {
@@ -899,22 +851,18 @@ public partial class MsuPcmService(
             Artist = project.BasicInfo.Artist,
             Output_prefix = msu.FullName.Replace(msu.Extension, ""),
             Normalization = project.BasicInfo.Normalization,
-            Dither = project.BasicInfo.Dither,
+            Dither = ditherValue,
             Verbosity = 2,
-            Keep_temps = standAlone && settings.RunMsuPcmWithKeepTemps,
-            First_track = singleSong?.TrackNumber ?? project.Tracks.Min(x => x.TrackNumber),
-            Last_track = singleSong?.TrackNumber ?? project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackNumber)
+            Keep_temps = settings.RunMsuPcmWithKeepTemps,
+            First_track = songs.Min(x => x.TrackNumber),
+            Last_track = songs.Max(x => x.TrackNumber)
         };
-        var tracks = new List<Track>();
-
-        var songs = singleSong == null 
-            ? project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList()
-            : new List<MsuSongInfo>() { singleSong };
         
+        var tracks = new List<Track>();
         foreach (var song in songs)
         {
             if (converterService.ConvertMsuPcmTrackInfo(song.MsuPcmInfo, false, false) is not Track track) continue;
-            track.Output = song.OutputPath;
+            track.Output = pcmPath ?? song.OutputPath;
             track.Track_number = song.TrackNumber;
             track.Title = song.TrackName ?? "";
             tracks.Add(track);
@@ -924,7 +872,11 @@ public partial class MsuPcmService(
         var json = JsonConvert.SerializeObject(output, Formatting.Indented);
         File.WriteAllText(exportPath, json);
         statusBarService.UpdateStatusBar("Json File Written");
-        return exportPath;
+        return new MsuPcmJsonInfo
+        {
+            JsonFilePath = exportPath,
+            JsonText = json
+        };
     }
 
     private void WriteFailureToStatusBar()

@@ -14,6 +14,8 @@ public class MsuBasicInfo
     public string? Url { get; set; }
     public double? Normalization { get; set; }
     public bool? Dither { get; set; }
+    public DitherType DitherType { get; set; }
+    public bool HasSeenDitherWarning { get; set; }
     public bool IsMsuPcmProject { get; set; } = true;
     public bool CreateAltSwapperScript { get; set; } = true;
     public bool CreateSplitSmz3Script { get; set; }

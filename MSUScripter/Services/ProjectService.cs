@@ -180,6 +180,12 @@ public class ProjectService(
             }
         }
 
+        if (project.BasicInfo.Dither != null)
+        {
+            project.BasicInfo.DitherType = project.BasicInfo.Dither == true ? DitherType.All : DitherType.None;
+            project.BasicInfo.Dither = null;
+        }
+
         if (!isBackup)
         {
             settingsService.AddRecentProject(project);    
@@ -612,7 +618,15 @@ public class ProjectService(
         project.BasicInfo.Artist = msuPcmData.Artist;
         project.BasicInfo.Game = msuPcmData.Game;
         project.BasicInfo.Normalization = msuPcmData.Normalization;
-        project.BasicInfo.Dither = msuPcmData.Dither;
+
+        if (msuPcmData.Dither == true)
+        {
+            project.BasicInfo.DitherType = DitherType.All;
+        }
+        else if (msuPcmData.Dither == false)
+        {
+            project.BasicInfo.DitherType = DitherType.None;
+        }
 
         var msuFileInfo = new FileInfo(project.MsuPath);
         var msuDirectory = msuFileInfo.DirectoryName!;

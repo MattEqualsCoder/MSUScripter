@@ -9,36 +9,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/InstallDependenciesWindowService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Services/DependencyInstallerService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/InstallDependenciesWindowViewModel.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/InstallDependenciesWindow.axaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MSUScripter/Views/InstallDependenciesWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/avalonia.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/MSUScripter/Configs/DitherType.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/App.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/App.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Models/Directories.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Models/Directories.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuBasicInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/MsuSongMsuPcmInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/MsuSongMsuPcmInfo.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/AudioAnalysisService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/AddSongWindowService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/EditProjectPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongMsuPcmInfoPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongMsuPcmInfoPanelService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuSongPanelService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuGenerationWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuGenerationWindowService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/MsuPcmService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/PythonCompanionService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuProjectWindowViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/SharedPcmService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/SharedPcmService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Text/ApplicationText.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuBasicInfoViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/MsuSongAdvancedPanelViewModel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuProjectWindow.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SongPanelPromptWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PyMsuScripterApp/py_msu_scripter_app/sample_rate_analyzer.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyMsuScripterApp/py_msu_scripter_app/sample_rate_analyzer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/PyMsuScripterApp/test_files/samples.yml" beforeDir="false" afterPath="$PROJECT_DIR$/PyMsuScripterApp/test_files/samples.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MsuSongAdvancedPanel.axaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,6 +43,10 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/d4/3d5863cf/ScalableWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/bbf632aa305a468da878848cc4d7565e23e00/48/ac236176/EnumValueChangedEventArgs.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1ad855a3c5b26899e6ce6c55f0fe1a42f2b81c878868b79f7ae064f634f0d9f8/Window.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/821eadf8c89b36691b3def72d04889d8d4cd791563a97558876f873a81a1a085/StackFrameIterator.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a984a133191d26625f45e85cc27e20cad64f4a6ecb6263b4c17bc55965a5/String.Manipulation.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" root0="FORCE_HIGHLIGHTING" />
@@ -123,10 +113,10 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
       <option name="AUTO_ATTACH_CHILDREN" value="0" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="RUNTIME_TYPE" value="coreclr" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
@@ -147,10 +137,10 @@
       <option name="ENV_FILE_PATHS" value="" />
       <option name="REDIRECT_INPUT_PATH" value="" />
       <option name="PTY_MODE" value="Auto" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="USE_MONO" value="0" />
       <option name="RUNTIME_ARGUMENTS" value="" />
       <option name="AUTO_ATTACH_CHILDREN" value="0" />
+      <option name="MIXED_MODE_DEBUG" value="0" />
       <option name="PROJECT_PATH" value="$PROJECT_DIR$/SchemaGenerator/SchemaGenerator.csproj" />
       <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
       <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
@@ -212,6 +202,7 @@
       <workItem from="1756818486361" duration="13477000" />
       <workItem from="1756867477426" duration="23837000" />
       <workItem from="1756940896145" duration="5420000" />
+      <workItem from="1757293878235" duration="7827000" />
     </task>
     <servers />
   </component>

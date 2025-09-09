@@ -151,12 +151,13 @@
                     LabelText="{Binding Text.MsuBasicInfoMsuPcmDitherLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoMsuPcmDitherToolTip}"
                 />
-                <controls1:BoolComboBox
-                    AllowNulls="True"
+                <controls1:EnumComboBox
                     Grid.Column="2"
                     Grid.Row="5"
                     Margin="3 5 0 2"
-                    Value="{Binding Dither, Mode=TwoWay}"
+                    EnumType="{Binding DitherType, Converter={StaticResource TypeConverter}}"
+                    Value="{Binding DitherType, Mode=TwoWay}"
+                    ValueChanged="DitherEnumComboBox_OnValueChanged"
                 />
                     
             </Grid>

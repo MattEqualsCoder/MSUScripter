@@ -54,7 +54,7 @@ public class SharedPcmService(MsuPcmService msuPcmService, IAudioPlayerService a
             song.OutputPath = path;
         }
 
-        var response = await msuPcmService.CreatePcm(true, tempProject, song);
+        var response = await msuPcmService.CreatePcm(tempProject, song);
         if (!response.Successful)
         {
             if (response.GeneratedPcmFile && songInfo.Project.IgnoreWarnings.Contains(song.OutputPath ?? ""))

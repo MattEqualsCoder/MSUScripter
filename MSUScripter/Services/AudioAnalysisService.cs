@@ -88,7 +88,7 @@ public class AudioAnalysisService(
     
     private async Task<bool> GeneratePcmFile(MsuProject project, MsuSongInfo song)
     {
-        var response = await msuPcmService.CreatePcm(false, project, song);
+        var response = await msuPcmService.CreatePcm(project, song);
         if (!response.GeneratedPcmFile)
         {
             logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, response.Message);

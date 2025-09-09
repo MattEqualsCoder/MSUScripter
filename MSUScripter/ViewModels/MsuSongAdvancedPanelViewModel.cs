@@ -55,6 +55,9 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     [Reactive] public double? Normalization { get; set; }
 
     [Reactive] public bool? Compression { get; set; }
+    
+    [Reactive] public bool? Dither { get; set; }
+    [Reactive] public bool ShowDither { get; set; }
 
     [Reactive] public string? Output { get; set; }
     
@@ -128,6 +131,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         CheckCopyright = songInfo.CheckCopyright;
         IsCopyrightSafe = songInfo.IsCopyrightSafe;
         IsScratchPad = trackInfo.IsScratchPad;
+        Dither = songInfo.MsuPcmInfo.Dither;
         
         TreeItems.Clear();
         AddTreeItem(songInfo.MsuPcmInfo, 0, false, 0, 0, -1, null);
@@ -265,10 +269,12 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         if (_isTopLevelMsuPcmInfo)
         {
             Output = CurrentSongInfo?.OutputPath ?? treeData.MsuPcmInfo.Output;
+            ShowDither = Project.BasicInfo.DitherType is DitherType.DefaultOff or DitherType.DefaultOn;
         }
         else
         {
             Output = "";
+            ShowDither = false;
         }
         Input = treeData.MsuPcmInfo.File;
         DisplayOutputPcmFile = treeData.ShowOutput && !IsScratchPad;;
@@ -299,6 +305,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         _currentSongMsuPcmInfo.Tempo = Tempo;
         _currentSongMsuPcmInfo.Normalization = Normalization;
         _currentSongMsuPcmInfo.Compression = Compression;
+        _currentSongMsuPcmInfo.Dither = Dither;
 
         if (_isTopLevelMsuPcmInfo)
         {

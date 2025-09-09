@@ -175,7 +175,9 @@ public class MsuGenerationWindowService(MsuPcmService msuPcmService, ProjectServ
         else if (rowDetails.Type == MsuGenerationRowType.MsuPcmJson)
         {
             msuPcmService.ExportMsuPcmTracksJson(_model.MsuProject);
-            rowDetails.Message = "Generated";
+            rowDetails.Message = _model.MsuProject.BasicInfo.DitherType is DitherType.DefaultOn or DitherType.DefaultOff
+                ? "Generated with dither value inconsistencies"
+                : "Generated";
             _model.SongsCompleted++;
         }
         else if (rowDetails.Type == MsuGenerationRowType.TrackList)

@@ -286,7 +286,7 @@
                 </ListBox>
                 </DockPanel>
                 <GridSplitter Grid.Row="0" Grid.Column="1" Background="{DynamicResource CardBorderColor}"/>
-                <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="*, *, *, *, *, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="5">
+                <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="*, *, *, *, *, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="5">
 
                     <!-- Output File -->
                     <views:FormLabel 
@@ -513,6 +513,25 @@
                         Grid.ColumnSpan="2"
                         Margin="3 0 0 0"
                         Value="{Binding Compression, Mode=TwoWay}"
+                        AllowNulls="True"
+                    ></controls:BoolComboBox>
+                    
+                    <!-- Compression -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="14" 
+                        Margin="0 8 3 2"
+                        IsVisible="{Binding ShowDither}"
+                        LabelText="{Binding Text.MsuPcmDitherLabel}"
+                        ToolTipText="{Binding Text.MsuPcmDitherToolTip}"
+                    />
+                    <controls:BoolComboBox 
+                        Grid.Row="15" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="3"
+                        Margin="0 0 3 0"
+                        IsVisible="{Binding ShowDither}"
+                        Value="{Binding Dither, Mode=TwoWay}"
                         AllowNulls="True"
                     ></controls:BoolComboBox>
                     
