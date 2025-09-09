@@ -313,6 +313,9 @@ public partial class MainWindow : RestorableWindow
                 _model.DisplaySettingsPage = false;
                 _model.DisplayAboutPage = false;
             }
+            
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         };
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -82,7 +83,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
             {
                 var songs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
-                var trackLength = project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackName.Length) + 4;
+                var trackLength = project.Tracks.Where(x => !x.IsScratchPad).Max(x => new StringInfo(x.TrackName).LengthInTextElements) + 4;
                 var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 4);
                 var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.CleanString().Length + 4);
                 var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.CleanString().Length + 4);
@@ -116,10 +117,10 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
             {
                 var songs = project.Tracks.SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
-                var trackLength = project.Tracks.Max(x => x.TrackName.Length) + 3;
-                var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 3);
-                var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.CleanString().Length + 3);
-                var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.CleanString().Length + 3);
+                var trackLength = project.Tracks.Max(x => x.TrackName.GetUnicodeLength()) + 3;
+                var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.GetUnicodeLength() + 3);
+                var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.GetUnicodeLength() + 3);
+                var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.GetUnicodeLength() + 3);
                 AppendTrackTable(allTracks, sb, 0, numberLength, trackLength, albumLength, songLength, artistLength);   
             }
         }
@@ -238,17 +239,23 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
             
         if (albumLength > 0)
         {
-            songInfo += (song.Album?.CleanString() ?? "").PadRight(albumLength);
+            var item = song.Album?.CleanString() ?? "";
+            var spaces = new string(' ', albumLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
 
         if (songLength > 0)
         {
-            songInfo += (song.SongName?.CleanString() ?? "").PadRight(songLength);
+            var item = song.SongName?.CleanString() ?? "";
+            var spaces = new string(' ', songLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
         
         if (artistLength > 0)
         {
-            songInfo += (song.Artist?.CleanString() ?? "").PadRight(artistLength);
+            var item = song.Artist?.CleanString() ?? "";
+            var spaces = new string(' ', artistLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
 
         return songInfo;
