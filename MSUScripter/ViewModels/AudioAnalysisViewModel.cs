@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisViewModel : ViewModelBase
+public class AudioAnalysisViewModel : TranslatedViewModelBase
 {
-    public MsuProjectViewModel? ProjectDeprecated { get; set; }
     public MsuProject? Project { get; set; }
     
     [Reactive] public int SongsCompleted { get; set; }
@@ -19,8 +17,7 @@ public class AudioAnalysisViewModel : ViewModelBase
     public List<AudioAnalysisSongViewModel> Rows { get; set; } = [];
 
     [Reactive] public bool CompareEnabled { get; set; } = true;
-
-
+    
     public double Duration { get; set; }
     public int TotalSongs => Rows.Count;
     public string? LoadError { get; set; }

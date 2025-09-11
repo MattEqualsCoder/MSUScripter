@@ -5,25 +5,23 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using MSURandomizerLibrary.Configs;
-using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.ViewModels;
 using Track = MSUScripter.Configs.Track;
 
 namespace MSUScripter.Services;
 
-public class ConverterService(IMsuTypeService msuTypeService)
+public class ConverterService
 {
-    public bool ConvertViewModel<A, B>(A input, B output, bool recursive = true) where B : new()
+    public bool CloneModel<TA>(TA input, TA output, bool recursive = true) where TA : new()
     {
-        var propertiesA = typeof(A).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
-        var propertiesB = typeof(B).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
+        var propertiesA = typeof(TA).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
+        var propertiesB = typeof(TA).GetProperties().Where(x => x.CanWrite && x.PropertyType.Namespace?.Contains("MSU") != true && x.GetCustomAttribute<SkipConvertAttribute>() == null).ToDictionary(x => x.Name, x => x);
         var updated = false;
 
         if (propertiesA.Count != propertiesB.Count)
         {
-            throw new InvalidOperationException($"Types {typeof(A).Name} and {typeof(B).Name} are not compatible");
+            throw new InvalidOperationException($"Types {typeof(TA).Name} and {typeof(TA).Name} are not compatible");
         }
 
         foreach (var propA in propertiesA.Values)
@@ -33,18 +31,18 @@ public class ConverterService(IMsuTypeService msuTypeService)
                 continue;
             }
 
-            if (propA.PropertyType == typeof(List<A>) || propA.PropertyType == typeof(ObservableCollection<A>))
+            if (propA.PropertyType == typeof(List<TA>) || propA.PropertyType == typeof(ObservableCollection<TA>))
             {
                 if (recursive)
                 {
-                    IList<A>? aValue = propA.GetValue(input) as IList<A>;
-                    IList<B> bValue = propB.GetValue(output) as IList<B> ?? (propB.PropertyType == typeof(ObservableCollection<B>) ? new ObservableCollection<B>() : new List<B>());
+                    IList<TA>? aValue = propA.GetValue(input) as IList<TA>;
+                    IList<TA> bValue = propB.GetValue(output) as IList<TA> ?? (propB.PropertyType == typeof(ObservableCollection<TA>) ? new ObservableCollection<TA>() : new List<TA>());
                     if (aValue != null)
                     {
                         foreach (var aSubItem in aValue)
                         {
-                            var bSubItem = new B();
-                            ConvertViewModel(aSubItem, bSubItem);
+                            var bSubItem = new TA();
+                            CloneModel(aSubItem, bSubItem);
                             bValue.Add(bSubItem);
                         }
                     }
@@ -66,19 +64,19 @@ public class ConverterService(IMsuTypeService msuTypeService)
     public MsuProject CloneProject(MsuProject project)
     {
         var newProject = new MsuProject();
-        ConvertViewModel(project, newProject);
-        ConvertViewModel(project.BasicInfo, newProject.BasicInfo);
+        CloneModel(project, newProject);
+        CloneModel(project.BasicInfo, newProject.BasicInfo);
         
         foreach (var track in project.Tracks)
         {
             var trackViewModel = new MsuTrackInfo();
-            ConvertViewModel(track, trackViewModel);
+            CloneModel(track, trackViewModel);
 
             foreach (var song in track.Songs)
             {
                 var songViewModel = new MsuSongInfo();
-                ConvertViewModel(song, songViewModel);
-                ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
+                CloneModel(song, songViewModel);
+                CloneModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
             }
 
             newProject.Tracks.Add(trackViewModel);
@@ -90,72 +88,6 @@ public class ConverterService(IMsuTypeService msuTypeService)
         return newProject;
     }
     
-    public MsuProjectViewModel ConvertProject(MsuProject project)
-    {
-        var viewModel = new MsuProjectViewModel();
-        ConvertViewModel(project, viewModel);
-        ConvertViewModel(project.BasicInfo, viewModel.BasicInfo);
-        // viewModel.BasicInfo.Project = viewModel;
-        
-        foreach (var track in project.Tracks)
-        {
-            var msuTypeTrack = project.MsuType.Tracks.FirstOrDefault(x => x.Number == track.TrackNumber);
-
-            var trackViewModel = new MsuTrackInfoViewModel()
-            {
-                Project = viewModel,
-                Description = track.IsScratchPad
-                    ? "Use this page to add songs for keeping and editing without including them in the MSU. All songs included in this will not be included when generating and packaging the MSU."
-                    : msuTypeTrack?.Description
-            };
-            
-            ConvertViewModel(track, trackViewModel);
-
-            foreach (var song in track.Songs)
-            {
-                var songViewModel = new MsuSongInfoViewModel();
-                ConvertViewModel(song, songViewModel);
-                ConvertViewModel(song.MsuPcmInfo, songViewModel.MsuPcmInfo);
-                songViewModel.ApplyCascadingSettings(viewModel, trackViewModel, songViewModel.IsAlt, songViewModel.CanPlaySongs, false, false);
-                trackViewModel.Songs.Add(songViewModel);
-            }
-
-            viewModel.Tracks.Add(trackViewModel);
-        }
-
-        viewModel.MsuType = project.MsuType;
-        viewModel.LastSaveTime = DateTime.Now;
-
-        return viewModel;
-    }
-    
-    public MsuProject ConvertProject(MsuProjectViewModel viewModel)
-    {
-        var project = new MsuProject();
-        ConvertViewModel(viewModel, project);
-        ConvertViewModel(viewModel.BasicInfo, project.BasicInfo);
-        project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ??
-                          throw new InvalidOperationException($"Invalid MSU Type {project.MsuTypeName}");
-
-        foreach (var trackViewModel in viewModel.Tracks)
-        {
-            var track = new MsuTrackInfo();
-            ConvertViewModel(trackViewModel, track);
-
-            foreach (var songViewModel in trackViewModel.Songs)
-            {
-                var song = new MsuSongInfo();
-                ConvertViewModel(songViewModel, song);
-                ConvertViewModel(songViewModel.MsuPcmInfo, song.MsuPcmInfo);
-                track.Songs.Add(song);
-            }
-
-            project.Tracks.Add(track);
-        }
-        
-        return project;
-    }
-
     public ICollection<MsuSongMsuPcmInfo> ConvertMsuPcmTrackInfo(Track_base trackBase, string rootPath)
     {
         var outputList = new List<MsuSongMsuPcmInfo>();

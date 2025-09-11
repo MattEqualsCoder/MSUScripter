@@ -36,7 +36,7 @@ public class MsuTrackInfo
         {
             var oldIndex = i - 1;
             var oldIsAlt = oldIndex > 0;
-            var oldDefaultOutputPath = "";
+            string oldDefaultOutputPath;
             
             Console.WriteLine($"{Songs[i].SongName} from {oldIndex} => {i}");
 

@@ -8,8 +8,6 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
 {
     public MsuProject? Project { get; set; }
     [Reactive] public string MsuType { get; set; } = "";
-
-    [Reactive] public string Game { get; set; } = "";
     [Reactive] public string PackName { get; set; } = "";
     [Reactive] public string PackCreator { get; set; } = "";
     [Reactive] public string PackVersion { get; set; } = "";
@@ -18,8 +16,7 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     [Reactive] public string Url { get; set; } = ""; 
     
     [Reactive] public bool IsMsuPcmProject { get; set; }
-    [Reactive] public double? Normalization { get; set; } 
-    [Reactive] public bool? Dither { get; set; } 
+    [Reactive] public double? Normalization { get; set; }
     [Reactive] public DitherType DitherType { get; set; }
     public bool HasSeenDitherWarning { get; set; }
     [Reactive] public bool IncludeJson { get; set; }
@@ -38,7 +35,6 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     {
         Project = project;
         MsuType = project.MsuTypeName;
-        Game = project.BasicInfo.Game;
         
         PackName = project.BasicInfo.PackName ?? "";
         PackCreator = project.BasicInfo.PackCreator ?? "";
@@ -80,7 +76,6 @@ public class MsuBasicInfoViewModel : SavableViewModelBase
     public override void SaveChanges()
     {
         if (Project == null) return;
-        Project.BasicInfo.Game = Game;
         
         Project.BasicInfo.PackName = PackName;
         Project.BasicInfo.PackCreator = PackCreator;

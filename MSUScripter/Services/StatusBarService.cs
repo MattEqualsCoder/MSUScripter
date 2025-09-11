@@ -9,12 +9,12 @@ public class StatusBarService
 
     public StatusBarService(IAudioPlayerService audioPlayerService)
     {
-        audioPlayerService.PlayStarted += (sender, args) =>
+        audioPlayerService.PlayStarted += (_, _) =>
         {
             UpdateStatusBar("Playing Song");
         };
         
-        audioPlayerService.PlayStopped += (sender, args) =>
+        audioPlayerService.PlayStopped += (_, _) =>
         {
             UpdateStatusBar("Stopped Song");
         };

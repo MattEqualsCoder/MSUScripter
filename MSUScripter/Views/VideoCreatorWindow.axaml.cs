@@ -3,10 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using AvaloniaControls;
+using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using MSUScripter.Configs;
-using MSUScripter.Services;
 using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using FileInputControlType = AvaloniaControls.FileInputControlType;
 
@@ -14,8 +15,8 @@ namespace MSUScripter.Views;
 
 public partial class VideoCreatorWindow : Window
 {
-    private VideoCreatorWindowService? _service;
-    private VideoCreatorWindowViewModel _model;
+    private readonly VideoCreatorWindowService? _service;
+    private readonly VideoCreatorWindowViewModel _model;
     
     public VideoCreatorWindow()
     {
@@ -34,38 +35,42 @@ public partial class VideoCreatorWindow : Window
 
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_service?.CanCreateVideo != true) return;
+        try
+        {
+            if (_service?.CanCreateVideo != true) return;
         
-        var topLevel = GetTopLevel(this);
-
-        if (topLevel == null) return;
-
-        IStorageFolder? previousFolder;
-        if (!string.IsNullOrEmpty(_model.PreviousPath))
-        {
-            previousFolder = await topLevel.StorageProvider.TryGetFolderFromPathAsync(_model.PreviousPath);    
-        }
-        else
-        {
-            previousFolder = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
-        }
-
-        var file = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.SaveFile, "MP4 Video File:*.mp4",
-            previousFolder?.Path.LocalPath, "Select mp4 file");
-        
-        if (!string.IsNullOrEmpty(file?.Path.LocalPath))
-        {
-            var path = file.Path.LocalPath;
-            if (!path.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+            IStorageFolder? previousFolder;
+            if (!string.IsNullOrEmpty(_model.PreviousPath))
             {
-                path += ".mp4";
+                previousFolder = await StorageProvider.TryGetFolderFromPathAsync(_model.PreviousPath);    
+            }
+            else
+            {
+                previousFolder = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
             }
 
-            _service?.CreateVideo(path);
+            var file = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.SaveFile, "MP4 Video File:*.mp4",
+                previousFolder?.Path.LocalPath, "Select mp4 file");
+        
+            if (!string.IsNullOrEmpty(file?.Path.LocalPath))
+            {
+                var path = file.Path.LocalPath;
+                if (!path.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+                {
+                    path += ".mp4";
+                }
+
+                _service?.CreateVideo(path);
+            }
+            else
+            {
+                Close();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            Close();
+            _service?.LogError(ex, "Error testing audio levels");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 

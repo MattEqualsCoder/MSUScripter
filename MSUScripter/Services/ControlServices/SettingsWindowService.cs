@@ -1,11 +1,9 @@
-using System;
-using Avalonia;
-using Avalonia.Styling;
 using AvaloniaControls.ControlServices;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class SettingsWindowService(SettingsService settingsService) : ControlService
 {
     private readonly SettingsWindowViewModel _model = new();

@@ -5,10 +5,6 @@ namespace MSUScripter.Services;
 
 public interface IAudioPlayerService
 {
-    public static bool CanPlaySongs { get; protected set; }
-    
-    public string CurrentPlayingFile { get; protected set; }
-
     public void Pause();
 
     public void PlayPause();

@@ -15,7 +15,7 @@ public class SettingsService
     private readonly YamlService _yamlService;
     private readonly ILogger<SettingsService> _logger;
 
-    public Settings Settings { get; set; } = null!;
+    public Settings Settings { get; private set; } = null!;
 
     public SettingsService(YamlService yamlService, ILogger<SettingsService> logger)
     {
@@ -24,7 +24,7 @@ public class SettingsService
         LoadSettings();
     }
 
-    public void LoadSettings()
+    private void LoadSettings()
     {
         var settingsPath = GetSettingsPath();
         if (!File.Exists(settingsPath))

@@ -6,6 +6,7 @@ using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using AvaloniaControls.Services;
 using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -87,13 +88,13 @@ public partial class MsuSongOuterPanel : UserControl
 
     private async void PlaySongButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
-        {
-            return;
-        }
-
         try
         {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
+            
             _viewModel.SaveChanges();
             var message = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, false);
             if (!string.IsNullOrEmpty(message))
@@ -102,23 +103,21 @@ public partial class MsuSongOuterPanel : UserControl
                     TopLevel.GetTopLevel(this) as Window);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _ = MessageWindow.ShowErrorDialog("Could not play PCM file", "Error",
-                TopLevel.GetTopLevel(this) as Window);
+            _service?.LogError(ex, "Error playing song");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
-            
     }
 
     private async void TestLoopButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
-        {
-            return;
-        }
-        
         try
         {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
             _viewModel.SaveChanges();
             var message = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, true);
             if (!string.IsNullOrEmpty(message))
@@ -127,22 +126,22 @@ public partial class MsuSongOuterPanel : UserControl
                     TopLevel.GetTopLevel(this) as Window);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _ = MessageWindow.ShowErrorDialog("Could not play PCM file", "Error",
-                TopLevel.GetTopLevel(this) as Window);
+            _service?.LogError(ex, "Error playing song");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private async void GeneratePcmSplitButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
-        {
-            return;
-        }
-
         try
         {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
+            
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, false, false);
             if (!response.Successful)
@@ -151,22 +150,22 @@ public partial class MsuSongOuterPanel : UserControl
                     TopLevel.GetTopLevel(this) as Window);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _ = MessageWindow.ShowErrorDialog("Could not generate PCM file", "Error",
-                TopLevel.GetTopLevel(this) as Window);
+            _service?.LogError(ex, "Error generating PCM file");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private async void GenerateBlankPcmMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
-        {
-            return;
-        }
-        
         try
         {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
+            
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, false, true);
             if (!response.Successful)
@@ -175,22 +174,22 @@ public partial class MsuSongOuterPanel : UserControl
                     TopLevel.GetTopLevel(this) as Window);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _ = MessageWindow.ShowErrorDialog("Could not generate PCM file", "Error",
-                TopLevel.GetTopLevel(this) as Window);
+            _service?.LogError(ex, "Error generating PCM file");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private async void GeneratePrimaryPcmMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
-        {
-            return;
-        }
-        
         try
         {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
+            
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, true, false);
             if (!response.Successful)
@@ -199,10 +198,10 @@ public partial class MsuSongOuterPanel : UserControl
                     TopLevel.GetTopLevel(this) as Window);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _ = MessageWindow.ShowErrorDialog("Could not generate PCM file", "Error",
-                TopLevel.GetTopLevel(this) as Window);
+            _service?.LogError(ex, "Error generating PCM file");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
@@ -242,9 +241,10 @@ public partial class MsuSongOuterPanel : UserControl
                 _viewModel.DisplaySecondAudioLine = false;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            var a = "1";
+            _service?.LogError(ex, "Error testing audio levels");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 }

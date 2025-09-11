@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using MSURandomizerLibrary.Configs;
 using MSUScripter.Models;
-using MSUScripter.Tools;
 using YamlDotNet.Serialization;
 
 namespace MSUScripter.Configs;
@@ -16,13 +15,13 @@ public class MsuProject
     public string MsuPath { get; set; } = "";
     public string MsuTypeName { get; set; } = "";
     public DateTime LastSaveTime { get; set; }
-    public List<string> IgnoreWarnings { get; set; } = new();
+    public List<string> IgnoreWarnings { get; set; } = [];
     [YamlIgnore, SkipConvert]
     public MsuType MsuType { get; set; } = null!;
     [SkipConvert]
-    public MsuBasicInfo BasicInfo { get; set; } = new();
+    public MsuBasicInfo BasicInfo { get; init; } = new();
     [SkipConvert]
-    public List<MsuTrackInfo> Tracks { get; set; } = new();
+    public List<MsuTrackInfo> Tracks { get; set; } = [];
     public Dictionary<string, FileSampleInfo> SampleRates { get; set; } = [];
     [YamlIgnore, SkipConvert]
     public bool IsNewProject { get; set; }
@@ -30,6 +29,13 @@ public class MsuProject
     public string GetMsuGenerationCacheFilePath()
     {
         return Path.Combine(Directories.CacheFolder, "Generation", $"{Id}.yml");
+    }
+    
+    public string GetMsuGenerationTempFilePath(MsuSongInfo? song = null)
+    {
+        return song == null
+            ? Path.Combine(Directories.TempFolder, "Generation", Id)
+            : Path.Combine(Directories.TempFolder, "Generation", Id, song.Id);
     }
     
     public string GetYamlPath()
@@ -85,6 +91,6 @@ public class MsuProject
 
 public class FileSampleInfo
 {
-    public long FileLength { get; set; }
-    public int SampleRate { get; set; }
+    public long FileLength { get; init; }
+    public int SampleRate { get; init; }
 }

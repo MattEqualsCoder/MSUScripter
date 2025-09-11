@@ -7,7 +7,7 @@ namespace MSUScripter.ViewModels;
 
 public class AudioAnalysisSongViewModel : ViewModelBase
 {
-    public MsuSongInfo? MsuSongInfo { get; set; }
+    public MsuSongInfo? MsuSongInfo { get; init; }
         
     [Reactive] public string SongName { get; set; } = "";
     
@@ -15,7 +15,7 @@ public class AudioAnalysisSongViewModel : ViewModelBase
 
     [Reactive] public string TrackName { get; set; } = "";
 
-    [Reactive] public string Path { get; set; } = "";
+    [Reactive] public string Path { get; init; } = "";
     
     [Reactive] public double? AvgDecibels { get; set; }
     

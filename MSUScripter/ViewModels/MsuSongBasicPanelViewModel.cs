@@ -45,12 +45,10 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified] public int InputColumnSpan { get; set; } = 2;
     [Reactive, SkipLastModified] public int OutputColumn { get; set; } = 2;
     [Reactive, SkipLastModified] public int OutputColumnSpan { get; set; } = 2;
-    [Reactive, SkipLastModified] public ApplicationText Text { get; set; } = ApplicationText.CurrentLanguageText;
     [Reactive, SkipLastModified] public bool DisplaySampleRateWarning { get; set; }
     public MsuProject? Project { get; set; }
     public bool HasSelectedInputFile => !string.IsNullOrEmpty(InputFilePath);
-    
-    private MsuTrackInfo? _currentTrackInfo;
+
     private MsuSongInfo? _currentSongInfo;
     private MsuProjectWindowViewModelTreeData? _treeData;
     private bool _updatingModel;

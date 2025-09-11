@@ -17,18 +17,19 @@ public class AudioAnalysisService(
     IAudioPlayerService audioPlayerService,
     MsuPcmService msuPcmService,
     StatusBarService statusBarService,
-    ConverterService converterService,
     SharedPcmService sharedPcmService,
     PythonCompanionService pythonCompanionService,
     ILogger<AudioAnalysisService> logger)
 {
+    public MsuPcmService MsuPcmService { get; } = msuPcmService;
+
     public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = audioAnalysis.Project;
         
         await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
-            async (song, token) =>
+            async (song, _) =>
             {
                 await AnalyzePcmFile(project, song);
                 audioAnalysis.SongsCompleted++;
@@ -38,12 +39,6 @@ public class AudioAnalysisService(
         {
             sharedPcmService.SaveGenerationCache(project);    
         }
-    }
-    
-    public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
-    {
-        var project = converterService.ConvertProject(projectViewModel);
-        await AnalyzePcmFile(project, song);
     }
     
     public async Task AnalyzePcmFile(MsuProject? project, AudioAnalysisSongViewModel song)
@@ -70,35 +65,15 @@ public class AudioAnalysisService(
             var response = await sharedPcmService.GeneratePcmFile(project, song.MsuSongInfo, false, false, true);
             if (!response.Successful)
             {
-                if (File.Exists(song.Path))
-                {
-                    song.WarningMessage = "Could not generate new PCM file";    
-                }
-                else
-                {
-                    song.WarningMessage = "PCM file missing and could not be generated";
-                }
+                song.WarningMessage = File.Exists(song.Path)
+                    ? "Could not generate new PCM file"
+                    : "PCM file missing and could not be generated";
             }
         }
             
         var data = await AnalyzeAudio(song.Path);
         song.ApplyAudioAnalysis(data);
         logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
-    }
-    
-    private async Task<bool> GeneratePcmFile(MsuProject project, MsuSongInfo song)
-    {
-        var response = await msuPcmService.CreatePcm(project, song);
-        if (!response.GeneratedPcmFile)
-        {
-            logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, response.Message);
-        }
-        else
-        {
-            logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
-        }
-
-        return response.GeneratedPcmFile;
     }
 
     public int GetAudioSampleRate(string? path, out bool successful)
@@ -272,7 +247,7 @@ public class AudioAnalysisService(
         double sum = 0;
         var totalSampleCount = 0;
 
-        var samples = 0;
+        int samples;
         do
         {
             samples = sampleProvider.Read(readBuffer, 0, readBuffer.Length);
@@ -290,12 +265,12 @@ public class AudioAnalysisService(
         };
     }
 
-    public double ConvertToDecibel(float value)
+    private double ConvertToDecibel(float value)
     {
         return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
     }
-    
-    public double ConvertToDecibel(double value)
+
+    private double ConvertToDecibel(double value)
     {
         return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
     }

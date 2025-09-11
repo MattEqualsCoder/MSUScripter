@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -20,17 +19,17 @@ namespace MSUScripter.Services;
 
 public class MsuPcmInstallResponse
 {
-    public bool Success { get; set; }
-    public bool MissingSharedLibraries { get; set; }
+    public bool Success { get; init; }
+    public bool MissingSharedLibraries { get; init; }
 }
 
 public class MsuPcmJsonInfo
 {
-    public required string JsonFilePath { get; set; }
-    public required string JsonText { get; set; }
+    public required string JsonFilePath { get; init; }
+    public required string JsonText { get; init; }
 }
 
-public partial class MsuPcmService(
+public class MsuPcmService(
     ILogger<MsuPcmService> logger,
     Settings settings,
     StatusBarService statusBarService,
@@ -39,13 +38,12 @@ public partial class MsuPcmService(
     IAudioPlayerService audioPlayerService,
     DependencyInstallerService dependencyInstallerService)
 {
-    private const string WindowsDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm.exe";
-    private const string LinuxDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm";
-
     private string _cacheFolder2 = "";
     private string _msuPcmPath = string.Empty;
 
-    protected string CacheFolder
+    public bool IsGeneratingPcm { get; private set; }
+
+    private string CacheFolder
     {
         get
         {
@@ -182,28 +180,6 @@ public partial class MsuPcmService(
         }
     }
 
-    private string GetSongCacheFilePath(MsuProject project, MsuSongInfo song)
-    {
-        var projectFolter = Path.Combine(Directories.TempFolder, project.Id);
-        if (!Directory.Exists(projectFolter))
-        {
-            Directory.CreateDirectory(projectFolter);
-        }
-        return Path.Combine(Directories.CacheFolder, project.Id, song.Id + ".yml");
-    }
-
-    private string GetSongGenerationDirectory(MsuProject project, MsuSongInfo song)
-    {
-        var path = Path.Combine(Directories.TempFolder, project.Id, song.Id);
-        
-        if (!Directory.Exists(path))
-        {
-            Directory.CreateDirectory(path);
-        }
-
-        return path;
-    }
-
     public async Task<GeneratePcmFileResponse> CreatePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool isBulkGeneration)
     {
         if (!audioPlayerService.IsStopped)
@@ -225,8 +201,12 @@ public partial class MsuPcmService(
         }
         
         statusBarService.UpdateStatusBar("Generating PCM");
-        
-        var tempPath = GetSongGenerationDirectory(project, song);
+
+        var tempPath = project.GetMsuGenerationTempFilePath(song);
+        if (!Directory.Exists(tempPath))
+        {
+            Directory.CreateDirectory(tempPath);
+        }
         var tempJsonPath = Path.Combine(tempPath, "temp.json");
         var tempPcmPath = Path.Combine(tempPath, "temp.pcm");
         var jsonResponse = ExportMsuPcmTracksJson(project, song, tempJsonPath, tempPcmPath);
@@ -348,14 +328,14 @@ public partial class MsuPcmService(
         };
     }
 
-    public async Task<GeneratePcmFileResponse> CreatePcm(MsuProject project, MsuSongInfo song, bool addTrackDetailsToMessage = true)
+    private async Task<GeneratePcmFileResponse> CreatePcm(MsuProject project, MsuSongInfo song, bool addTrackDetailsToMessage = true)
     {
         if (!audioPlayerService.IsStopped)
         {
             await audioPlayerService.StopSongAsync(song.OutputPath);
         }
 
-        var message = "";
+        string? message;
         statusBarService.UpdateStatusBar("Generating PCM");
 
         var hasAlts = project.Tracks.First(x => x.TrackNumber == song.TrackNumber).Songs.Count > 1;
@@ -533,7 +513,7 @@ public partial class MsuPcmService(
 
     }
 
-    public bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)
+    private bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)
     {
         numFiles = 0;
         
@@ -566,7 +546,7 @@ public partial class MsuPcmService(
         return true;
     }
 
-    public bool ValidatePcm(string path, out string? error)
+    private bool ValidatePcm(string path, out string? error)
     {
         if (!File.Exists(path))
         {
@@ -578,7 +558,7 @@ public partial class MsuPcmService(
         using (var reader = new BinaryReader(new FileStream(path, FileMode.Open)))
         {
             reader.BaseStream.Seek(0, SeekOrigin.Begin);
-            reader.Read(testBytes, 0, 8);
+            _ = reader.Read(testBytes, 0, 8);
         }
 
         if (Encoding.UTF8.GetString(testBytes, 0, 4) != "MSU1")
@@ -595,14 +575,12 @@ public partial class MsuPcmService(
             error = null;
             return true;
         }
-        else
-        {
-            error = "Bad loop point specified";
-            return false;
-        }
+
+        error = "Bad loop point specified";
+        return false;
     }
 
-    public bool RunMsuPcm(string trackJson, string expectedOutputPath, out string error)
+    private bool RunMsuPcm(string trackJson, string expectedOutputPath, out string error)
     {
         IsGeneratingPcm = true;
         var toReturn = RunMsuPcmInternal("\"" + trackJson + "\"", expectedOutputPath, out _, out error);
@@ -686,9 +664,11 @@ public partial class MsuPcmService(
 
         var key = BitConverter.ToString(sha1.ComputeHash(Encoding.UTF8.GetBytes(outputPath))).Replace("-", "");
         
-        var paths = new List<string>();
-        paths.Add(jsonPath);
-        paths.Add(outputPath);
+        var paths = new List<string>
+        {
+            jsonPath,
+            outputPath
+        };
         paths.AddRange(inputPaths);
         
         var hashes = new List<string>();
@@ -833,6 +813,7 @@ public partial class MsuPcmService(
         
         bool? ditherValue = project.BasicInfo.DitherType switch
         {
+            DitherType.Default => null,
             DitherType.All => true,
             DitherType.None => false,
             DitherType.DefaultOn => singleSong?.MsuPcmInfo.Dither ?? true,
@@ -884,15 +865,8 @@ public partial class MsuPcmService(
         statusBarService.UpdateStatusBar("PCM Generation Failed");
     }
     
-    public bool IsGeneratingPcm { get; private set; }
-
-    private string TempFilePath => Path.Combine(Directories.BaseFolder, "tmp-pcm.pcm");
-
     private string CleanMsuPcmResponse(string input)
     {
         return Regex.Replace(input.ReplaceLineEndings(""), @"\s[`'][^`']+\.pcm[`']\s", " ");
     }
-
-    [GeneratedRegex("[^a-zA-Z0-9 -]")]
-    private static partial Regex NonAlphanumericRegex();
 }

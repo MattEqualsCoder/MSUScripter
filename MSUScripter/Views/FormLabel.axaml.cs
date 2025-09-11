@@ -3,7 +3,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml;
 
 namespace MSUScripter.Views;
 
@@ -17,14 +16,9 @@ public partial class FormLabel : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        if (ToolTipText.Length > ToolTipCharacterLimit)
-        {
-            AbbreviatedToolTip = string.Concat(ToolTipText.AsSpan(0, ToolTipCharacterLimit - 3), "...");
-        }
-        else
-        {
-            AbbreviatedToolTip = ToolTipText;
-        }
+        AbbreviatedToolTip = ToolTipText.Length > ToolTipCharacterLimit
+            ? string.Concat(ToolTipText.AsSpan(0, ToolTipCharacterLimit - 3), "...")
+            : ToolTipText;
         UpdateStretch();
     }
 
@@ -46,14 +40,10 @@ public partial class FormLabel : UserControl
         set
         {
             SetValue(ToolTipTextProperty, value);
-            if (value.Length > ToolTipCharacterLimit)
-            {
-                SetValue(AbbreviatedToolTipProperty, string.Concat(value.AsSpan(0, ToolTipCharacterLimit - 3), "..."));
-            }
-            else
-            {
-                SetValue(AbbreviatedToolTipProperty, value);
-            }
+            SetValue(AbbreviatedToolTipProperty,
+                value.Length > ToolTipCharacterLimit
+                    ? string.Concat(value.AsSpan(0, ToolTipCharacterLimit - 3), "...")
+                    : value);
         }
     }
     
@@ -105,8 +95,8 @@ public partial class FormLabel : UserControl
             UpdateStretch();
         }
     }
-    
-    public void UpdateStretch()
+
+    private void UpdateStretch()
     {
         var grid = this.Get<Grid>(nameof(MainGrid));
         if (Stretch)

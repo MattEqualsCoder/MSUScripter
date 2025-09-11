@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Avalonia.Platform.Storage;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class CopyProjectWindowViewModel : ViewModelBase
+public class CopyProjectWindowViewModel : TranslatedViewModelBase
 {
     [Reactive] public MsuProject? OriginalProject { get; set; }
 
@@ -15,7 +14,7 @@ public class CopyProjectWindowViewModel : ViewModelBase
     
     [Reactive] public MsuProject? SavedProject { get; set; }
     
-    [Reactive] public List<CopyProjectViewModel> Paths { get; set; } = new();
+    [Reactive] public List<CopyProjectViewModel> Paths { get; set; } = [];
 
     [Reactive] public bool IsValid { get; set; }
     
@@ -69,13 +68,6 @@ public class CopyProjectViewModel : ViewModelBase
 
     public bool IsSongFile => !Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase) &&
                               !Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase);
-    public List<FilePickerFileType>? FileTypePatterns =>
-        string.IsNullOrEmpty(Extension)
-            ? null
-            : new List<FilePickerFileType>
-            {
-                new($"{Extension} File") { Patterns = new List<string> { $"*{Extension}" } }
-            };
 
     public override ViewModelBase DesignerExample()
     {

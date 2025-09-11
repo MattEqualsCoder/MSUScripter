@@ -8,6 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class AudioControlService(IAudioPlayerService audioService, SettingsService settingsService) : ControlService
 {
     private readonly AudioControlViewModel _model = new();

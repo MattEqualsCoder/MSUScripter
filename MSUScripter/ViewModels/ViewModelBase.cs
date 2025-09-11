@@ -30,9 +30,9 @@ public abstract class ViewModelBase : ReactiveObject
                     HasBeenModified = true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var a = "1";
+                // TODO: Log
             }
         };
     }
@@ -41,7 +41,7 @@ public abstract class ViewModelBase : ReactiveObject
     
     [Reactive, SkipConvert, SkipLastModified] public DateTime LastModifiedDate { get; set; }
     [Reactive, SkipConvert, SkipLastModified] public bool HasBeenModified { get; set; }
-    private HashSet<string> SkipLastModifiedProperties { get; } = [];
+    private HashSet<string> SkipLastModifiedProperties { get; }
 
 
 }

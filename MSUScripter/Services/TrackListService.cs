@@ -145,14 +145,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 
             foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
             {
-                if (isVariant)
-                {
-                    sb.AppendLine(GetTrackListSongInfoVariant(song));
-                }
-                else
-                {
-                    sb.AppendLine(GetTrackListSongInfo(song));
-                }
+                sb.AppendLine(isVariant ? GetTrackListSongInfoVariant(song) : GetTrackListSongInfo(song));
             }
 
             sb.AppendLine();

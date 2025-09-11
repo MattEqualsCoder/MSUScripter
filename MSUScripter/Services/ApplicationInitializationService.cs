@@ -11,7 +11,7 @@ namespace MSUScripter.Services;
 
 public class ApplicationInitializationService(ILogger<ApplicationInitializationService> logger)
 {
-    public void Initialize(string[] args)
+    public void Initialize()
     {
         logger.LogInformation("Assembly Location: {Location}", Assembly.GetExecutingAssembly().Location);
         logger.LogInformation("Starting MSU Scripter {Version}", GetAppVersion());

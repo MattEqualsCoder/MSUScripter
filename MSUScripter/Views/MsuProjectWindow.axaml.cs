@@ -27,15 +27,15 @@ public partial class MsuProjectWindow : RestorableWindow
     private readonly MsuProjectWindowViewModel? _viewModel;
     private readonly MsuProjectWindowService? _service;
     private readonly Action _performTextFilter;
-    protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "project-window.json");
-    protected override int DefaultWidth => 1280;
-    protected override int DefaultHeight => 800;
+    private readonly MainWindow? _parentWindow;
+    private readonly Timer _backupTimer = new(TimeSpan.FromSeconds(60));
     private ContextMenu? _currentContextMenu;
     private MsuProjectWindowViewModelTreeData? _draggedTreeItem;
     private MsuProjectWindowViewModelTreeData? _hoverValue;
-    private MainWindow? _parentWindow;
-    private readonly Timer _backupTimer = new(TimeSpan.FromSeconds(60));
+    private MsuProjectWindowViewModelTreeData? _previousHoverTreeItem;
+    private bool _forceClose;
     
+    // ReSharper disable once UnusedMember.Global
     public MsuProjectWindow()
     {
         InitializeComponent();
@@ -56,6 +56,10 @@ public partial class MsuProjectWindow : RestorableWindow
         _backupTimer.Start();
         AddHandler(DragDrop.DropEvent, DropFile);
     }
+    
+    protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "project-window.json");
+    protected override int DefaultWidth => 1280;
+    protected override int DefaultHeight => 800;
 
     private void DropFile(object? sender, DragEventArgs e)
     {
@@ -201,8 +205,6 @@ public partial class MsuProjectWindow : RestorableWindow
         _service?.UpdateDrag(null);
     }
 
-    private MsuProjectWindowViewModelTreeData? previousHoverTreeItem;
-    
     private void TreeItemInputElement_OnPointerEntered(object? sender, PointerEventArgs e)
     {
         if (_viewModel?.IsDraggingItem == true) return;
@@ -211,10 +213,10 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
 
-        if (previousHoverTreeItem != null)
+        if (_previousHoverTreeItem != null)
         {
-            previousHoverTreeItem.ShowAddButton = false;
-            previousHoverTreeItem.ShowMenuButton = false;
+            _previousHoverTreeItem.ShowAddButton = false;
+            _previousHoverTreeItem.ShowMenuButton = false;
         }
 
         if (treeData.TrackInfo != null || treeData.SongInfo != null)
@@ -227,7 +229,7 @@ public partial class MsuProjectWindow : RestorableWindow
             treeData.ShowMenuButton = true;
         }
         
-        previousHoverTreeItem = treeData;
+        _previousHoverTreeItem = treeData;
     }
 
     private void TreeItemInputElement_OnPointerExited(object? sender, PointerEventArgs e)
@@ -240,7 +242,7 @@ public partial class MsuProjectWindow : RestorableWindow
 
         treeData.ShowAddButton = false;
         treeData.ShowMenuButton = false;
-        previousHoverTreeItem = null;
+        _previousHoverTreeItem = null;
     }
 
     private void DisplayIsCompleteMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -329,9 +331,10 @@ public partial class MsuProjectWindow : RestorableWindow
             var songYaml = _service?.GetSongCopyDetails(treeData);
             await this.SetClipboardAsync(songYaml);
         }
-        catch
+        catch (Exception ex)
         {
-            // Do nothing
+            _service?.LogError(ex, "Error copying song");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this);
         }
     }
     
@@ -353,9 +356,10 @@ public partial class MsuProjectWindow : RestorableWindow
             _service?.PasteSongDetails(treeData, songYaml);
             _viewModel.MsuSongViewModel.UpdateViewModel(_viewModel.MsuProject!, treeData.TrackInfo!, treeData.SongInfo, treeData);
         }
-        catch
+        catch (Exception ex)
         {
-            // Do nothing
+            _service?.LogError(ex, "Error pasting song");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this);
         }
     }
 
@@ -556,9 +560,7 @@ public partial class MsuProjectWindow : RestorableWindow
         if (string.IsNullOrEmpty(_viewModel?.MsuProject?.MsuPath)) return;
         CrossPlatformTools.OpenDirectory(_viewModel.MsuProject.MsuPath, true);
     }
-
-    private bool _forceClose = false;
-
+    
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
         _service?.SaveCurrentPanel();
@@ -606,9 +608,10 @@ public partial class MsuProjectWindow : RestorableWindow
                 Close();
             }
         }
-        catch (Exception exception)
+        catch (Exception ex)
         {
-            Console.WriteLine(exception);
+            _service?.LogError(ex, "Error selecting msu to open");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this);
         }
     }
 

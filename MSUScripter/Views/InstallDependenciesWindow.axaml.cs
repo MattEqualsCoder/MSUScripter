@@ -10,8 +10,8 @@ namespace MSUScripter.Views;
 
 public partial class InstallDependenciesWindow : ScalableWindow
 {
-    private InstallDependenciesWindowService? _service;
-    private InstallDependenciesWindowViewModel _viewModel;
+    private readonly InstallDependenciesWindowService? _service;
+    private readonly InstallDependenciesWindowViewModel _viewModel;
     
     public InstallDependenciesWindow()
     {

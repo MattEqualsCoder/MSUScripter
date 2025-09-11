@@ -4,13 +4,19 @@ using System.Linq;
 using System.Threading;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService, IMsuLookupService msuLookupService, MsuPcmService msuPcmService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class AudioAnalysisWindowService(
+    AudioAnalysisService audioAnalysisService,
+    IMsuLookupService msuLookupService,
+    MsuPcmService msuPcmService,
+    ILogger<AudioAnalysisWindowService> logger) : ControlService
 {
     private readonly AudioAnalysisViewModel _model = new();
     private readonly CancellationTokenSource _cts = new();
@@ -38,7 +44,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
             .Select(x => new AudioAnalysisSongViewModel()
             {
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
-                TrackName = x.TrackName,
+                TrackName = x.TrackName ?? $"Track {x.TrackNumber}",
                 TrackNumber = x.TrackNumber,
                 Path = x.OutputPath ?? "",
                 MsuSongInfo = x,
@@ -76,12 +82,12 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
         var songs = msu.Tracks
             .OrderBy(x => x.Number)
-            .Select(x => new AudioAnalysisSongViewModel()
+            .Select(x => new AudioAnalysisSongViewModel
             {
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.Path).FullName),
                 TrackName = x.TrackName,
                 TrackNumber = x.Number,
-                Path = x.Path ?? "",
+                Path = x.Path,
                 MsuSongInfo = null,
                 CanRefresh = false
             })
@@ -136,6 +142,11 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
     public void Stop()
     {
         _cts.Cancel();
+    }
+
+    public void LogError(Exception e, string message)
+    {
+        logger.LogError(e, "{Message}", message);
     }
 
     public event EventHandler? Completed;

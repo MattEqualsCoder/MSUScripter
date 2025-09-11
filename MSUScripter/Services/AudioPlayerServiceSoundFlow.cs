@@ -17,13 +17,13 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
     private readonly ILogger<AudioPlayerServiceSoundFlow> _logger;
     private readonly Settings _settings;
     private SoundPlayer? _soundPlayer;
+    // ReSharper disable once NotAccessedField.Local
     private MiniAudioEngine _audioEngine;
 
     public AudioPlayerServiceSoundFlow(ILogger<AudioPlayerServiceSoundFlow> logger, Settings settings)
     {
         _logger = logger;
         _settings = settings;
-        IAudioPlayerService.CanPlaySongs = true;
         _audioEngine = new MiniAudioEngine(44100, Capability.Playback);
     }
 

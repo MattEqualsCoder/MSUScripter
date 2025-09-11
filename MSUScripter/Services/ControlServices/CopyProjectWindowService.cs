@@ -4,16 +4,17 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
-using AvaloniaControls;
 using AvaloniaControls.ControlServices;
+using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class CopyProjectWindowService(ConverterService converterService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class CopyProjectWindowService(ConverterService converterService, ILogger<CopyProjectWindowService> logger) : ControlService
 {
-    private CopyProjectWindowViewModel _model = new();
+    private readonly CopyProjectWindowViewModel _model = new();
 
     public CopyProjectWindowViewModel InitializeModel()
     {
@@ -134,6 +135,11 @@ public class CopyProjectWindowService(ConverterService converterService) : Contr
         }
         
         _model.SavedProject = _model.NewProject;
+    }
+
+    public void LogError(Exception e, string message)
+    {
+        logger.LogError(e, "{Message}", message);
     }
     
     private void UpdateSongPaths(MsuSongInfo song, CopyProjectViewModel update, string oldMsuPath, string newMsuPath)

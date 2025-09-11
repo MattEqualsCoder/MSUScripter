@@ -6,12 +6,22 @@ using Avalonia.Media;
 using AvaloniaControls.ControlServices;
 using DynamicData;
 using Material.Icons;
+using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuProjectWindowService(ConverterService converterService, YamlService yamlService, StatusBarService statusBarService, ProjectService projectService, TrackListService trackListService, SettingsService settingsService, IAudioPlayerService audioPlayerService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class MsuProjectWindowService(
+    ConverterService converterService,
+    YamlService yamlService,
+    StatusBarService statusBarService,
+    ProjectService projectService,
+    TrackListService trackListService,
+    SettingsService settingsService,
+    IAudioPlayerService audioPlayerService,
+    ILogger<MsuProjectWindowService> logger) : ControlService
 {
     private Settings Settings => settingsService.Settings;
     
@@ -161,7 +171,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         _viewModel.FilterOnlyMissingAudio = Settings.ProjectTreeFilterOnlyMissingAudio;
         FilterTree();
 
-        statusBarService.StatusBarTextUpdated += (sender, args) =>
+        statusBarService.StatusBarTextUpdated += (_, args) =>
         {
             _viewModel.StatusBarText = args.Data;
         };
@@ -173,7 +183,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
 
         _viewModel.LastModifiedDate = project.LastSaveTime;
 
-        _viewModel.BasicInfoViewModel.PropertyChanged += (sender, args) =>
+        _viewModel.BasicInfoViewModel.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == "PackName")
             {
@@ -313,7 +323,6 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             _viewModel.CurrentTreeItem = treeData;
             _viewModel.BasicInfoViewModel.UpdateModel(_project);
             _viewModel.BasicInfoViewModel.IsVisible = true;
-            Console.WriteLine("Opened MSU Details");
         }
     }
 
@@ -352,12 +361,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             return false;
         }
 
-        if (_project.BasicInfo.IsSmz3Project && _project.BasicInfo.CreateSplitSmz3Script && !projectService.CreateSmz3SplitRandomizerYaml(_project, false, false, out error))
-        {
-            return false;
-        }
-
-        return true;
+        return _project.BasicInfo is not { IsSmz3Project: true, CreateSplitSmz3Script: true } ||
+               projectService.CreateSmz3SplitRandomizerYaml(_project, false, false, out error);
     }
     
     public void CreateTrackList()
@@ -408,8 +413,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         if (duplicate && treeData.SongInfo != null)
         {
             var outputPath = newSong.OutputPath ?? newSong.MsuPcmInfo.Output;
-            if (converterService.ConvertViewModel(treeData.SongInfo, newSong) &&
-                converterService.ConvertViewModel(treeData.SongInfo.MsuPcmInfo, newSong.MsuPcmInfo))
+            if (converterService.CloneModel(treeData.SongInfo, newSong) &&
+                converterService.CloneModel(treeData.SongInfo.MsuPcmInfo, newSong.MsuPcmInfo))
             {
                 newSong.Id = Guid.NewGuid().ToString("N");
                 newSong.OutputPath = outputPath;
@@ -514,6 +519,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(initialFile);    
         }
         
+        logger.LogInformation("Successfully added new song");
+        
         _viewModel.LastModifiedDate = DateTime.Now;
     }
 
@@ -539,15 +546,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                 _viewModel.TreeItems.Remove(itemToRemove);
             }
 
-            if (trackInfo.Songs.Count == 1)
-            {
-                parentTreeData.SongInfo = trackInfo.Songs[0];
-            }
-            else
-            {
-                parentTreeData.SongInfo = null;
-            }
-            
+            parentTreeData.SongInfo = trackInfo.Songs.Count == 1 ? trackInfo.Songs[0] : null;
             parentTreeData.ChildTreeData.Clear();
             parentTreeData.ToggleAsParent(false, false);
             parentTreeData.UpdateCompletedFlag();
@@ -563,6 +562,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             _viewModel.SelectedTreeItem = parentTreeData.ChildTreeData.First();
         }
         
+        logger.LogInformation("Removed song");
         UpdateCompletedSummary();
         _viewModel.LastModifiedDate = DateTime.Now;
     }
@@ -581,7 +581,6 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
                     _draggedItem.ParentIndex == _hoveredItem.ParentIndex &&
                     _draggedItem.SortIndex == _hoveredItem.SortIndex + 1))
             {
-                Console.WriteLine($"Dragged {_draggedItem.Name} to {_hoveredItem.Name}");
                 HandleDragged(_draggedItem, _hoveredItem);
             }
             
@@ -594,7 +593,6 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             _hoveredItem = null;
             _draggedItem = treeData;
             _viewModel.IsDraggingItem = true;
-            Console.WriteLine($"Started dragging {treeData.Name}");
         }
     }
 
@@ -616,6 +614,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             treeData.ParentTreeData?.UpdateCompletedFlag();
         }
         
+        logger.LogInformation("Updated completed flag");
         _viewModel.LastModifiedDate = DateTime.Now;
     }
 
@@ -630,38 +629,18 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled)
             {
-                if (_viewModel.MsuSongViewModel.BasicPanelViewModel.CheckCopyright != true)
-                {
-                    _viewModel.MsuSongViewModel.BasicPanelViewModel.CheckCopyright = true;
-                }
-                else
-                {
-                    _viewModel.MsuSongViewModel.BasicPanelViewModel.CheckCopyright = false;
-                }
+                _viewModel.MsuSongViewModel.BasicPanelViewModel.CheckCopyright =
+                    _viewModel.MsuSongViewModel.BasicPanelViewModel.CheckCopyright != true;
             }
             else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsEnabled)
             {
-                if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.CheckCopyright != true)
-                {
-                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CheckCopyright = true;
-                }
-                else
-                {
-                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CheckCopyright = false;
-                }
+                _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CheckCopyright = 
+                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CheckCopyright != true;
             }
         }
         else
         {
-            if (treeData.SongInfo.CheckCopyright != true)
-            {
-                treeData.SongInfo.CheckCopyright = true;
-            }
-            else
-            {
-                treeData.SongInfo.CheckCopyright = false;
-            }
-            
+            treeData.SongInfo.CheckCopyright = treeData.SongInfo.CheckCopyright != true;
             treeData.UpdateCompletedFlag();
             treeData.ParentTreeData?.UpdateCompletedFlag();
         }
@@ -680,33 +659,23 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled)
             {
-                if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe == true)
-                {
-                    _viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe = null;
-                }
-                if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe == false)
-                {
-                    _viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe = true;
-                }
-                else
-                {
-                    _viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe = false;
-                }
+                _viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe =
+                    _viewModel.MsuSongViewModel.BasicPanelViewModel.IsCopyrightSafe switch
+                    {
+                        true => null,
+                        false => true,
+                        null => false
+                    };
             }
             else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsEnabled)
             {
-                if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe == true)
-                {
-                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe = null;
-                }
-                if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe == false)
-                {
-                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe = true;
-                }
-                else
-                {
-                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe = false;
-                }
+                _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe =
+                    _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsCopyrightSafe switch
+                    {
+                        true => null,
+                        false => true,
+                        null => false
+                    };
             }
         }
         else
@@ -749,6 +718,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             return;
         }
+        
+        
 
         var destinationTrack = to.TrackInfo;
         int destinationIndex;
@@ -760,6 +731,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
         {
             destinationIndex = destinationParent.ChildTreeData.IndexOf(to) + 1;
         }
+        
+        logger.LogInformation("Dragged song {Name} to {Destination} #{Index}", from.SongInfo.SongName, to.TrackInfo.TrackName, destinationIndex);
 
         if (currentParent == destinationParent && destinationIndex > destinationParent.ChildTreeData.IndexOf(from))
         {
@@ -893,6 +866,8 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, destinationTrack, from.SongInfo, newTreeData);
             _viewModel.SelectedTreeItem = newTreeData;
         }
+        
+        logger.LogInformation("HandleDragged complete");
     }
 
     public void UpdateHover(MsuProjectWindowViewModelTreeData? treeData)
@@ -1011,7 +986,7 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
     {
         
         MsuSongInfo output = new();
-        if (treeData.SongInfo == null || !converterService.ConvertViewModel(treeData.SongInfo, output) || !converterService.ConvertViewModel(treeData.SongInfo.MsuPcmInfo, output.MsuPcmInfo))
+        if (treeData.SongInfo == null || !converterService.CloneModel(treeData.SongInfo, output) || !converterService.CloneModel(treeData.SongInfo.MsuPcmInfo, output.MsuPcmInfo))
         {
             return null;
         }
@@ -1065,31 +1040,25 @@ public class MsuProjectWindowService(ConverterService converterService, YamlServ
 
     public void DragDropFile(string filePath)
     {
-        if (_viewModel.CurrentTreeItem?.TrackInfo == null)
+        if (_viewModel.CurrentTreeItem?.TrackInfo == null || _viewModel.CurrentTreeItem?.SongInfo != null)
         {
-            Console.WriteLine("Ignore");
-            var a = "a";
             return;
         }
         
-        if (_viewModel.CurrentTreeItem?.SongInfo != null)
+        logger.LogInformation("Dragged {File} to {Track}", filePath, _viewModel.MsuSongViewModel.TrackInfo!.TrackNumber);
+        
+        if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled)
         {
-            if (_viewModel.MsuSongViewModel.BasicPanelViewModel.IsEnabled)
-            {
-                Console.WriteLine("Update Basic");
-                _viewModel.MsuSongViewModel.BasicPanelViewModel.DragDropFile(filePath);
-                
-            }
-            else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsEnabled && _viewModel.MsuSongViewModel.AdvancedPanelViewModel.CurrentTreeItem.MsuPcmInfo != null)
-            {
-                Console.WriteLine("Update Advanced");
-                _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(filePath);
-            }
+            _viewModel.MsuSongViewModel.BasicPanelViewModel.DragDropFile(filePath);  
         }
-        else
+        else if (_viewModel.MsuSongViewModel.AdvancedPanelViewModel is { IsEnabled: true, CurrentTreeItem.MsuPcmInfo: not null })
         {
-            AddNewSong(_viewModel.CurrentTreeItem);
-            Console.WriteLine("Create New Song");
+            _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(filePath);
         }
+    }
+
+    public void LogError(Exception ex, string message)
+    {
+        logger.LogError(ex, "{Message}", message);
     }
 }

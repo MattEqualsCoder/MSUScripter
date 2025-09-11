@@ -5,7 +5,7 @@ using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuGenerationViewModel : ViewModelBase
+public class MsuGenerationViewModel : TranslatedViewModelBase
 {
     [Reactive] public MsuProject MsuProject { get; set; } = new();
     [Reactive] public List<MsuGenerationRowViewModel> Rows { get; set; } = [];

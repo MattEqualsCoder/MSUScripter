@@ -3,21 +3,28 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AvaloniaControls.Controls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
+using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MsuSongPanelService(ConverterService converterService, YamlService yamlService, AudioMetadataService audioMetadataService, SharedPcmService sharedPcmService, AudioAnalysisService audioAnalysisService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class MsuSongPanelService(
+    ConverterService converterService,
+    YamlService yamlService,
+    AudioMetadataService audioMetadataService,
+    SharedPcmService sharedPcmService,
+    AudioAnalysisService audioAnalysisService,
+    ILogger<MsuSongPanelService> logger) : ControlService
 {
     public string? GetMsuPcmInfoCopyText(MsuSongMsuPcmInfo msuPcmInfo)
     {
         MsuSongMsuPcmInfo output = new();
-        if (!converterService.ConvertViewModel(msuPcmInfo, output))
+        if (!converterService.CloneModel(msuPcmInfo, output))
         {
             return null;
         }
@@ -47,14 +54,14 @@ public class MsuSongPanelService(ConverterService converterService, YamlService 
 
     public MsuSongMsuPcmInfo? GetMsuPcmInfoFromText(string yaml)
     {
-        yamlService.FromYaml<MsuSongMsuPcmInfo>(yaml, YamlType.PascalIgnoreDefaults, out var data, out var error);
+        yamlService.FromYaml<MsuSongMsuPcmInfo>(yaml, YamlType.PascalIgnoreDefaults, out var data, out _);
         return data;
     }
     
     public MsuSongMsuPcmInfo? DuplicateMsuPcmInfo(MsuSongMsuPcmInfo info)
     {
         MsuSongMsuPcmInfo output = new();
-        return !converterService.ConvertViewModel(info, output) ? null : info;
+        return !converterService.CloneModel(info, output) ? null : info;
     }
 
     public AudioMetadata GetAudioMetadata(string filename)
@@ -193,5 +200,10 @@ public class MsuSongPanelService(ConverterService converterService, YamlService 
         
         var output = await audioAnalysisService.AnalyzeAudio(song.OutputPath);
         return output;
+    }
+
+    public void LogError(Exception ex, string message)
+    {
+        logger.LogError(ex, "{Message}", message);
     }
 }

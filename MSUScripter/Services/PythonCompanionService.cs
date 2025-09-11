@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,18 +14,9 @@ namespace MSUScripter.Services;
 
 public class PythonCompanionService(ILogger<PythonCompanionService> logger, YamlService yamlService, DependencyInstallerService dependencyInstallerService)
 {
-    private enum PythonCompanionServiceMode
-    {
-        Unknown,
-        Direct,
-        Installed,
-        Py,
-        Python3
-    }
-    
     private const string BaseCommand = "py_msu_scripter_app";
     private const string MinVersion = "v0.1.4";
-    private PythonCompanionServiceMode _runMethod = PythonCompanionServiceMode.Unknown;
+    private RunMethod _runMethod = RunMethod.Unknown;
     private string? _pythonExecutablePath;
     private string? _ffmpegPath;
     
@@ -41,7 +31,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
             return false;
         }
         
-        _runMethod = PythonCompanionServiceMode.Unknown;
+        _runMethod = RunMethod.Unknown;
         _pythonExecutablePath = null;
         var response = RunCommand("--version");
 
@@ -59,8 +49,8 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         
         return IsValid;
     }
-    
-    public bool VerifyFfMpeg()
+
+    private bool VerifyFfMpeg()
     {
         var ffmpegFolder = Path.Combine(Directories.Dependencies, "ffmpeg", "bin");
         var ffmpegAppName = OperatingSystem.IsWindows() ? "ffmpeg.exe" : "ffmpeg";
@@ -100,19 +90,18 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         {
             return installedResult;
         }
-        else if (installedResult.Success && installedResult.Result.Equals("") && installedResult.Error.Equals("") && attempt > 0)
+
+        if (installedResult is { Success: true, Result: "", Error: "" } && attempt > 0)
         {
             logger.LogWarning("FFmpeg completed successfully without result. Retrying");
             return ValidateInstalledFfmpeg(ffmpegPath, attempt - 1);
         }
-        else
+
+        return new RunPyResult()
         {
-            return new RunPyResult()
-            {
-                Success = false,
-                Error = string.IsNullOrEmpty(installedResult.Error) ? "Unknown error running PyMusicLooper" : installedResult.Error
-            };
-        }
+            Success = false,
+            Error = string.IsNullOrEmpty(installedResult.Error) ? "Unknown error running PyMusicLooper" : installedResult.Error
+        };
     }
 
     public async Task<bool> InstallPyApp(Action<string> response)
@@ -208,7 +197,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         {
             logger.LogError("Unable to call ffprobe: {Result} | {Error}", ffprobeResponse.Result, ffprobeResponse.Error);
 
-            if (ffprobeResponse.Success && ffprobeResponse.Result.Equals("") && ffprobeResponse.Error.Equals(""))
+            if (ffprobeResponse is { Success: true, Result: "", Error: "" })
             {
                 attempts--;
                 if (attempts > 0)
@@ -347,7 +336,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         {
             logger.LogError(e, "Failed running PythonCompanionService");
             var response = Activator.CreateInstance<TResponse>();
-            response!.Successful = false;
+            response.Successful = false;
             response.Error =  "Failed running PythonCompanionService";
             return response;
         }
@@ -357,32 +346,32 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
     {
         switch (_runMethod)
         {
-            case PythonCompanionServiceMode.Unknown:
+            case RunMethod.Unknown:
                 var result = RunInternalInstalled(command, redirectOutput, cancellationToken);
                 if (result.Success)
                 {
-                    _runMethod = PythonCompanionServiceMode.Installed;
+                    _runMethod = RunMethod.Installed;
                     return result;
                 }
 
                 result = RunInternalDirect(command, redirectOutput, cancellationToken);
                 if (result.Success)
                 {
-                    _runMethod = PythonCompanionServiceMode.Direct;
+                    _runMethod = RunMethod.Direct;
                     return result;
                 }
                 
                 result = RunInternalPy(command, redirectOutput, cancellationToken);
                 if (result.Success)
                 {
-                    _runMethod = PythonCompanionServiceMode.Py;
+                    _runMethod = RunMethod.Py;
                     return result;
                 }
                 
                 result = RunInternalPython3(command, redirectOutput, cancellationToken);
                 if (result.Success)
                 {
-                    _runMethod = PythonCompanionServiceMode.Python3;
+                    _runMethod = RunMethod.Python3;
                     return result;
                 }
                 
@@ -392,13 +381,13 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                     Error = "No valid run type found"
                 };
                 
-            case PythonCompanionServiceMode.Installed:
+            case RunMethod.Installed:
                 return RunInternalInstalled(command, redirectOutput, cancellationToken);
-            case PythonCompanionServiceMode.Direct:
+            case RunMethod.Direct:
                 return RunInternalDirect(command, redirectOutput, cancellationToken);
-            case PythonCompanionServiceMode.Py:
+            case RunMethod.Py:
                 return RunInternalPy(command, redirectOutput, cancellationToken);
-            case PythonCompanionServiceMode.Python3:
+            case RunMethod.Python3:
                 return RunInternalPython3(command, redirectOutput, cancellationToken);
             default:
                 return new RunPyResult
@@ -425,14 +414,9 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         
         if (!string.IsNullOrEmpty(exePath) && Directory.Exists(Path.Combine(exePath, "python")))
         {
-            if (OperatingSystem.IsLinux())
-            {
-                _pythonExecutablePath = Path.Combine(exePath, "python", "bin", "python3.13");
-            }
-            else
-            {
-                _pythonExecutablePath = Path.Combine(exePath, "python", "python.exe");
-            }
+            _pythonExecutablePath = OperatingSystem.IsLinux()
+                ? Path.Combine(exePath, "python", "bin", "python3.13")
+                : Path.Combine(exePath, "python", "python.exe");
 
             if (!File.Exists(_pythonExecutablePath))
             {
@@ -465,22 +449,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
     {
         return RunInternal("python3", $"-m {BaseCommand} {command}",  redirectOutput, cancellationToken);
     }
-    
-    private Process? RunInternalDirectAsync(string command, bool redirectOutput)
-    {
-        return RunInternalAsync(BaseCommand, command, redirectOutput);
-    }
 
-    private Process? RunInternalPyAsync(string command, bool redirectOutput)
-    {
-        return RunInternalAsync("py", $"-m {BaseCommand} {command}", redirectOutput);
-    }
-
-    private Process? RunInternalPython3Async(string command, bool redirectOutput)
-    {
-        return RunInternalAsync("python3", $"-m {BaseCommand} {command}", redirectOutput);
-    }
-    
     private RunPyResult RunInternal(string command, string arguments, bool redirectOutput, CancellationToken? cancellationToken = null)
     {
         try
@@ -625,112 +594,4 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
             };
         }
     }
-    
-    private Process? RunInternalAsync(string command, string arguments, bool redirectOutput)
-    {
-        try
-        {
-            ProcessStartInfo procStartInfo;
-            
-            var innerCommand = $"{command} {arguments}";
-            logger.LogInformation("Executing async python command: {Command}", innerCommand);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                procStartInfo= new ProcessStartInfo("cmd", "/c " + innerCommand)
-                {
-                    RedirectStandardOutput = redirectOutput,
-                    RedirectStandardError = redirectOutput,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-            }
-            else
-            {
-                procStartInfo= new ProcessStartInfo(command)
-                {
-                    Arguments = arguments,
-                    RedirectStandardOutput = redirectOutput,
-                    RedirectStandardError = redirectOutput,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-            }
-
-            var process = new Process();
-            process.StartInfo = procStartInfo;
-            if (process.Start())
-            {
-                return process;
-            }
-
-            return null;
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Unknown error running {Command}", BaseCommand);
-            return null;
-        }
-    }
-}
-
-public class GetSampleRateRequest
-{
-    public string Mode => "samples";
-    public required string File { get; set; }
-}
-
-public class GetSampleRateResponse : PythonCompanionModeResponse
-{
-    public double Duration { get; set; }
-    public int SampleRate { get; set; }
-}
-
-public class RunPyMusicLooperRequest
-{
-    public string Mode => "py_music_looper";
-    public required string File { get; set; }
-    public double? MinDurationMultiplier { get; set; } = 0.25f;
-    public double? MinLoopDuration { get; set; }
-    public double? MaxLoopDuration { get; set; }
-    public double? ApproxLoopStart { get; set; }
-    public double? ApproxLoopEnd { get; set; }
-
-}
-
-public class RunPyMusicLooperResponse : PythonCompanionModeResponse
-{
-    public List<PyMusicLooperPair> Pairs { get; set; } = [];
-}
-
-public class PyMusicLooperPair
-{
-    public int LoopStart { get; set; }
-    public int LoopEnd { get; set; }
-    public double LoudnessDifference { get; set; }
-    public double NoteDistance { get; set; }
-    public double Score { get; set; }
-}
-
-public class PythonCompanionModeResponse
-{
-    public bool Successful { get; set; }
-    public string Error { get; set; } = string.Empty;
-}
-
-public class CreateVideoRequest
-{
-    public string Mode => "create_video";
-    public required string OutputVideo { get; set; }
-    public string? ProgressFile { get; set; }
-    public required List<string> Files { get; set; }
-}
-
-public class CreateVideoResponse : PythonCompanionModeResponse;
-
-public class RunPyResult
-{
-    public bool Success { get; set; }
-    public string Result { get; set; } = string.Empty;
-    public string Error { get; set; } = string.Empty;
 }

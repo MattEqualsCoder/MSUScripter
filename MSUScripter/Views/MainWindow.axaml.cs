@@ -9,9 +9,7 @@ using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using AvaloniaControls.Services;
 using MSUScripter.Configs;
-using MSUScripter.Events;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
@@ -23,9 +21,6 @@ namespace MSUScripter.Views;
 public partial class MainWindow : RestorableWindow
 {
     private readonly MainWindowService? _service;
-    private NewProjectPanel? _newProjectPanel;
-    private EditProjectPanel? _editProjectPanel;
-    private bool _forceClose;
     private readonly MainWindowViewModel _model;
     
     public MainWindow()
@@ -43,15 +38,11 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
-    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_model.InitProjectError)
+        if (_model.InitProject != null)
         {
-            await MessageWindow.ShowErrorDialog("There was an error in loading the requested project");
-        }
-        else if (_model.InitProject != null)
-        {
-            await GetNewProjectPanel().LoadProject(_model.InitProject, _model.InitBackupProject);
+            _ = LoadProject(_model.InitProject);
         }
 
         _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
@@ -88,101 +79,16 @@ public partial class MainWindow : RestorableWindow
         });
 
     }
-    //
-    // private async Task SetupMsuPcm()
-    // {
-    //     if (_service == null) return;
-    //     
-    //     var result = await MessageWindow.ShowYesNoDialog(
-    //         "If you want to use msupcm++, you'll need to point the MSU Scripter to its location. Would you like to set the msupcm++ path now? You can always set it later in the settings if needed.",
-    //         "Setup msupcm++", this);
-    //     if (!result)
-    //     {
-    //         _service.UpdateHasDoneFirstTimeSetup(null);
-    //     }
-    //
-    //     var documentsFolderPath = await this.GetDocumentsFolderPath();
-    //     var filter = OperatingSystem.IsWindows()
-    //         ? "msupcm Executable:msupcm.exe;All Files:*.*"
-    //         : "msupcm Executable:msupcm;All Files:*";
-    //     var msuPcmPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.OpenFile, filter, documentsFolderPath);
-    //
-    //     if (msuPcmPath == null)
-    //     {
-    //         _service.UpdateHasDoneFirstTimeSetup(null);
-    //         return;
-    //     }
-    //
-    //     _service.UpdateHasDoneFirstTimeSetup(msuPcmPath.Path.LocalPath);
-    //     
-    //     if (!_service.ValidateMsuPcm(msuPcmPath.Path.LocalPath))
-    //     {
-    //         await MessageWindow.ShowErrorDialog(
-    //             "msupcm++ failed to run successfully. Make sure you can run msupcm -v in the commandline.",
-    //             "msupcm++ Error", this);
-    //     }
-    //     else
-    //     {
-    //         await MessageWindow.ShowInfoDialog("msupcm++ setup successful.", "Success", this);
-    //     }
-    // }
-
-    private async void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+  
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
         _service?.Shutdown();
-        
-        if (_forceClose || _service?.IsEditPanelDisplayed != true || !GetEditProjectPanel().HasPendingChanges) return;
-        
-        e.Cancel = true;
-        await GetEditProjectPanel().DisplayPendingChangesWindow();
-        _forceClose = true;
-        Close();
     }
 
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
     protected override int DefaultWidth => 1024;
     protected override int DefaultHeight => 768;
-    
-    private NewProjectPanel GetNewProjectPanel()
-    {
-        if (_newProjectPanel != null) return _newProjectPanel;
-        _newProjectPanel ??= this.FindControl<NewProjectPanel>(nameof(NewProjectPanel))!;
-        return _newProjectPanel;
-    }
-    
-    private EditProjectPanel GetEditProjectPanel()
-    {
-        if (_editProjectPanel != null) return _editProjectPanel;
-        _editProjectPanel ??= this.FindControl<EditProjectPanel>(nameof(EditProjectPanel))!;
-        return _editProjectPanel;
-    }
-    
-    private void EditProjectPanel_OnOnCloseProject(object? sender, EventArgs e)
-    {
-        GetNewProjectPanel().ResetModel();
-        _service?.CloseEditProjectPanel();
-    }
-
-    private void NewProjectPanel_OnOnProjectSelected(object? sender, ValueEventArgs<MsuProject> e)
-    {
-        _service?.OpenEditProjectPanel(e.Data);
-    }
-
-    private void GitHubUrlLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.OpenGitHubReleasePage();
-    }
-
-    private void CloseUpdateButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.CloseNewReleaseBanner(false);
-    }
-
-    private void DisableUpdatesLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.CloseNewReleaseBanner(true);
-    }
-
+   
     private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
         _ = LoadProject();
@@ -269,61 +175,77 @@ public partial class MainWindow : RestorableWindow
 
     private async void OpenProject(MsuProject project, MsuProject? backupProject)
     {
-        if (backupProject != null && await MessageWindow.ShowYesNoDialog(
-                "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
-                "Load Backup?", this))
+        try
         {
-            project = backupProject;
-        }
+            if (backupProject != null && await MessageWindow.ShowYesNoDialog(
+                    "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                    "Load Backup?", this))
+            {
+                project = backupProject;
+            }
 
-        if (_service?.ValidateProjectPaths(project) == false)
-        {
-            var window = new CopyProjectWindow();
-            var updatedProject = await window.ShowDialog(this, project, false);
-            if (updatedProject == null) return;
-        }
+            if (_service?.ValidateProjectPaths(project) == false)
+            {
+                var window = new CopyProjectWindow();
+                var updatedProject = await window.ShowDialog(this, project, false);
+                if (updatedProject == null) return;
+            }
         
-        var msuProjectWindow = new MsuProjectWindow(project, this);
-        msuProjectWindow.Show();
-        msuProjectWindow.Closed += (sender, args) =>
-        {
-            _model.MsuProjectName = "";
-            _model.MsuCreatorName = "";
-            _model.SelectedMsuType = null;
-            _model.MsuPath = "";
-            _model.MsuProjectPath = "";
-            _model.MsuPcmJsonPath = "";
-            _model.MsuPcmWorkingPath = "";
-            if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.ExitApplication)
+            var msuProjectWindow = new MsuProjectWindow(project, this);
+            msuProjectWindow.Show();
+            msuProjectWindow.Closed += (sender, args) =>
             {
-                Close();
-            }
-            else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.OpenProject)
-            {
-                _ = LoadProject(msuProjectWindow.OpenProjectPath);
-            }
-            else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.NewProject)
-            {
-                _model.NewProjectBackground = _model.ActiveTabBackground;
-                _model.OpenProjectBackground = Brushes.Transparent;
-                _model.SettingsBackground = Brushes.Transparent;
-                _model.AboutBackground = Brushes.Transparent;
-                _model.DisplayNewProjectPage = true;
-                _model.DisplayOpenProjectPage = false;
-                _model.DisplaySettingsPage = false;
-                _model.DisplayAboutPage = false;
-            }
+                _model.MsuProjectName = "";
+                _model.MsuCreatorName = "";
+                _model.SelectedMsuType = null;
+                _model.MsuPath = "";
+                _model.MsuProjectPath = "";
+                _model.MsuPcmJsonPath = "";
+                _model.MsuPcmWorkingPath = "";
+                if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.ExitApplication)
+                {
+                    Close();
+                }
+                else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.OpenProject)
+                {
+                    _ = LoadProject(msuProjectWindow.OpenProjectPath);
+                }
+                else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.NewProject)
+                {
+                    _model.NewProjectBackground = _model.ActiveTabBackground;
+                    _model.OpenProjectBackground = Brushes.Transparent;
+                    _model.SettingsBackground = Brushes.Transparent;
+                    _model.AboutBackground = Brushes.Transparent;
+                    _model.DisplayNewProjectPage = true;
+                    _model.DisplayOpenProjectPage = false;
+                    _model.DisplaySettingsPage = false;
+                    _model.DisplayAboutPage = false;
+                }
             
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        };
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            };
+        }
+        catch (Exception e)
+        {
+            _service?.LogError(e, "Error opening project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
     }
 
     private async void BrowseProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var path = await OpenMsuProjectFilePicker(false);
-        if (string.IsNullOrEmpty(path)) return;
-        await LoadProject(path);
+        try
+        {
+            var path = await OpenMsuProjectFilePicker(false);
+            if (string.IsNullOrEmpty(path)) return;
+            await LoadProject(path);
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error opening project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
     }
     
     private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
@@ -338,21 +260,29 @@ public partial class MainWindow : RestorableWindow
 
     private async void CloneProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        var path = await OpenMsuProjectFilePicker(false);
-        if (string.IsNullOrEmpty(path) || _service == null) return;
-        
-        var response = _service.LoadProject(path);
-        if (!string.IsNullOrEmpty(response.error))
+        try
         {
-            await MessageWindow.ShowErrorDialog(response.error, null, this);
-            return;
+            var path = await OpenMsuProjectFilePicker(false);
+            if (string.IsNullOrEmpty(path) || _service == null) return;
+        
+            var response = _service.LoadProject(path);
+            if (!string.IsNullOrEmpty(response.error))
+            {
+                await MessageWindow.ShowErrorDialog(response.error, null, this);
+                return;
+            }
+        
+            var window = new CopyProjectWindow();
+            var project = await window.ShowDialog(this, response.mainProject!, true);
+            if (project != null)
+            {
+                OpenProject(project, null);
+            }
         }
-        
-        var window = new CopyProjectWindow();
-        var project = await window.ShowDialog(this, response.mainProject!, true);
-        if (project != null)
+        catch (Exception ex)
         {
-            OpenProject(project, null);
+            _service?.LogError(ex, "Error cloning project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
         }
     }
 }

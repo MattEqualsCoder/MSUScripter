@@ -13,6 +13,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class MainWindowService(
     Settings settings,
     SettingsService settingsService,
@@ -29,28 +30,8 @@ public class MainWindowService(
     {
         _ = CheckForNewRelease();
         _ = CleanUpFolders();
-
-        // var sampleRate = pythonCompanionService.GetSampleRate(new GetSampleRateRequest()
-        // {
-        //     File = "/home/matt/Music/23 - Town of a wind and ruins.mp3"
-        // });
         
-        // var pyMusicLooperResults = pythonCompanionService.RunPyMusicLooper(new RunPyMusicLooperRequest()
-        // {
-        //     File = "/home/matt/Music/23 - Town of a wind and ruins.mp3"
-        // });
-        //
-        // var createVideoResponse = pythonCompanionService.CreateVideo(new CreateVideoRequest()
-        // {
-        //     OutputVideo = "/home/matt/Source/PyMsuScripterApp/out/create_video_out.mp4",
-        //     Files = ["/home/matt/Documents/MSUProjects/When The Fates Cry/Output/WhenTheFatesCry_SMZ3-2.pcm"],
-        //     ProgressFile = "/home/matt/Source/PyMsuScripterApp/out/tmp.txt"
-        // }, currentValue =>
-        // {
-        //     logger.LogInformation("Progress: {Progress}", currentValue);
-        // });
-        //
-        OpenCommandlineArgsProject();
+        _model.InitProject = Program.StartingProject;
         _model.AppVersion = $" v{App.Version}";
         
         if (!settings.HasDoneFirstTimeSetup && !string.IsNullOrEmpty(settings.MsuPcmPath))
@@ -64,7 +45,6 @@ public class MainWindowService(
         _model.MsuTypes = msuTypeService.MsuTypes
             .OrderBy(x => x.DisplayName)
             .ToList();
-        _model.HasDoneFirstTimeSetup = settings.HasDoneFirstTimeSetup;
         _model.RecentProjects = settings.RecentProjects.ToList();
 
         if (_model.RecentProjects.Count != 0)
@@ -81,27 +61,17 @@ public class MainWindowService(
         UpdateTitle();
         return _model;
     }
-    
-    public void OpenEditProjectPanel(MsuProject project)
-    {
-        _model.CurrentMsuProject = project;
-        UpdateTitle();
-    }
-
-    public void CloseEditProjectPanel()
-    {
-        _model.CurrentMsuProject = null;
-        UpdateTitle();
-    }
 
     public void OpenGitHubReleasePage()
     {
+        // TODO: Make sure this is working?
         if (string.IsNullOrEmpty(_model.GitHubReleaseUrl)) return;
         CrossPlatformTools.OpenUrl(_model.GitHubReleaseUrl);
     }
 
     public void CloseNewReleaseBanner(bool permanently)
     {
+        // TODO: Make sure this is working?
         if (permanently)
         {
             settings.CheckForUpdates = false;
@@ -141,7 +111,7 @@ public class MainWindowService(
 
             return (project, backupProject, null);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return (null, null, "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub");
         }
@@ -170,7 +140,7 @@ public class MainWindowService(
         msuPcmService.DeleteTempJsonFiles();
     }
 
-    public void UpdateTitle()
+    private void UpdateTitle()
     {
         if (_model.CurrentMsuProject == null)
         {
@@ -202,9 +172,10 @@ public class MainWindowService(
         
         try
         {
+            logger.LogInformation("Creating new MSU Project");
             return projectService.NewMsuProject(projectPath, msuType, msuPath, msuPcmJson, msuPcmWorkingDir, name, creator);
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             return null;
         }
@@ -220,25 +191,10 @@ public class MainWindowService(
         _model.Settings.SaveChanges();
         settingsService.SaveSettings();
     }
-    
-    public bool IsEditPanelDisplayed => _model.DisplayEditPage;
 
-    private void OpenCommandlineArgsProject()
+    public void LogError(Exception ex, string message)
     {
-        if (string.IsNullOrEmpty(Program.StartingProject)) return;
-        
-        _model.InitProject = projectService.LoadMsuProject(Program.StartingProject, false);
-
-        if (_model.InitProject == null)
-        {
-            _model.InitProjectError = true;
-            return;
-        }
-
-        if (!string.IsNullOrEmpty(_model.InitProject.BackupFilePath))
-        {
-            _model.InitBackupProject = projectService.LoadMsuProject(_model.InitProject.BackupFilePath, true);
-        }
+        logger.LogError(ex, "{Message}", message);
     }
     
     private async Task CheckForNewRelease()

@@ -10,14 +10,13 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
-using FileInputControlType = MSUScripter.Models.FileInputControlType;
 
 namespace MSUScripter.Views;
 
 public partial class MsuGenerationWindow : RestorableWindow
 {
     private readonly MsuGenerationWindowService? _service;
-    private MsuGenerationViewModel? _viewModel;
+    private readonly MsuGenerationViewModel? _viewModel;
     
     public MsuGenerationWindow()
     {
@@ -33,7 +32,7 @@ public partial class MsuGenerationWindow : RestorableWindow
 
         if (_service != null)
         {
-            _service.PcmGenerationComplete += (sender, args) =>
+            _service.PcmGenerationComplete += (_, args) =>
             {
                 var model = args.Data;
                 Dispatcher.UIThread.Invoke(() =>
@@ -66,22 +65,35 @@ public partial class MsuGenerationWindow : RestorableWindow
 
     private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        var result = await MessageWindow.ShowYesNoDialog("Do you want to compress the MSU into a zip file?",
-            "Compress MSU?", this);
-
-        if (result && _viewModel != null)
+        try
         {
-            var storageItem = await CrossPlatformTools.OpenFileDialogAsync(this,
-                AvaloniaControls.FileInputControlType.SaveFile, "Zip File:*.zip",
-                Path.GetDirectoryName(_viewModel.MsuProject.MsuPath), "Select Desired MSU Zip File");
-            var path = storageItem?.Path.LocalPath;
-            if (!string.IsNullOrEmpty(path))
+            if (_viewModel == null)
             {
-                _service?.SetZipPath(path);
+                return;
             }
-        }
+            
+            var result = await MessageWindow.ShowYesNoDialog("Do you want to compress the MSU into a zip file?",
+                "Compress MSU?", this);
+
+            if (result && _viewModel != null)
+            {
+                var storageItem = await CrossPlatformTools.OpenFileDialogAsync(this,
+                    FileInputControlType.SaveFile, "Zip File:*.zip",
+                    Path.GetDirectoryName(_viewModel.MsuProject.MsuPath), "Select Desired MSU Zip File");
+                var path = storageItem?.Path.LocalPath;
+                if (!string.IsNullOrEmpty(path))
+                {
+                    _service?.SetZipPath(path);
+                }
+            }
         
-        _service?.RunGeneration();
+            _service?.RunGeneration();
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error running Msu generation");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this);
+        }
     }
 
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "msu-pcm-generation-window.json");

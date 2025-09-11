@@ -3,7 +3,7 @@ using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class VideoCreatorWindowViewModel : ViewModelBase
+public class VideoCreatorWindowViewModel : TranslatedViewModelBase
 {
     [Reactive] public bool DisplayGitHubLink { get; set; }
     [Reactive] public string DisplayText { get; set; } = "Select video file to create";

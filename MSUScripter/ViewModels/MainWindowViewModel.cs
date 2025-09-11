@@ -13,21 +13,16 @@ public class MainWindowViewModel : TranslatedViewModelBase
 {
     [Reactive] public string Title { get; set; } = "MSU Scripter";
     
-    [Reactive, ReactiveLinkedProperties(nameof(DisplayNewPage), nameof(DisplayEditPage)), ReactiveLinkedEvent(nameof(CurrentMsuProjectChanged))]
+    [Reactive, ReactiveLinkedEvent(nameof(CurrentMsuProjectChanged))]
     public MsuProject? CurrentMsuProject { get; set; }
     
-    public MsuProject? InitProject { get; set; }
-    public MsuProject? InitBackupProject { get; set; }
+    public string? InitProject { get; set; }
     public bool InitProjectError { get; set; }
 
     [Reactive, ReactiveLinkedProperties(nameof(DisplayNewVersionBanner))]
     public string? GitHubReleaseUrl { get; set; }
-    public bool HasDoneFirstTimeSetup { get; set; }
-    public bool DisplayNewPage => CurrentMsuProject == null;
-    public bool DisplayEditPage => CurrentMsuProject != null;
     public string AppVersion { get; set; } = "";
     public bool DisplayNewVersionBanner => !string.IsNullOrEmpty(GitHubReleaseUrl);
-    public object? NullValue => null;
     public event EventHandler? CurrentMsuProjectChanged;
 
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]

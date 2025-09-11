@@ -2,7 +2,6 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaControls;
-using AvaloniaControls.Services;
 using MSUScripter.Events;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -81,10 +80,6 @@ public partial class MsuSongBasicPanel : UserControl
     private void TrimStartNumericUpDown_OnValueChanged(object? sender, NumericUpDownValueChangedEventArgs e)
     {
         PyMusicLooperPanel.UpdateFilterStart((int)(e.NewValue ?? 0));
-    }
-
-    private void AutoPyMusicLooperCheckbox_OnOnChecked(object? sender, OnIconCheckboxCheckedEventArgs e)
-    {
     }
 
     private void PyMusicLooperPanel_OnOnUpdated(object? sender, PyMusicLooperPanelUpdatedArgs e)

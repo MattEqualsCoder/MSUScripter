@@ -188,4 +188,9 @@ public class ApplicationText
     public string MsuGenerationSettingsGenerateButton { get; } = "Generate";
     public string MsuGenerationSettingsCancelButton { get; } = "Cancel";
 
+    public string GenericErrorTitle { get; } =
+        "Unexpected Error";
+    public string GenericError { get; } =
+        "There was an unexpected error, please try again. If the problem persists, please post an Issue on GitHub.";
+
 }

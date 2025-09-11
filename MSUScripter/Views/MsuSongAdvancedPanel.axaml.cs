@@ -8,6 +8,7 @@ using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -37,17 +38,26 @@ public partial class MsuSongAdvancedPanel : UserControl
         };
         _viewModel.FileDragDropped += (_, _) =>
         {
-            if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+            try
             {
-                var metadata = Service?.GetAudioMetadata(_viewModel.Input);
-                _viewModel.SongName = metadata?.SongName;
-                _viewModel.ArtistName = metadata?.Artist;
-                _viewModel.Album = metadata?.Album;
-                _viewModel.Url = metadata?.Url;
-            }
+                if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+                {
+                    var metadata = Service?.GetAudioMetadata(_viewModel.Input);
+                    _viewModel.SongName = metadata?.SongName;
+                    _viewModel.ArtistName = metadata?.Artist;
+                    _viewModel.Album = metadata?.Album;
+                    _viewModel.Url = metadata?.Url;
+                }
         
-            _viewModel.UpdateTreeItemName();
-            Service?.CheckFileErrors(_viewModel);
+                _viewModel.UpdateTreeItemName();
+                Service?.CheckFileErrors(_viewModel);
+            }
+            catch (Exception ex)
+            {
+                Service?.LogError(ex, "Error handling new file");
+                MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
+            }
+            
         };
     }
     
@@ -67,8 +77,7 @@ public partial class MsuSongAdvancedPanel : UserControl
         if (hit is Visual visual)
         {
             var control = visual.FindAncestorOfType<Border>();
-            // if (control is { Tag: MsuSongAdvancedPanelViewModelModelTreeData treeData } && (treeData.ParentTreeData?.ParentTreeData == _viewModel.DraggedItem?.ParentTreeData?.ParentTreeData || treeData.ParentTreeData == _viewModel.DraggedItem?.ParentTreeData?.ParentTreeData))
-            if (control is { Tag: MsuSongAdvancedPanelViewModelModelTreeData treeData } && treeData.ParentTreeData != null)
+            if (control is { Tag: MsuSongAdvancedPanelViewModelModelTreeData { ParentTreeData: not null } treeData })
             {
                 _viewModel.UpdateHover(treeData);
             }
@@ -92,13 +101,12 @@ public partial class MsuSongAdvancedPanel : UserControl
         treeData.ToggleCollapsed();
     }
 
-    private void TreeMenuItemText_OnDoubleTapped(object? sender, TappedEventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
     private void AdvancedModeIconCheckbox_OnOnChecked(object? sender, OnIconCheckboxCheckedEventArgs e)
     {
+        if (_viewModel == null)
+        {
+            return;
+        }
         _viewModel.IsAdvancedMode = true;
         AdvancedModeToggled?.Invoke(this, EventArgs.Empty);
     }
@@ -115,63 +123,87 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void InputFileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
     {
-        if (_viewModel == null)
+        try
         {
-            return;
+            if (_viewModel == null)
+            {
+                return;
+            }
+        
+            _viewModel.SaveChanges();
+        
+            if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+            {
+                var metadata = Service?.GetAudioMetadata(_viewModel.Input);
+                _viewModel.SongName = metadata?.SongName;
+                _viewModel.ArtistName = metadata?.Artist;
+                _viewModel.Album = metadata?.Album;
+                _viewModel.Url = metadata?.Url;
+            }
+        
+            _viewModel.UpdateTreeItemName();
+            InputFileUpdated?.Invoke(this, EventArgs.Empty);
+            Service?.CheckFileErrors(_viewModel);
         }
-        
-        _viewModel.SaveChanges();
-        
-        if (!string.IsNullOrEmpty(_viewModel.Input) && string.IsNullOrEmpty(_viewModel.SongName) && string.IsNullOrEmpty(_viewModel.Album) && string.IsNullOrEmpty(_viewModel.ArtistName) && string.IsNullOrEmpty(_viewModel.Url))
+        catch (Exception ex)
         {
-            var metadata = Service?.GetAudioMetadata(_viewModel.Input);
-            _viewModel.SongName = metadata?.SongName;
-            _viewModel.ArtistName = metadata?.Artist;
-            _viewModel.Album = metadata?.Album;
-            _viewModel.Url = metadata?.Url;
+            Service?.LogError(ex, "Error handling new file");
+            MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
-        
-        _viewModel.UpdateTreeItemName();
-        InputFileUpdated?.Invoke(this, EventArgs.Empty);
-        Service?.CheckFileErrors(_viewModel);
     }
 
     private void TreeInputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not Control { Tag: MsuSongAdvancedPanelViewModelModelTreeData treeData } control || _viewModel is null)
+        try
         {
-            return;
-        }
-        
-        var point = e.GetCurrentPoint(control);
-        if (point.Properties.IsLeftButtonPressed)
-        {
-            _viewModel?.UpdateDrag(treeData);
-        }
-        else if (point.Properties.IsRightButtonPressed)
-        {
-            var contextMenu = control.ContextMenu;
-            if (contextMenu == null)
+            if (sender is not Control { Tag: MsuSongAdvancedPanelViewModelModelTreeData treeData } control || _viewModel is null)
             {
                 return;
             }
+        
+            var point = e.GetCurrentPoint(control);
+            if (point.Properties.IsLeftButtonPressed)
+            {
+                _viewModel?.UpdateDrag(treeData);
+            }
+            else if (point.Properties.IsRightButtonPressed)
+            {
+                var contextMenu = control.ContextMenu;
+                if (contextMenu == null)
+                {
+                    return;
+                }
 
-            _viewModel.CurrentContextMenu?.Close();
-            _viewModel.CurrentContextMenu = contextMenu;
-            contextMenu.PlacementTarget = control;
-            contextMenu.Open();
-            e.Handled = true;
+                _viewModel.CurrentContextMenu?.Close();
+                _viewModel.CurrentContextMenu = contextMenu;
+                contextMenu.PlacementTarget = control;
+                contextMenu.Open();
+                e.Handled = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Service?.LogError(ex, "Error handling click");
+            MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private void TreeInputElement_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (_viewModel?.IsDraggingItem != true || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData)
+        try
         {
-            return;
-        }
+            if (_viewModel?.IsDraggingItem != true || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData)
+            {
+                return;
+            }
 
-        _viewModel.UpdateDrag(null);
+            _viewModel.UpdateDrag(null);
+        }
+        catch (Exception ex)
+        {
+            Service?.LogError(ex, "Error updating drag value");
+            MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
+        }
     }
 
     private void TreeInputElement_OnPointerEntered(object? sender, PointerEventArgs e)
@@ -192,7 +224,6 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void TreeInputElement_OnPointerExited(object? sender, PointerEventArgs e)
     {
-        // if (_viewModel?.IsDraggingItem == true) return;
         if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData)
         {
             return;
@@ -204,13 +235,21 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void AddMsuPcmInfoButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel == null || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData)
+        try
         {
-            return;
-        }
+            if (_viewModel == null || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData)
+            {
+                return;
+            }
 
-        _viewModel.AddMsuPcmInfo(treeData);
-        Service?.CheckFileErrors(_viewModel);
+            _viewModel.AddMsuPcmInfo(treeData);
+            Service?.CheckFileErrors(_viewModel);
+        }
+        catch (Exception ex)
+        {
+            Service?.LogError(ex, "Error adding new MsuPcm++ info");
+            MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
+        }
     }
 
     private void TreeMenuButton_OnClick(object? sender, RoutedEventArgs e)
@@ -235,6 +274,11 @@ public partial class MsuSongAdvancedPanel : UserControl
     {
         try
         {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            
             if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData || treeData.MsuPcmInfo == null)
             {
                 return;
@@ -244,21 +288,22 @@ public partial class MsuSongAdvancedPanel : UserControl
             var yaml = Service?.GetMsuPcmInfoCopyText(treeData.MsuPcmInfo);
             await this.SetClipboardAsync(yaml);
         }
-        catch
+        catch (Exception ex)
         {
-            // Do nothing
+            Service?.LogError(ex, "Error copying MsuPcm++ info to clipboard");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private async void PasteMsuPcmInfoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel == null)
-        {
-            return;
-        }
-        
         try
         {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            
             if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData || treeData.MsuPcmInfo == null)
             {
                 return;
@@ -294,9 +339,10 @@ public partial class MsuSongAdvancedPanel : UserControl
             _viewModel.ReplaceMsuPcmInfo(treeData, msuPcmInfoFromClipboard);
             Service?.CheckFileErrors(_viewModel);
         }
-        catch
+        catch (Exception ex)
         {
-            // Do nothing
+            Service?.LogError(ex, "Error pasting MsuPcm++ info from clipboard");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
     
@@ -330,13 +376,13 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private async void DeleteMsuPcmInfoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel == null)
-        {
-            return;
-        }
-        
         try
         {
+            if (_viewModel == null)
+            {
+                return;
+            }
+            
             if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData ||
                 treeData.MsuPcmInfo == null)
             {
@@ -359,34 +405,43 @@ public partial class MsuSongAdvancedPanel : UserControl
             _viewModel.RemoveMsuPcmInfo(treeData);
             Service?.CheckFileErrors(_viewModel);
         }
-        catch
+        catch (Exception ex)
         {
-            // Do nothing
+            Service?.LogError(ex, "Error deleting MsuPcm++ info");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 
     private async void OpenPyMusicLooperWindowButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel == null)
+        try
         {
-            return;
-        }
+            if (_viewModel == null)
+            {
+                return;
+            }
         
-        var window = new PyMusicLooperWindow();
-        window.UpdateDetails(new PyMusicLooperDetails
-        {
-            Project = _viewModel.Project,
-            FilePath = _viewModel.Input,
-            Normalization = _viewModel.Normalization,
-            FilterStart = _viewModel.TrimStart,
-            ForceRun = true
+            var window = new PyMusicLooperWindow();
+            window.UpdateDetails(new PyMusicLooperDetails
+            {
+                Project = _viewModel.Project,
+                FilePath = _viewModel.Input,
+                Normalization = _viewModel.Normalization,
+                FilterStart = _viewModel.TrimStart,
+                ForceRun = true
             
-        });
-        var loopResult = await window.ShowPyMusicLooperWindowDialog(TopLevel.GetTopLevel(this) as Window);
-        if (loopResult != null)
+            });
+            var loopResult = await window.ShowPyMusicLooperWindowDialog(TopLevel.GetTopLevel(this) as Window);
+            if (loopResult != null)
+            {
+                _viewModel.Loop = loopResult.LoopStart;
+                _viewModel.TrimEnd = loopResult.LoopEnd;
+            }
+        }
+        catch (Exception ex)
         {
-            _viewModel.Loop = loopResult.LoopStart;
-            _viewModel.TrimEnd = loopResult.LoopEnd;
+            Service?.LogError(ex, "Error opening PyMusicLooper window");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
 }

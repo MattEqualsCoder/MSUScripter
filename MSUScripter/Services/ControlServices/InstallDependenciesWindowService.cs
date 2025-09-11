@@ -4,39 +4,16 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class InstallDependenciesWindowService (MsuPcmService msuPcmService, PythonCompanionService pythonCompanionService, SettingsService settingsService) : ControlService
 {
     private readonly InstallDependenciesWindowViewModel _viewModel = new();
 
     public InstallDependenciesWindowViewModel InitializeModel()
     {
-        if (msuPcmService.IsValid)
-        {
-            _viewModel.MsuPcmState = InstallState.Valid;
-        }
-        else
-        {
-            _viewModel.MsuPcmState = InstallState.CanInstall;
-        }
-        
-        if (pythonCompanionService.IsFfMpegValid)
-        {
-            _viewModel.FfmpegState = InstallState.Valid;
-        }
-        else
-        {
-            _viewModel.FfmpegState = InstallState.CanInstall;
-        }
-        
-        if (pythonCompanionService.IsValid)
-        {
-            _viewModel.PyAppState = InstallState.Valid;
-        }
-        else
-        {
-            _viewModel.PyAppState = InstallState.CanInstall;
-        }
-        
+        _viewModel.MsuPcmState = msuPcmService.IsValid ? InstallState.Valid : InstallState.CanInstall;
+        _viewModel.FfmpegState = pythonCompanionService.IsFfMpegValid ? InstallState.Valid : InstallState.CanInstall;
+        _viewModel.PyAppState = pythonCompanionService.IsValid ? InstallState.Valid : InstallState.CanInstall;
         return _viewModel;
     }
 

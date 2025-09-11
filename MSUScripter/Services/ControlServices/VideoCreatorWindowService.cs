@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -5,10 +6,12 @@ using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class VideoCreatorWindowService(
     ILogger<VideoCreatorWindowService> logger,
     PythonCompanionService companionService,
@@ -91,5 +94,10 @@ public class VideoCreatorWindowService(
         logger.LogInformation("Video creation cancellation requested");
         
         _cancellationTokenSource.Cancel();
+    }
+
+    public void LogError(Exception ex, string message)
+    {
+        logger.LogError(ex, "{Message}", message);
     }
 }

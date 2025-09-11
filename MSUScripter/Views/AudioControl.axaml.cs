@@ -47,12 +47,6 @@ public partial class AudioControl : UserControl
             DataContext = _model = _service?.InitializeModel() ?? new AudioControlViewModel();
         }
 
-        CanPopoutProperty.Changed.Subscribe(x =>
-        {
-            if (x.Sender != this) return;
-            _model.CanPopout = x.NewValue is { HasValue: true, Value: true };
-        });
-        
         CanSetTimeSecondsProperty.Changed.Subscribe(x =>
         {
             if (x.Sender != this) return;
@@ -65,15 +59,6 @@ public partial class AudioControl : UserControl
     public Task<bool> StopAsync()
     {
         return _service?.StopAsync() ?? Task.FromResult(true);
-    }
-    
-    public static readonly StyledProperty<bool> CanPopoutProperty = AvaloniaProperty.Register<AudioControl, bool>(
-        nameof(CanPopout));
-
-    public bool CanPopout
-    {
-        get => GetValue(CanPopoutProperty);
-        set => SetValue(CanPopoutProperty, value);
     }
     
     public static readonly StyledProperty<bool> CanSetTimeSecondsProperty = AvaloniaProperty.Register<AudioControl, bool>(
@@ -104,17 +89,6 @@ public partial class AudioControl : UserControl
     private void JumpToSecondsButton_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.SetSeconds();
-    }
-
-    private void PopoutButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        var audioPlayerWindow = new AudioPlayerWindow();
-        _model.CanPressPopoutButton = false;
-        audioPlayerWindow.Closed += (o, args) =>
-        {
-            _model.CanPressPopoutButton = true;
-        };
-        audioPlayerWindow.Show(App.MainWindow);
     }
 
     private void VolumeSlider_OnLoaded(object? sender, RoutedEventArgs e)
