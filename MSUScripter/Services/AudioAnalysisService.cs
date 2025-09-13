@@ -13,16 +13,19 @@ using File = System.IO.File;
 
 namespace MSUScripter.Services;
 
+public class AudioSampleRateResponse
+{
+    public int SampleRate { get; set; } = 44100;
+    public bool Successful { get; set; }
+}
+
 public class AudioAnalysisService(
     IAudioPlayerService audioPlayerService,
     MsuPcmService msuPcmService,
     StatusBarService statusBarService,
-    SharedPcmService sharedPcmService,
     PythonCompanionService pythonCompanionService,
     ILogger<AudioAnalysisService> logger)
 {
-    public MsuPcmService MsuPcmService { get; } = msuPcmService;
-
     public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
         var project = audioAnalysis.Project;
@@ -37,7 +40,7 @@ public class AudioAnalysisService(
 
         if (project?.BasicInfo.IsMsuPcmProject == true)
         {
-            sharedPcmService.SaveGenerationCache(project);    
+            msuPcmService.SaveGenerationCache(project);    
         }
     }
     
@@ -62,7 +65,7 @@ public class AudioAnalysisService(
         // Regenerate the pcm file if it has updates that have been made to it
         if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo != null)
         {
-            var response = await sharedPcmService.GeneratePcmFile(project, song.MsuSongInfo, false, false, true);
+            var response = await msuPcmService.CreatePcm(project, song.MsuSongInfo, false, true, true);
             if (!response.Successful)
             {
                 song.WarningMessage = File.Exists(song.Path)
@@ -76,12 +79,14 @@ public class AudioAnalysisService(
         logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
 
-    public int GetAudioSampleRate(string? path, out bool successful)
+    public async Task<AudioSampleRateResponse> GetAudioSampleRateAsync(string? path)
     {
         if (string.IsNullOrEmpty(path) || !File.Exists(path))
         {
-            successful = false;
-            return 44100;
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
         }
 
         List<string> incompatibleFileTypes = [".ogg"];
@@ -89,19 +94,20 @@ public class AudioAnalysisService(
         if (incompatibleFileTypes.Contains(new FileInfo(path).Extension.ToLower()))
         {
             logger.LogInformation("AudioSampleRate Incompatible file {File}. Assuming 44100.", path);
-            successful = false;
-            return 44100;
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
         }
 
         if (OperatingSystem.IsLinux())
         {
-            var response = pythonCompanionService.GetSampleRate(new GetSampleRateRequest()
+            var response = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
             {
                 File = path
             });
-            successful = response.Successful;
-
-            if (successful)
+            
+            if (response.Successful)
             {
                 logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", response.SampleRate, path);
             }
@@ -110,21 +116,30 @@ public class AudioAnalysisService(
                 logger.LogError("Failed to retrieve sample rate for {File}. Assuming 44100.", path);
             }
             
-            return response.Successful ? response.SampleRate : 44100;
+            return new AudioSampleRateResponse
+            {
+                Successful = response.Successful,
+                SampleRate = response.Successful ? response.SampleRate : 44100,
+            };
         }
         
         try
         {
             var mp3 = new AudioFileReader(path);
-            successful = true;
             logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", mp3.WaveFormat.SampleRate, path);
-            return mp3.WaveFormat.SampleRate;
+            return new AudioSampleRateResponse
+            {
+                Successful = true,
+                SampleRate = mp3.WaveFormat.SampleRate
+            };
         }
         catch (Exception e)
         {
             logger.LogError(e, "Failed to retrieve sample rate for {File}. Assuming 44100.", path);
-            successful = false;
-            return 44100;
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
         }
         
     }

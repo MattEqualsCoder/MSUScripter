@@ -61,7 +61,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
     {
         _viewModel.FfmpegState = InstallState.InProgress;
         _viewModel.FfmpegInstallProgress = "Starting";
-        var result = await pythonCompanionService.InstallFfmpeg(progress =>
+        var result = await pythonCompanionService.InstallFfmpegAsync(progress =>
         {
             _viewModel.FfmpegInstallProgress = progress;
         });

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py-msu-scripter-app"
-version = "0.1.4"
+version = "0.1.5"
 description = ""
 authors = ["MattEqualsCoder <mattequalscoder@gmail.com>"]
 readme = "README.md"

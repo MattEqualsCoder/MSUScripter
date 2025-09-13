@@ -56,6 +56,7 @@
                                             <Separator></Separator>
                                         </controls:IconMenuItem>
                                         <controls:IconMenuItem  
+                                            Name="SaveProjectMenuItem"
                                             Header="{Binding Text.MenuItemSaveProject}"
                                             IconKind="ContentSaveOutline"
                                             Click="SaveMenuItem_OnClick"
@@ -82,6 +83,7 @@
                             </controls:ContextMenuButton>
                             
                             <Button
+                                Name="SaveButton"
                                 Padding="5 5"
                                 Margin="0 0 2 0"
                                 ToolTip.Tip="{Binding Text.ProjectWindowSaveProject}"

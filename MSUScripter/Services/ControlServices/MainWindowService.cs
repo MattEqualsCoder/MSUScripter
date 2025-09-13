@@ -122,15 +122,15 @@ public class MainWindowService(
         return project.Tracks.SelectMany(x => x.Songs).All(x => x.MsuPcmInfo.AreFilesValid());
     }
 
-    public bool ValidateDependencies()
+    public async Task<bool> ValidateDependencies()
     {
         var isMsuPcmServiceValid = msuPcmService.VerifyInstalled(out _);
-        var isCompanionServiceValid = pythonCompanionService.VerifyInstalled();
+        var isCompanionServiceValid = pythonCompanionService.VerifyInstalledAsync();
         if (settings.IgnoreMissingDependencies)
         {
             return true;
         }
-        return isMsuPcmServiceValid && isCompanionServiceValid;
+        return isMsuPcmServiceValid && await isCompanionServiceValid;
     }
     
     public void Shutdown()

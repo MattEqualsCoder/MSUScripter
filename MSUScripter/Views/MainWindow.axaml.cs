@@ -68,10 +68,15 @@ public partial class MainWindow : RestorableWindow
     
     private void ValidateDependencies()
     {
+        if (_service == null)
+        {
+            return;
+        }
+        
         Dispatcher.UIThread.Invoke(async () =>
         {
             await Task.Delay(100);
-            if (_service?.ValidateDependencies() == false)
+            if (await _service.ValidateDependencies() == false)
             {
                 var dependencyWindow = new InstallDependenciesWindow();
                 await dependencyWindow.ShowDialog(this);

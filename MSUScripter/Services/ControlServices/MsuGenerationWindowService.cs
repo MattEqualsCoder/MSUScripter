@@ -31,8 +31,6 @@ public class MsuGenerationWindowService(
     public MsuGenerationViewModel InitializeModel(MsuProject project)
     {
         _model.MsuProject = project;
-        _model.ExportYaml = project.BasicInfo.WriteYamlFile;
-        _model.SplitSmz3 = project.BasicInfo.CreateSplitSmz3Script;
 
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory)) return _model;
@@ -68,9 +66,20 @@ public class MsuGenerationWindowService(
 
         if (project.BasicInfo.IsSmz3Project)
         {
-            rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Zelda, project));
-            rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Metroid, project));
-            rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Script, project));
+            if (!string.IsNullOrEmpty(project.BasicInfo.ZeldaMsuPath))
+            {
+                rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Zelda, project));
+            }
+
+            if (!string.IsNullOrEmpty(project.BasicInfo.MetroidMsuPath))
+            {
+                rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Metroid, project));
+            }
+
+            if (project.BasicInfo.CreateSplitSmz3Script)
+            {
+                rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.Smz3Script, project));
+            }
 
             if (project.BasicInfo.WriteYamlFile)
             {
@@ -301,7 +310,7 @@ public class MsuGenerationWindowService(
         }
                     
         var songInfo = rowDetails.SongInfo!;
-        var generationResponse = await msuPcmService.CreatePcm(_model.MsuProject, songInfo, false, false);
+        var generationResponse = await msuPcmService.CreatePcm(_model.MsuProject, songInfo, false, false, true);
         
         if (!generationResponse.Successful)
         {

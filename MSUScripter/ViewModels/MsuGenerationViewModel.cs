@@ -15,8 +15,6 @@ public class MsuGenerationViewModel : TranslatedViewModelBase
     [Reactive] public bool IsFinished { get; set; }
     [Reactive] public int NumErrors { get; set; }
     [Reactive] public List<string> GenerationErrors { get; set; } = [];
-    public bool ExportYaml { get; set; }
-    public bool SplitSmz3 { get; set; }
     public double GenerationSeconds { get; set; }
     public string? ZipPath { get; set; }
     
@@ -44,18 +42,18 @@ public enum MsuGenerationRowType
 
 public class MsuGenerationRowViewModel : ViewModelBase
 {
-    [Reactive] public string Title { get; set; } = "";
+    [Reactive] public string Title { get; set; }
     
     [Reactive] public MsuSongInfo? SongInfo { get; set; }
 
-    [Reactive] public string Path { get; set; } = "";
+    [Reactive] public string Path { get; set; }
     [Reactive] public string PathDisplay { get; set; } = "";
     
     [Reactive] public bool HasLoaded { get; set; }
     
     [Reactive] public bool HasWarning { get; set; }
 
-    [Reactive] public string Message { get; set; } = "";
+    [Reactive] public string Message { get; set; }
 
     [Reactive] public bool CanParallelize { get; set; } = true;
 

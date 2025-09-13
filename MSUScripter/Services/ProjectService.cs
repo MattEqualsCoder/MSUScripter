@@ -187,6 +187,7 @@ public class ProjectService(
 
         var generationCacheFile = project.GetMsuGenerationCacheFilePath();
         var cacheFolder = Path.Combine(Directories.CacheFolder, "Generation");
+        logger.LogInformation("Attempting to load PCM cache from {Path}", generationCacheFile);
         if (File.Exists(generationCacheFile))
         {
             var cacheYaml = File.ReadAllText(generationCacheFile);

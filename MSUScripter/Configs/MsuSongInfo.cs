@@ -43,10 +43,7 @@ public class MsuSongInfo
     
     [JsonSchemaIgnore]
     public bool IsComplete { get; set; }
-    
-    [JsonSchemaIgnore]
-    public bool ShowPanel { get; set; } = true;
-    
+
     [JsonSchemaIgnore]
     public DateTime LastModifiedDate { get; set; }
     

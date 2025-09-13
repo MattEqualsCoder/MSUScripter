@@ -213,7 +213,7 @@ public class PyMusicLooperPanelService(
 
         var cts = _cts = new CancellationTokenSource();
 
-        ITaskService.Run(() =>
+        ITaskService.Run(async() =>
         {
             _model.IsRunning = true;
             _model.CanRun = false;
@@ -221,7 +221,7 @@ public class PyMusicLooperPanelService(
             
             var inputFile = _model.FilePath;
             
-            var response = pythonCompanionService.RunPyMusicLooper(new RunPyMusicLooperRequest()
+            var response = await pythonCompanionService.RunPyMusicLooperAsync(new RunPyMusicLooperRequest()
             {
                 File = inputFile,
                 MinDurationMultiplier = _model.MinDurationMultiplier,
@@ -243,7 +243,7 @@ public class PyMusicLooperPanelService(
             else if (response is { Successful: true, Pairs.Count: > 0 })
             {
                 _model.PyMusicLooperResults =
-                    response.Pairs.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, new decimal(x.Score))).ToList();
+                    response.Pairs.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
                 FilterResults();
 
                 if (_model.FilteredResults.Count > 0)
@@ -392,7 +392,7 @@ public class PyMusicLooperPanelService(
             throw new InvalidOperationException("Attempted to create a temp PCM without a file path");
         }
         var normalization = _model.Normalization ?? _model.MsuProject.BasicInfo.Normalization;
-        return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.FilePath, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
+        return await msuPcmService.CreateTempPcm(_model.MsuProject, _model.FilePath, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
     }
 
     private void GetLoopDuration(PyMusicLooperResultViewModel song)

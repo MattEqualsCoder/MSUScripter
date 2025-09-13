@@ -326,7 +326,7 @@ public class MsuProjectWindowService(
         }
     }
 
-    public void SaveCurrentPanel()
+    public bool SaveCurrentPanel()
     {
         if (_viewModel.MsuSongViewModel.IsEnabled)
         {
@@ -334,6 +334,7 @@ public class MsuProjectWindowService(
             if (_viewModel.MsuSongViewModel.LastModifiedDate > _viewModel.LastModifiedDate)
             {
                 _viewModel.LastModifiedDate = _viewModel.MsuSongViewModel.LastModifiedDate;
+                return true;
             }
         }
         else if (_viewModel.BasicInfoViewModel.IsVisible)
@@ -342,8 +343,11 @@ public class MsuProjectWindowService(
             if (_viewModel.BasicInfoViewModel.LastModifiedDate > _viewModel.LastModifiedDate)
             {
                 _viewModel.LastModifiedDate = _viewModel.BasicInfoViewModel.LastModifiedDate;
+                return true;
             }
         }
+
+        return false;
     }
 
     public void SaveProject(bool isBackup = false)
@@ -996,7 +1000,6 @@ public class MsuProjectWindowService(
         output.OutputPath = null;
         output.LastModifiedDate = new DateTime();
         output.IsComplete = false;
-        output.ShowPanel = false;
         output.MsuPcmInfo.ClearFieldsForYaml();
         output.IsAlt = false;
         var yamlText = yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);

@@ -34,7 +34,7 @@ public class MsuProject
     public string GetMsuGenerationTempFilePath(MsuSongInfo? song = null)
     {
         return song == null
-            ? Path.Combine(Directories.TempFolder, "Generation", Id)
+            ? Path.Combine(Directories.TempFolder, "Generation", Id, Guid.NewGuid().ToString("N"))
             : Path.Combine(Directories.TempFolder, "Generation", Id, song.Id);
     }
     

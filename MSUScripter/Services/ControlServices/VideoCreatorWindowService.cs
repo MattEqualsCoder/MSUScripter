@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ namespace MSUScripter.Services.ControlServices;
 public class VideoCreatorWindowService(
     ILogger<VideoCreatorWindowService> logger,
     PythonCompanionService companionService,
+    MsuPcmService msuPcmService,
     Settings settings) : ControlService
 {
     private readonly VideoCreatorWindowViewModel _model = new();
@@ -23,9 +25,10 @@ public class VideoCreatorWindowService(
     public VideoCreatorWindowViewModel InitializeModel(MsuProject project)
     {
         _model.PreviousPath = settings.PreviousPath;
-        
-        _model.PcmPaths = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs)
-            .Where(x => x.CheckCopyright == true && File.Exists(x.OutputPath)).Select(x => x.OutputPath).ToList();
+        _model.Project = project;
+        _model.Songs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
+        _model.PcmPaths = _model.Songs.Where(x => x.CheckCopyright == true && File.Exists(x.OutputPath))
+            .Select(x => x.OutputPath).ToList();
         
         if (_model.PcmPaths.Count == 0)
         {
@@ -59,9 +62,27 @@ public class VideoCreatorWindowService(
 
         _model.IsRunning = true;
         
-        ITaskService.Run(() =>
+        ITaskService.Run(async () =>
         {
-            var response = companionService.CreateVideo(new CreateVideoRequest()
+            await Parallel.ForEachAsync(_model.Songs,
+                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = cts.Token }, async (model, _) =>
+                {
+                    if (cts.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    try
+                    {
+                        await msuPcmService.CreatePcm(_model.Project!, model, false, true, true);
+                    }
+                    catch (Exception)
+                    {
+                        // Do nothing
+                    }
+                });
+            
+            var response = await companionService.CreateVideoAsync(new CreateVideoRequest
             {
                 Files = _model.PcmPaths.Where(x => !string.IsNullOrEmpty(x)).Cast<string>().ToList(),
                 OutputVideo = outputPath
@@ -86,7 +107,7 @@ public class VideoCreatorWindowService(
 
     public void Cancel()
     {
-        if (_cancellationTokenSource == null)
+        if (_cancellationTokenSource == null || _cancellationTokenSource.IsCancellationRequested)
         {
             return;
         }

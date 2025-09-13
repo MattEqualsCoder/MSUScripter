@@ -46,9 +46,9 @@ class PyMusicLooperRunner:
                 pair_dict = dict(
                     LoopStart=pair.loop_start,
                     LoopEnd=pair.loop_end,
-                    Score=float(pair.score),
-                    NoteDistance=pair.note_distance,
-                    LoudnessDifference=pair.loudness_difference
+                    Score=format(pair.score, '.10f'),
+                    NoteDistance=format(pair.note_distance, '.10f'),
+                    LoudnessDifference=format(pair.loudness_difference, '.10f')
                 )
                 pair_objects.append(pair_dict)
             return self.print_yaml(True, "", pair_objects)

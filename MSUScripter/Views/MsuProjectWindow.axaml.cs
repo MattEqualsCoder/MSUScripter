@@ -476,6 +476,15 @@ public partial class MsuProjectWindow : RestorableWindow
             BrowseMenu.Items.Add(menuItem);
         }
         
+        try
+        {
+            var menuItem = this.Find<Button>(nameof(SaveButton))!;
+            HotKeyManager.SetHotKey(menuItem, new KeyGesture(Key.S, KeyModifiers.Control));
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error setting up Ctrl-S save hot key");
+        }
     }
 
     private void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
@@ -484,7 +493,7 @@ public partial class MsuProjectWindow : RestorableWindow
         _ = OpenDialog(new AudioAnalysisWindow(_viewModel.MsuProject));
     }
 
-    private void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    public void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.SaveProject();
     }
@@ -635,7 +644,15 @@ public partial class MsuProjectWindow : RestorableWindow
     
     private void BackupTimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        _service?.SaveProject(true);
+        if (_viewModel?.MsuProject == null || _service == null)
+        {
+            return;
+        }
+
+        if (_service.SaveCurrentPanel())
+        {
+            _service.SaveProject(true);
+        }
     }
 
     private void OpenSettingsMenuItem_OnClick(object? sender, RoutedEventArgs e)

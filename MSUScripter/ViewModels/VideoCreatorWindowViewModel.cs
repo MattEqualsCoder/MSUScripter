@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
@@ -12,6 +13,8 @@ public class VideoCreatorWindowViewModel : TranslatedViewModelBase
     [Reactive] public string CloseButtonText { get; set; } = "Cancel";
     [Reactive] public bool IsRunning { get; set; }
     [Reactive] public double Percentage { get; set; }
+    public MsuProject? Project { get; set; }
+    public List<MsuSongInfo> Songs { get; set; } = [];
     public string? PreviousPath { get; set; }
         
     public override ViewModelBase DesignerExample()

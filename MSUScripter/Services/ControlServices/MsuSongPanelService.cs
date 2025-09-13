@@ -17,7 +17,8 @@ public class MsuSongPanelService(
     ConverterService converterService,
     YamlService yamlService,
     AudioMetadataService audioMetadataService,
-    SharedPcmService sharedPcmService,
+    MsuPcmService msuPcmService,
+    IAudioPlayerService audioPlayerService,
     AudioAnalysisService audioAnalysisService,
     ILogger<MsuSongPanelService> logger) : ControlService
 {
@@ -85,10 +86,10 @@ public class MsuSongPanelService(
             return;
         }
         
-        ITaskService.Run(() =>
+        ITaskService.Run(async () =>
         {
             model.SetSampleRate(44100);
-            var sampleRate = GetSampleRate(model.Project, path);
+            var sampleRate = await GetSampleRateAsync(model.Project, path);
             if (path == model.InputFilePath)
             {
                 model.SetSampleRate(sampleRate);
@@ -134,10 +135,10 @@ public class MsuSongPanelService(
             return;
         }
         
-        ITaskService.Run(() =>
+        ITaskService.Run(async() =>
         {
             var path = files.First();
-            var sampleRate = GetSavedSampleInfo(project, path) ?? GetSampleRate(project, path);
+            var sampleRate = GetSavedSampleInfo(project, path) ?? await GetSampleRateAsync(project, path);
             if (model.CurrentSongInfo == song)
             {
                 model.UpdateTrackWarnings(sampleRate != 44100, false, hasBothSubTracksAndSubChannels);
@@ -159,29 +160,49 @@ public class MsuSongPanelService(
         return null;
     }
 
-    private int GetSampleRate(MsuProject project, string path)
+    private async Task<int> GetSampleRateAsync(MsuProject project, string path)
     {
-        var sampleRate = audioAnalysisService.GetAudioSampleRate(path, out var successful);
+        var response = await audioAnalysisService.GetAudioSampleRateAsync(path);
         var fileInfo = new FileInfo(path);
-        if (successful)
+        if (response.Successful)
         {
             project.SampleRates[path] = new FileSampleInfo
             {
                 FileLength = fileInfo.Length,
-                SampleRate = sampleRate
+                SampleRate = response.SampleRate
             };
         }
-        return sampleRate;
+        return response.SampleRate;
     }
 
-    public Task<string?> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
+    public async Task<string?> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
     {
-        return sharedPcmService.PlaySong(project, song, testLoop);
+        var generateResponse = await GeneratePcm(project, song, false, false); 
+        if (!generateResponse.Successful)
+            return generateResponse.Message;
+        
+        if (string.IsNullOrEmpty(song.OutputPath) || !File.Exists(song.OutputPath))
+        {
+            return "No pcm file detected";
+        }
+
+        var msuTypeTrackInfo = project.MsuType.Tracks.FirstOrDefault(x => x.Number == song.TrackNumber);
+
+        if (await audioPlayerService.PlaySongAsync(song.OutputPath, testLoop, msuTypeTrackInfo?.NonLooping != false))
+        {
+            return "";
+        }
+
+        return "Failed to play PCM file";
     }
     
-    public Task<GeneratePcmFileResponse> GeneratePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool asEmpty)
+    public async Task<GeneratePcmFileResponse> GeneratePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool asEmpty)
     {
-        return sharedPcmService.GeneratePcmFile(project, song, asPrimary, asEmpty, false);
+        if (asEmpty)
+        {
+            return msuPcmService.CreateEmptyPcm(song);
+        }
+        return await msuPcmService.CreatePcm(project, song, asPrimary, false, true);
     }
     
     public async Task<AnalysisDataOutput?> AnalyzeAudio(MsuProject project, MsuSongInfo song)
@@ -191,8 +212,8 @@ public class MsuSongPanelService(
             return null;
         }
         
-        await sharedPcmService.PauseSong();
-        var response = await sharedPcmService.GeneratePcmFile(project, song, false, false, false);
+        await audioPlayerService.StopSongAsync(null, true);
+        var response = await msuPcmService.CreatePcm(project, song, false, false, true);
         if (!response.Successful)
         {
             return null;

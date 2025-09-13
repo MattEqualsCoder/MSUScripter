@@ -124,7 +124,6 @@ class Program
             .AddSingleton<DependencyInstallerService>()
             .AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundFlow>()
             .AddTransient<VideoCreatorWindowService>()
-            .AddTransient<SharedPcmService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
 

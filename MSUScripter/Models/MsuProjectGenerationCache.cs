@@ -5,7 +5,7 @@ namespace MSUScripter.Models;
 
 public class MsuProjectGenerationCache
 {
-    public readonly ConcurrentDictionary<string, MsuProjectSongCache> Songs = [];
+    public ConcurrentDictionary<string, MsuProjectSongCache> Songs { get; set; } = [];
 }
 
 public class MsuProjectSongCache
