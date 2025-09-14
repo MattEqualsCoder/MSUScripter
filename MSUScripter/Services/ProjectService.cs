@@ -282,17 +282,26 @@ public class ProjectService(
         return project;
     }
 
+    public void ConvertLegacySmz3Project(MsuProject msuProject)
+    {
+        try
+        {
+            var legacyMsuType =
+                msuTypeService.MsuTypes.First(x => x.DisplayName == "SMZ3 Combo Randomizer (Zelda First)");
+            ConvertProjectMsuType(msuProject, legacyMsuType, true);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error updating legacy SMZ3 project");
+        }
+    }
+
     private void ImportMsu(MsuProject project, string msuPath)
     {
         var msu = msuLookupService.LoadMsu(msuPath, project.MsuType);
 
         if (msu == null)
             return;
-
-        if (msu.MsuType != project.MsuType && msu.MsuType != null)
-        {
-            ConvertProjectMsuType(project, msu.MsuType);
-        }
 
         project.BasicInfo.PackName = msu.Name;
         project.BasicInfo.PackCreator = msu.Creator;
@@ -352,7 +361,7 @@ public class ProjectService(
         var msu = new FileInfo(project.MsuPath);
         var baseName = msu.Name.Replace(msu.Extension, "");
 
-        HashSet<string> swappedFiles = new HashSet<string>();
+        HashSet<string> swappedFiles = [];
         var newTracks = new List<MsuTrackInfo>();
         foreach (var oldTrack in project.Tracks)
         {
@@ -784,6 +793,8 @@ public class ProjectService(
         var msuFile = new FileInfo(project.MsuPath);
         var msuDirectory = msuFile.Directory!;
 
+        CreateMsuFiles(project);
+
         var tracks = new List<MSURandomizerLibrary.Configs.Track>();
 
         foreach (var projectTrack in project.Tracks.Where(x => !x.IsScratchPad))
@@ -945,77 +956,84 @@ public class ProjectService(
             return false;
         }
     }
-    //
-    // public bool ValidateProject(MsuProjectViewModel project, out string message)
-    // {
-    //     var msuPath = project.MsuPath;
-    //     var msu = msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
-    //
-    //     if (msu == null)
-    //     {
-    //         message = "Could not load MSU.";
-    //         statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //         return false;
-    //     }
-    //     
-    //     var projectSongs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
-    //
-    //     var projectTrackNumbers = projectSongs.Select(x => x.TrackNumber).Order().ToList();
-    //     var msuTrackNumbers = msu.Tracks.Where(x => !x.IsCopied).Select(x => x.Number).Order().ToList();
-    //     if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
-    //     {
-    //         foreach (var trackNumber in projectTrackNumbers.Concat(msuTrackNumbers).Distinct())
-    //         {
-    //             var projPaths = project.Tracks.First(x => x.TrackNumber == trackNumber).Songs
-    //                 .Select(x => x.OutputPath)
-    //                 .ToList();
-    //             var msuPaths = msu.Tracks.Where(x => x.Number == trackNumber).Select(x => x.Path).ToList();
-    //
-    //             var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).ToList();
-    //             if (missingMsuPaths.Any())
-    //             {
-    //                 message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
-    //                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //                 return false;
-    //             }
-    //             
-    //             var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x ?? "")).ToList();
-    //             if (missingProjPaths.Any())
-    //             {
-    //                 message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
-    //                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //                 return false;
-    //             }
-    //         }
-    //         message = "Could not load all tracks from the YAML file.";
-    //         statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //         return false;
-    //     }
-    //
-    //     foreach (var projectSong in projectSongs)
-    //     {
-    //         var filename = new FileInfo(projectSong.OutputPath!).Name;
-    //         var msuTrack = msu.Tracks.FirstOrDefault(x => x.Path.EndsWith(filename));
-    //
-    //         if (msuTrack == null)
-    //         {
-    //             message = $"Could not find track for song {projectSong.SongName} in the YAML file.";
-    //             statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //             return false;
-    //         }
-    //         else if ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
-    //                  (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? ""))
-    //         {
-    //             message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
-    //             statusBarService.UpdateStatusBar("YAML File Validation Failed");
-    //             return false;
-    //         }
-    //     }
-    //         
-    //     message = "";
-    //     statusBarService.UpdateStatusBar("YAML File Validated Successfully");
-    //     return true;
-    // }
+    
+    public bool ValidateProject(MsuProject project, out string message)
+    {
+        var msuPath = project.MsuPath;
+        var msu = msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
+    
+        if (msu == null)
+        {
+            message = "Could not load MSU.";
+            logger.LogWarning("Project validation failed: {Error}", message);
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
+            return false;
+        }
+        
+        var projectSongs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
+    
+        var projectTrackNumbers = projectSongs.Select(x => x.TrackNumber).Order().ToList();
+        var msuTrackNumbers = msu.Tracks.Where(x => !x.IsCopied).Select(x => x.Number).Order().ToList();
+        if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
+        {
+            foreach (var trackNumber in projectTrackNumbers.Concat(msuTrackNumbers).Distinct())
+            {
+                var projPaths = project.Tracks.First(x => x.TrackNumber == trackNumber).Songs
+                    .Select(x => x.OutputPath)
+                    .ToList();
+                var msuPaths = msu.Tracks.Where(x => x.Number == trackNumber).Select(x => x.Path).ToList();
+    
+                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).ToList();
+                if (missingMsuPaths.Any())
+                {
+                    message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    logger.LogWarning("Project validation failed: {Error}", message);
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
+                    return false;
+                }
+                
+                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x ?? "")).ToList();
+                if (missingProjPaths.Any())
+                {
+                    message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
+                    logger.LogWarning("Project validation failed: {Error}", message);
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
+                    return false;
+                }
+            }
+            message = "Could not load all tracks from the YAML file.";
+            logger.LogWarning("Project validation failed: {Error}", message);
+            statusBarService.UpdateStatusBar("YAML File Validation Failed");
+            return false;
+        }
+    
+        foreach (var projectSong in projectSongs)
+        {
+            var filename = new FileInfo(projectSong.OutputPath!).Name;
+            var msuTrack = msu.Tracks.FirstOrDefault(x => x.Path.EndsWith(filename));
+    
+            if (msuTrack == null)
+            {
+                message = $"Could not find track for song {projectSong.SongName} in the YAML file.";
+                logger.LogWarning("Project validation failed: {Error}", message);
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
+                return false;
+            }
+            else if ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
+                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? ""))
+            {
+                message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
+                logger.LogWarning("Project validation failed: {Error}", message);
+                statusBarService.UpdateStatusBar("YAML File Validation Failed");
+                return false;
+            }
+        }
+            
+        message = "";
+        logger.LogInformation("Project validated successfully");
+        statusBarService.UpdateStatusBar("YAML File Validated Successfully");
+        return true;
+    }
 
     private string GetProjectBackupFilePath(string projectFilePath)
     {

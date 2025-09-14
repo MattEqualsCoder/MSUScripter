@@ -151,6 +151,11 @@ public class MsuGenerationWindowService(
                 _model.GenerationErrors.Add($"- There {errorString} when running MsuPcm++");
             }
 
+            if (!projectService.ValidateProject(_model.MsuProject, out var validationError))
+            {
+                _model.GenerationErrors.Add(validationError);
+            }
+
             var end = DateTime.Now;
             var duration = end - start;
             _model.GenerationSeconds = Math.Round(duration.TotalSeconds, 2);

@@ -46,6 +46,8 @@ public class SettingsService
             Settings = settingsObject;
         }
 
+        Settings.RecentProjects = Settings.RecentProjects.Where(x => File.Exists(x.ProjectPath)).ToList();
+
         ScalableWindow.GlobalScaleFactor = decimal.ToDouble(Settings.UiScaling);
     }
 

@@ -189,7 +189,7 @@ public class MsuPcmService(
         if (!song.HasAudioFiles())
         {
             WriteFailureToStatusBar();
-            return new GeneratePcmFileResponse(false, false, "No audio files", null);
+            return new GeneratePcmFileResponse(false, false, "No input files selected.", null);
         }
         
         if (song.MsuPcmInfo.HasBothSubTracksAndSubChannels)

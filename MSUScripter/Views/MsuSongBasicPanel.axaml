@@ -130,14 +130,22 @@
                 />
                 
                 <!-- Trim Start -->
-                <views:FormLabel 
-                    Grid.Column="0"
-                    Grid.Row="4"
-                    Margin="0 8 3 2"
-                    LabelText="{Binding Text.MsuPcmTrimStartLabel}" 
-                    ToolTipText="{Binding Text.MsuPcmTrimStartToolTip}"
-                    IsVisible="{Binding EnableMsuPcm}"
-                />
+                <Grid Grid.Column="0" Grid.Row="4" ColumnDefinitions="*, Auto"> 
+                    <views:FormLabel
+                        Grid.Column="0"
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmTrimStartLabel}" 
+                        ToolTipText="{Binding Text.MsuPcmTrimStartToolTip}"
+                        IsVisible="{Binding EnableMsuPcm}"
+                    />
+                    <controls:LinkControl 
+                        Grid.Column="1" 
+                        Margin="0 6 3 2"
+                        Click="DetectStartingSamplesButton_OnClick"
+                    >
+                        Auto Detect
+                    </controls:LinkControl>
+                </Grid>
                 <controls:NumericUpDownNoScroll 
                     Grid.Row="5" 
                     Grid.Column="0"
@@ -148,14 +156,21 @@
                 />
                 
                 <!-- Trim End -->
-                <views:FormLabel 
-                    Grid.Column="1"
-                    Grid.Row="4"
-                    Margin="3 8 3 2"
-                    IsVisible="{Binding EnableMsuPcm}"
-                    LabelText="{Binding Text.MsuPcmTrimEndLabel}" 
-                    ToolTipText="{Binding Text.MsuPcmTrimEndToolTip}"
-                />
+                <Grid Grid.Column="1" Grid.Row="4" ColumnDefinitions="*, Auto" IsVisible="{Binding EnableMsuPcm}"> 
+                    <views:FormLabel
+                        Grid.Column="0"
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmTrimEndLabel}" 
+                        ToolTipText="{Binding Text.MsuPcmTrimEndToolTip}"
+                    />
+                    <controls:LinkControl 
+                        Grid.Column="1" 
+                        Margin="0 6 3 2"
+                        Click="DetectEndingSamplesButton_OnClick"
+                    >
+                        Auto Detect
+                    </controls:LinkControl>
+                </Grid>
                 <controls:NumericUpDownNoScroll
                     Grid.Row="5"
                     Grid.Column="1"

@@ -2,12 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Media;
+using Avalonia.Threading;
+using AvaloniaControls.Controls;
 using AvaloniaControls.ControlServices;
+using AvaloniaControls.Services;
 using DynamicData;
 using Material.Icons;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -21,6 +27,8 @@ public class MsuProjectWindowService(
     TrackListService trackListService,
     SettingsService settingsService,
     IAudioPlayerService audioPlayerService,
+    MsuPcmService msuPcmService,
+    PythonCompanionService pythonCompanionService,
     ILogger<MsuProjectWindowService> logger) : ControlService
 {
     private Settings Settings => settingsService.Settings;
@@ -139,6 +147,7 @@ public class MsuProjectWindowService(
             SongSummary = $"{completedSongs}/{totalSongs} Songs Completed",
             TrackSummary = $"{completedTracks}/{totalTracks} Tracks With Songs Added",
             WindowTitle = windowTitle,
+            PreviousVideoPath = settingsService.Settings.PreviousVideoPath
         };
         
         _viewModel.BasicInfoViewModel.UpdateModel(project);
@@ -702,6 +711,56 @@ public class MsuProjectWindowService(
         }
         
         _viewModel.LastModifiedDate = DateTime.Now;
+    }
+
+    public async Task CreateVideo(List<MsuSongInfo> songs, string videoPath, MessageWindow progressWindow, CancellationToken cancellationToken)
+    {
+        await ITaskService.Run(async () =>
+        {
+            await Parallel.ForEachAsync(songs,
+                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = cancellationToken }, async (song, _) =>
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    
+                    try
+                    {
+                        await msuPcmService.CreatePcm(_viewModel.MsuProject!, song, false, true, true);
+                    }
+                    catch (Exception)
+                    {
+                        // Do nothing
+                    }
+                });
+
+            var pcmFiles = songs.Select(x => x.OutputPath ?? "").Where(x => !string.IsNullOrEmpty(x) && File.Exists(x)).ToList();
+            
+            var response = await pythonCompanionService.CreateVideoAsync(new CreateVideoRequest
+            {
+                Files = pcmFiles,
+                OutputVideo = videoPath
+            }, progress =>
+            {
+                Dispatcher.UIThread.Invoke(() =>
+                {
+                    progressWindow.UpdateProgressBar(progress * 100);
+                });
+            }, cancellationToken);
+        
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                progressWindow.UpdateMessageText(response.Successful
+                    ? "Video generation successful"
+                    : "Error generating video");
+                progressWindow.UpdatePrimaryButtonText("Close");
+            });
+
+            settingsService.Settings.PreviousVideoPath = videoPath;
+            settingsService.TrySaveSettings();
+
+        }, cancellationToken);
     }
 
     private void HandleDragged(MsuProjectWindowViewModelTreeData from, MsuProjectWindowViewModelTreeData to)

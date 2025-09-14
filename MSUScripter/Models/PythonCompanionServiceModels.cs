@@ -20,6 +20,8 @@ public class GetSampleRateResponse : PythonCompanionModeResponse
 {
     public double Duration { get; set; }
     public int SampleRate { get; init; }
+    public int Channels { get; init; }
+    public int BitsPerSample { get; init; }
     public bool IsBlankSuccess { get; init; }
 }
 

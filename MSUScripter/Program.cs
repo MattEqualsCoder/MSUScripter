@@ -16,7 +16,6 @@ using Microsoft.Extensions.Hosting;
 using MSURandomizerLibrary;
 using MSUScripter.Models;
 using MSUScripter.Services;
-using MSUScripter.Services.ControlServices;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
 
@@ -123,7 +122,6 @@ class Program
             .AddSingleton<PythonCompanionService>()
             .AddSingleton<DependencyInstallerService>()
             .AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundFlow>()
-            .AddTransient<VideoCreatorWindowService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
 

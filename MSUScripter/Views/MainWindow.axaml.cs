@@ -93,6 +93,11 @@ public partial class MainWindow : RestorableWindow
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
     protected override int DefaultWidth => 1024;
     protected override int DefaultHeight => 768;
+
+    public void RefreshRecentProjects()
+    {
+        _service?.RefreshRecentProjects();
+    }
    
     private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
@@ -182,6 +187,11 @@ public partial class MainWindow : RestorableWindow
     {
         try
         {
+            if (_service == null)
+            {
+                return;
+            }
+            
             if (backupProject != null && await MessageWindow.ShowYesNoDialog(
                     "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
                     "Load Backup?", this))
@@ -189,7 +199,14 @@ public partial class MainWindow : RestorableWindow
                 project = backupProject;
             }
 
-            if (_service?.ValidateProjectPaths(project) == false)
+            if (_service.IsLegacySmz3Project(project) && await MessageWindow.ShowYesNoDialog(
+                    "This MSU is in the legacy format that is not supported by the mainline SMZ3. Do you want to update it to the modern SMZ3 format?",
+                    "Update MSU Type?", this))
+            {
+                _service.UpdateLegacySmz3Project(project);
+            }
+
+            if (_service.ValidateProjectPaths(project) == false)
             {
                 var window = new CopyProjectWindow();
                 var updatedProject = await window.ShowDialog(this, project, false);

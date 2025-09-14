@@ -43,11 +43,6 @@ public partial class MsuSongOuterPanel : UserControl
         this.GetControl<MsuSongAdvancedPanel>(nameof(MsuSongAdvancedPanel)).Service = _service;
     }
 
-    private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
-        throw new System.NotImplementedException();
-    }
-
     private void MsuSongBasicPanel_OnAdvancedModeToggled(object? sender, EventArgs e)
     {
         if (_viewModel?.SongInfo is null) return;

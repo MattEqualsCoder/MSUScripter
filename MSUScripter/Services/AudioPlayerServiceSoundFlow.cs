@@ -12,20 +12,13 @@ using SoundFlow.Providers;
 
 namespace MSUScripter.Services;
 
-public class AudioPlayerServiceSoundFlow : IAudioPlayerService
+public class AudioPlayerServiceSoundFlow(ILogger<AudioPlayerServiceSoundFlow> logger, Settings settings)
+    : IAudioPlayerService
 {
-    private readonly ILogger<AudioPlayerServiceSoundFlow> _logger;
-    private readonly Settings _settings;
     private SoundPlayer? _soundPlayer;
+    
     // ReSharper disable once NotAccessedField.Local
-    private MiniAudioEngine _audioEngine;
-
-    public AudioPlayerServiceSoundFlow(ILogger<AudioPlayerServiceSoundFlow> logger, Settings settings)
-    {
-        _logger = logger;
-        _settings = settings;
-        _audioEngine = new MiniAudioEngine(44100, Capability.Playback);
-    }
+    private MiniAudioEngine _audioEngine = new(44100, Capability.Playback);
 
     public string CurrentPlayingFile { get; set; } = "";
     
@@ -117,7 +110,7 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
         {
             for(var i = 0; i < 30; i++) 
             {
-                _logger.LogInformation($"{_soundPlayer.State}");
+                logger.LogInformation($"{_soundPlayer.State}");
                 await Task.Delay(200);
                 if (_soundPlayer.State != PlaybackState.Playing)
                 {
@@ -134,13 +127,13 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
                 _soundPlayer = null;
             }
 
-            _logger.LogInformation("Song stopped playing successfully");
+            logger.LogInformation("Song stopped playing successfully");
             
             return true;
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error stopping music");
+            logger.LogError(e, "Error stopping music");
 
             return false;
         }
@@ -156,7 +149,7 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
         
         _ = ITaskService.Run(() =>
         {
-            _logger.LogInformation("Playing song {Path}", path);
+            logger.LogInformation("Playing song {Path}", path);
             
             var initBytes = new byte[8];
             using (var reader = new BinaryReader(new FileStream(path, FileMode.Open)))
@@ -164,12 +157,12 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
                 reader.BaseStream.Seek(0, SeekOrigin.Begin);
                 if (reader.Read(initBytes, 0, 8) < 8)
                 {
-                    _logger.LogInformation("Invalid file");
+                    logger.LogInformation("Invalid file");
                     return;
                 }
             }
             
-            _logger.LogInformation("Audio file read");
+            logger.LogInformation("Audio file read");
 
             var loopSamples = BitConverter.ToInt32(initBytes, 4) * 1;
             var totalBytes = new FileInfo(path).Length - 8;
@@ -177,7 +170,7 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
             var startPosition = 0;
             if (fromEnd)
             {
-                var endSamples = totalSamples - 44100 * _settings.LoopDuration;
+                var endSamples = totalSamples - 44100 * settings.LoopDuration;
                 startPosition = (int)endSamples;
                 if (startPosition < 0)
                 {
@@ -210,7 +203,7 @@ public class AudioPlayerServiceSoundFlow : IAudioPlayerService
             // Start playback.
             _soundPlayer.Play();
             _soundPlayer.Seek(startPosition * 2);
-            _soundPlayer.Volume = (float)_settings.Volume;
+            _soundPlayer.Volume = (float)settings.Volume;
             _soundPlayer.Pan = 0.5f;
             
             PlayStarted?.Invoke(this, EventArgs.Empty);

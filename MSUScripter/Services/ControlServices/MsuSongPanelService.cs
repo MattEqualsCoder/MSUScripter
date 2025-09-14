@@ -177,18 +177,27 @@ public class MsuSongPanelService(
 
     public async Task<string?> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
     {
-        var generateResponse = await GeneratePcm(project, song, false, false); 
-        if (!generateResponse.Successful)
-            return generateResponse.Message;
-        
-        if (string.IsNullOrEmpty(song.OutputPath) || !File.Exists(song.OutputPath))
+        if (song.HasAudioFiles())
         {
-            return "No pcm file detected";
+            var generateResponse = await GeneratePcm(project, song, false, false);
+            if (!generateResponse.Successful)
+            {
+                return generateResponse.Message;
+            }
+            
+            if (string.IsNullOrEmpty(song.OutputPath) || !File.Exists(song.OutputPath))
+            {
+                return "No pcm file detected";
+            }
+        }
+        else if (!File.Exists(song.OutputPath))
+        {
+            return "No audio files found to be able to generate the audio files";
         }
 
         var msuTypeTrackInfo = project.MsuType.Tracks.FirstOrDefault(x => x.Number == song.TrackNumber);
 
-        if (await audioPlayerService.PlaySongAsync(song.OutputPath, testLoop, msuTypeTrackInfo?.NonLooping != false))
+        if (await audioPlayerService.PlaySongAsync(song.OutputPath, testLoop, msuTypeTrackInfo?.NonLooping != true))
         {
             return "";
         }
@@ -221,6 +230,16 @@ public class MsuSongPanelService(
         
         var output = await audioAnalysisService.AnalyzeAudio(song.OutputPath);
         return output;
+    }
+
+    public async Task<int> DetectStartingSamplesAsync(string file)
+    {
+        return await audioAnalysisService.GetAudioStartingSampleAsync(file);
+    }
+    
+    public async Task<int> DetectEndingSamplesAsync(string file)
+    {
+        return await audioAnalysisService.GetAudioEndingSampleAsync(file);
     }
 
     public void LogError(Exception ex, string message)

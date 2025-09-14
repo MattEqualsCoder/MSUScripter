@@ -9,6 +9,8 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using NAudio.Wave;
+using SoundFlow.Interfaces;
+using SoundFlow.Providers;
 using File = System.IO.File;
 
 namespace MSUScripter.Services;
@@ -144,28 +146,34 @@ public class AudioAnalysisService(
         
     }
 
-    public int GetAudioStartingSample(string path)
+    public async Task<int> GetAudioStartingSampleAsync(string path)
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw new InvalidOperationException("This is only supported on Windows");
-        }
-
         logger.LogInformation("GetAudioStartingSample");
         try
         {
+            GetSampleRateResponse? sampleRateInfo = null;
+            if (!OperatingSystem.IsWindows())
+            {
+                sampleRateInfo = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
+                {
+                    File = path
+                });
+            }
+            using var reader = new AudioReader(path, sampleRateInfo);
+            
             var totalSampleCount = 0;
-            var samples = 0;
+            int samples;
             var readBuffer = new float[10000];
             var quit = false;
-            var mp3 = new AudioFileReader(path);
+
+            var threshold = .0003;
             do
             {
-                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+                samples = reader.Read(readBuffer);
             
                 for (var i = 0; i < samples; i++)
                 {
-                    if (Math.Abs(readBuffer[i]) > .0003)
+                    if (Math.Abs(readBuffer[i]) > threshold)
                     {
                         totalSampleCount += i;
                         quit = true;
@@ -181,53 +189,57 @@ public class AudioAnalysisService(
             } while (!quit && samples == readBuffer.Length);
 
             statusBarService.UpdateStatusBar("Retrieved Starting Samples");
-            return totalSampleCount / mp3.WaveFormat.Channels;
+            return totalSampleCount / reader.Divider;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get audio samples for file");
-            throw;
+            return -1;
         }
-        
     }
 
-    public int GetAudioEndingSample(string path)
+    public async Task<int> GetAudioEndingSampleAsync(string path)
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw new InvalidOperationException("This is only supported on Windows");
-        }
-
         logger.LogInformation("GetAudioEndingSample");
         try
         {
-            var samples = 0;
+            GetSampleRateResponse? sampleRateInfo = null;
+            if (!OperatingSystem.IsWindows())
+            {
+                sampleRateInfo = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
+                {
+                    File = path
+                });
+            }
+            using var reader = new AudioReader(path, sampleRateInfo);
+            
+            int samples;
             var readBuffer = new float[10000];
-            var mp3 = new AudioFileReader(path);
-            int lastLoudSample = 0;
+            var lastLoudSample = 0;
+            
+            var threshold = .0003;
             do
             {
-                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+                samples = reader.Read(readBuffer);
 
                 for (var i = 0; i < samples; i++)
                 {
-                    if (Math.Abs(readBuffer[i]) > .0003)
+                    if (Math.Abs(readBuffer[i]) > threshold)
                     {
                         lastLoudSample++;
                     }
                 }
-
+                
             } while (samples == readBuffer.Length);
 
             statusBarService.UpdateStatusBar("Retrieved Ending Samples");
-            return lastLoudSample / mp3.WaveFormat.Channels;
+            return lastLoudSample / reader.Divider;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get audio samples for file");
             throw;
         }
-
     }
 
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
@@ -288,5 +300,52 @@ public class AudioAnalysisService(
     private double ConvertToDecibel(double value)
     {
         return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
+    }
+}
+
+public class AudioReader : IDisposable
+{
+    private readonly AudioFileReader? _windowsReader;
+    private readonly ISoundDataProvider? _linuxReader;
+
+    public AudioReader(string file, GetSampleRateResponse? sampleRateInfo = null)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            _windowsReader = new AudioFileReader(file);
+            Channels = _windowsReader.WaveFormat.Channels;
+            BytesPerSample = _windowsReader.WaveFormat.BitsPerSample / 8;
+            Divider = BytesPerSample * Channels;
+        }
+        else
+        {
+            _linuxReader = new StreamDataProvider(File.OpenRead(file));
+            Channels = sampleRateInfo?.Channels ?? 2;
+            BytesPerSample = sampleRateInfo?.BitsPerSample / 8 ?? 2;
+            Divider = 1;
+        }
+    }
+
+    public int Read(float[] buffer)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return _windowsReader!.Read(buffer, 0, buffer.Length);
+        }
+        else
+        {
+            return _linuxReader!.ReadBytes(buffer);
+        }
+    }
+    
+    public int Channels { get; init; }
+    public int BytesPerSample { get; init; }
+    public int BytesPerFrame => BytesPerSample * Channels;
+    public int Divider { get; init; }
+
+    public void Dispose()
+    {
+        _windowsReader?.Dispose();
+        _linuxReader?.Dispose();
     }
 }

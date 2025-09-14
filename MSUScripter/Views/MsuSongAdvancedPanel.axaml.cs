@@ -444,4 +444,46 @@ public partial class MsuSongAdvancedPanel : UserControl
             await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }
+
+    private async void DetectStartingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_viewModel == null || Service == null) return;
+            var samples = await Service.DetectStartingSamplesAsync(_viewModel.Input ?? "");
+            if (samples >= 0)
+            {
+                _viewModel.TrimStart = samples;
+            }
+            else
+            {
+                _ = MessageWindow.ShowErrorDialog("Failed to capture starting samples", "Error", this.GetTopLevelWindow());
+            }
+        }
+        catch
+        {
+            // Do nothing
+        }
+    }
+    
+    private async void DetectEndingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_viewModel == null || Service == null) return;
+            var samples = await Service.DetectEndingSamplesAsync(_viewModel.Input ?? "");
+            if (samples >= 0)
+            {
+                _viewModel.TrimEnd = samples;
+            }
+            else
+            {
+                _ = MessageWindow.ShowErrorDialog("Failed to capture ending samples", "Error", this.GetTopLevelWindow());
+            }
+        }
+        catch
+        {
+            // Do nothing
+        }
+    }
 }

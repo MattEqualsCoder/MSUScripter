@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using Avalonia;
@@ -8,17 +9,20 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 using FileInputControlType = AvaloniaControls.FileInputControlType;
+using Timer = System.Timers.Timer;
 
 namespace MSUScripter.Views;
 
@@ -510,12 +514,72 @@ public partial class MsuProjectWindow : RestorableWindow
         _ = OpenDialog(new MsuGenerationWindow(_viewModel.MsuProject));
     }
 
-    private void CopyrightYouTubeVideoMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    private async void CopyrightYouTubeVideoMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_viewModel?.MsuProject == null) return;
-        _service?.SaveProject();
-        _ = OpenDialog(new VideoCreatorWindow(_viewModel.MsuProject));
+        try
+        {
+            if (_service == null || _viewModel == null)
+            {
+                return;
+            }
+            
+            var songsForVideo = _viewModel.GetSongsForVideo();
+
+            if (songsForVideo.Count == 0)
+            {
+                _ = MessageWindow.ShowErrorDialog("No songs are currently selected to be added to the copyright test video", "No Songs Selected", this);
+                return;
+            }
+        
+            IStorageFolder? previousFolder;
+            if (!string.IsNullOrEmpty(_viewModel!.PreviousVideoPath))
+            {
+                previousFolder = await StorageProvider.TryGetFolderFromPathAsync(_viewModel.PreviousVideoPath);    
+            }
+            else
+            {
+                previousFolder = await StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
+            }
+
+            var file = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.SaveFile, "MP4 Video File:*.mp4",
+                previousFolder?.Path.LocalPath, "Select mp4 file");
+
+            if (string.IsNullOrEmpty(file?.Path.LocalPath))
+            {
+                return;
+            }
+        
+            var videoPath = file.Path.LocalPath;
+            if (!videoPath.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+            {
+                videoPath += ".mp4";
+            }
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            var messageWindow = new MessageWindow(new MessageWindowRequest()
+            {
+                Message = "Creating Video",
+                Title = "MSU Scripter",
+                Buttons = MessageWindowButtons.Close,
+                ProgressBar = MessageWindowProgressBarType.Normal,
+                PrimaryButtonText = "Cancel"
+            });
+
+            _ = messageWindow.ShowDialog(this);
+            _ = _service.CreateVideo(songsForVideo, videoPath, messageWindow, cancellationTokenSource.Token);
+            
+            messageWindow.Closing += (_, _) =>
+            {
+                cancellationTokenSource.Cancel();
+            };
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error generating video");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this);
+        }
     }
+    
 
     private void GenerateMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
@@ -581,6 +645,7 @@ public partial class MsuProjectWindow : RestorableWindow
         }
         _service?.OnClose();
         _backupTimer.Stop();
+        _parentWindow?.RefreshRecentProjects();
         _parentWindow?.Show();
     }
 
@@ -663,7 +728,6 @@ public partial class MsuProjectWindow : RestorableWindow
             _service?.LoadSettings();
         };
         settingsWindow.ShowDialog(this);
-        
     }
 
     private void AddNewSong(MsuProjectWindowViewModelTreeData? treeData = null, bool duplicate = false,

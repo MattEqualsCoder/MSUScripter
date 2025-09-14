@@ -111,8 +111,9 @@ public class MainWindowService(
 
             return (project, backupProject, null);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            logger.LogError(ex, "Error opening project");
             return (null, null, "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub");
         }
     }
@@ -122,15 +123,32 @@ public class MainWindowService(
         return project.Tracks.SelectMany(x => x.Songs).All(x => x.MsuPcmInfo.AreFilesValid());
     }
 
+    public void UpdateLegacySmz3Project(MsuProject project)
+    {
+        projectService.ConvertLegacySmz3Project(project);
+        projectService.SaveMsuProject(project, false);
+    }
+
+    public bool IsLegacySmz3Project(MsuProject project)
+    {
+        return project.MsuType.DisplayName == "SMZ3 Classic (Metroid First)";
+    }
+
+    public void RefreshRecentProjects()
+    {
+        _model.RecentProjects = settings.RecentProjects.Where(x => File.Exists(x.ProjectPath)).ToList();
+        settingsService.TrySaveSettings();
+    }
+
     public async Task<bool> ValidateDependencies()
     {
         var isMsuPcmServiceValid = msuPcmService.VerifyInstalled(out _);
-        var isCompanionServiceValid = pythonCompanionService.VerifyInstalledAsync();
+        var isCompanionServiceValid = await pythonCompanionService.VerifyInstalledAsync();
         if (settings.IgnoreMissingDependencies)
         {
             return true;
         }
-        return isMsuPcmServiceValid && await isCompanionServiceValid;
+        return isMsuPcmServiceValid && isCompanionServiceValid;
     }
     
     public void Shutdown()

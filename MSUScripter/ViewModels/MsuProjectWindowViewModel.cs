@@ -317,7 +317,6 @@ public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
 
         return matches;
     }
-
 }
 
 [SkipLastModified]
@@ -348,10 +347,10 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     public MsuProject? MsuProject { get; set; }
     public MsuSongOuterPanelViewModel MsuSongViewModel { get; set; } = new();
     public MsuBasicInfoViewModel BasicInfoViewModel { get; set; } = new();
-    [Reactive] public bool DisplayBasicPanel { get; set; } = true;
     [Reactive] public bool IsBusy { get; set; } = false;
     public List<RecentProject> RecentProjects { get; set; } = [];
     public DefaultSongPanel DefaultSongPanel { get; set; }
+    public string? PreviousVideoPath { get; set; }
     
     public override ViewModelBase DesignerExample()
     {
@@ -406,5 +405,11 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
         }
 
         return this;
+    }
+    
+    public List<MsuSongInfo> GetSongsForVideo()
+    {
+        return MsuProject?.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs)
+            .Where(x => x.CheckCopyright == true).ToList() ?? [];
     }
 }

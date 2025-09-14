@@ -9,6 +9,12 @@ using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
+public class MsuTypeDropdownOption
+{
+    public required string DisplayName { get; init; }
+    public required MsuType MsuType { get; init; }
+}
+
 public class MainWindowViewModel : TranslatedViewModelBase
 {
     [Reactive] public string Title { get; set; } = "MSU Scripter";

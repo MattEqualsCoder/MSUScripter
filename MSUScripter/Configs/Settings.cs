@@ -14,6 +14,7 @@ public class Settings
     public ICollection<RecentProject> RecentProjects { get; set; } = new List<RecentProject>();
     public double Volume { get; set; } = 1;
     public string? PreviousPath { get; set; }
+    public string? PreviousVideoPath { get; set; }
     public bool HideSubTracksSubChannelsWarning { get; set; }
     public bool AutomaticallyRunPyMusicLooper { get; set; } = true;
     public bool RunMsuPcmWithKeepTemps { get; set; }

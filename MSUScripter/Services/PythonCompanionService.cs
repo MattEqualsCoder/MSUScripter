@@ -60,9 +60,10 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         if (File.Exists(ffmpegPath))
         {
             var installedResult = await ValidateInstalledFfmpegAsync(ffmpegPath, 3);
-            if (installedResult.Success && installedResult.Result.StartsWith("ffmpeg version"))
+            if (installedResult.Success && installedResult.Result.StartsWith("ffmpeg version "))
             {
-                logger.LogInformation("FFmpeg validated successfully at {Path}: {Result}", ffmpegPath, installedResult.Result);
+                var parts = installedResult.Result.Split(" ", 4);
+                logger.LogInformation("FFmpeg validated successfully at {Path}: {Result}", ffmpegPath, $"{parts[0]} {parts[1]} {parts[2]}");
                 IsFfMpegValid = true;
                 _ffmpegPath = ffmpegFolder;
                 return true;
@@ -70,11 +71,12 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         }
         
         var pathResult = await RunInternalAsync(ffmpegAppName, "-version");
-        IsFfMpegValid = pathResult.Success && pathResult.Result.StartsWith("ffmpeg version");
+        IsFfMpegValid = pathResult.Success && pathResult.Result.StartsWith("ffmpeg version ");
         
-        if (IsValid)
+        if (IsFfMpegValid)
         {
-            logger.LogInformation("FFmpeg validated successfully from environment path: {Result}", pathResult.Result);
+            var parts = pathResult.Result.Split(" ", 4);
+            logger.LogInformation("FFmpeg validated successfully from environment: {Version}", $"{parts[0]} {parts[1]} {parts[2]}");
         }
         else
         {
@@ -167,6 +169,8 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
             {
                 var sampleRate = -1;
                 var duration = -1d;
+                var channels = 2;
+                int bitsPerSample = 2;
                 var lines = ffprobeResponse.Result.Split(["\r\n", "\r", "\n"], StringSplitOptions.None);
                 foreach (var line in lines.Where(x => x.Contains('=')))
                 {
@@ -179,6 +183,14 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                     {
                         duration = double.Parse(parts[1]);
                     }
+                    else if (parts[0] == "channels")
+                    {
+                        channels = int.Parse(parts[1]);
+                    }
+                    else if (parts[0] == "bits_per_sample")
+                    {
+                        bitsPerSample = int.Parse(parts[1]);
+                    }
                 }
 
                 if (sampleRate > 0 && duration > 0)
@@ -187,7 +199,9 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                     {
                         Successful = true,
                         SampleRate = sampleRate,
-                        Duration = duration
+                        Duration = duration,
+                        Channels = channels,
+                        BitsPerSample = bitsPerSample
                     };
                 }
                 else
@@ -350,6 +364,10 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         if (successful)
         {
             logger.LogInformation("Video creation successful");
+        }
+        else
+        {
+            logger.LogError("Error generating video: {Response}", response.Error);
         }
         
         return response;

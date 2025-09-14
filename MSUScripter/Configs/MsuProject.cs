@@ -77,13 +77,13 @@ public class MsuProject
     public string GetAltSwapperPath()
     {
         var fileInfo = new FileInfo(MsuPath);
-        return Path.Combine(fileInfo.DirectoryName ?? "", "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat");
+        return Path.Combine(fileInfo.DirectoryName ?? "", "!Swap_Alt_Tracks.bat");
     }
     
     public string GetSmz3SwapperPath()
     {
         var fileInfo = new FileInfo(MsuPath);
-        return Path.Combine(fileInfo.DirectoryName ?? "", "!Swap_Alt_Tracks.bat");
+        return Path.Combine(fileInfo.DirectoryName ?? "", "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat");
     }
 
     [YamlIgnore, SkipConvert] public MsuProjectGenerationCache GenerationCache { get; set; } = new();
