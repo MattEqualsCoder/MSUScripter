@@ -236,7 +236,7 @@ public class MsuPcmService(
         if (MsuProjectSongCache.IsValid(previousCache, currentCache))
         {
             logger.LogInformation("Song {SongId} matches cached data", outputPath);
-            return new GeneratePcmFileResponse(true, false, null, outputPath);
+            return new GeneratePcmFileResponse(true, true, null, outputPath);
         }
 
         logger.LogInformation("Generating PCM at {Path}", tempPcmPath);
@@ -259,7 +259,7 @@ public class MsuPcmService(
         }
         
         // Validate the MsuPcm++ header
-        var validationSuccessful = ValidatePcm(outputPath, out var validationResponse);
+        var validationSuccessful = ValidatePcm(tempPcmPath, out var validationResponse);
         if (!validationSuccessful)
         {
             logger.LogError("Generated PCM file has an error: {Error}", validationResponse);

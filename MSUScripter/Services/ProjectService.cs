@@ -983,16 +983,16 @@ public class ProjectService(
                     .ToList();
                 var msuPaths = msu.Tracks.Where(x => x.Number == trackNumber).Select(x => x.Path).ToList();
     
-                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).ToList();
+                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).Select(Path.GetFileName).ToList();
                 if (missingMsuPaths.Any())
                 {
-                    message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    message = $"{string.Join(", ", missingMsuPaths)} found in the project settings, but appears to be missing or not loading successfully.";
                     logger.LogWarning("Project validation failed: {Error}", message);
                     statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
                 
-                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x ?? "")).ToList();
+                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x)).Select(Path.GetFileName).ToList();
                 if (missingProjPaths.Any())
                 {
                     message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";

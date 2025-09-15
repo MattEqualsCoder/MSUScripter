@@ -416,6 +416,7 @@
                     Name="StatusMessage"
                     VerticalAlignment="Center"
                     TextAlignment="Center"
+                    HorizontalAlignment="Center"
                     Margin="5 11"
                     Height="16"
                     TextTrimming="CharacterEllipsis"

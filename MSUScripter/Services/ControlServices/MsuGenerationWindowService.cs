@@ -148,12 +148,12 @@ public class MsuGenerationWindowService(
             if (_model.NumErrors > 0)
             {
                 var errorString = _model.NumErrors == 1 ? "was 1 error" : $"were {_model.NumErrors} errors";
-                _model.GenerationErrors.Add($"- There {errorString} when running MsuPcm++");
+                _model.GenerationErrors.Add($" - There were {errorString} when generating the MSU project.");
             }
 
             if (!projectService.ValidateProject(_model.MsuProject, out var validationError))
             {
-                _model.GenerationErrors.Add(validationError);
+                _model.GenerationErrors.Add($" - {validationError}");
             }
 
             var end = DateTime.Now;
@@ -311,6 +311,23 @@ public class MsuGenerationWindowService(
     {
         if (_cts.IsCancellationRequested)
         {
+            return true;
+        }
+
+        if (!_model.MsuProject.BasicInfo.IsMsuPcmProject)
+        {
+            if (!File.Exists(rowDetails.Path))
+            {
+                rowDetails.HasWarning = true;
+                rowDetails.Message = "PCM file not found";
+                _model.NumErrors++;
+            }
+            else
+            {
+                rowDetails.Message = "Waiting";
+            }
+            
+            _model.SongsCompleted++;
             return true;
         }
                     

@@ -134,12 +134,14 @@
                     Margin="3 5 3 2"
                     LabelText="{Binding Text.MsuBasicInfoMsuPcmNormalizationLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoMsuPcmNormalizationToolTip}"
+                    IsVisible="{Binding IsMsuPcmProject}"
                 />
                 <controls1:NumericUpDownNoScroll 
                     Grid.Column="1"
                     Grid.Row="5"
                     Margin="3 5 3 2"
                     Value="{Binding Path=Normalization, Mode=TwoWay }"
+                    IsVisible="{Binding IsMsuPcmProject}"
                     Increment="0.1"
                 />
                 
@@ -150,6 +152,7 @@
                     Margin="3 5 0 2"
                     LabelText="{Binding Text.MsuBasicInfoMsuPcmDitherLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoMsuPcmDitherToolTip}"
+                    IsVisible="{Binding IsMsuPcmProject}"
                 />
                 <controls1:EnumComboBox
                     Grid.Column="2"
@@ -157,6 +160,7 @@
                     Margin="3 5 0 2"
                     EnumType="{Binding DitherType, Converter={StaticResource TypeConverter}}"
                     Value="{Binding DitherType, Mode=TwoWay}"
+                    IsVisible="{Binding IsMsuPcmProject}"
                     ValueChanged="DitherEnumComboBox_OnValueChanged"
                 />
                     

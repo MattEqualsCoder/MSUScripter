@@ -42,6 +42,7 @@
                     Grid.ColumnSpan="{Binding InputColumnSpan}" 
                     LabelText="{Binding Text.InputAudioFileLabel}" 
                     ToolTipText="{Binding Text.InputAudioFileToolTip}"
+                    IsVisible="{Binding DisplayInputFile}"
                 />
                 <controls:FileControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="{Binding InputColumnSpan}"
                                        Name="InputFileControl"
@@ -130,13 +131,12 @@
                 />
                 
                 <!-- Trim Start -->
-                <Grid Grid.Column="0" Grid.Row="4" ColumnDefinitions="*, Auto"> 
+                <Grid Grid.Column="0" Grid.Row="4" ColumnDefinitions="*, Auto" IsVisible="{Binding EnableMsuPcm}"> 
                     <views:FormLabel
                         Grid.Column="0"
                         Margin="0 8 3 2"
                         LabelText="{Binding Text.MsuPcmTrimStartLabel}" 
                         ToolTipText="{Binding Text.MsuPcmTrimStartToolTip}"
-                        IsVisible="{Binding EnableMsuPcm}"
                     />
                     <controls:LinkControl 
                         Grid.Column="1" 

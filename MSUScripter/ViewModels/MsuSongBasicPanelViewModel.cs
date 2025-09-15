@@ -161,7 +161,6 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
         _currentSongInfo.MsuPcmInfo.Loop = LoopPoint;
         _currentSongInfo.MsuPcmInfo.Normalization = Normalization;
         HasBeenModified = false;
-        Console.WriteLine("Saved Changes");
     }
 
     public override ViewModelBase DesignerExample()

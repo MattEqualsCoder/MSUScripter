@@ -326,7 +326,11 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                 {
                     try
                     {
-                        var text = await File.ReadAllTextAsync(request.ProgressFile, cts.Token);
+                        await using var fs = new FileStream(request.ProgressFile, FileMode.Open, FileAccess.Read,
+                            FileShare.ReadWrite);
+                        using var reader = new StreamReader(fs);
+        
+                        var text = await reader.ReadToEndAsync(cts.Token);
                         if (text.Contains('|'))
                         {
                             var parts = text.Split("|");
@@ -335,14 +339,11 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                             var totalPercentage = (section * 0.33f) + (percentage / 100 * 0.33);
                             updateCallback(totalPercentage);
                         }
-                        else
-                        {
-                            logger.LogWarning("Unexpected progress file text: {Text}", text);
-                        }
+                        // Do nothing
                     }
                     catch
                     {
-                        logger.LogWarning("Error getting progress file");
+                        // Do nothing
                     }
 
                     await Task.Delay(TimeSpan.FromSeconds(1), cts.Token);

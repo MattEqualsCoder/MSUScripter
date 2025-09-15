@@ -38,8 +38,6 @@ public class MsuTrackInfo
             var oldIsAlt = oldIndex > 0;
             string oldDefaultOutputPath;
             
-            Console.WriteLine($"{Songs[i].SongName} from {oldIndex} => {i}");
-
             if (!oldIsAlt)
             {
                 oldDefaultOutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}.pcm");
@@ -50,8 +48,6 @@ public class MsuTrackInfo
                 oldDefaultOutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}_{altSuffix}.pcm");
             }
             
-            Console.WriteLine($"{Songs[i].OutputPath} == {oldDefaultOutputPath}");
-
             if (Songs[i].OutputPath == oldDefaultOutputPath)
             {
                 var altSuffix = i == 1 ? "alt" : $"alt{i}";

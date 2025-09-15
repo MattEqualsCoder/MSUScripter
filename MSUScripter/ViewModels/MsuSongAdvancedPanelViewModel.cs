@@ -341,7 +341,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         {
             _hoveredItem = null;
             _draggedItem = treeData;
-            Console.WriteLine($"Started dragging {treeData.Name}");
         }
     }
     
@@ -434,7 +433,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
     private void HandleDragged(MsuSongAdvancedPanelViewModelModelTreeData from, MsuSongAdvancedPanelViewModelModelTreeData to)
     {
-        Console.WriteLine($"Dragged {from.Name} to {to.Name}");
         var parentTreeData = to.MsuPcmInfo == null ? to : to.ParentTreeData;
         var parent = parentTreeData?.ParentTreeData?.MsuPcmInfo;
         var destinationIndex = to.MsuPcmInfo == null ? 0 : to.ParentTreeData?.ChildrenTreeData.IndexOf(to) + 1;
