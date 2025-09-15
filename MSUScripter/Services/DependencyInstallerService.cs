@@ -29,41 +29,40 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
 
         try
         {
-            response.Invoke("Creating directories");
+            response.Invoke("Setting up directories");
             var destination = Path.Combine(Directories.Dependencies, "python");
 
             if (Directory.Exists(destination))
             {
-                Directory.Delete(destination, true);
+                logger.LogInformation("Deleting prior Python installation");
+                try
+                {
+                    await ITaskService.Run(() =>
+                    {
+                        Directory.Delete(destination, true);
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                    // Do Nothing
+                }
             }
 
             EnsureFolders(destination);
 
-            var copyFrom = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath) ?? "", "dependencies", "python");
-            if (Directory.Exists(copyFrom))
+            var tempFile = Path.Combine(Directories.TempFolder, "python.tar.gz");
+            var url = OperatingSystem.IsWindows() ? PythonWindowsDownloadUrl : PythonLinuxDownloadUrl;
+
+            response.Invoke("Downloading Python");
+            if (!await DownloadFileAsync(url, tempFile))
             {
-                response.Invoke("Copying files");
-                if (!await CopyDirectory(copyFrom, destination))
-                {
-                    return false;
-                }
+                return false;
             }
-            else
+
+            response.Invoke("Extracting Python files");
+            if (!await ExtractTarGzFile(tempFile, Directories.Dependencies))
             {
-                var tempFile = Path.Combine(Directories.TempFolder, "python.tar.gz");
-                var url = OperatingSystem.IsWindows() ? PythonWindowsDownloadUrl : PythonLinuxDownloadUrl;
-
-                response.Invoke("Downloading python");
-                if (!await DownloadFileAsync(url, tempFile))
-                {
-                    return false;
-                }
-
-                response.Invoke("Extracting files");
-                if (!await ExtractTarGzFile(tempFile, Directories.Dependencies))
-                {
-                    return false;
-                }
+                return false;
             }
 
             var pythonPath = OperatingSystem.IsWindows()
@@ -116,7 +115,7 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
         
         try
         {
-            progress.Invoke("Creating directory");
+            progress.Invoke("Setting up directories");
             EnsureFolders();
             
             var destination = Path.Combine(Directories.Dependencies, OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm");
@@ -159,18 +158,42 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
         
         try
         {
-            progress.Invoke("Creating directories");
+            progress.Invoke("Setting up directories");
             var tempExtractionPath = Path.Combine(Directories.TempFolder, "ffmpeg");
             var destination = Path.Combine(Directories.Dependencies, "ffmpeg");
             
             if (Directory.Exists(tempExtractionPath))
             {
-                Directory.Delete(tempExtractionPath, true);
+                logger.LogInformation("Deleting prior FFmpeg installation");
+                
+                try
+                {
+                    await ITaskService.Run(() =>
+                    {
+                        Directory.Delete(tempExtractionPath, true);
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                    // Do Nothing
+                }
             }
             
             if (Directory.Exists(destination))
             {
-                Directory.Delete(destination, true);
+                logger.LogInformation("Deleting prior FFmpeg installation");
+                
+                try
+                {
+                    await ITaskService.Run(() =>
+                    {
+                        Directory.Delete(destination, true);
+                    });
+                }
+                catch (TaskCanceledException)
+                {
+                    // Do Nothing
+                }
             }
             
             EnsureFolders(tempExtractionPath, destination);

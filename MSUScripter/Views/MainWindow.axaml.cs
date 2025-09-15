@@ -38,53 +38,52 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
-    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_model.InitProject != null)
+        try
         {
-            _ = LoadProject(_model.InitProject);
-        }
+            if (_model.InitProject != null)
+            {
+                _ = LoadProject(_model.InitProject);
+            }
 
-        _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
-        _model.NewProjectBackground = _model.ActiveTabBackground;
-
-        if (_model.RecentProjects.Count == 0)
-        {
+            _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
             _model.NewProjectBackground = _model.ActiveTabBackground;
-            _model.OpenProjectBackground = Brushes.Transparent;
-            _model.DisplayNewProjectPage = true;
-            _model.DisplayOpenProjectPage = false;
-        }
-        else
-        {
-            _model.NewProjectBackground = Brushes.Transparent;
-            _model.OpenProjectBackground = _model.ActiveTabBackground;
-            _model.DisplayNewProjectPage = false;
-            _model.DisplayOpenProjectPage = true;
-        }
 
-        ValidateDependencies();
-    }
-    
-    private void ValidateDependencies()
-    {
-        if (_service == null)
-        {
-            return;
-        }
-        
-        Dispatcher.UIThread.Invoke(async () =>
-        {
+            if (_model.RecentProjects.Count == 0)
+            {
+                _model.NewProjectBackground = _model.ActiveTabBackground;
+                _model.OpenProjectBackground = Brushes.Transparent;
+                _model.DisplayNewProjectPage = true;
+                _model.DisplayOpenProjectPage = false;
+            }
+            else
+            {
+                _model.NewProjectBackground = Brushes.Transparent;
+                _model.OpenProjectBackground = _model.ActiveTabBackground;
+                _model.DisplayNewProjectPage = false;
+                _model.DisplayOpenProjectPage = true;
+            }
+
+            if (_service == null) return;
             await Task.Delay(100);
-            if (await _service.ValidateDependencies() == false)
+            if (!await _service.ValidateDependencies())
             {
                 var dependencyWindow = new InstallDependenciesWindow();
+                _model.ValidatedDependencies = true;
                 await dependencyWindow.ShowDialog(this);
             }
-        });
-
+            else
+            {
+                _model.ValidatedDependencies = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error loading main window");
+        }
     }
-  
+    
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
         _service?.Shutdown();

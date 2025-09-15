@@ -51,6 +51,7 @@ public class MainWindowViewModel : TranslatedViewModelBase
     [Reactive] public bool DisplayOpenProjectPage { get; set; } = true;
     [Reactive] public bool DisplaySettingsPage { get; set; }
     [Reactive] public bool DisplayAboutPage { get; set; }
+    [Reactive] public bool ValidatedDependencies { get; set; }
     [Reactive] public List<RecentProject> RecentProjects { get; set; } = [];
     [Reactive] public RecentProject? SelectedRecentProject { get; set; }
     [Reactive] public IBrush NewProjectBackground { get; set; } = Brushes.Transparent;

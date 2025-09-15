@@ -63,25 +63,6 @@ public class MainWindowService(
         return _model;
     }
 
-    public void OpenGitHubReleasePage()
-    {
-        // TODO: Make sure this is working?
-        if (string.IsNullOrEmpty(_model.GitHubReleaseUrl)) return;
-        CrossPlatformTools.OpenUrl(_model.GitHubReleaseUrl);
-    }
-
-    public void CloseNewReleaseBanner(bool permanently)
-    {
-        // TODO: Make sure this is working?
-        if (permanently)
-        {
-            settings.CheckForUpdates = false;
-            settingsService.SaveSettings();
-        }
-
-        _model.GitHubReleaseUrl = "";
-    }
-    
     public (MsuProject? mainProject, MsuProject? backupProject, string? error) LoadProject(string? path = null)
     {
         path ??= _model.SelectedRecentProject?.ProjectPath;

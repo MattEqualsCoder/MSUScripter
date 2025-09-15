@@ -299,7 +299,7 @@ public class AudioReader : IDisposable
             _windowsReader = new AudioFileReader(file);
             Channels = _windowsReader.WaveFormat.Channels;
             BytesPerSample = _windowsReader.WaveFormat.BitsPerSample / 8;
-            Divider = BytesPerSample * Channels;
+            Divider = Channels;
         }
         else
         {

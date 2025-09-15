@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
 using MSUScripter.ViewModels;
@@ -21,6 +22,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
     {
         _viewModel.MsuPcmState = InstallState.InProgress;
         _viewModel.MsuPcmInstallProgress = "Starting";
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
         var result = await msuPcmService.Install(progress =>
         {
             _viewModel.MsuPcmInstallProgress = progress;
@@ -61,6 +63,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
     {
         _viewModel.FfmpegState = InstallState.InProgress;
         _viewModel.FfmpegInstallProgress = "Starting";
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
         var result = await pythonCompanionService.InstallFfmpegAsync(progress =>
         {
             _viewModel.FfmpegInstallProgress = progress;
@@ -99,6 +102,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
     {
         _viewModel.PyAppState = InstallState.InProgress;
         _viewModel.PyAppInstallProgress = "Starting";
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
         var result = await pythonCompanionService.InstallPyApp(progress =>
         {
             _viewModel.PyAppInstallProgress = progress;
