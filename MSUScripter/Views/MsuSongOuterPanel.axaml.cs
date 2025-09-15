@@ -1,10 +1,12 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
-using AvaloniaControls.Services;
+using AvaloniaControls.Models;
+using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
 using MSUScripter.ViewModels;
@@ -14,7 +16,7 @@ namespace MSUScripter.Views;
 public partial class MsuSongOuterPanel : UserControl
 {
     private MsuSongOuterPanelViewModel? _viewModel;
-    private MsuSongPanelService? _service;
+    private readonly MsuSongPanelService? _service;
     
     public MsuSongOuterPanel()
     {
@@ -91,17 +93,41 @@ public partial class MsuSongOuterPanel : UserControl
             }
             
             _viewModel.SaveChanges();
-            var message = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, false);
-            if (!string.IsNullOrEmpty(message))
-            {
-                _ = MessageWindow.ShowErrorDialog(message, "Error",
-                    TopLevel.GetTopLevel(this) as Window);
-            }
+            var response = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, false);
+            await HandleMsuPcmResponse(response);
         }
         catch (Exception ex)
         {
             _service?.LogError(ex, "Error playing song");
             await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
+        }
+    }
+
+    private async Task HandleMsuPcmResponse(GeneratePcmFileResponse response)
+    {
+        if (response.Successful)
+        {
+            return;
+        }
+        
+        if (response.GeneratedPcmFile && !string.IsNullOrEmpty(response.Message))
+        {
+            var messageWindow = new MessageWindow(new MessageWindowRequest
+            {
+                Message = $"MsuPcm++ generated the file, but with the following error: {response.Message}",
+                Title = "PCM Generation Error",
+                CheckBoxText = "Ignore this error for future songs"
+            });
+            await messageWindow.ShowDialog(this.GetTopLevelWindow());
+            if (messageWindow.DialogResult?.CheckedBox == true)
+            {
+                _viewModel?.Project?.IgnoreWarnings.Add(response.Message);
+            }
+        }
+        else
+        {
+            await MessageWindow.ShowErrorDialog(response.Message ?? "Error generating PCM file", "PCM Generation Error",
+                TopLevel.GetTopLevel(this) as Window);
         }
     }
 
@@ -114,12 +140,8 @@ public partial class MsuSongOuterPanel : UserControl
                 return;
             }
             _viewModel.SaveChanges();
-            var message = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, true);
-            if (!string.IsNullOrEmpty(message))
-            {
-                _ = MessageWindow.ShowErrorDialog(message, "Error",
-                    TopLevel.GetTopLevel(this) as Window);
-            }
+            var response = await _service.PlaySong(_viewModel.Project, _viewModel.SongInfo, true);
+            await HandleMsuPcmResponse(response);
         }
         catch (Exception ex)
         {
@@ -137,13 +159,10 @@ public partial class MsuSongOuterPanel : UserControl
                 return;
             }
             
+            
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, false, false);
-            if (!response.Successful)
-            {
-                _ = MessageWindow.ShowErrorDialog(response.Message ?? "Could not generate PCM file", "Error",
-                    TopLevel.GetTopLevel(this) as Window);
-            }
+            await HandleMsuPcmResponse(response);
         }
         catch (Exception ex)
         {
@@ -163,11 +182,7 @@ public partial class MsuSongOuterPanel : UserControl
             
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, false, true);
-            if (!response.Successful)
-            {
-                _ = MessageWindow.ShowErrorDialog(response.Message ?? "Could not generate PCM file", "Error",
-                    TopLevel.GetTopLevel(this) as Window);
-            }
+            await HandleMsuPcmResponse(response);
         }
         catch (Exception ex)
         {

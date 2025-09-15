@@ -20,6 +20,7 @@ public class MsuSongPanelService(
     MsuPcmService msuPcmService,
     IAudioPlayerService audioPlayerService,
     AudioAnalysisService audioAnalysisService,
+    PythonCompanionService pythonCompanionService,
     ILogger<MsuSongPanelService> logger) : ControlService
 {
     public string? GetMsuPcmInfoCopyText(MsuSongMsuPcmInfo msuPcmInfo)
@@ -175,34 +176,34 @@ public class MsuSongPanelService(
         return response.SampleRate;
     }
 
-    public async Task<string?> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
+    public async Task<GeneratePcmFileResponse> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
     {
         if (song.HasAudioFiles())
         {
             var generateResponse = await GeneratePcm(project, song, false, false);
-            if (!generateResponse.Successful)
+            if (!generateResponse.GeneratedPcmFile)
             {
-                return generateResponse.Message;
+                return generateResponse;
             }
             
             if (string.IsNullOrEmpty(song.OutputPath) || !File.Exists(song.OutputPath))
             {
-                return "No pcm file detected";
+                return generateResponse;
             }
         }
         else if (!File.Exists(song.OutputPath))
         {
-            return "No audio files found to be able to generate the audio files";
+            return new GeneratePcmFileResponse(false, false, "PCM file not found", song.OutputPath);
         }
 
         var msuTypeTrackInfo = project.MsuType.Tracks.FirstOrDefault(x => x.Number == song.TrackNumber);
 
         if (await audioPlayerService.PlaySongAsync(song.OutputPath, testLoop, msuTypeTrackInfo?.NonLooping != true))
         {
-            return "";
+            return new GeneratePcmFileResponse(true, false, "", song.OutputPath);
         }
 
-        return "Failed to play PCM file";
+        return new GeneratePcmFileResponse(false, false, "Error playing PCM file", song.OutputPath);
     }
     
     public async Task<GeneratePcmFileResponse> GeneratePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool asEmpty)
@@ -232,18 +233,33 @@ public class MsuSongPanelService(
         return output;
     }
 
-    public async Task<int> DetectStartingSamplesAsync(string file)
+    public int DetectStartingSamples(string file)
     {
-        return await audioAnalysisService.GetAudioStartingSampleAsync(file);
+        return audioAnalysisService.GetAudioStartingSample(file);
     }
     
-    public async Task<int> DetectEndingSamplesAsync(string file)
+    public int DetectEndingSamples(string file)
     {
-        return await audioAnalysisService.GetAudioEndingSampleAsync(file);
+        return audioAnalysisService.GetAudioEndingSample(file);
     }
 
     public void LogError(Exception ex, string message)
     {
         logger.LogError(ex, "{Message}", message);
+    }
+
+    public bool CanGenerateMsuPcmFiles()
+    {
+        return msuPcmService.IsValid;
+    }
+
+    public bool CanGenerateVideos()
+    {
+        return pythonCompanionService.IsValid;
+    }
+
+    public bool CanRunPyMusicLooper()
+    {
+        return pythonCompanionService.IsValid;
     }
 }

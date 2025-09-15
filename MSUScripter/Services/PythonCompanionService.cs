@@ -49,7 +49,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         return IsValid;
     }
 
-    private async Task<bool> VerifyFfMpegAsync()
+    public async Task<bool> VerifyFfMpegAsync()
     {
         var ffmpegFolder = Path.Combine(Directories.Dependencies, "ffmpeg", "bin");
         var ffmpegAppName = OperatingSystem.IsWindows() ? "ffmpeg.exe" : "ffmpeg";

@@ -146,20 +146,12 @@ public class AudioAnalysisService(
         
     }
 
-    public async Task<int> GetAudioStartingSampleAsync(string path)
+    public int GetAudioStartingSample(string path)
     {
         logger.LogInformation("GetAudioStartingSample");
         try
         {
-            GetSampleRateResponse? sampleRateInfo = null;
-            if (!OperatingSystem.IsWindows())
-            {
-                sampleRateInfo = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
-                {
-                    File = path
-                });
-            }
-            using var reader = new AudioReader(path, sampleRateInfo);
+            using var reader = new AudioReader(path);
             
             var totalSampleCount = 0;
             int samples;
@@ -198,20 +190,12 @@ public class AudioAnalysisService(
         }
     }
 
-    public async Task<int> GetAudioEndingSampleAsync(string path)
+    public int GetAudioEndingSample(string path)
     {
         logger.LogInformation("GetAudioEndingSample");
         try
         {
-            GetSampleRateResponse? sampleRateInfo = null;
-            if (!OperatingSystem.IsWindows())
-            {
-                sampleRateInfo = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
-                {
-                    File = path
-                });
-            }
-            using var reader = new AudioReader(path, sampleRateInfo);
+            using var reader = new AudioReader(path);
             
             int samples;
             var readBuffer = new float[10000];
@@ -238,7 +222,7 @@ public class AudioAnalysisService(
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get audio samples for file");
-            throw;
+            return -1;
         }
     }
 
@@ -308,7 +292,7 @@ public class AudioReader : IDisposable
     private readonly AudioFileReader? _windowsReader;
     private readonly ISoundDataProvider? _linuxReader;
 
-    public AudioReader(string file, GetSampleRateResponse? sampleRateInfo = null)
+    public AudioReader(string file)
     {
         if (OperatingSystem.IsWindows())
         {
@@ -320,8 +304,6 @@ public class AudioReader : IDisposable
         else
         {
             _linuxReader = new StreamDataProvider(File.OpenRead(file));
-            Channels = sampleRateInfo?.Channels ?? 2;
-            BytesPerSample = sampleRateInfo?.BitsPerSample / 8 ?? 2;
             Divider = 1;
         }
     }

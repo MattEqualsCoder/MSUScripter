@@ -41,11 +41,13 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified] public bool DisplayInputFile { get; set; } = true;
     [Reactive, SkipLastModified] public bool IsEnabled { get; set; } = true;
     [Reactive, SkipLastModified] public bool IsAdvancedMode { get; set; }
-    [Reactive, SkipLastModified] public bool EnableMsuPcm { get; set; } = true;
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public bool EnableMsuPcm { get; set; } = true;
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public bool PyMusicLooperEnabled { get; set; } = true;
     [Reactive, SkipLastModified] public int InputColumnSpan { get; set; } = 2;
     [Reactive, SkipLastModified] public int OutputColumn { get; set; } = 2;
     [Reactive, SkipLastModified] public int OutputColumnSpan { get; set; } = 2;
     [Reactive, SkipLastModified] public bool DisplaySampleRateWarning { get; set; }
+    public bool DisplayPyMusicLooperPanel => EnableMsuPcm && PyMusicLooperEnabled;
     public MsuProject? Project { get; set; }
     public bool HasSelectedInputFile => !string.IsNullOrEmpty(InputFilePath);
 

@@ -214,6 +214,7 @@ public class MsuProjectWindowService(
     public void LoadSettings()
     {
         _viewModel.DefaultSongPanel = settingsService.Settings.DefaultSongPanel;
+        _viewModel.MsuSongViewModel.BasicPanelViewModel.PyMusicLooperEnabled = pythonCompanionService.IsValid;
     }
 
     public void UpdateCompletedSummary()
@@ -320,6 +321,7 @@ public class MsuProjectWindowService(
             SaveCurrentPanel();
             _viewModel.CurrentTreeItem = treeData;
             _viewModel.BasicInfoViewModel.IsVisible = false;
+            _viewModel.MsuSongViewModel.BasicPanelViewModel.PyMusicLooperEnabled = pythonCompanionService.IsValid;
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, treeData.TrackInfo!, treeData.SongInfo, treeData);
         }
         else if (treeData.MsuDetails)
@@ -1117,6 +1119,11 @@ public class MsuProjectWindowService(
         {
             _viewModel.MsuSongViewModel.AdvancedPanelViewModel.DragDropFile(filePath);
         }
+    }
+
+    public bool CanCreateVideos()
+    {
+        return pythonCompanionService.IsValid;
     }
 
     public void LogError(Exception ex, string message)

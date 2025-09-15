@@ -20,7 +20,7 @@ public class AudioMetadataService(ILogger<AudioMetadataService> logger)
 
         try
         {
-            var toReturn = new AudioMetadata()
+            var toReturn = new AudioMetadata
             {
                 SongName = Path.GetFileNameWithoutExtension(file),
                 Artist = "",

@@ -23,6 +23,7 @@ public class MsuPcmInstallResponse
 
 public class MsuPcmJsonInfo
 {
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public required string JsonFilePath { get; init; }
     public required string JsonText { get; init; }
 }
@@ -140,25 +141,6 @@ public class MsuPcmService(
         return result;
     }
 
-    public void ClearCache()
-    {
-        var cacheDirectory = new DirectoryInfo(CacheFolder);
-        foreach (var file in cacheDirectory.EnumerateFiles())
-        {
-            if (file.CreationTime < DateTime.Now.AddMonths(-1))
-            {
-                try
-                {
-                    file.Delete();
-                }
-                catch
-                {
-                    logger.LogWarning("Could not delete {File}", file.FullName);
-                }
-            }
-        }
-    }
-
     public void DeleteTempJsonFiles()
     {
         var jsonDirectory = Path.Combine(Directories.TempFolder, "msupcm");
@@ -181,6 +163,12 @@ public class MsuPcmService(
 
     public async Task<GeneratePcmFileResponse> CreatePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool isBulkGeneration, bool cacheResults)
     {
+        if (!IsValid)
+        {
+            return new GeneratePcmFileResponse(false, false,
+                "MsuPcm++ is not installed and configured. Please install MsuPcm++ and reverify in the MSU Scripter settings.",
+                null);
+        }
         if (!audioPlayerService.IsStopped)
         {
             await audioPlayerService.StopSongAsync(song.OutputPath);
@@ -252,21 +240,33 @@ public class MsuPcmService(
         }
 
         logger.LogInformation("Generating PCM at {Path}", tempPcmPath);
-        if (!RunMsuPcm(tempJsonPath, tempPcmPath, out var message))
-        {
-            logger.LogError("MsuPcm++ finished with an error: {Error}", message);
-            return new GeneratePcmFileResponse(false, false, message, null);
-        }
 
-        if (!ValidatePcm(tempPcmPath, out message))
+        // Generate the file and make sure the file exists
+        var msuPcmSuccessful = RunMsuPcm(tempJsonPath, tempPcmPath, out var msuPcmMessage);
+        if (!msuPcmSuccessful && !File.Exists(tempPcmPath))
         {
-            logger.LogError("Generated PCM file has an error: {Error}", message);
-            return new GeneratePcmFileResponse(false, false, message, null);
+            logger.LogError("MsuPcm++ returned the following error: {Error}", msuPcmMessage);
+            return new GeneratePcmFileResponse(false, false, msuPcmMessage, outputPath);
+        }
+        logger.LogInformation("MsuPcm++ generated PCM file {File}", tempPcmPath);
+        
+        // Clean up msupcm++ errors
+        if (!msuPcmSuccessful && project.IgnoreWarnings.Contains(msuPcmMessage))
+        {
+            logger.LogWarning("Ignoring MsuPcm++ warning: {Warning}", msuPcmMessage);
+            msuPcmSuccessful = true;
+            msuPcmMessage = "";
         }
         
-        logger.LogInformation("MsuPcm++ generated PCM file {File} sucessfully", tempPcmPath);
+        // Validate the MsuPcm++ header
+        var validationSuccessful = ValidatePcm(outputPath, out var validationResponse);
+        if (!validationSuccessful)
+        {
+            logger.LogError("Generated PCM file has an error: {Error}", validationResponse);
+            return new GeneratePcmFileResponse(false, false, validationResponse, outputPath);
+        }
 
-        // Move the file
+        // Move the file to the target location
         if (outputPath != tempPcmPath)
         {
             try
@@ -288,10 +288,11 @@ public class MsuPcmService(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Error while generating PCM file {Path}", outputPath);
-                return new GeneratePcmFileResponse(false, false, "MsuPcm++ succeeded, but could not move generated file", null);
+                return new GeneratePcmFileResponse(false, false, "MsuPcm++ succeeded, but could not move generated file", outputPath);
             }
         }
-        
+
+        // Move to the cache
         if (cacheResults)
         {
             currentCache = GetSongCacheData(jsonResponse.JsonText, outputPath);
@@ -312,14 +313,20 @@ public class MsuPcmService(
             song.LastGeneratedDate = DateTime.Now;
         }
         
-        message = "Success!";
-
         var hasAlts = song.TrackNumber < 1000 &&
                       project.Tracks.FirstOrDefault(x => x.TrackNumber == song.TrackNumber)?.Songs.Count > 1;
+
+        if (msuPcmSuccessful && validationSuccessful)
+        {
+            logger.LogInformation("Generated PCM file {File} successfully", outputPath);
+        }
+        else
+        {
+            logger.LogWarning("Generated PCM file {File} with warnings: {Warning}", outputPath, msuPcmMessage);
+        }
         
-        logger.LogInformation("Generated PCM file {File} successfully", outputPath);
         statusBarService.UpdateStatusBar(hasAlts ? "PCM Generated - YAML Regeneration Needed" : "PCM Generated");
-        return new GeneratePcmFileResponse(true, true, message, outputPath);
+        return new GeneratePcmFileResponse(msuPcmSuccessful && validationSuccessful, true, msuPcmMessage, outputPath);
     }
     
     public void SaveGenerationCache(MsuProject project)
@@ -400,47 +407,8 @@ public class MsuPcmService(
 
     }
 
-    private bool ValidateMsuPcmInfo(MsuSongMsuPcmInfo info, out string? error, out int numFiles)
+    private bool ValidatePcm(string path, out string validationError)
     {
-        numFiles = 0;
-        
-        if (!string.IsNullOrEmpty(info.File))
-        {
-            if (!File.Exists(info.File))
-            {
-                error = $"{info.File} not found";
-                return false;    
-            }
-
-            numFiles = 1;
-        }
-
-        foreach (var subTrack in info.SubTracks)
-        {
-            if (!ValidateMsuPcmInfo(subTrack, out error, out var numSubFiles))
-                return false;
-            numFiles += numSubFiles;
-        }
-        
-        foreach (var subChannel in info.SubChannels)
-        {
-            if (!ValidateMsuPcmInfo(subChannel, out error, out var numSubFiles))
-                return false;
-            numFiles += numSubFiles;
-        }
-
-        error = null;
-        return true;
-    }
-
-    private bool ValidatePcm(string path, out string? error)
-    {
-        if (!File.Exists(path))
-        {
-            error = "msupcm++ did not create the file, but did not return an error.";
-            return false;
-        }
-
         var testBytes = new byte[8];
         using (var reader = new BinaryReader(new FileStream(path, FileMode.Open)))
         {
@@ -450,7 +418,7 @@ public class MsuPcmService(
 
         if (Encoding.UTF8.GetString(testBytes, 0, 4) != "MSU1")
         {
-            error = "Bad Header";
+            validationError = "MsuPcm++ generated the file with an invalid header.";
             return false;
         }
 
@@ -459,11 +427,11 @@ public class MsuPcmService(
 
         if (loop < totalSamples)
         {
-            error = null;
+            validationError = "";
             return true;
         }
 
-        error = "Bad loop point specified";
+        validationError = "Bad loop point specified. Continuing could cause some emulators to crash.";
         return false;
     }
 
@@ -583,7 +551,7 @@ public class MsuPcmService(
             if (!string.IsNullOrEmpty(error))
             {
                 logger.LogError("Error running MsuPcm++: {Error}", error);
-                if (error.EndsWith("decrease volume?"))
+                if (error.Contains("decrease volume?"))
                 {
                     error =
                         "MsuPcm settings for audio file caused audio clipping. Consider lowering the normalization value.";

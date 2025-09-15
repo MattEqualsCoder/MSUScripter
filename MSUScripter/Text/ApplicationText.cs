@@ -26,7 +26,7 @@ public class ApplicationText
     public string ProjectWindowSaveProject { get; } = "Save Project";
     public string ProjectWindowOpenMsuFolder { get; } = "Open MSU Folder";
     public string ProjectWindowAnalyzeAudio { get; } = "Analyze Audio...";
-    public string ProjectWindowExportProject { get; } = "Export Project...";
+    public string ProjectWindowExportProject { get; } = "Generate MSU...";
     public string ProjectWindowFilterOnlyTracksMissingSongs { get; } = "Show only tracks with no added songs";
     public string ProjectWindowFilterOnlyIncomplete { get; } = "Show only incomplete songs";
     public string ProjectWindowFilterOnlyMissingAudio { get; } = "Show only songs missing audio files";

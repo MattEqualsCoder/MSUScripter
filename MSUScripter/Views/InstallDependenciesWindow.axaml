@@ -145,17 +145,30 @@
                             </controls:LinkControl>
                             <avalonia:MaterialIcon Kind="InfoCircle"/>
                         </StackPanel>
-                        <Button 
+                        <StackPanel 
                             Grid.Row="2" 
                             Grid.Column="1" 
-                            Margin="5" 
-                            HorizontalAlignment="Right"
-                            IsEnabled="{Binding CanClickInstallButton}"
+                            Margin="5"
                             IsVisible="{Binding ShowInstallFfmpegButton}"
-                            Click="InstallFfmpegButton_OnClick"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
                         >
-                            Install FFmpeg
-                        </Button>
+                            <Button 
+                                HorizontalAlignment="Right"
+                                IsEnabled="{Binding CanClickInstallButton}"
+                                Click="InstallFfmpegButton_OnClick"
+                            >
+                                Install FFmpeg
+                            </Button>
+                            <Button 
+                                Margin="5 0 0 0" 
+                                ToolTip.Tip="Retry" 
+                                IsEnabled="{Binding CanClickInstallButton}"
+                                Click="RevalidateFfmpegButton_OnClick"
+                            >
+                                <avalonia:MaterialIcon Kind="Refresh" />
+                            </Button>
+                        </StackPanel>
                         <StackPanel 
                             Grid.Row="2"
                             Grid.Column="1"
@@ -209,7 +222,7 @@
                                 Margin="5 0 0 0" 
                                 ToolTip.Tip="Retry" 
                                 IsEnabled="{Binding CanClickInstallButton}"
-                                Click="RetryMsuPcmButton_OnClick"
+                                Click="RetryFfmpegButton_OnClick"
                             >
                                 <avalonia:MaterialIcon Kind="Refresh" />
                             </Button>
@@ -234,17 +247,30 @@
                             </controls:LinkControl>
                             <avalonia:MaterialIcon Kind="InfoCircle"/>
                         </StackPanel>
-                        <Button 
+                        <StackPanel 
                             Grid.Row="4" 
                             Grid.Column="1" 
-                            Margin="5" 
-                            HorizontalAlignment="Right"
-                            IsEnabled="{Binding CanClickInstallButton}"
+                            Margin="5"
                             IsVisible="{Binding ShowInstallPyAppButton}"
-                            Click="InstallPyAppButton_OnClick"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right"
                         >
-                            Install Companion App
-                        </Button>
+                            <Button 
+                                HorizontalAlignment="Right"
+                                IsEnabled="{Binding CanClickInstallButton}"
+                                Click="InstallPyAppButton_OnClick"
+                            >
+                                Install Companion App
+                            </Button>
+                            <Button 
+                                Margin="5 0 0 0" 
+                                ToolTip.Tip="Retry" 
+                                IsEnabled="{Binding CanClickInstallButton}"
+                                Click="RevalidatePyAppButton_OnClick"
+                            >
+                                <avalonia:MaterialIcon Kind="Refresh" />
+                            </Button>
+                        </StackPanel>
                         <StackPanel 
                             Grid.Row="4" 
                             Grid.Column="1"
@@ -298,7 +324,7 @@
                                 Margin="5 0 0 0" 
                                 ToolTip.Tip="Retry" 
                                 IsEnabled="{Binding CanClickInstallButton}"
-                                Click="RetryMsuPcmButton_OnClick"
+                                Click="RetryPyAppButton_OnClick"
                             >
                                 <avalonia:MaterialIcon Kind="Refresh" />
                             </Button>

@@ -416,8 +416,16 @@ public partial class MsuSongAdvancedPanel : UserControl
     {
         try
         {
-            if (_viewModel == null)
+            if (_viewModel == null || Service == null)
             {
+                return;
+            }
+
+            if (!Service.CanRunPyMusicLooper())
+            {
+                await MessageWindow.ShowErrorDialog(
+                    "Python companion app is not installed. Please install the app and reverify in the settings window.",
+                    "Missing Companion App", this.GetTopLevelWindow());
                 return;
             }
         
@@ -445,12 +453,12 @@ public partial class MsuSongAdvancedPanel : UserControl
         }
     }
 
-    private async void DetectStartingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
+    private void DetectStartingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
     {
         try
         {
             if (_viewModel == null || Service == null) return;
-            var samples = await Service.DetectStartingSamplesAsync(_viewModel.Input ?? "");
+            var samples = Service.DetectStartingSamples(_viewModel.Input ?? "");
             if (samples >= 0)
             {
                 _viewModel.TrimStart = samples;
@@ -466,12 +474,12 @@ public partial class MsuSongAdvancedPanel : UserControl
         }
     }
     
-    private async void DetectEndingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
+    private void DetectEndingSamplesButton_OnClick(object? sender, RoutedEventArgs e)
     {
         try
         {
             if (_viewModel == null || Service == null) return;
-            var samples = await Service.DetectEndingSamplesAsync(_viewModel.Input ?? "");
+            var samples = Service.DetectEndingSamples(_viewModel.Input ?? "");
             if (samples >= 0)
             {
                 _viewModel.TrimEnd = samples;

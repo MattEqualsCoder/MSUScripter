@@ -252,7 +252,7 @@
         <controls:CardControl
             HeaderText="{Binding Text.PyMusicLooperHeader}"
             Margin="0 4 0 10"
-            IsVisible="{Binding EnableMsuPcm}"
+            IsVisible="{Binding DisplayPyMusicLooperPanel}"
         >
             <views:PyMusicLooperPanel 
                 x:Name="PyMusicLooperPanel" 

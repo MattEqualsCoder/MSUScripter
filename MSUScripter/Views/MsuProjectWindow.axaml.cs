@@ -522,6 +522,14 @@ public partial class MsuProjectWindow : RestorableWindow
             {
                 return;
             }
+
+            if (!_service.CanCreateVideos())
+            {
+                await MessageWindow.ShowErrorDialog(
+                    "Python companion app is not installed. Please install the app and reverify in the settings window.",
+                    "Missing Companion App", this.GetTopLevelWindow());
+                return;
+            }
             
             var songsForVideo = _viewModel.GetSongsForVideo();
 

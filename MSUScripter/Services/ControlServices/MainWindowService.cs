@@ -9,6 +9,7 @@ using GitHubReleaseChecker;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
@@ -154,8 +155,7 @@ public class MainWindowService(
     public void Shutdown()
     {
         settingsService.SaveSettings();
-        msuPcmService.DeleteTempPcms();
-        msuPcmService.DeleteTempJsonFiles();
+        CleanDirectory(Directories.TempFolder);
     }
 
     private void UpdateTitle()
@@ -214,6 +214,53 @@ public class MainWindowService(
     {
         logger.LogError(ex, "{Message}", message);
     }
+
+    private bool CleanDirectory(string path, TimeSpan? timeout = null)
+    {
+        timeout ??= TimeSpan.Zero;
+        var currentDateTime = DateTime.UtcNow;
+        var isEmpty = true;
+        foreach (var file in Directory.EnumerateFiles(path))
+        {
+            var fileInfo = new FileInfo(file);
+            if (currentDateTime - fileInfo.LastWriteTimeUtc > timeout)
+            {
+                try
+                {
+                    fileInfo.Delete();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+            else
+            {
+                isEmpty = false;
+            }
+        }
+
+        foreach (var folder in Directory.EnumerateDirectories(path))
+        {
+            if (CleanDirectory(folder, timeout))
+            {
+                try
+                {
+                    Directory.Delete(folder);
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+            else
+            {
+                isEmpty = false;
+            }
+        }
+        
+        return isEmpty;
+    }
     
     private async Task CheckForNewRelease()
     {
@@ -232,9 +279,8 @@ public class MainWindowService(
     {
         await ITaskService.Run(() =>
         {
-            msuPcmService.DeleteTempPcms();
-            msuPcmService.DeleteTempJsonFiles();
-            msuPcmService.ClearCache();
+            CleanDirectory(Directories.CacheFolder, TimeSpan.FromDays(30));
+            CleanDirectory(Directories.TempFolder);
         });
     }
 }

@@ -63,9 +63,29 @@ public partial class InstallDependenciesWindow : ScalableWindow
         _ = _service?.InstallFfmpeg();
     }
 
+    private void RetryFfmpegButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = _service?.RetryFfmpeg();
+    }
+    
+    private void RevalidateFfmpegButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = _service?.RevalidateFfmpeg();
+    }
+
     private void InstallPyAppButton_OnClick(object? sender, RoutedEventArgs e)
     {
         _ = _service?.InstallPyApp();
+    }
+    
+    private void RetryPyAppButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = _service?.RetryPyApp();
+    }
+    
+    private void RevalidatePyAppButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _ = _service?.RevalidatePyApp();
     }
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)

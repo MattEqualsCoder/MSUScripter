@@ -77,6 +77,24 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
         }
     }
     
+    public async Task RetryFfmpeg()
+    {
+        if (await pythonCompanionService.VerifyFfMpegAsync())
+        {
+            _viewModel.FfmpegState = InstallState.Valid;
+            return;
+        }
+        await InstallFfmpeg();
+    }
+    
+    public async Task RevalidateFfmpeg()
+    {
+        if (await pythonCompanionService.VerifyFfMpegAsync())
+        {
+            _viewModel.FfmpegState = InstallState.Valid;
+        }
+    }
+    
     public async Task InstallPyApp()
     {
         _viewModel.PyAppState = InstallState.InProgress;
@@ -94,6 +112,24 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
             _viewModel.PyAppState = InstallState.Error;
             _viewModel.PyAppErrorText = "Install Failed";
             _viewModel.PyAppErrorToolTip = "Failed to be able to download and run Python Companion App. Please click to view additional installation instructions.";
+        }
+    }
+    
+    public async Task RetryPyApp()
+    {
+        if (await pythonCompanionService.VerifyInstalledAsync())
+        {
+            _viewModel.PyAppState = InstallState.Valid;
+            return;
+        }
+        await InstallPyApp();
+    }
+    
+    public async Task RevalidatePyApp()
+    {
+        if (await pythonCompanionService.VerifyInstalledAsync())
+        {
+            _viewModel.PyAppState = InstallState.Valid;
         }
     }
 
