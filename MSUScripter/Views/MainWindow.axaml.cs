@@ -9,6 +9,7 @@ using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
@@ -42,11 +43,6 @@ public partial class MainWindow : RestorableWindow
     {
         try
         {
-            if (_model.InitProject != null)
-            {
-                _ = LoadProject(_model.InitProject);
-            }
-
             _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
             _model.NewProjectBackground = _model.ActiveTabBackground;
 
@@ -66,6 +62,13 @@ public partial class MainWindow : RestorableWindow
             }
 
             if (_service == null) return;
+
+            var updateUrl = await _service.CheckForNewRelease();
+            if (!string.IsNullOrEmpty(updateUrl))
+            {
+                await ShowNewReleaseWindow(updateUrl);
+            }
+            
             await Task.Delay(100);
             if (!await _service.ValidateDependencies())
             {
@@ -77,10 +80,38 @@ public partial class MainWindow : RestorableWindow
             {
                 _model.ValidatedDependencies = true;
             }
+            
+            if (_model.InitProject != null)
+            {
+                _ = LoadProject(_model.InitProject);
+            }
         }
         catch (Exception ex)
         {
             _service?.LogError(ex, "Error loading main window");
+        }
+    }
+
+    private async Task ShowNewReleaseWindow(string updateUrl)
+    {
+        var messageWindow = new MessageWindow(new MessageWindowRequest
+        {
+            Message = "A new version has been released and is available on Github. Would you like to go to the release page?",
+            Title = "New Version",
+            Buttons = MessageWindowButtons.YesNo,
+            CheckBoxText = "Do not check for updates (can be updated in Settings)"
+        });
+
+        await messageWindow.ShowDialog(this);
+
+        if (messageWindow.DialogResult?.CheckedBox == true)
+        {
+            _service?.IgnoreFutureUpdates();
+        }
+
+        if (messageWindow.DialogResult?.PressedAcceptButton == true)
+        {
+            CrossPlatformTools.OpenUrl(updateUrl);
         }
     }
     

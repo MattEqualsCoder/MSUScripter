@@ -24,11 +24,7 @@ public class MainWindowViewModel : TranslatedViewModelBase
     
     public string? InitProject { get; set; }
     public bool InitProjectError { get; set; }
-
-    [Reactive, ReactiveLinkedProperties(nameof(DisplayNewVersionBanner))]
-    public string? GitHubReleaseUrl { get; set; }
     public string AppVersion { get; set; } = "";
-    public bool DisplayNewVersionBanner => !string.IsNullOrEmpty(GitHubReleaseUrl);
     public event EventHandler? CurrentMsuProjectChanged;
 
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
@@ -64,7 +60,6 @@ public class MainWindowViewModel : TranslatedViewModelBase
     
     public override ViewModelBase DesignerExample()
     {
-        GitHubReleaseUrl = "a";
         AppVersion = "v4.0.3";
         MsuTypes =
         [

@@ -29,7 +29,6 @@ public class MainWindowService(
 
     public MainWindowViewModel InitializeModel()
     {
-        _ = CheckForNewRelease();
         _ = CleanUpFolders();
         
         _model.InitProject = Program.StartingProject;
@@ -243,17 +242,28 @@ public class MainWindowService(
         return isEmpty;
     }
     
-    private async Task CheckForNewRelease()
+    public async Task<string> CheckForNewRelease()
     {
-        if (settings.CheckForUpdates == false) return;
+        if (!settings.CheckForUpdates)
+        {
+            return string.Empty;
+        }
 
         var newerGitHubRelease = await gitHubReleaseCheckerService.GetGitHubReleaseToUpdateToAsync("MattEqualsCoder",
             "MSUScripter", App.Version, settings.PromptOnPreRelease);
 
         if (newerGitHubRelease != null)
         {
-            _model.GitHubReleaseUrl = newerGitHubRelease.Url;
+            return newerGitHubRelease.Url;
         }
+        
+        return string.Empty;
+    }
+
+    public void IgnoreFutureUpdates()
+    {
+        settings.CheckForUpdates = false;
+        settingsService.SaveSettings();
     }
     
     private async Task CleanUpFolders()

@@ -549,6 +549,8 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                 workingDirectory = Directory.GetParent(command)?.FullName;
             }
 
+            var isPipInstall = arguments.StartsWith("-m pip");
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 string fileName;
@@ -574,8 +576,8 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
                 
                 procStartInfo= new ProcessStartInfo(fileName, argumentString)
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
+                    RedirectStandardOutput = !isPipInstall,
+                    RedirectStandardError = !isPipInstall,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                     WorkingDirectory = workingDirectory
@@ -598,9 +600,19 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
             process.StartInfo = procStartInfo;
             process.Start();
             await process.WaitForExitAsync(cancellationToken ??  CancellationToken.None);
-            
-            var resultText = (await process.StandardOutput.ReadToEndAsync()).Replace("\0", "").Trim();
-            var errorText = (await process.StandardError.ReadToEndAsync()).Replace("\0", "").Trim();
+
+            var resultText = "";
+            var errorText = "";
+
+            if (isPipInstall)
+            {
+                errorText = process.ExitCode != 0 ? $"pipx completed with error code {process.ExitCode}" : "";
+            }
+            else
+            {
+                resultText = (await process.StandardOutput.ReadToEndAsync()).Replace("\0", "").Trim();
+                errorText = (await process.StandardError.ReadToEndAsync()).Replace("\0", "").Trim();
+            }
             
             if (!string.IsNullOrEmpty(errorText))
             {
