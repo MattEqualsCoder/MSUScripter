@@ -270,9 +270,11 @@
                     Filter="MSU Files:*.msu" 
                     WarnOnOverwrite="False" 
                     ForceExtension="msu"
+                    FileInputType="SaveFile"
                     IsEnabled="{Binding CreateSplitSmz3Script}"
                     IsVisible="{Binding IsSmz3Project}"
                     FilePath="{Binding ZeldaMsuPath, Mode=TwoWay}"
+                    OnUpdated="ZeldaMsuFileControl_OnOnUpdated"
                 />
                 
                 <!-- Write Super Metroid MSU Path -->
@@ -293,9 +295,11 @@
                     Filter="MSU Files:*.msu" 
                     WarnOnOverwrite="False" 
                     ForceExtension="msu"
+                    FileInputType="SaveFile"
                     IsEnabled="{Binding CreateSplitSmz3Script}"
                     IsVisible="{Binding IsSmz3Project}"
                     FilePath="{Binding MetroidMsuPath, Mode=TwoWay}"
+                    OnUpdated="MetroidMsuFileControl_OnOnUpdated"
                 />
                 
             </Grid>

@@ -35,6 +35,7 @@ function InitializeSetup: Boolean;
 begin
   Dependency_AddDotNet90Desktop;
   Dependency_AddDotNet90Asp;
+  Dependency_AddVC2015To2022;
   Result := True;
 end;
 
