@@ -178,9 +178,11 @@ public class MsuSongPanelService(
 
     public async Task<GeneratePcmFileResponse> PlaySong(MsuProject project, MsuSongInfo song, bool testLoop)
     {
+        GeneratePcmFileResponse? generateResponse = null;
+        
         if (song.HasAudioFiles())
         {
-            var generateResponse = await GeneratePcm(project, song, false, false);
+            generateResponse = await GeneratePcm(project, song, false, false);
             if (!generateResponse.GeneratedPcmFile)
             {
                 return generateResponse;
@@ -200,7 +202,7 @@ public class MsuSongPanelService(
 
         if (await audioPlayerService.PlaySongAsync(song.OutputPath, testLoop, msuTypeTrackInfo?.NonLooping != true))
         {
-            return new GeneratePcmFileResponse(true, false, "", song.OutputPath);
+            return new GeneratePcmFileResponse(generateResponse?.Successful ?? true, generateResponse?.GeneratedPcmFile ?? false, generateResponse?.Message ?? string.Empty, song.OutputPath);
         }
 
         return new GeneratePcmFileResponse(false, false, "Error playing PCM file", song.OutputPath);
@@ -208,6 +210,7 @@ public class MsuSongPanelService(
     
     public async Task<GeneratePcmFileResponse> GeneratePcm(MsuProject project, MsuSongInfo song, bool asPrimary, bool asEmpty)
     {
+        await audioPlayerService.StopSongAsync(song.OutputPath);
         if (asEmpty)
         {
             return msuPcmService.CreateEmptyPcm(song);
