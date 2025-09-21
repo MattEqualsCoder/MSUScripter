@@ -92,7 +92,7 @@ public class AudioPlayerServiceNAudio(ILogger<AudioPlayerServiceNAudio> logger, 
 
     public async Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false)
     {
-        if (_waveOutEvent?.PlaybackState == PlaybackState.Playing || _waveOutEvent?.PlaybackState == PlaybackState.Paused)
+        if (_waveOutEvent?.PlaybackState is PlaybackState.Playing or PlaybackState.Paused)
         {
             _waveOutEvent?.Stop();
         }
@@ -257,13 +257,14 @@ public class AudioPlayerServiceNAudio(ILogger<AudioPlayerServiceNAudio> logger, 
                 Thread.Sleep(200);
             }
 
-            if (!isLoopingSong && _loopStream == rs)
+            if (!isLoopingSong && _loopStream == rs && _stopStream != _loopStream)
             {
                 replay = true;
             }
             
             _waveOutEvent = null;
             _loopStream = null;
+            _stopStream = null;
             PlayStopped?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception e)

@@ -23,7 +23,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
         _viewModel.MsuPcmState = InstallState.InProgress;
         _viewModel.MsuPcmInstallProgress = "Starting";
         await Task.Delay(TimeSpan.FromMilliseconds(100));
-        var result = await msuPcmService.Install(progress =>
+        var result = await msuPcmService.InstallAsync(progress =>
         {
             _viewModel.MsuPcmInstallProgress = progress;
         });
@@ -43,7 +43,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
 
     public async Task RetryMsuPcm()
     {
-        if (msuPcmService.VerifyInstalled(out _))
+        if ((await msuPcmService.VerifyInstalledAsync()).Successful)
         {
             _viewModel.MsuPcmState = InstallState.Valid;
             return;
@@ -51,9 +51,9 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
         await InstallMsuPcm();
     }
     
-    public void RevalidateMsuPcm()
+    public async Task RevalidateMsuPcm()
     {
-        if (msuPcmService.VerifyInstalled(out _))
+        if ((await msuPcmService.VerifyInstalledAsync()).Successful)
         {
             _viewModel.MsuPcmState = InstallState.Valid;
         }

@@ -5,6 +5,7 @@ using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
+using MSUScripter.Tools;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -28,21 +29,6 @@ public partial class MsuBasicInfoPanel : UserControl
         AvaloniaXamlLoader.Load(this);
     }
 
-    private async void MsuFilePathControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
-    {
-        try
-        {
-            if (e.Path != MsuBasicInfoViewModel?.Project?.MsuPath) return;
-            await MessageWindow.ShowErrorDialog(
-                "The Super Metroid and A Link to the Past MSU paths must be different from the main MSU path and each other.",
-                "Invalid MSU Path", TopLevel.GetTopLevel(this) as Window ?? App.MainWindow!);
-        }
-        catch (Exception)
-        {
-            // Do nothing
-        }
-    }
-
     private async void DitherEnumComboBox_OnValueChanged(object sender, EnumValueChangedEventArgs args)
     {
         try
@@ -64,5 +50,27 @@ public partial class MsuBasicInfoPanel : UserControl
         {
             // Do nothing
         }
+    }
+
+    private void ZeldaMsuFileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
+    {
+        if (e.Path != MsuBasicInfoViewModel?.Project?.MsuPath && e.Path != MsuBasicInfoViewModel?.MetroidMsuPath)
+        {
+            return;
+        }
+        _ = MessageWindow.ShowErrorDialog(
+            "The Super Metroid and A Link to the Past MSU paths must be different from the main MSU path and each other.",
+            "Invalid MSU Path", this.GetTopLevelWindow());
+    }
+    
+    private void MetroidMsuFileControl_OnOnUpdated(object? sender, FileControlUpdatedEventArgs e)
+    {
+        if (e.Path != MsuBasicInfoViewModel?.Project?.MsuPath && e.Path != MsuBasicInfoViewModel?.ZeldaMsuPath)
+        {
+            return;
+        }
+        _ = MessageWindow.ShowErrorDialog(
+            "The Super Metroid and A Link to the Past MSU paths must be different from the main MSU path and each other.",
+            "Invalid MSU Path", this.GetTopLevelWindow());
     }
 }

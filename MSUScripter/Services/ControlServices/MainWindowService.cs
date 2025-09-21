@@ -123,13 +123,13 @@ public class MainWindowService(
 
     public async Task<bool> ValidateDependencies()
     {
-        var isMsuPcmServiceValid = msuPcmService.VerifyInstalled(out _);
+        var isMsuPcmServiceValid = await msuPcmService.VerifyInstalledAsync();
         var isCompanionServiceValid = await pythonCompanionService.VerifyInstalledAsync();
         if (settings.IgnoreMissingDependencies)
         {
             return true;
         }
-        return isMsuPcmServiceValid && isCompanionServiceValid;
+        return isMsuPcmServiceValid.Successful && isCompanionServiceValid;
     }
     
     public void Shutdown()

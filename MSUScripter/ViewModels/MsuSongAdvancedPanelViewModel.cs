@@ -69,6 +69,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
     [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public bool IsGeneratingPcmFile { get; set; }
     public MsuProject Project { get; set; } = null!;
 
     public MsuSongAdvancedPanelViewModelModelTreeData CurrentTreeItem { get; set; } = null!;
@@ -78,7 +79,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     public ObservableCollection<MsuSongAdvancedPanelViewModelModelTreeData> TreeItems { get; set; } = [];
     [Reactive, SkipLastModified] public MsuSongAdvancedPanelViewModelModelTreeData? SelectedTreeItem { get; set; }
-    public bool CanPressPyMusicLooperButton => !string.IsNullOrEmpty(Input);
+    public bool CanPressPyMusicLooperButton => !string.IsNullOrEmpty(Input) && !IsGeneratingPcmFile;
     
     public ContextMenu? CurrentContextMenu { get; set; }
     

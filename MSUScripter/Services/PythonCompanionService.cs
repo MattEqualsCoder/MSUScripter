@@ -123,7 +123,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
 
     public async Task<GetSampleRateResponse> GetSampleRateAsync(GetSampleRateRequest request, CancellationToken? cancellationToken = null)
     {
-        if (!IsValid)
+        if (!IsFfMpegValid)
         {
             return new GetSampleRateResponse()
             {

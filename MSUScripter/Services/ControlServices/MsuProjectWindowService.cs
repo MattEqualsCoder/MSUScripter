@@ -13,6 +13,7 @@ using DynamicData;
 using Material.Icons;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
+using MSUScripter.Events;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
@@ -180,10 +181,8 @@ public class MsuProjectWindowService(
         _viewModel.FilterOnlyMissingAudio = Settings.ProjectTreeFilterOnlyMissingAudio;
         FilterTree();
 
-        statusBarService.StatusBarTextUpdated += (_, args) =>
-        {
-            _viewModel.StatusBarText = args.Data;
-        };
+        statusBarService.StatusBarTextUpdated += StatusBarServiceOnStatusBarTextUpdated;
+        msuPcmService.GeneratingPcm += MsuPcmServiceOnGeneratingPcm;
 
         _viewModel.RecentProjects = settingsService.Settings.RecentProjects.Where(x => x.ProjectPath != project.ProjectFilePath)
             .ToList();
@@ -209,6 +208,17 @@ public class MsuProjectWindowService(
         };
 
         return _viewModel;
+    }
+
+    private void MsuPcmServiceOnGeneratingPcm(object? sender, bool e)
+    {
+        _viewModel.MsuSongViewModel.IsGeneratingPcmFiles = e;
+        _viewModel.MsuSongViewModel.AdvancedPanelViewModel.IsGeneratingPcmFile = e;
+    }
+
+    private void StatusBarServiceOnStatusBarTextUpdated(object? sender, ValueEventArgs<string> e)
+    {
+        _viewModel.StatusBarText = e.Data;
     }
 
     public void LoadSettings()
@@ -1099,6 +1109,8 @@ public class MsuProjectWindowService(
 
     public void OnClose()
     {
+        statusBarService.StatusBarTextUpdated -= StatusBarServiceOnStatusBarTextUpdated;
+        msuPcmService.GeneratingPcm -= MsuPcmServiceOnGeneratingPcm;
         _ = audioPlayerService.StopSongAsync();
     }
 

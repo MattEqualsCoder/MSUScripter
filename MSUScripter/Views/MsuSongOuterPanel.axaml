@@ -61,6 +61,7 @@
                         HorizontalAlignment="Center"
                         Margin="0 5"
                         Padding="8 5"
+                        IsEnabled="{Binding !IsGeneratingPcmFiles}"
                         Click="PlaySongButton_OnClick"
                     ></Button>
                     <Button
@@ -69,6 +70,7 @@
                         HorizontalAlignment="Center"
                         Margin="5 5 0 5"
                         Padding="8 5"
+                        IsEnabled="{Binding !IsGeneratingPcmFiles}"
                         Click="TestLoopButton_OnClick"
                     ></Button>
                     <Panel Width="5" IsVisible="{Binding !CanGeneratePcmFiles}"></Panel>
@@ -77,6 +79,7 @@
                         Margin="5 5 5 5" 
                         Padding="8 7"
                         Click="GeneratePcmSplitButton_OnClick"
+                        IsEnabled="{Binding !IsGeneratingPcmFiles}"
                         IsVisible="{Binding CanGeneratePcmFiles}"
                     >
                         <SplitButton.Flyout>

@@ -30,7 +30,8 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified] public string PeakAudioLevel { get; set; } = "";
     [Reactive, SkipLastModified] public bool DisplaySecondAudioLine { get; set; }
     [Reactive, SkipLastModified] public bool CanGeneratePcmFiles { get; set; } = true;
-
+    [Reactive, SkipLastModified] public bool IsGeneratingPcmFiles { get; set; }
+    
     public MsuSongBasicPanelViewModel BasicPanelViewModel { get; set; } = new();
     
     public MsuSongAdvancedPanelViewModel AdvancedPanelViewModel { get; set; } = new();
