@@ -59,7 +59,7 @@ public class MsuGenerationWindowService(
             rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.MsuPcmJson, project));
         }
         
-        if (project.BasicInfo.CreateAltSwapperScript)
+        if (project.BasicInfo.CreateAltSwapperScript && project.Tracks.Any(x => x is { IsScratchPad: false, Songs.Count: > 1 }))
         {
             rows.Add(new MsuGenerationRowViewModel(MsuGenerationRowType.SwapperScript, project));
         }
@@ -115,6 +115,24 @@ public class MsuGenerationWindowService(
         {
 
             var start = DateTime.Now;
+
+            // If the yaml file exists, but the user doesn't want to use it,
+            // then we need to remove it to prevent issues validating the msu
+            if (!_model.MsuProject.BasicInfo.WriteYamlFile)
+            {
+                var yamlPath = Path.ChangeExtension(_model.MsuProject.MsuPath, ".yml");
+                if (File.Exists(yamlPath))
+                {
+                    try
+                    {
+                        File.Delete(yamlPath);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, "Failed to delete yaml file");
+                    }
+                }
+            }
 
             ConcurrentBag<MsuGenerationRowViewModel> toRetry = [];
 

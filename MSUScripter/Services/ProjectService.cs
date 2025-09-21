@@ -1019,8 +1019,8 @@ public class ProjectService(
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
-            else if ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
-                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? ""))
+            else if (project.BasicInfo.WriteYamlFile && ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
+                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? "")))
             {
                 message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
                 logger.LogWarning("Project validation failed: {Error}", message);

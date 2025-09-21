@@ -65,7 +65,8 @@ public class MsuProject
 
     public string GetTracksJsonPath()
     {
-        return Path.ChangeExtension(MsuPath, "-tracks.json");
+        var fileInfo = new FileInfo(MsuPath);
+        return Path.Combine(fileInfo.DirectoryName ?? "", "tracks.json");
     }
     
     public string GetTracksTextPath()

@@ -175,14 +175,14 @@
             HorizontalAlignment="Stretch"
         >
             <Grid 
-                ColumnDefinitions="*, *, *, *, *, *" 
+                ColumnDefinitions="*, *, *, *, *, *, *, *, *, *, *, *" 
                 RowDefinitions="*, *, *, *, *, *, *, *"
             >
                 <!-- Write YAML -->
                 <views:FormLabel 
                     Grid.Column="0"
                     Grid.Row="0"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="3"
                     Margin="0 5 3 2"
                     LabelText="{Binding Text.MsuBasicInfoWriteYamlLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoWriteYamlToolTip}"
@@ -191,43 +191,60 @@
                     AllowNulls="False"
                     Grid.Column="0"
                     Grid.Row="1"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="3"
                     Margin="0 5 3 2"
                     Value="{Binding WriteYamlFile, Mode=TwoWay}"
                 />
                 
                 <!-- Write Track List -->
                 <views:FormLabel 
-                    Grid.Column="2"
+                    Grid.Column="3"
                     Grid.Row="0"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="3"
                     Margin="3 5 3 2"
                     LabelText="{Binding Text.MsuBasicInfoWriteTrackListLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoWriteTrackListToolTip}"
                 />
                 <controls1:EnumComboBox
-                    Grid.Column="2"
+                    Grid.Column="3"
                     Grid.Row="1"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="3"
                     Margin="3 5 3 2"
                     EnumType="{Binding TrackList, Converter={StaticResource TypeConverter}}"
                     Value="{Binding TrackList, Mode=TwoWay}"
                 />
                 
+                <!-- Write MsuPcm++ JSON -->
+                <views:FormLabel 
+                    Grid.Column="6"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="3"
+                    Margin="3 5 3 2"
+                    LabelText="{Binding Text.MsuBasicInfoIncludeJsonLabel}"
+                    ToolTipText="{Binding Text.MsuBasicInfoIncludeJsonToolTip}"
+                />
+                <controls1:BoolComboBox
+                    Grid.Column="6"
+                    Grid.Row="1"
+                    Grid.ColumnSpan="3"
+                    Margin="3 5 3 2"
+                    Value="{Binding IncludeJson, Mode=TwoWay}"
+                />
+                
                 <!-- Write Alt Track Swapper -->
                 <views:FormLabel 
-                    Grid.Column="4"
+                    Grid.Column="9"
                     Grid.Row="0"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="6"
                     Margin="3 5 0 2"
                     LabelText="{Binding Text.MsuBasicInfoWriteAltSwapperLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoWriteAltSwapperToolTip}"
                 />
                 <controls1:BoolComboBox
                     AllowNulls="False"
-                    Grid.Column="4"
+                    Grid.Column="9"
                     Grid.Row="1"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="3"
                     Margin="3 5 0 2"
                     Value="{Binding CreateAltSwapperScript, Mode=TwoWay}"
                 />

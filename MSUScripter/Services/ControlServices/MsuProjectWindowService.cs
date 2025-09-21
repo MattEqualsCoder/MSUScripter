@@ -1104,7 +1104,7 @@ public class MsuProjectWindowService(
 
     public void DragDropFile(string filePath)
     {
-        if (_viewModel.CurrentTreeItem?.TrackInfo == null || _viewModel.CurrentTreeItem?.SongInfo != null)
+        if (_viewModel.CurrentTreeItem?.TrackInfo == null || _viewModel.CurrentTreeItem?.SongInfo == null)
         {
             return;
         }
