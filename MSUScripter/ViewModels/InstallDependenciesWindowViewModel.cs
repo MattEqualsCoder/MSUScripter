@@ -6,6 +6,7 @@ namespace MSUScripter.ViewModels;
 public class InstallDependenciesWindowViewModel : ViewModelBase
 {
     [Reactive] public bool DontRemindMeAgain { get; set; } = true;
+    public bool InitialDontRemindMeAgain { get; set; }
     public bool CanClickInstallButton => !ShowMsuPcmProgress && !ShowFfmpegProgress && !ShowPyAppProgress;
     
     

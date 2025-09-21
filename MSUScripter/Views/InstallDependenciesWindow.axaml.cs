@@ -30,7 +30,7 @@ public partial class InstallDependenciesWindow : ScalableWindow
 
     private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        _viewModel.DontRemindMeAgain = false;
+        _viewModel.DontRemindMeAgain = _viewModel.InitialDontRemindMeAgain;
     }
 
     private void InstallMsuPcmButton_OnClick(object? sender, RoutedEventArgs e)

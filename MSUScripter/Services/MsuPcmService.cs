@@ -472,7 +472,7 @@ public class MsuPcmService(
 
     public async Task<MsuPcmResult> VerifyInstalledAsync()
     {
-        var fileName = OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm";
+        var fileName = OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm.AppImage";
         _msuPcmPath = Path.Combine(Directories.Dependencies, fileName);
         var result = await RunMsuPcmInternalAsync("-v", "");
         IsValid = result.Successful && result.Result.StartsWith("msupcm v");
@@ -480,6 +480,10 @@ public class MsuPcmService(
         if (!IsValid)
         {
             logger.LogError("msupcm++ could not be validated at path {Path}: {Error}", _msuPcmPath, result.Error);
+        }
+        else
+        {
+            logger.LogInformation("msupcm++ validated successfully at {Path}: {Result}", _msuPcmPath, result.Result);
         }
 
         return new MsuPcmResult()
@@ -555,6 +559,8 @@ public class MsuPcmService(
             }
             
             ProcessStartInfo procStartInfo;
+            
+            logger.LogInformation("Running msupcm++ command: {Command} {Arguments}", command, arguments);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {

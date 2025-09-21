@@ -338,7 +338,7 @@
                     HorizontalAlignment="Right"
                     Text="I'm only using the MSU Scripter for YAML files (don't show me this again)"
                     AllowNulls="False"
-                    Value="{Binding DontRemindMeAgain}"
+                    Value="{Binding DontRemindMeAgain, Mode=TwoWay}"
                 />
             </StackPanel>
         </DockPanel>

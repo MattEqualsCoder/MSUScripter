@@ -19,7 +19,7 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
     private const string PythonWindowsDownloadUrl = "https://github.com/astral-sh/python-build-standalone/releases/download/20250828/cpython-3.13.7+20250828-x86_64-pc-windows-msvc-install_only_stripped.tar.gz";
     private const string PythonLinuxDownloadUrl = "https://github.com/astral-sh/python-build-standalone/releases/download/20250828/cpython-3.13.7+20250828-x86_64_v3-unknown-linux-gnu-install_only_stripped.tar.gz";
     private const string MsuPcmWindowsDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm.exe";
-    private const string MsuPcmLinuxDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm";
+    private const string MsuPcmLinuxDownloadUrl = "https://github.com/MattEqualsCoder/msupcmplusplus/releases/download/v1.0RC3/msupcm.AppImage";
     private const string FfmpegWindowsDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip";
     private const string FfmpegLinuxDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-linux64-lgpl-shared-7.0.tar.xz";
 
@@ -118,7 +118,7 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
             progress.Invoke("Setting up directories");
             EnsureFolders();
             
-            var destination = Path.Combine(Directories.Dependencies, OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm");
+            var destination = Path.Combine(Directories.Dependencies, OperatingSystem.IsWindows() ? "msupcm.exe" : "msupcm.AppImage");
 
             if (File.Exists(destination))
             {
@@ -369,10 +369,27 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
         foreach(var directory in Directory.GetDirectories(sourceDir))
             CopyDirectoryInternal(directory, Path.Combine(targetDir, Path.GetFileName(directory)));
     }
-    
-    private async Task<bool> DownloadFileAsync(string url, string target)
+
+    private async Task<bool> DownloadFileAsync(string url, string target, int attempts = 3)
     {
         logger.LogInformation("Downloading {Url} to {Target}", url, target);
+        for (var i = 0; i < attempts; i++)
+        {
+            var result = await DownloadFileAsyncAttempt(url, target);
+            if (result)
+            {
+                return true;
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(15));
+        }
+
+        return false;
+    }
+    
+    private async Task<bool> DownloadFileAsyncAttempt(string url, string target)
+    {
+        
         using var httpClient = new HttpClient();
 
         try

@@ -15,6 +15,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
         _viewModel.MsuPcmState = msuPcmService.IsValid ? InstallState.Valid : InstallState.CanInstall;
         _viewModel.FfmpegState = pythonCompanionService.IsFfMpegValid ? InstallState.Valid : InstallState.CanInstall;
         _viewModel.PyAppState = pythonCompanionService.IsValid ? InstallState.Valid : InstallState.CanInstall;
+        _viewModel.InitialDontRemindMeAgain = settingsService.Settings.IgnoreMissingDependencies;
         return _viewModel;
     }
 
@@ -139,10 +140,7 @@ public class InstallDependenciesWindowService (MsuPcmService msuPcmService, Pyth
 
     public void SaveSettings()
     {
-        if (_viewModel.DontRemindMeAgain)
-        {
-            settingsService.Settings.IgnoreMissingDependencies = true;
-            settingsService.TrySaveSettings();
-        }
+        settingsService.Settings.IgnoreMissingDependencies = _viewModel.DontRemindMeAgain;
+        settingsService.TrySaveSettings();
     }
 }
