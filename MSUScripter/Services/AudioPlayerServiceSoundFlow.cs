@@ -88,7 +88,7 @@ public class AudioPlayerServiceSoundFlow(ILogger<AudioPlayerServiceSoundFlow> lo
     public void SetVolume(double volume)
     {
         if (_soundPlayer == null) return;
-        volume = Math.Clamp(volume, 0.0, 1.0);
+        volume = Math.Clamp(volume, 0.0, 1.0) * 1.5f;
         _soundPlayer.Volume = (float)volume;
         _soundPlayer.Pan = 0.5f;
     }
