@@ -1,0 +1,53 @@
+name: .NET Build + Publish
+
+on:
+  push:
+    branches: [main, ui-rewrite]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Install PupNet
+        run: dotnet tool install -g KuiperZone.PupNet
+      - name: Download AppImageTool
+        run: |
+          wget -P "$HOME/AppImageTool" "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+      - name: Test AppImageTool
+        run: |
+          echo "$HOME/AppImageTool" >> $GITHUB_PATH
+          appimagetool-x86_64.AppImage --version
+
+      # - name: Restore dependencies
+      #   run: dotnet restore
+      # - name: Build
+      #   run: dotnet build --no-restore -p:PostBuildEvent=
+      # - name: Publish Linux 64bit
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   run: dotnet publish --os linux --arch x64 -c Release --self-contained false MSUScripter/MSUScripter.csproj
+      # - name: Get version number
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   id: version
+      #   run: |
+      #     $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
+      #     $version = $version.Split("+")[0]
+      #     Write-Host $version
+      #     Write-Output "number=$version" >> $env:GITHUB_OUTPUT
+      #   shell: pwsh
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ github.event_name != 'pull_request' }}
+      #   with:
+      #     path: "setup/Output/*"
+      #     name: MSUScripter_${{ steps.version.outputs.number }}

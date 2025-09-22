@@ -253,7 +253,7 @@
                 <views:FormLabel 
                     Grid.Column="0"
                     Grid.Row="3"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="0 5 3 2"
                     IsVisible="{Binding IsSmz3Project}"
                     LabelText="{Binding Text.MsuBasicInfoCreateSplitSmz3Label}"
@@ -263,7 +263,7 @@
                     AllowNulls="False"
                     Grid.Column="0"
                     Grid.Row="4"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="0 5 3 2"
                     IsVisible="{Binding IsSmz3Project}"
                     Value="{Binding CreateSplitSmz3Script, Mode=TwoWay}"
@@ -271,18 +271,18 @@
                 
                 <!-- Write ALttP MSU Path -->
                 <views:FormLabel 
-                    Grid.Column="2"
+                    Grid.Column="4"
                     Grid.Row="3"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="3 5 3 2"
                     LabelText="{Binding Text.MsuBasicInfoZeldaMsuPathLabel}"
                     IsVisible="{Binding IsSmz3Project}"
                     ToolTipText="{Binding Text.MsuBasicInfoZeldaMsuPathToolTip}"
                 />
                 <controls1:FileControl
-                    Grid.Column="2"
+                    Grid.Column="4"
                     Grid.Row="4"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="3 5 3 2"
                     Filter="MSU Files:*.msu" 
                     WarnOnOverwrite="False" 
@@ -296,18 +296,18 @@
                 
                 <!-- Write Super Metroid MSU Path -->
                 <views:FormLabel 
-                    Grid.Column="4"
+                    Grid.Column="8"
                     Grid.Row="3"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="3 5 0 2"
                     LabelText="{Binding Text.MsuBasicInfoMetroidMsuPathLabel}"
                     IsVisible="{Binding IsSmz3Project}"
                     ToolTipText="{Binding Text.MsuBasicInfoMetroidMsuPathToolTip}"
                 />
                 <controls1:FileControl
-                    Grid.Column="4"
+                    Grid.Column="8"
                     Grid.Row="4"
-                    Grid.ColumnSpan="2"
+                    Grid.ColumnSpan="4"
                     Margin="3 5 0 2"
                     Filter="MSU Files:*.msu" 
                     WarnOnOverwrite="False" 

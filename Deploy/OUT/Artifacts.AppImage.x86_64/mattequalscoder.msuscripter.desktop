@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=MSU Scripter
+Icon=mattequalscoder.msuscripter
+StartupWMClass=MSUScripter
+Comment=MSU Scripter
+Exec=/usr/bin/MSUScripter
+TryExec=/usr/bin/MSUScripter
+NoDisplay=false
+Terminal=true
+Categories=Utility;
+X-AppImage-Name=AppId
+X-AppImage-Version=AppVersion
+X-AppImage-Arch=PackageArch
+MimeType=
+Keywords=
