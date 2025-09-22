@@ -24,9 +24,10 @@ jobs:
       - name: Download AppImageTool
         run: |
           wget -P "$HOME/.local/bin" "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-      - name: Test AppImageTool
-        run: |
+          chmod +x "$HOME/.local/bin/appimagetool-x86_64.AppImage"
           appimagetool-x86_64.AppImage --version
+      - name: Run PupNet
+        run: pupnet --kind appimage MSUScripter.pupnet.conf
 
       # - name: Restore dependencies
       #   run: dotnet restore
