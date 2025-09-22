@@ -26,6 +26,7 @@ jobs:
           wget -P "$HOME/AppImageTool" "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
       - name: Test AppImageTool
         run: |
+          echo "$PATH"
           echo "$HOME/AppImageTool" >> $GITHUB_PATH
           appimagetool-x86_64.AppImage --version
 
