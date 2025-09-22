@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <metadata_license>MIT</metadata_license>
+
+    <id>${APP_ID}</id>
+    <name>${APP_FRIENDLY_NAME}</name>
+    <summary>${APP_SHORT_SUMMARY}</summary>
+    <url type="homepage">${PUBLISHER_LINK_URL}</url>
+    <project_license>${APP_LICENSE_ID}</project_license>
+    <content_rating type="oars-1.1" />
+
+    <developer id="${PUBLISHER_ID}">
+        <name>${PUBLISHER_NAME}</name>
+    </developer>
+
+    <launchable type="desktop-id">${APP_ID}.desktop</launchable>
+
+    <description>
+        ${APPSTREAM_DESCRIPTION_XML}
+    </description>
+
+    <!-- Freedesktop Categories -->
+    <categories>
+        <category>${PRIME_CATEGORY}</category>
+    </categories>
+
+    <keywords>
+        <keyword>development</keyword>
+        <keyword>programming</keyword>
+    </keywords>
+
+    <screenshots>
+        <screenshot type="default">
+            <image>https://private-user-images.githubusercontent.com/63823784/356325792-a31f393d-7b62-4550-b475-c754404332bd.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTg1NDgzMzMsIm5iZiI6MTc1ODU0ODAzMywicGF0aCI6Ii82MzgyMzc4NC8zNTYzMjU3OTItYTMxZjM5M2QtN2I2Mi00NTUwLWI0NzUtYzc1NDQwNDMzMmJkLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA5MjIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwOTIyVDEzMzM1M1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTEzZjI5ZDc5ZThmMjExZDc3OTIwOGMwYTUyNDA3M2Y4MzUzYjU4YTUxMzliYzQzYjYzOWQyNzVkZDZjNTU2MzQmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.KO9do_00DMvZSFlkft31g9sVz25VfRG9e0pk_UcNrpU</image>
+        </screenshot>
+    </screenshots>
+
+    <releases>
+        ${APPSTREAM_CHANGELOG_XML}
+    </releases>
+
+</component>
