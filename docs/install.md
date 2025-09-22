@@ -36,3 +36,4 @@ FFmpeg is used by the Python Companion App to create YouTube videos for testing 
    - Make sure to run `pipx ensurepath`
 3. Run the command `pipx install py-msu-scripter-app`
    - If preferred, you can also install pip and install via `python -m pip install py-msu-scripter-app` or `pip install py-msu-scripter-app` based on your environment
+4. Verify it's installed by running either `py-msu-scripter-app --version` or `python -m py-msu-scripter-app --version`
