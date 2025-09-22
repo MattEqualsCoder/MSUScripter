@@ -19,20 +19,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Publish Windows 32bit
-        if: ${{ github.event_name != 'pull_request' }}
-        run: dotnet publish --os win --arch x86 -c Release --self-contained false MSUScripter/MSUScripter.csproj
-      - name: Get version number
-        if: ${{ github.event_name != 'pull_request' }}
-        id: version
-        run: |
-          $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
-          $version = $version.Split("+")[0]
-          Write-Host $version
-          Write-Output "number=$version" >> $env:GITHUB_OUTPUT
-        shell: pwsh
       - name: Install PupNet
         run: dotnet tool install -g KuiperZone.PupNet
       - name: Download AppImageTool
@@ -47,7 +33,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         with:
           path: "Deploy/OUT/MSUScripter*"
-          name: MSUScripter_${{ steps.version.outputs.number }}
+          name: MSUScripterLinux
 
       # - name: Restore dependencies
       #   run: dotnet restore
