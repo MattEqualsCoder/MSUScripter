@@ -2,7 +2,7 @@ name: .NET Build + Publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, ui-rewrite]
   pull_request:
     branches: [main]
 
@@ -47,4 +47,4 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         with:
           path: "setup/Output/*"
-          name: MSUScripter_${{ steps.version.outputs.number }}
+          name: MSUScripter

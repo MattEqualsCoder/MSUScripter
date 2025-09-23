@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 // ReSharper disable once RedundantUsingDirective
 using System.Linq;
 using System.Threading;
@@ -60,6 +61,11 @@ class Program
         if (args.Length == 1 && args[0].EndsWith(".msup", StringComparison.OrdinalIgnoreCase) && File.Exists(args[0]))
         {
             StartingProject = args[0];
+        }
+
+        if (OperatingSystem.IsLinux())
+        {
+            _ = SetupLinuxDesktopFile();
         }
         
         MainHost = Host.CreateDefaultBuilder(args)
@@ -159,6 +165,109 @@ class Program
                 await Task.Delay(500);
             }
         });
+    }
+
+    private static async Task SetupLinuxDesktopFile()
+    {
+        await Task.Run(() =>
+        {
+            var desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "applications");
+            if (!Directory.Exists(desktopPath))
+            {
+                return;
+            }
+
+            var iconFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "icons");
+            if (!Directory.Exists(iconFolderPath))
+            {
+                Directory.CreateDirectory(iconFolderPath);
+            }
+
+            var iconPath = Path.Combine(Path.Combine(iconFolderPath, "MSUScripter.svg"));
+
+            var appImagePath = Directory.EnumerateFiles(Environment.CurrentDirectory, "MSUScripter*.AppImage")
+                .FirstOrDefault();
+            Log.Logger.Information("appImagePath: {Path}", appImagePath);
+            if (string.IsNullOrEmpty(appImagePath) || !File.Exists(appImagePath))
+            {
+                return;
+            }
+
+            var desktopFilePath = Path.Combine(desktopPath, "MSUScripter.desktop");
+            var uninstallFilePath = Path.Combine(Directories.BaseFolder, "uninstall.sh");
+
+            var assembly = Assembly.GetExecutingAssembly();
+            CopyIconFile(assembly, iconPath);
+            CopyUninstallFile(assembly, appImagePath, iconPath, desktopFilePath, uninstallFilePath);
+            CopyDesktopFile(assembly, appImagePath, iconPath, uninstallFilePath, desktopFilePath);
+        });
+    }
+
+    private static void CopyDesktopFile(Assembly assembly, string appImagePath, string iconPath, string uninstallPath, string targetPath)
+    {
+        const string resourceName = "MSUScripter.Assets.org.mattequalscoder.msuscripter.desktop";
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+        {
+            return;
+        }
+        using var reader = new StreamReader(stream);
+        var desktopText = reader.ReadToEnd();
+
+        var workingDirectory = Path.GetDirectoryName(appImagePath);
+        var fileName = Path.GetFileName(appImagePath);
+        desktopText = desktopText.Replace("%FolderPath%", workingDirectory);
+        desktopText = desktopText.Replace("%FileName%", fileName);
+        desktopText = desktopText.Replace("%IconPath%", iconPath);
+        desktopText = desktopText.Replace("%DesktopFilePath%", targetPath);
+        desktopText = desktopText.Replace("%UninstallPath%", uninstallPath);
+        File.WriteAllText(targetPath, desktopText);
+    }
+    
+    private static void CopyUninstallFile(Assembly assembly, string appImagePath, string iconPath, string desktopFilePath, string targetPath)
+    {
+        if (!OperatingSystem.IsLinux())
+        {
+            return;
+        }
+        
+        const string resourceName = "MSUScripter.Assets.uninstall.sh";
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+        {
+            return;
+        }
+        using var reader = new StreamReader(stream);
+        var fileText = reader.ReadToEnd();
+
+        var workingDirectory = Path.GetDirectoryName(appImagePath);
+        var fileName = Path.GetFileName(appImagePath);
+        fileText = fileText.Replace("%FolderPath%", workingDirectory);
+        fileText = fileText.Replace("%FileName%", fileName);
+        fileText = fileText.Replace("%IconPath%", iconPath);
+        fileText = fileText.Replace("%DesktopFilePath%", desktopFilePath);
+        fileText = fileText.Replace("%LocalDataPath%", Directories.BaseFolder);
+        File.WriteAllText(targetPath, fileText);
+        File.SetUnixFileMode(targetPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupExecute);
+    }
+
+    private static void CopyIconFile(Assembly assembly, string targetPath)
+    {
+        const string resourceName = "MSUScripter.Assets.icon.svg";
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+        {
+            return;
+        }
+
+        using var fileStream = new FileStream(Path.Combine(targetPath), FileMode.Create);
+        for (var i = 0; i < stream.Length; i++)
+        {
+            fileStream.WriteByte((byte)stream.ReadByte());
+        }
+        fileStream.Close();
     }
 
 #if DEBUG

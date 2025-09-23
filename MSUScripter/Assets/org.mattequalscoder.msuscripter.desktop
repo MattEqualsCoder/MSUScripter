@@ -1,0 +1,23 @@
+[Desktop Entry]
+Type=Application
+Name=MSU Scripter
+Icon=org.mattequalscoder.msuscripter
+StartupWMClass=MSUScripter
+Comment=UI application for creating MSUs and PCM files
+Exec=%FileName%
+TryExec=%FileName%
+NoDisplay=false
+Terminal=false
+Categories=Utility;
+X-AppImage-Name=AppId
+X-AppImage-Version=AppVersion
+X-AppImage-Arch=PackageArch
+MimeType=
+Keywords=
+Icon=%IconPath%
+Path=%FolderPath%
+Actions=remove
+
+[Desktop Action remove]
+Name=Uninstall MSU Scripter
+Exec=%UninstallPath%

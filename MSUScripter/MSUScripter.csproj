@@ -50,6 +50,9 @@
 	
 	<ItemGroup>
 	  <AvaloniaResource Include="Assets\**" />
+	  <EmbeddedResource Include="Assets\icon.svg" />
+	  <EmbeddedResource Include="Assets\org.mattequalscoder.msuscripter.desktop" />
+	  <EmbeddedResource Include="Assets\uninstall.sh" />
 	  <EmbeddedResource Include="empty.pcm" />
 	</ItemGroup>
 

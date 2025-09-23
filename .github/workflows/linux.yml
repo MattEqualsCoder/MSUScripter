@@ -33,7 +33,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         with:
           path: "Deploy/OUT/MSUScripter*"
-          name: MSUScripterLinux
+          name: MSUScripter
 
       # - name: Restore dependencies
       #   run: dotnet restore
