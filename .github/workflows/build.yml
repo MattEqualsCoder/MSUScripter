@@ -7,50 +7,50 @@ on:
     branches: [main]
 
 jobs:
-  build-windows:
-    runs-on: windows-2022
+  # build-windows:
+  #   runs-on: windows-2022
 
-    permissions:
-      contents: write
+  #   permissions:
+  #     contents: write
 
-    outputs:
-      version-number: ${{ steps.version.outputs.number}}
+  #   outputs:
+  #     version-number: ${{ steps.version.outputs.number}}
 
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --no-restore -p:PostBuildEvent=
-      - name: Publish Windows 64bit
-        if: ${{ github.event_name != 'pull_request' }}
-        run: dotnet publish --os win --arch x64 -c Release --self-contained false  MSUScripter/MSUScripter.csproj
-      - name: Publish Windows 32bit
-        if: ${{ github.event_name != 'pull_request' }}
-        run: dotnet publish --os win --arch x86 -c Release --self-contained false MSUScripter/MSUScripter.csproj
-      - name: Get version number
-        if: ${{ github.event_name != 'pull_request' }}
-        id: version
-        run: |
-          $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
-          $version = $version.Split("+")[0]
-          Write-Host $version
-          Write-Output "number=$version" >> $env:GITHUB_OUTPUT
-        shell: pwsh
-      - name: Building the Windows installer
-        if: ${{ github.event_name != 'pull_request' }}
-        run: '"%programfiles(x86)%/Inno Setup 6/iscc.exe" "Setup/MSUScripter.iss"'
-        shell: cmd
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ github.event_name != 'pull_request' }}
-        with:
-          path: "setup/Output/*"
-          name: MSUScripterWindows
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: 9.0.x
+  #     - name: Restore dependencies
+  #       run: dotnet restore
+  #     - name: Build
+  #       run: dotnet build --no-restore -p:PostBuildEvent=
+  #     - name: Publish Windows 64bit
+  #       if: ${{ github.event_name != 'pull_request' }}
+  #       run: dotnet publish --os win --arch x64 -c Release --self-contained false  MSUScripter/MSUScripter.csproj
+  #     - name: Publish Windows 32bit
+  #       if: ${{ github.event_name != 'pull_request' }}
+  #       run: dotnet publish --os win --arch x86 -c Release --self-contained false MSUScripter/MSUScripter.csproj
+  #     - name: Get version number
+  #       if: ${{ github.event_name != 'pull_request' }}
+  #       id: version
+  #       run: |
+  #         $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
+  #         $version = $version.Split("+")[0]
+  #         Write-Host $version
+  #         Write-Output "number=$version" >> $env:GITHUB_OUTPUT
+  #       shell: pwsh
+  #     - name: Building the Windows installer
+  #       if: ${{ github.event_name != 'pull_request' }}
+  #       run: '"%programfiles(x86)%/Inno Setup 6/iscc.exe" "Setup/MSUScripter.iss"'
+  #       shell: cmd
+  #     - name: Upload artifact
+  #       uses: actions/upload-artifact@v4
+  #       if: ${{ github.event_name != 'pull_request' }}
+  #       with:
+  #         path: "setup/Output/*"
+  #         name: MSUScripterWindows
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -83,29 +83,28 @@ jobs:
   package:
     runs-on: ubuntu-22.04
 
-    needs: [build-windows, build-linux]
+    needs: [build-linux]
 
     permissions:
       contents: write
 
     steps:
-      - uses: actions/download-artifact@v5
-        with:
-          name: MSUScripterWindows
+      # - uses: actions/download-artifact@v5
+      #   with:
+      #     name: MSUScripterWindows
       - uses: actions/download-artifact@v5
         with:
           name: MSUScripterLinux
+          path: out
       - name: Extract some files
         run: |
-          mkdir out
-          7z x MSUScripterWindows.zip -o./out
-          7z x MSUScripterLinux.zip -o./out
+          ls -alR
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'pull_request' }}
         with:
           path: "out/*"
-          name: MSUScripter_${{ needs.build-windows.outputs.version-number }}
+          name: MSUScripter_a
 
       # - name: Restore dependencies
       #   run: dotnet restore
