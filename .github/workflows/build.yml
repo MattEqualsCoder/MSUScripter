@@ -7,11 +7,14 @@ on:
     branches: [main]
 
 jobs:
-  windows:
+  build-windows:
     runs-on: windows-2022
 
     permissions:
       contents: write
+
+    outputs:
+      version-number: ${{ steps.version.outputs.number}}
 
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +52,7 @@ jobs:
           path: "setup/Output/*"
           name: MSUScripterWindows
 
-  linux:
+  build-linux:
     runs-on: ubuntu-22.04
 
     permissions:
@@ -80,6 +83,8 @@ jobs:
   package:
     runs-on: ubuntu-22.04
 
+    needs: [build-windows, build-linux]
+
     permissions:
       contents: write
 
@@ -100,7 +105,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         with:
           path: "out/*"
-          name: MSUScripter
+          name: MSUScripter_${{ needs.build-windows.outputs.version-number }}
 
       # - name: Restore dependencies
       #   run: dotnet restore
