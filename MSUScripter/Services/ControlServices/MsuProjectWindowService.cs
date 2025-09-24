@@ -782,10 +782,10 @@ public class MsuProjectWindowService(
             return;
         }
 
-        var currentParent = from.ParentIndex > 0
+        var currentParent = from.ParentIndex != 0
             ? _viewModel.TreeItems.First(x => x.SortIndex == from.ParentIndex)
             : from;
-        var destinationParent = to.ParentIndex > 0
+        var destinationParent = to.ParentIndex != 0
             ? _viewModel.TreeItems.First(x => x.SortIndex == to.ParentIndex)
             : to;
 
@@ -794,11 +794,9 @@ public class MsuProjectWindowService(
             return;
         }
         
-        
-
         var destinationTrack = to.TrackInfo;
         int destinationIndex;
-        if (to.ParentIndex <= 0)
+        if (to.ParentIndex == 0)
         {
             destinationIndex = to.SongInfo == null ? 0 : 1;
         }
@@ -940,6 +938,11 @@ public class MsuProjectWindowService(
             
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, destinationTrack, from.SongInfo, newTreeData);
             _viewModel.SelectedTreeItem = newTreeData;
+        }
+
+        if (_viewModel.SelectedTreeItem.SongInfo != null)
+        {
+            _viewModel.LastModifiedDate = DateTime.Now;
         }
         
         logger.LogInformation("HandleDragged complete");

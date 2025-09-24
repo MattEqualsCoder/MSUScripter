@@ -467,6 +467,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
         UpdateTabbing(from);
         UpdateSortIndexes();
+        
+        LastModifiedDate = DateTime.Now;
     }
 
     private void UpdateTabbing(MsuSongAdvancedPanelViewModelModelTreeData data)
