@@ -10,12 +10,9 @@
 
 ### Linux
 
-1. Install [.NET 9.0](https://learn.microsoft.com/en-us/dotnet/core/install/linux)
-   - Make sure that dotnet is in the PATH
-   - If you need multiple versions of .NET installed, you may want to use te [scripted install](https://learn.microsoft.com/en-us/dotnet/core/install/linux-scripted-manual#scripted-install) 
-2. Download the MSUScripterLinux tar file from the [latest release](https://github.com/MattEqualsCoder/MSUScripter/releases)
-3. Make the MSUScripter file executable to run or run the command `dotnet MSUScripter.dll`
-4. Install all dependencies in the dependency installer window
+1. Download the MSUScripter AppImage file from the [latest release](https://github.com/MattEqualsCoder/MSUScripter/releases)
+2. Place the AppImage file where you'd like it to exist on your computer and make the file executable
+3. Install all dependencies in the dependency installer window
 
 ## Manual Dependency Installation
 
