@@ -197,7 +197,10 @@ public partial class MsuSongAdvancedPanel : UserControl
                 return;
             }
 
-            _viewModel.UpdateDrag(null);
+            if (_viewModel.UpdateDrag(null))
+            {
+                Service?.CheckFileErrors(_viewModel);
+            }
         }
         catch (Exception ex)
         {
@@ -366,11 +369,12 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void TreeItemMenuBase_OnOpened(object? sender, RoutedEventArgs e)
     {
-        if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData || treeData.MsuPcmInfo == null)
+        if ((sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData treeData || treeData.MsuPcmInfo == null || _viewModel == null)
         {
             return;
         }
         
+        _viewModel.SelectedTreeItem = treeData;
         treeData.EnableMenuItems = treeData.MsuPcmInfo != null;
     }
 

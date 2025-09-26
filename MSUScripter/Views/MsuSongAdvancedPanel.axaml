@@ -170,7 +170,7 @@
                     <ListBox 
                          BorderThickness="0"
                          ItemsSource="{Binding TreeItems}"
-                         SelectedItem="{Binding SelectedTreeItem}"
+                         SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
                          HorizontalAlignment="Stretch"
                          VerticalAlignment="Stretch"
                          Name="TreeListBox"

@@ -318,8 +318,10 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         HasBeenModified = false;
     }
 
-    public void UpdateDrag(MsuSongAdvancedPanelViewModelModelTreeData? treeData)
+    public bool UpdateDrag(MsuSongAdvancedPanelViewModelModelTreeData? treeData)
     {
+        var dragCompleted = false;
+        
         if (_hoveredItem != null)
         {
             _hoveredItem.GridBackground = Brushes.Transparent;
@@ -332,7 +334,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     _draggedItem.ParentIndex == _hoveredItem.ParentIndex &&
                     _draggedItem.SortIndex == _hoveredItem.SortIndex + 1))
             {
-                HandleDragged(_draggedItem, _hoveredItem);
+                dragCompleted = HandleDragged(_draggedItem, _hoveredItem);
             }
             
             _hoveredItem = null;
@@ -343,6 +345,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             _hoveredItem = null;
             _draggedItem = treeData;
         }
+
+        return dragCompleted;
     }
     
     public void UpdateHover(MsuSongAdvancedPanelViewModelModelTreeData? treeData)
@@ -432,7 +436,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         FileDragDropped?.Invoke(this, EventArgs.Empty);
     }
 
-    private void HandleDragged(MsuSongAdvancedPanelViewModelModelTreeData from, MsuSongAdvancedPanelViewModelModelTreeData to)
+    private bool HandleDragged(MsuSongAdvancedPanelViewModelModelTreeData from, MsuSongAdvancedPanelViewModelModelTreeData to)
     {
         var parentTreeData = to.MsuPcmInfo == null ? to : to.ParentTreeData;
         var parent = parentTreeData?.ParentTreeData?.MsuPcmInfo;
@@ -440,7 +444,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
         if (parentTreeData == null || parent == null || from.MsuPcmInfo == null)
         {
-            return;
+            return false;
         }
 
         var currentToNode = to.ParentTreeData;
@@ -448,7 +452,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         {
             if (currentToNode == from)
             {
-                return;
+                return false;
             }
 
             currentToNode = currentToNode.ParentTreeData;
@@ -467,8 +471,10 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
         UpdateTabbing(from);
         UpdateSortIndexes();
-        
+
+        SelectedTreeItem = from;
         LastModifiedDate = DateTime.Now;
+        return true;
     }
 
     private void UpdateTabbing(MsuSongAdvancedPanelViewModelModelTreeData data)
