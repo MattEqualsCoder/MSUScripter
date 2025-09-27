@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Versioning;
 // ReSharper disable once RedundantUsingDirective
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using AppImageDesktopFileCreator;
 using Avalonia.Threading;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
@@ -63,11 +65,6 @@ class Program
             StartingProject = args[0];
         }
 
-        if (OperatingSystem.IsLinux())
-        {
-            _ = SetupLinuxDesktopFile();
-        }
-        
         MainHost = Host.CreateDefaultBuilder(args)
             .UseSerilog()
             .ConfigureLogging(logging =>
@@ -167,107 +164,21 @@ class Program
         });
     }
 
-    private static async Task SetupLinuxDesktopFile()
+    [SupportedOSPlatform("linux")]
+    internal static CreateDesktopFileResponse BuildLinuxDesktopFile()
     {
-        await Task.Run(() =>
-        {
-            var desktopPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "applications");
-            if (!Directory.Exists(desktopPath))
-            {
-                return;
-            }
-
-            var iconFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "icons");
-            if (!Directory.Exists(iconFolderPath))
-            {
-                Directory.CreateDirectory(iconFolderPath);
-            }
-
-            var iconPath = Path.Combine(Path.Combine(iconFolderPath, "MSUScripter.svg"));
-
-            var appImagePath = Directory.EnumerateFiles(Environment.CurrentDirectory, "MSUScripter*.AppImage")
-                .FirstOrDefault();
-            Log.Logger.Information("appImagePath: {Path}", appImagePath);
-            if (string.IsNullOrEmpty(appImagePath) || !File.Exists(appImagePath))
-            {
-                return;
-            }
-
-            var desktopFilePath = Path.Combine(desktopPath, "MSUScripter.desktop");
-            var uninstallFilePath = Path.Combine(Directories.BaseFolder, "uninstall.sh");
-
-            var assembly = Assembly.GetExecutingAssembly();
-            CopyIconFile(assembly, iconPath);
-            CopyUninstallFile(assembly, appImagePath, iconPath, desktopFilePath, uninstallFilePath);
-            CopyDesktopFile(assembly, appImagePath, iconPath, uninstallFilePath, desktopFilePath);
-        });
-    }
-
-    private static void CopyDesktopFile(Assembly assembly, string appImagePath, string iconPath, string uninstallPath, string targetPath)
-    {
-        const string resourceName = "MSUScripter.Assets.org.mattequalscoder.msuscripter.desktop";
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream == null)
-        {
-            return;
-        }
-        using var reader = new StreamReader(stream);
-        var desktopText = reader.ReadToEnd();
-
-        var workingDirectory = Path.GetDirectoryName(appImagePath);
-        var fileName = Path.GetFileName(appImagePath);
-        desktopText = desktopText.Replace("%FolderPath%", workingDirectory);
-        desktopText = desktopText.Replace("%FileName%", fileName);
-        desktopText = desktopText.Replace("%IconPath%", iconPath);
-        desktopText = desktopText.Replace("%DesktopFilePath%", targetPath);
-        desktopText = desktopText.Replace("%UninstallPath%", uninstallPath);
-        File.WriteAllText(targetPath, desktopText);
-    }
-    
-    private static void CopyUninstallFile(Assembly assembly, string appImagePath, string iconPath, string desktopFilePath, string targetPath)
-    {
-        if (!OperatingSystem.IsLinux())
-        {
-            return;
-        }
-        
-        const string resourceName = "MSUScripter.Assets.uninstall.sh";
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream == null)
-        {
-            return;
-        }
-        using var reader = new StreamReader(stream);
-        var fileText = reader.ReadToEnd();
-
-        var workingDirectory = Path.GetDirectoryName(appImagePath);
-        var fileName = Path.GetFileName(appImagePath);
-        fileText = fileText.Replace("%FolderPath%", workingDirectory);
-        fileText = fileText.Replace("%FileName%", fileName);
-        fileText = fileText.Replace("%IconPath%", iconPath);
-        fileText = fileText.Replace("%DesktopFilePath%", desktopFilePath);
-        fileText = fileText.Replace("%LocalDataPath%", Directories.BaseFolder);
-        File.WriteAllText(targetPath, fileText);
-        File.SetUnixFileMode(targetPath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute | UnixFileMode.GroupExecute);
-    }
-
-    private static void CopyIconFile(Assembly assembly, string targetPath)
-    {
-        const string resourceName = "MSUScripter.Assets.icon.svg";
-        using var stream = assembly.GetManifestResourceStream(resourceName);
-        if (stream == null)
-        {
-            return;
-        }
-
-        using var fileStream = new FileStream(Path.Combine(targetPath), FileMode.Create);
-        for (var i = 0; i < stream.Length; i++)
-        {
-            fileStream.WriteByte((byte)stream.ReadByte());
-        }
-        fileStream.Close();
+        var assembly = Assembly.GetExecutingAssembly();
+        return new DesktopFileBuilder("org.mattequalscoder.msuscripter", "MSU Scripter")
+            .AddDescription("UI application for creating MSUs and PCM files")
+            .AddCategory(DesktopFileCategories.Development)
+            .AddWindowClass("MSUScripter")
+            .AddIcon(assembly, "MSUScripter.Assets.icon.16.png", 16)
+            .AddIcon(assembly, "MSUScripter.Assets.icon.32.png", 32)
+            .AddIcon(assembly, "MSUScripter.Assets.icon.48.png", 48)
+            .AddIcon(assembly, "MSUScripter.Assets.icon.256.png", 256)
+            .AddIcon(assembly, "MSUScripter.Assets.icon.svg")
+            .AddUninstallAction(Directories.BaseFolder)
+            .Build();
     }
 
 #if DEBUG

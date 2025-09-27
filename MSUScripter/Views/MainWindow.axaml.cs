@@ -1,11 +1,11 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AppImageDesktopFileCreator;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
@@ -63,6 +63,8 @@ public partial class MainWindow : RestorableWindow
 
             if (_service == null) return;
 
+            await ShowDesktopFileWindow();
+
             var updateUrl = await _service.CheckForNewRelease();
             if (!string.IsNullOrEmpty(updateUrl))
             {
@@ -90,6 +92,25 @@ public partial class MainWindow : RestorableWindow
         {
             _service?.LogError(ex, "Error loading main window");
         }
+    }
+
+    private async Task ShowDesktopFileWindow()
+    {
+        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile || DesktopFileCreator.CheckIfDesktopFileExists("org.mattequalscoder.msuscripter"))
+        {
+            return;
+        }
+
+        if (await MessageWindow.ShowYesNoDialog("Would you like to add the MSU Scripter to your menu by creating a desktop file?",
+            "MSU Scripter", this) == false)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            _service?.SkipDesktopFile();
+            return;
+        };
+
+        _service?.CreateDesktopFile();
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
     }
 
     private async Task ShowNewReleaseWindow(string updateUrl)

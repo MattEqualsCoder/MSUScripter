@@ -1,3 +1,4 @@
+using System;
 using MSUScripter.Configs;
 using ReactiveUI.Fody.Helpers;
 
@@ -23,6 +24,7 @@ public class SettingsPanelViewModel : SavableViewModelBase
     [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
     
     [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
+    public bool ShowDesktopFileButton => OperatingSystem.IsLinux();
 
     public Settings Settings { get; set; } = new();
      

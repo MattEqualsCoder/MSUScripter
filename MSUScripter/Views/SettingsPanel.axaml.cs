@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using MSUScripter.ViewModels;
@@ -23,5 +24,14 @@ public partial class SettingsPanel : UserControl
         }
         var newWindow = new InstallDependenciesWindow();
         newWindow.ShowDialog(parent);
+    }
+
+    private void CreateDesktopFileButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (!OperatingSystem.IsLinux())
+        {
+            return;
+        }
+        Program.BuildLinuxDesktopFile();
     }
 }

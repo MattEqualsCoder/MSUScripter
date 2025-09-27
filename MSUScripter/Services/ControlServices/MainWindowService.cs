@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using AvaloniaControls;
+using AppImageDesktopFileCreator;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
@@ -258,6 +260,31 @@ public class MainWindowService(
         }
         
         return string.Empty;
+    }
+
+    [SupportedOSPlatform("linux")]
+    public void CreateDesktopFile()
+    {
+        ITaskService.Run(() =>
+        {
+            var response = Program.BuildLinuxDesktopFile();
+
+            if (response.Success)
+            {
+                logger.LogInformation("Created desktop file for AppImage");
+            }
+            else
+            {
+                logger.LogError("Error creating desktop fie for AppImage: {Error}",
+                    response.ErrorMessage ?? "Unknown Error");
+            }
+        });
+    }
+
+    public void SkipDesktopFile()
+    {
+        settingsService.Settings.SkipDesktopFile = true;
+        settingsService.TrySaveSettings();
     }
 
     public void IgnoreFutureUpdates()

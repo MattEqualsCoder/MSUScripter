@@ -3,9 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:views="clr-namespace:MSUScripter.Views"
-             xmlns:msuScripter="clr-namespace:MSUScripter"
              xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="MSUScripter.Views.SettingsPanel"
@@ -112,9 +110,14 @@
             />
         </Grid>
         
-        <Button HorizontalAlignment="Center" Click="CheckDependenciesButton_OnClick" Margin="0 10 0 0">
-            Check Dependencies
-        </Button>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 0">
+            <Button Click="CheckDependenciesButton_OnClick" Margin="5 0">
+                Check Dependencies
+            </Button>
+            <Button Click="CreateDesktopFileButton_OnClick" Margin="5 0" IsVisible="{Binding ShowDesktopFileButton}">
+                Create Desktop File
+            </Button>
+        </StackPanel>
         
     </StackPanel>
 </UserControl>

@@ -28,5 +28,6 @@ public class Settings
     public bool ProjectTreeDisplayHasSongIcon { get; set; }
     public bool ProjectTreeDisplayCheckCopyrightIcon { get; set; }
     public bool ProjectTreeDisplayCopyrightSafeIcon { get; set; }
+    public bool SkipDesktopFile { get; set; }
     public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Prompt;
 }
