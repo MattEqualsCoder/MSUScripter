@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=MSU Scripter
+GenericName=Frontend for the libretro API
+Type=Application
+Comment=UI application for creating MSUs and PCM files
+Icon=org.mattequalscoder.msuscripter
+Exec=/usr/bin/MSUScripter
+Terminal=false
+StartupNotify=false
+StartupWMClass=MSUScripter
+Keywords=msu;msupcm;pcm
+Categories=Development
