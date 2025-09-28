@@ -398,4 +398,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-Setup/output/*
+[Ss]etup/[Oo]utput/*
