@@ -21,6 +21,7 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
     private const string MsuPcmWindowsDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm.exe";
     private const string MsuPcmLinuxDownloadUrl = "https://github.com/MattEqualsCoder/msupcmplusplus/releases/download/v1.0RC3/msupcm.AppImage";
     private const string FfmpegWindowsDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip";
+    private const string FfmpegWindows32BitDownloadUrl = "https://github.com/defisym/FFmpeg-Builds-Win32/releases/download/latest/ffmpeg-n7.1-latest-win32-gpl-7.1.zip";
     private const string FfmpegLinuxDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-linux64-lgpl-shared-7.0.tar.xz";
 
     public async Task<bool> InstallPyApp(Action<string> response, Func<string, string, Task<RunPyResult>> runPyFunc)
@@ -200,7 +201,11 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
             
             var tempFileName = OperatingSystem.IsWindows() ? "ffmpeg.zip" : "ffmpeg.tar.xz";
             var tempFilePath = Path.Combine(Directories.TempFolder, tempFileName);
-            var url = OperatingSystem.IsWindows() ? FfmpegWindowsDownloadUrl : FfmpegLinuxDownloadUrl;
+            var url = OperatingSystem.IsLinux()
+                ? FfmpegLinuxDownloadUrl
+                : Environment.Is64BitOperatingSystem
+                    ? FfmpegWindowsDownloadUrl
+                    : FfmpegWindows32BitDownloadUrl;
             
             progress.Invoke("Downloading FFmpeg");
             if (!await DownloadFileAsync(url, tempFilePath))
