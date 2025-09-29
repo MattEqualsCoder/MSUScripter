@@ -121,7 +121,7 @@
                     Astral
                 </controls:LinkControl>
             </InlineUIContainer>
-            for the standalone Python package to make it easier to provie PyMusicLooper and other Python apps.
+            for the standalone Python package to make it easier to provide PyMusicLooper and other Python apps.
         </TextBlock>
         
         <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
