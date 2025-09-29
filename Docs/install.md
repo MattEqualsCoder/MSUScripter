@@ -28,7 +28,10 @@ FFmpeg is used by the Python Companion App to create YouTube videos for testing 
 
 ### Python Companion App
 
+The Python Companion App combines both PyMusicLooper and the copyright test video creator. It is not needed for basic MsuPcm++ usage.
+
 1. Download and install [Python](https://www.python.org/downloads/) (not needed on Linux)
+   - Make sure you select the option to add it to the path.
 2. Download and install [pipx](https://pipx.pypa.io/stable/installation/)
    - Make sure to run `pipx ensurepath`
 3. Run the command `pipx install py-msu-scripter-app`
