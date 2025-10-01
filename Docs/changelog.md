@@ -32,5 +32,20 @@ and move sub tracks and sub channels easily. By default the MSU Scripter will as
 
 The buttons for playing the song and the audio controls are now always accessible at the bottom when viewing a song as well.
 
+## Dependency Installation
 
+<img width="557" height="260" alt="image" src="https://github.com/user-attachments/assets/ba8ef95d-0b0b-4b95-857d-0739cf847f7b" />
 
+A common issue people have ran into has been getting some of the dependencies installed such as PyMusicLooper and the YouTube video creation application.
+In order to help alleviate that, the MSU Scripter when first launching will check for dependencies and offer to install them for you. This will install
+portable versions of Python and ffmpeg. If you'd like to avoid the extra space, you can still install the dependencies manually by following the
+install documentation.
+
+## Better Linux Support
+
+Previously the Linux version of the MSU Scripter was limited in functionality. You were unable to jump to to specific parts of songs while playing them,
+it did not provide any warnings regarding the sample rate, and you had to manually install dotnet to get it to run. Going forward the Linux version is
+now being released as an AppImage file, so dotnet will no longer be a required pre-requisite to run the MSU Scripter.
+
+The AppImage file has been tested onto Linux Mint 21 (based on Ubuntu 22.04), Linux Mint Debian Edition 6 (based on Debian Bookworm), EndeavourOS 
+(based on Arch), and Fedora. When first starting, the application will offer to create a Desktop file to add it to your desktop environment's menu.
