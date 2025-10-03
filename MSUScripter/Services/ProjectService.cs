@@ -25,6 +25,8 @@ public class ProjectService(
 {
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
+        var previousLastSaveTime = project.LastSaveTime;
+        
         project.LastSaveTime = DateTime.Now;
         
         if (!isBackup)
@@ -79,6 +81,7 @@ public class ProjectService(
         }
         else
         {
+            project.LastSaveTime = previousLastSaveTime;
             logger.LogInformation("Saved project backup");
             statusBarService.UpdateStatusBar("Backup Created");
         }

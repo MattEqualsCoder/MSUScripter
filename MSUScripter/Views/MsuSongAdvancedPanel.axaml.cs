@@ -32,6 +32,7 @@ public partial class MsuSongAdvancedPanel : UserControl
     {
         base.OnLoaded(e);
         _viewModel = DataContext as MsuSongAdvancedPanelViewModel ?? new MsuSongAdvancedPanelViewModel();
+        Service?.CheckFileErrors(_viewModel);
         _viewModel.ViewModelUpdated += (_, _) =>
         {
             Service?.CheckFileErrors(_viewModel);
@@ -246,6 +247,7 @@ public partial class MsuSongAdvancedPanel : UserControl
             }
 
             _viewModel.AddMsuPcmInfo(treeData);
+            _viewModel.LastModifiedDate = DateTime.Now;
             Service?.CheckFileErrors(_viewModel);
         }
         catch (Exception ex)
@@ -407,6 +409,7 @@ public partial class MsuSongAdvancedPanel : UserControl
             }
 
             _viewModel.RemoveMsuPcmInfo(treeData);
+            _viewModel.LastModifiedDate = DateTime.Now;
             Service?.CheckFileErrors(_viewModel);
         }
         catch (Exception ex)
