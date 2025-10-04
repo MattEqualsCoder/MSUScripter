@@ -401,6 +401,19 @@ public class MsuProjectWindowService(
                projectService.CreateSmz3SplitRandomizerYaml(_project, false, false, out error);
     }
     
+    public string? CreateTracksJsonFile()
+    {
+        SaveCurrentPanel();
+        msuPcmService.ExportMsuPcmTracksJson(_project);
+        
+        if (_project.BasicInfo.DitherType is DitherType.DefaultOn or DitherType.DefaultOff)
+        {
+            return "Generated with dither value inconsistencies";
+        }
+
+        return null;
+    }
+    
     public void CreateTrackList()
     {
         SaveCurrentPanel();

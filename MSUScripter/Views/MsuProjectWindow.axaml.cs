@@ -608,7 +608,7 @@ public partial class MsuProjectWindow : RestorableWindow
     {
         if (_viewModel == null) return;
         _viewModel.IsBusy = true;
-        await MessageWindow.ShowErrorDialog(message, parentWindow: this);
+        await MessageWindow.ShowErrorDialog(message, "Error", parentWindow: this);
         _viewModel.IsBusy = false;
     }
 
@@ -763,6 +763,16 @@ public partial class MsuProjectWindow : RestorableWindow
     private void ReapplyFiltersMenuItem_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.FilterTree();
+    }
+
+    private void GenerateTracksJsonMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        if (_viewModel == null || _service == null) return;
+        var errorMessage = _service.CreateTracksJsonFile();
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            _ = ShowError(errorMessage);
+        }
     }
 }
 

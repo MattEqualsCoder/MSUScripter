@@ -186,7 +186,8 @@ public class ApplicationText
     public string MenuItemCreateTrackListToolTip { get; } = "Create a track list text file with all track details that can be read by users.";
     public string MenuItemCreateSwapScriptsLabel { get; } = "Create Track Swapping Script File(s)";
     public string MenuItemCreateSwapScriptsToolTip { get; } = "Create a .bat script file for swapping between primary tracks and, if applicable, a file for switching between SMZ3 and split SM and ALttP MSUs.";
-
+    public string MenuItemCreateTracksJsonLabel { get; } = "Create MsuPcm++ Tracks File";
+    public string MenuItemCreateTracksJsonToolTip { get; } = "Create the MsuPcm++ tracks.json file that can be sent to others to generate the Msu themselves.";
     public string MsuGenerationSettingsGenerateButton { get; } = "Generate";
     public string MsuGenerationSettingsCancelButton { get; } = "Cancel";
 

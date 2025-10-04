@@ -311,6 +311,7 @@
                         FilePath="{Binding Output, Mode=TwoWay}"
                         CaseSensitiveFilter="False"
                         ShowClearButton="False"
+                        FileInputType="SaveFile"
                         IsVisible="{Binding DisplayOutputPcmFile}"
                         IsEnabled="{Binding CanUpdateOutputPcmFile}"
                     ></controls:FileControl>

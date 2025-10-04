@@ -127,6 +127,12 @@
                                             />
                                             <views:ToolTipMenuItem
                                                 IconKind="Text"
+                                                Click="GenerateTracksJsonMenuItem_OnClick"
+                                                LabelText="{Binding Text.MenuItemCreateTracksJsonLabel}"
+                                                ToolTipText="{Binding Text.MenuItemCreateTracksJsonToolTip}"
+                                            />
+                                            <views:ToolTipMenuItem
+                                                IconKind="Text"
                                                 Click="CreateYamlMenuItem_OnClick"
                                                 LabelText="{Binding Text.MenuItemCreateYamlLabel}"
                                                 ToolTipText="{Binding Text.MenuItemCreateYamlToolTip}"

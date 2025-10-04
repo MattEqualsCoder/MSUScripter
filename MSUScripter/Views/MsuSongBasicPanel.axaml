@@ -72,6 +72,7 @@
                                       FilePath="{Binding OutputFilePath, Mode=TwoWay}"
                                       CaseSensitiveFilter="False"
                                       ShowClearButton="False"
+                                      FileInputType="SaveFile"
                                       IsVisible="{Binding DisplayOutputFile}"
                                       IsEnabled="{Binding CanUpdatePcmFile}"
                 ></controls:FileControl>
