@@ -410,7 +410,7 @@ public class MsuPcmService(
             return new GeneratePcmFileResponse(false, false, "Could not delete output file", null);
         }
 
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.empty.pcm");
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.Assets.empty.pcm");
         if (stream == null)
         {
             return new GeneratePcmFileResponse(false, false, "Error Creating Empty PCM File", null);

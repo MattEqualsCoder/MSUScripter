@@ -235,7 +235,7 @@
                 <views:FormLabel 
                     Grid.Column="9"
                     Grid.Row="0"
-                    Grid.ColumnSpan="6"
+                    Grid.ColumnSpan="3"
                     Margin="3 5 0 2"
                     LabelText="{Binding Text.MsuBasicInfoWriteAltSwapperLabel}"
                     ToolTipText="{Binding Text.MsuBasicInfoWriteAltSwapperToolTip}"

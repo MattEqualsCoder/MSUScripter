@@ -114,7 +114,7 @@ public partial class MsuSongAdvancedPanel : UserControl
 
     private void TreeListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is not [MsuSongAdvancedPanelViewModelModelTreeData treeData] || treeData.MsuPcmInfo == null)
+        if (e.AddedItems is not [MsuSongAdvancedPanelViewModelModelTreeData treeData])
         {
             return;
         }

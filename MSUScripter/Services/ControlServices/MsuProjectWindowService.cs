@@ -320,11 +320,22 @@ public class MsuProjectWindowService(
         }
     }
     
-    public void SelectedTreeItem(MsuProjectWindowViewModelTreeData treeData)
+    public void SelectedTreeItem(MsuProjectWindowViewModelTreeData treeData, bool isIconClick)
     {
         if (treeData.ChildTreeData.Count > 0)
         {
-            treeData.ToggleAsParent(true, treeData.CollapseIcon == MaterialIconKind.ChevronDown);
+            if (isIconClick)
+            {
+                treeData.ToggleAsParent(true, treeData.CollapseIcon == MaterialIconKind.ChevronDown);
+            }
+            else
+            {
+                SaveCurrentPanel();
+                _viewModel.CurrentTreeItem = treeData;
+                _viewModel.BasicInfoViewModel.IsVisible = false;
+                _viewModel.MsuSongViewModel.BasicPanelViewModel.PyMusicLooperEnabled = pythonCompanionService.IsValid;
+                _viewModel.MsuSongViewModel.UpdateViewModel(_project, treeData.TrackInfo!, null, treeData);
+            }
         }
         else if (treeData.IsSongOrTrack)
         {

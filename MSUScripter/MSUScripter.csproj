@@ -66,6 +66,5 @@
 
     <ItemGroup>
       <None Remove="msu-randomizer-settings.yaml" />
-      <EmbeddedResource Include="msu-randomizer-settings.yaml" />
     </ItemGroup>
 </Project>

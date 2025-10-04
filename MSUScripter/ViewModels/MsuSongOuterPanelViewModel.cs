@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Linq;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
 using ReactiveUI.Fody.Helpers;
@@ -12,9 +13,10 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     
     [Reactive, SkipLastModified] public string? TrackDescriptionText { get; set; }
     
-    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public bool IsScratchPad { get; set; }
     
     [Reactive, SkipLastModified] public bool DisplayAddSong { get; set; }
+    [Reactive, SkipLastModified] public string AddSongButtonHeaderText { get; set; }
     
     public MsuProject? Project { get; set; }
     public MsuTrackInfo? TrackInfo { get; set; }
@@ -29,8 +31,10 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified] public string AverageAudioLevel { get; set; } = "";
     [Reactive, SkipLastModified] public string PeakAudioLevel { get; set; } = "";
     [Reactive, SkipLastModified] public bool DisplaySecondAudioLine { get; set; }
-    [Reactive, SkipLastModified] public bool CanGeneratePcmFiles { get; set; } = true;
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public bool CanGeneratePcmFiles { get; set; } = true;
     [Reactive, SkipLastModified] public bool IsGeneratingPcmFiles { get; set; }
+    [SkipLastModified] public bool ShowSplitButton => CanGeneratePcmFiles && !IsScratchPad;
+    [SkipLastModified] public bool ShowNonSplitButton => CanGeneratePcmFiles && IsScratchPad;
     
     public MsuSongBasicPanelViewModel BasicPanelViewModel { get; set; } = new();
     
@@ -75,7 +79,7 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
         PeakAudioLevel = "";
         CanGeneratePcmFiles = project.BasicInfo.IsMsuPcmProject;
 
-        if (songInfo != null)
+        if (songInfo != null && treeData.ChildTreeData.Count == 0)
         {
             IsComplete = songInfo.IsComplete;
 
@@ -98,6 +102,11 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
         }
         else
         {
+            AddSongButtonHeaderText = treeData.ChildTreeData.Count == 0 
+                ? "No song has currently been added. Click below to add a song." 
+                : IsScratchPad 
+                    ? "You have added multiple songs to the scratch pad. Click to add another."
+                    : "You have added multiple songs. Click to add a new song as the primary song for this track.";
             DisplayAddSong = true;
             BasicPanelViewModel.IsEnabled = false;
             AdvancedPanelViewModel.IsEnabled = false;

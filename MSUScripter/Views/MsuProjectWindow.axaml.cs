@@ -144,7 +144,7 @@ public partial class MsuProjectWindow : RestorableWindow
         var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
         pyMusicLooperPanel.Stop();
         
-        _service.SelectedTreeItem(treeData);
+        _service.SelectedTreeItem(treeData, false);
     }
 
     private void TreeLeftIconButton_OnClick(object? sender, RoutedEventArgs e)
@@ -153,13 +153,13 @@ public partial class MsuProjectWindow : RestorableWindow
         {
             return;
         }
-        
+
         var songOuterPanel = this.Get<MsuSongOuterPanel>(nameof(MsuSongPanel));
         var songBasicPanel = songOuterPanel.Get<MsuSongBasicPanel>(nameof(songOuterPanel.MsuSongBasicPanel));
         var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
         pyMusicLooperPanel.Stop();
         
-        _service?.SelectedTreeItem(treeData);
+        _service?.SelectedTreeItem(treeData, true);
     }
 
     private void TreeItemInputElement_OnPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -271,14 +271,14 @@ public partial class MsuProjectWindow : RestorableWindow
 
     private void TreeListBox_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is [MsuProjectWindowViewModelTreeData { ChildTreeData.Count: 0 } treeData])
+        if (e.AddedItems is [MsuProjectWindowViewModelTreeData treeData])
         {
             var songOuterPanel = this.Get<MsuSongOuterPanel>(nameof(MsuSongPanel));
             var songBasicPanel = songOuterPanel.Get<MsuSongBasicPanel>(nameof(songOuterPanel.MsuSongBasicPanel));
             var pyMusicLooperPanel = songBasicPanel.Get<PyMusicLooperPanel>(nameof(songBasicPanel.PyMusicLooperPanel));
             pyMusicLooperPanel.Stop();
             
-            _service?.SelectedTreeItem(treeData);
+            _service?.SelectedTreeItem(treeData, false);
         }
     }
 

@@ -70,6 +70,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
     [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
     [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public bool IsGeneratingPcmFile { get; set; }
+    [Reactive, SkipLastModified] public bool ShowMsuPcmInfo { get; set; }
     public MsuProject Project { get; set; } = null!;
 
     public MsuSongAdvancedPanelViewModelModelTreeData CurrentTreeItem { get; set; } = null!;
@@ -246,12 +247,19 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
     public void SetSelectedTreeData(MsuSongAdvancedPanelViewModelModelTreeData treeData)
     {
-        if (treeData.MsuPcmInfo == null) return;
-
         if (_currentSongMsuPcmInfo != null)
         {
             SaveChanges();
         }
+        
+        if (treeData.MsuPcmInfo == null)
+        {
+            _currentSongMsuPcmInfo = null;
+            ShowMsuPcmInfo = false;
+            return;
+        }
+
+        ShowMsuPcmInfo = true;
         
         var currentLastModifiedTime = LastModifiedDate;
         
@@ -631,6 +639,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         {
             parentTreeData.ParentTreeData?.MsuPcmInfo?.SubChannels.Insert(destinationIndex.Value, newMsuPcmInfo);
         }
+
+        SelectedTreeItem = newData;
 
         return newData;
     }

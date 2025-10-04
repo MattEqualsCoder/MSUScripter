@@ -286,7 +286,13 @@
                 </ListBox>
                 </DockPanel>
                 <GridSplitter Grid.Row="0" Grid.Column="1" Background="{DynamicResource CardBorderColor}"/>
-                <Grid Grid.Row="0" Grid.Column="2" ColumnDefinitions="*, *, *, *, *, *" RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="5">
+                <Grid 
+                    Grid.Row="0" 
+                    Grid.Column="2" 
+                    ColumnDefinitions="*, *, *, *, *, *" 
+                    RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="5"
+                    IsVisible="{Binding ShowMsuPcmInfo}"
+                >
 
                     <!-- Output File -->
                     <views:FormLabel 

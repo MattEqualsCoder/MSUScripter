@@ -18,7 +18,7 @@ public class ApplicationInitializationService(ILogger<ApplicationInitializationS
         
         var msuInitializationRequest = new MsuRandomizerInitializationRequest
         {
-            MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml"),
+            MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.Assets.msu-randomizer-settings.yaml"),
             UserOptionsPath = Path.Combine(Directories.BaseFolder, "msu-user-settings.yml")
         };
 
