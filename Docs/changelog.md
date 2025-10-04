@@ -49,3 +49,17 @@ now being released as an AppImage file, so dotnet will no longer be a required p
 
 The AppImage file has been tested onto Linux Mint 21 (based on Ubuntu 22.04), Linux Mint Debian Edition 6 (based on Debian Bookworm), EndeavourOS 
 (based on Arch), and Fedora. When first starting, the application will offer to create a Desktop file to add it to your desktop environment's menu.
+
+## Miscellaneous Changes and Fixes
+
+- Pressing space bar after clicking the button to play a song will now pause playing songs.
+- An additional track list format has been added. You can select "album - song (artist)", "song by artist (album)", and the "table" formats.
+- Fixed an issue where packaging MSUs into a zip file was adding in files that were no longer selected to be added.
+- Dither has been added as a per track option. If this is enabled, you will no longer be able to generate a tracks.json to send to other people to generate the MSU.
+- Fixed an issue where the file inputs would allow you to type into the them.
+- For non-looped tracks, the audio player will add a small pause before replaying from the beginning.
+- Fixed an issue where clicking prev in the PyMusicLooper panel would prevent you from clicking next again.
+- Fixed a crash that would occur when running PyMusicLooper and the starting samples would filter out all results.
+- Fixed an issue where pausing, moving the play tracker location, and resuming play would play a few incorrect samples before playing from the correct location.
+- Lowered the memory footprint that used to occur when changing tracks/songs (fixed by UI rewrite)
+- Fixed an issue where sometimes you would scroll accidentally down the page after entering values (fixed by UI redesign)
