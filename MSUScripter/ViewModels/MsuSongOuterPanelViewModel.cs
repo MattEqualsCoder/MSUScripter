@@ -16,7 +16,7 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public bool IsScratchPad { get; set; }
     
     [Reactive, SkipLastModified] public bool DisplayAddSong { get; set; }
-    [Reactive, SkipLastModified] public string AddSongButtonHeaderText { get; set; }
+    [Reactive, SkipLastModified] public string AddSongButtonHeaderText { get; set; } = string.Empty;
     
     public MsuProject? Project { get; set; }
     public MsuTrackInfo? TrackInfo { get; set; }
