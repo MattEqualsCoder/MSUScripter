@@ -177,6 +177,7 @@ public partial class MsuProjectWindow : RestorableWindow
         
             _service?.UpdateDrag(treeData);
             _draggedTreeItem = treeData;
+            control.Cursor = new Cursor(StandardCursorType.DragMove);
         }
         else if (point.Properties.IsRightButtonPressed)
         {
@@ -201,12 +202,13 @@ public partial class MsuProjectWindow : RestorableWindow
             return;
         }
         
-        if ((sender as Control)?.Tag is not MsuProjectWindowViewModelTreeData)
+        if (sender is not Control { Tag: MsuProjectWindowViewModelTreeData } control)
         {
             return;
         }
         
         _service?.UpdateDrag(null);
+        control.Cursor = Cursor.Default;
     }
 
     private void TreeItemInputElement_OnPointerEntered(object? sender, PointerEventArgs e)

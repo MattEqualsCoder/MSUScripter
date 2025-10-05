@@ -34,6 +34,7 @@ public class ProjectService(
             project.BackupFilePath = GetProjectBackupFilePath(project.ProjectFilePath);
             settingsService.AddRecentProject(project);
             SaveMsuProject(project, true);
+            project.LastSaveTime = DateTime.Now;
         }
         
         var yaml = yamlService.ToYaml(project, YamlType.Pascal);

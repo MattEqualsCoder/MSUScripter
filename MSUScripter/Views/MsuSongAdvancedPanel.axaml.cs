@@ -166,6 +166,7 @@ public partial class MsuSongAdvancedPanel : UserControl
             if (point.Properties.IsLeftButtonPressed)
             {
                 _viewModel?.UpdateDrag(treeData);
+                control.Cursor = new Cursor(StandardCursorType.DragMove);
             }
             else if (point.Properties.IsRightButtonPressed)
             {
@@ -193,7 +194,7 @@ public partial class MsuSongAdvancedPanel : UserControl
     {
         try
         {
-            if (_viewModel?.IsDraggingItem != true || (sender as Control)?.Tag is not MsuSongAdvancedPanelViewModelModelTreeData)
+            if (_viewModel?.IsDraggingItem != true || sender is not Control { Tag: MsuSongAdvancedPanelViewModelModelTreeData } control)
             {
                 return;
             }
@@ -201,6 +202,7 @@ public partial class MsuSongAdvancedPanel : UserControl
             if (_viewModel.UpdateDrag(null))
             {
                 Service?.CheckFileErrors(_viewModel);
+                control.Cursor = Cursor.Default;
             }
         }
         catch (Exception ex)

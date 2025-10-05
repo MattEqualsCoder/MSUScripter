@@ -509,7 +509,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         var insertIndex = TreeItems.IndexOf(to) + 1;
         if (to.MsuPcmInfo != null)
         {
-            while (TreeItems[insertIndex].Level > to.Level && insertIndex < TreeItems.Count)
+            while (insertIndex < TreeItems.Count && TreeItems[insertIndex].Level > to.Level)
             {
                 insertIndex++;
             }
