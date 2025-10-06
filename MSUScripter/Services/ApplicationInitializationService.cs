@@ -14,7 +14,7 @@ public class ApplicationInitializationService(ILogger<ApplicationInitializationS
     public void Initialize()
     {
         logger.LogInformation("Assembly Location: {Location}", Assembly.GetExecutingAssembly().Location);
-        logger.LogInformation("Starting MSU Scripter {Version}", GetAppVersion());
+        logger.LogInformation("Starting MSU Scripter {Version}", App.Version);
         
         var msuInitializationRequest = new MsuRandomizerInitializationRequest
         {
@@ -28,11 +28,5 @@ public class ApplicationInitializationService(ILogger<ApplicationInitializationS
         
         Program.MainHost.Services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
 
-    }
-    
-    private static string GetAppVersion()
-    {
-        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location); 
-        return (version.ProductVersion ?? "").Split("+")[0];
     }
 }

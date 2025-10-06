@@ -14,13 +14,14 @@ namespace MSUScripter;
 public partial class App : Application
 {
     public static MainWindow MainWindow = null!;
+    private static readonly string? VersionOverride = null;
     
     public static string Version
     {
         get
         {
             var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location); 
-            return (version.ProductVersion ?? "").Split("+")[0];
+            return VersionOverride ?? (version.ProductVersion ?? "").Split("+")[0];
         }
     }
     

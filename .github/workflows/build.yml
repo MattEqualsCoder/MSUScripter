@@ -55,6 +55,8 @@ jobs:
   build-linux:
     runs-on: ubuntu-22.04
 
+    needs: [build-windows]
+
     permissions:
       contents: write
 
@@ -64,6 +66,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: Update VersionOverride in source file
+        run: |
+          VERSION="${{ needs.build-windows.outputs.version-number }}"
+          FILE="MSUScripter/App.axaml.cs"
+          sed -i "s|private static readonly string\? VersionOverride = null;|private static readonly string? VersionOverride = \"${VERSION}\";|" "$FILE"
+          echo "Updated VersionOverride to: ${VERSION}"
       - name: Install PupNet
         run: dotnet tool install -g KuiperZone.PupNet
       - name: Download AppImageTool
