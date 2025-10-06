@@ -28,6 +28,7 @@ OutputBaseFilename=MSUScripterSetupWin_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+ChangesAssociations=yes
 
 [Setup]
 ArchitecturesInstallIn64BitMode=x64
