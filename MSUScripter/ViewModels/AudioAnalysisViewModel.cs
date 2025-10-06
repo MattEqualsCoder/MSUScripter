@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
@@ -8,8 +10,8 @@ namespace MSUScripter.ViewModels;
 public class AudioAnalysisViewModel : TranslatedViewModelBase
 {
     public MsuProject? Project { get; set; }
-    
-    [Reactive] public int SongsCompleted { get; set; }
+
+    public int SongsCompleted => Rows.Count(x => x.HasLoaded);
 
     [Reactive] public string BottomBar { get; set; } = "";
     
@@ -23,9 +25,13 @@ public class AudioAnalysisViewModel : TranslatedViewModelBase
     public string? LoadError { get; set; }
     public bool ShowCompareButton { get; set; } = true;
     
+    public void UpdateSongsCompleted()
+    {
+        this.RaisePropertyChanged(nameof(SongsCompleted));
+    }
+    
     public override ViewModelBase DesignerExample()
     {
-        SongsCompleted = 2;
         BottomBar = "Test Message";
         Rows =
         [

@@ -138,8 +138,8 @@ public class MsuGenerationWindowService(
 
             var generationRows = _model.Rows.Where(x => x.CanParallelize).ToList();
 
-            Parallel.ForEach(generationRows,
-                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token }, async void (model) =>
+            await Parallel.ForEachAsync(generationRows,
+                new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = _cts.Token }, async (model, _) =>
                 {
                     try
                     {
@@ -154,8 +154,11 @@ public class MsuGenerationWindowService(
             // For retries, try again linearly
             foreach (var songDetails in toRetry)
             {
+                logger.LogInformation("Retrying song {File}", songDetails.Path);
                 await ProcessSong(songDetails, true);
             }
+            
+            await Task.Delay(TimeSpan.FromSeconds(1));
 
             foreach (var details in _model.Rows.Where(x => !x.CanParallelize)
                          .OrderBy(x => x.Type == MsuGenerationRowType.Compress))
@@ -168,6 +171,10 @@ public class MsuGenerationWindowService(
                 var errorString = _model.NumErrors == 1 ? "was 1 error" : $"were {_model.NumErrors} errors";
                 _model.GenerationErrors.Add($" - There were {errorString} when generating the MSU project.");
             }
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            msuPcmService.SaveGenerationCache(_model.MsuProject);
 
             if (!projectService.ValidateProject(_model.MsuProject, out var validationError))
             {
@@ -350,7 +357,7 @@ public class MsuGenerationWindowService(
         }
                     
         var songInfo = rowDetails.SongInfo!;
-        var generationResponse = await msuPcmService.CreatePcm(_model.MsuProject, songInfo, false, false, true);
+        var generationResponse = await msuPcmService.CreatePcm(_model.MsuProject, songInfo, false, true, true);
         
         if (!generationResponse.Successful)
         {

@@ -36,8 +36,16 @@ public class AudioAnalysisService(
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
             async (song, _) =>
             {
-                await AnalyzePcmFile(project, song);
-                audioAnalysis.SongsCompleted++;
+                try
+                {
+                    await AnalyzePcmFile(project, song);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error analyzing pcm file");
+                }
+
+                audioAnalysis.UpdateSongsCompleted();
             });
 
         if (project?.BasicInfo.IsMsuPcmProject == true)
