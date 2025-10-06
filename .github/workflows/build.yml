@@ -68,9 +68,10 @@ jobs:
           dotnet-version: 9.0.x
       - name: Update VersionOverride in source file
         run: |
+          pwd
           VERSION="${{ needs.build-windows.outputs.version-number }}"
           FILE="MSUScripter/App.axaml.cs"
-          sed -i "s|private static readonly string\? VersionOverride = null;|private static readonly string? VersionOverride = \"${VERSION}\";|" "$FILE"
+          sed -i -E "s|^[[:space:]]*private static readonly string\?[[:space:]]+VersionOverride[[:space:]]*=[[:space:]]*null;|private static readonly string? VersionOverride = \"${VERSION}\";|" "$FILE"
           echo "Updated VersionOverride to: ${VERSION}"
       - name: Install PupNet
         run: dotnet tool install -g KuiperZone.PupNet
