@@ -63,3 +63,4 @@ The AppImage file has been tested onto Linux Mint 21 (based on Ubuntu 22.04), Li
 - Fixed an issue where pausing, moving the play tracker location, and resuming play would play a few incorrect samples before playing from the correct location.
 - Lowered the memory footprint that used to occur when changing tracks/songs (fixed by UI rewrite)
 - Fixed an issue where sometimes you would scroll accidentally down the page after entering values (fixed by UI redesign)
+- The MSU scripter sould now auto set itself as the default application for .msup (MSU Scripter Project) files
