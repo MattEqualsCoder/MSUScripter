@@ -64,3 +64,4 @@ The AppImage file has been tested onto Linux Mint 21 (based on Ubuntu 22.04), Li
 - Lowered the memory footprint that used to occur when changing tracks/songs (fixed by UI rewrite)
 - Fixed an issue where sometimes you would scroll accidentally down the page after entering values (fixed by UI redesign)
 - The MSU scripter sould now auto set itself as the default application for .msup (MSU Scripter Project) files
+- The pending changes window when closing a project now allows you to save
