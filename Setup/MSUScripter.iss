@@ -64,3 +64,10 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{localappdata}\MSUScripter"
+
+[Registry]
+Root: HKA; Subkey: "Software\Classes\.msup\OpenWithProgids"; ValueType: string; ValueName: "MsuScripterProject.msup"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup"; ValueType: string; ValueName: ""; ValueData: "MSU Scripter Project"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".msup"; ValueData: "" 

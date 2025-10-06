@@ -178,6 +178,7 @@ class Program
             .AddIcon(assembly, "MSUScripter.Assets.icon.256.png", 256)
             .AddIcon(assembly, "MSUScripter.Assets.icon.svg")
             .AddUninstallAction(Directories.BaseFolder)
+            .WithMimeType("application/x-msu-scripter-project", "MSU Scripter Project", "*.msup", true)
             .Build();
     }
 
