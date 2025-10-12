@@ -70,8 +70,10 @@ jobs:
         run: |
           pwd
           VERSION="${{ needs.build-windows.outputs.version-number }}"
+          BASE_VERSION="${VERSION%%-*}"
           FILE="MSUScripter/App.axaml.cs"
           sed -i -E "s|^[[:space:]]*private static readonly string\?[[:space:]]+VersionOverride[[:space:]]*=[[:space:]]*null;|private static readonly string? VersionOverride = \"${VERSION}\";|" "$FILE"
+          sed -i "s/^AppVersionRelease *= *.*/AppVersionRelease = ${BASE_VERSION}/" Setup/AppImage.pupnet.conf
           echo "Updated VersionOverride to: ${VERSION}"
       - name: Install PupNet
         run: dotnet tool install -g KuiperZone.PupNet
@@ -81,7 +83,7 @@ jobs:
           chmod +x "$HOME/.local/bin/appimagetool-x86_64.AppImage"
           appimagetool-x86_64.AppImage --version
       - name: Run PupNet
-        run: pupnet Setup/MSUScripter.pupnet.conf --kind appimage -y
+        run: pupnet Setup/AppImage.pupnet.conf --kind appimage -y
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'pull_request' }}

@@ -167,17 +167,7 @@ class Program
     [SupportedOSPlatform("linux")]
     internal static CreateDesktopFileResponse BuildLinuxDesktopFile()
     {
-        var assembly = Assembly.GetExecutingAssembly();
         return new DesktopFileBuilder("org.mattequalscoder.msuscripter", "MSU Scripter")
-            .AddDescription("UI application for creating MSUs and PCM files")
-            .AddCategory(DesktopFileCategories.Development)
-            .AddWindowClass("MSUScripter")
-            .AddIcon(assembly, "MSUScripter.Assets.icon.16.png", 16)
-            .AddIcon(assembly, "MSUScripter.Assets.icon.32.png", 32)
-            .AddIcon(assembly, "MSUScripter.Assets.icon.48.png", 48)
-            .AddIcon(assembly, "MSUScripter.Assets.icon.256.png", 256)
-            .AddIcon(assembly, "MSUScripter.Assets.icon.512.png", 512)
-            .AddIcon(assembly, "MSUScripter.Assets.icon.svg")
             .AddUninstallAction(Directories.BaseFolder)
             .WithMimeType("application/x-msu-scripter-project", "MSU Scripter Project", "*.msup", true)
             .Build();
