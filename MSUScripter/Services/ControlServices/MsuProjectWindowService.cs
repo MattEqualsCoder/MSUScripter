@@ -1112,10 +1112,30 @@ public class MsuProjectWindowService(
 
     public string? PasteSongDetails(MsuProjectWindowViewModelTreeData treeData, string yaml)
     {
-        if (yamlService.FromYaml<MsuSongInfo>(yaml, YamlType.PascalIgnoreDefaults, out var songInfo, out var error))
+        if (yamlService.FromYaml<MsuSongInfo>(yaml, YamlType.PascalIgnoreDefaults, out var songInfo, out var error) && songInfo != null)
         {
+            var originalSongInfo = treeData.SongInfo;
             treeData.SongInfo = songInfo;
 
+            if (originalSongInfo != null)
+            {
+                songInfo.Id = originalSongInfo.Id;
+                songInfo.OutputPath = originalSongInfo.OutputPath;
+                songInfo.MsuPcmInfo.Output = originalSongInfo.MsuPcmInfo.Output;
+                songInfo.TrackNumber = originalSongInfo.TrackNumber;
+                songInfo.TrackName = originalSongInfo.TrackName;
+                
+                var index = treeData.TrackInfo!.Songs.IndexOf(originalSongInfo);
+                treeData.TrackInfo.Songs[index] = songInfo;
+            }
+            else
+            {
+                songInfo.Id = Guid.NewGuid().ToString();
+                songInfo.TrackName = treeData.TrackInfo!.TrackName;
+                songInfo.TrackNumber = treeData.TrackInfo!.TrackNumber;
+                treeData.TrackInfo.Songs.Add(songInfo);
+            }
+            
             if (treeData.ParentTreeData != null && !string.IsNullOrEmpty(treeData.SongInfo?.SongName))
             {
                 treeData.Name = treeData.SongInfo.SongName;

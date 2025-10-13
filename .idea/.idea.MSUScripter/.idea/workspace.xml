@@ -10,16 +10,8 @@
   <component name="ChangeListManager">
     <list default="true" id="fb903a69-7d0d-477e-94f2-ebd6da0cf571" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.MSUScripter/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Assets/org.mattequalscoder.msuscripter.desktop" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Assets/uninstall.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Configs/Settings.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/MSUScripter.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MainWindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsPanelViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/ViewModels/SettingsPanelViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/MainWindow.axaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Views/SettingsPanel.axaml.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/MSUScripter/Services/ControlServices/MsuProjectWindowService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,6 +32,7 @@
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2d1329d8165b40d7b5443f4d39995a294a00/bb/87621192/AppImageDesktopFileBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2db118347aa6408b9f0ca9d33943338824000/60/c8e95c03/ITaskService.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2db118347aa6408b9f0ca9d33943338824000/78/687b0f89/MessageWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/2f6a3dac3d9849a2a9026f6b1d77641423600/d4/3d5863cf/ScalableWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/49a5dfb534624be9966a6e269ce9325646200/17/b27c59be/MsuType.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/49a5dfb534624be9966a6e269ce9325646200/66/269fd93e/IMsuTypeService.cs" root0="SKIP_HIGHLIGHTING" />
@@ -48,10 +41,13 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/7e73557e029f4c7cb8d94cb9167c60024400/81/d8ba12db/AppImageDesktopFileBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/bbf632aa305a468da878848cc4d7565e23e00/48/ac236176/EnumValueChangedEventArgs.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/bbf632aa305a468da878848cc4d7565e23e00/d3/075b37de/MessageWindow.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/c38f8e7c226343b298334bbe14d31dbc6000/60/38e3d312/DesktopFileBuilder.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/d827af03e422432fa97a663897a4eab424800/2d/fe140a02/MessageWindow.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/fc233cb6660d45b9816d7bdc254e924246200/49/b78a83fe/IMsuRandomizerInitializationService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/18fd9725ff1a9e5aef4999ba6bb619c583db1d67f77f636244cd5e00496718/X11PlatformThreading.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/19c6e6b521c3ce6a356da807b9f84c9e0eabfbed852881741aef26f99aed1/Parallel.ForEachAsync.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1ad855a3c5b26899e6ce6c55f0fe1a42f2b81c878868b79f7ae064f634f0d9f8/Window.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2b3a583a1945e0aeec3ab8952db38ef0379b7218c42a6d4563a03b1d718184a7/Assembly.CoreCLR.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/45823974e7a2167a2d01b44459552e2f13db5da9bcf7c58193328bc8a093ae/Process.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4743f513c7ddc8411223a46f0ca426ed929391acebcff993721dff2f0c6b34/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/62c944bd1ce5cdba36749b2bb2c97e8763ad8a838ecacc9646a9e6c98a7e6c22/Task.cs" root0="SKIP_HIGHLIGHTING" />
@@ -59,6 +55,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/82c2fb1df5f88ce9a1cbe73f3f19f764652913fde979e4e3e6a4a86ddb2e94/HotkeyManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9c93f8176746448a59cd47b91b753556737158146c79dafba3a4df841d199c/Timer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/a984a133191d26625f45e85cc27e20cad64f4a6ecb6263b4c17bc55965a5/String.Manipulation.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d3a28a753bd6588a60cffcf8405bbfc6fce54ee3b6f0f0b71d2de55641e97bfd/TaskScheduler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/f51bb85dff27841839d69724c7524901cc897dafafe61e611f7a7460e327c/ConcurrentDictionary.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuProject.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Configs/MsuSongInfo.cs" root0="FORCE_HIGHLIGHTING" />
@@ -69,6 +66,7 @@
     <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ControlServices/SettingsWindowService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Services/ProjectService.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/ViewModels/SettingsWindowViewModel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/MSUScripter/Views/MsuBasicInfoPanel.axaml.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/MSUScripter/Views/SettingsWindow.axaml.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
@@ -208,7 +206,13 @@
       <workItem from="1758681566443" duration="11156000" />
       <workItem from="1758887372286" duration="787000" />
       <workItem from="1758907172713" duration="5930000" />
-      <workItem from="1758940635983" duration="10279000" />
+      <workItem from="1758940635983" duration="10364000" />
+      <workItem from="1759460532780" duration="14065000" />
+      <workItem from="1759715907928" duration="5463000" />
+      <workItem from="1759762575712" duration="5155000" />
+      <workItem from="1759804752727" duration="854000" />
+      <workItem from="1760236256604" duration="3715000" />
+      <workItem from="1760358360064" duration="3990000" />
     </task>
     <servers />
   </component>
