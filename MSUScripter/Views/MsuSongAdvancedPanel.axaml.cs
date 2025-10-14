@@ -202,8 +202,8 @@ public partial class MsuSongAdvancedPanel : UserControl
             if (_viewModel.UpdateDrag(null))
             {
                 Service?.CheckFileErrors(_viewModel);
-                control.Cursor = Cursor.Default;
             }
+            control.Cursor = Cursor.Default;
         }
         catch (Exception ex)
         {
