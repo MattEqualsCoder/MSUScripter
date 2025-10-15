@@ -840,21 +840,18 @@ public class MsuProjectWindowService(
 
         if (currentParent == destinationParent)
         {
-            var currentSongIndex = destinationParent.ChildTreeData.IndexOf(from);
-            var destinationTreeIndex = _viewModel.TreeItems.IndexOf(to) + 1;
-            if (currentSongIndex < destinationIndex)
-            {
-                destinationTreeIndex--;
-                destinationIndex--;
-            }
+            var dictionary = destinationParent.ChildTreeData.ToDictionary(x => x.SongInfo!, x => x);
+            destinationParent.ChildTreeData.Clear();
+            var destinationParentIndex = _viewModel.TreeItems.IndexOf(destinationParent);
 
-            destinationParent.ChildTreeData.Remove(from);
-            destinationParent.ChildTreeData.Insert(destinationIndex, from);
-            _viewModel.TreeItems.Remove(from);
-            _viewModel.TreeItems.Insert(destinationTreeIndex, from);
-            for (var i = 0; i < destinationParent.ChildTreeData.Count; i++)
+            for (var i = 0; i < destinationTrack.Songs.Count; i++)
             {
-                destinationParent.ChildTreeData[i].SortIndex = destinationParent.SortIndex + i + 1;
+                var song = destinationTrack.Songs[i];
+                var songTreeData = dictionary[song];
+                destinationParent.ChildTreeData.Add(songTreeData);
+                _viewModel.TreeItems.Remove(songTreeData);
+                _viewModel.TreeItems.Insert(destinationParentIndex + i + 1, songTreeData);
+                songTreeData.SortIndex = destinationParent.SortIndex + i + 1;
             }
             
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, destinationTrack, from.SongInfo, from);
@@ -863,6 +860,7 @@ public class MsuProjectWindowService(
         else
         {
             var newTreeData = from;
+            var fromSongInfo = from.SongInfo;
             
             foreach (var previousTree in currentParent.ChildTreeData.Concat(destinationParent.ChildTreeData))
             {
@@ -940,7 +938,7 @@ public class MsuProjectWindowService(
                         SongInfo = song,
                     };
 
-                    if (song == from.SongInfo)
+                    if (song == fromSongInfo)
                     {
                         newTreeData = songTreeData;
                     }
@@ -960,7 +958,7 @@ public class MsuProjectWindowService(
                 destinationParent.ToggleAsParent(true, false);
             }
             
-            _viewModel.MsuSongViewModel.UpdateViewModel(_project, destinationTrack, from.SongInfo, newTreeData);
+            _viewModel.MsuSongViewModel.UpdateViewModel(_project, destinationTrack, fromSongInfo, newTreeData);
             _viewModel.SelectedTreeItem = newTreeData;
         }
 

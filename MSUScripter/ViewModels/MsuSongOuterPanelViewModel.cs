@@ -60,11 +60,13 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     
     public void UpdateViewModel(MsuProject project, MsuTrackInfo trackInfo, MsuSongInfo? songInfo, MsuProjectWindowViewModelTreeData treeData)
     {
-        var altText = trackInfo.Songs.Count <= 1 || songInfo == null
+        var altText = trackInfo.TrackNumber == 9999
             ? ""
-            : songInfo.IsAlt
-                ? " - Alt Song #" + trackInfo.Songs.IndexOf(songInfo)
-                : " - Primary Song";
+            : trackInfo.Songs.Count <= 1 || songInfo == null
+                ? ""
+                : songInfo.IsAlt
+                    ? " - Alt Song #" + trackInfo.Songs.IndexOf(songInfo)
+                    : " - Primary Song";
         var trackInfoNumber = trackInfo.TrackNumber != 9999 ? $"#{trackInfo.TrackNumber} " : string.Empty;
         Project = project;
         TrackInfo = trackInfo;
