@@ -96,7 +96,7 @@ public partial class MainWindow : RestorableWindow
 
     private async Task ShowDesktopFileWindow()
     {
-        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile || DesktopFileCreator.CheckIfDesktopFileExists("org.mattequalscoder.msuscripter"))
+        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile || DesktopFileCreator.DoesDesktopFileExist("org.mattequalscoder.msuscripter"))
         {
             return;
         }
