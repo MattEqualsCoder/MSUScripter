@@ -1,10 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using AppImageDesktopFileCreator;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
@@ -244,22 +242,27 @@ public class MainWindowService(
         return isEmpty;
     }
     
-    public async Task<string> CheckForNewRelease()
+    public async Task<(string ReleaseUrl, string? DownloadUrl)?> CheckForNewRelease()
     {
         if (!settings.CheckForUpdates)
         {
-            return string.Empty;
+            return null;
         }
 
         var newerGitHubRelease = await gitHubReleaseCheckerService.GetGitHubReleaseToUpdateToAsync("MattEqualsCoder",
-            "MSUScripter", App.Version, settings.PromptOnPreRelease);
+            "MSUScripter", App.Version, false);
 
         if (newerGitHubRelease != null)
         {
-            return newerGitHubRelease.Url;
+            if (OperatingSystem.IsLinux())
+            {
+                return (newerGitHubRelease.Url,
+                    newerGitHubRelease.Asset.FirstOrDefault(x => x.Url.ToLower().EndsWith(".appimage"))?.Url);
+            }
+            return (newerGitHubRelease.Url, null);
         }
         
-        return string.Empty;
+        return null;
     }
 
     [SupportedOSPlatform("linux")]
@@ -267,7 +270,7 @@ public class MainWindowService(
     {
         ITaskService.Run(() =>
         {
-            var response = Program.BuildLinuxDesktopFile();
+            var response = App.BuildLinuxDesktopFile();
 
             if (response.Success)
             {

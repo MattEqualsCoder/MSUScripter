@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.Versioning;
+using AppImageManager;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -7,13 +9,17 @@ using Avalonia.Styling;
 using AvaloniaControls.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.Views;
 
 namespace MSUScripter;
 
-public partial class App : Application
+public class App : Application
 {
     public static MainWindow MainWindow = null!;
+    public const string AppId = "org.mattequalscoder.msuscripter";
+    public const string AppName = "MSU Scripter";
+
     private static readonly string? VersionOverride = null;
     
     public static string Version
@@ -43,5 +49,14 @@ public partial class App : Application
         }
         
         base.OnFrameworkInitializationCompleted();
+    }
+    
+    [SupportedOSPlatform("linux")]
+    internal static CreateDesktopFileResponse BuildLinuxDesktopFile()
+    {
+        return new DesktopFileBuilder(AppId, AppName)
+            .AddUninstallAction(Directories.BaseFolder)
+            .WithMimeType("application/x-msu-scripter-project", "MSU Scripter Project", "*.msup", true)
+            .Build();
     }
 }

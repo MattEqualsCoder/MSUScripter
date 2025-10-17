@@ -32,6 +32,6 @@ public partial class SettingsPanel : UserControl
         {
             return;
         }
-        Program.BuildLinuxDesktopFile();
+        App.BuildLinuxDesktopFile();
     }
 }

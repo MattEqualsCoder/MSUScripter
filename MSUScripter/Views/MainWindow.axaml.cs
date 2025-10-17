@@ -1,11 +1,12 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using AppImageDesktopFileCreator;
+using AppImageManager;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
@@ -39,7 +40,7 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
-    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
         try
         {
@@ -61,32 +62,7 @@ public partial class MainWindow : RestorableWindow
                 _model.DisplayOpenProjectPage = true;
             }
 
-            if (_service == null) return;
-
-            await ShowDesktopFileWindow();
-
-            var updateUrl = await _service.CheckForNewRelease();
-            if (!string.IsNullOrEmpty(updateUrl))
-            {
-                await ShowNewReleaseWindow(updateUrl);
-            }
-            
-            await Task.Delay(100);
-            if (!await _service.ValidateDependencies())
-            {
-                var dependencyWindow = new InstallDependenciesWindow();
-                _model.ValidatedDependencies = true;
-                await dependencyWindow.ShowDialog(this);
-            }
-            else
-            {
-                _model.ValidatedDependencies = true;
-            }
-            
-            if (_model.InitProject != null)
-            {
-                _ = LoadProject(_model.InitProject);
-            }
+            _ = Dispatcher.UIThread.InvokeAsync(ShowStartupWindows);
         }
         catch (Exception ex)
         {
@@ -94,9 +70,44 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
+    private async Task ShowStartupWindows()
+    {
+        if (_service == null) return;
+        await Task.Delay(TimeSpan.FromSeconds(0.5));
+        
+        await ShowDesktopFileWindow();
+
+        var updateUrl = await _service.CheckForNewRelease();
+        if (!string.IsNullOrEmpty(updateUrl?.ReleaseUrl))
+        {
+            await ShowNewReleaseWindow(updateUrl.Value.ReleaseUrl, updateUrl.Value.DownloadUrl);
+        }
+        
+        if (!await _service.ValidateDependencies())
+        {
+            var dependencyWindow = new InstallDependenciesWindow();
+            _model.ValidatedDependencies = true;
+            await dependencyWindow.ShowDialog(this);
+        }
+        else
+        {
+            _model.ValidatedDependencies = true;
+        }
+            
+        if (_model.InitProject != null)
+        {
+            _ = LoadProject(_model.InitProject);
+        }
+    }
+
     private async Task ShowDesktopFileWindow()
     {
-        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile || DesktopFileCreator.DoesDesktopFileExist("org.mattequalscoder.msuscripter"))
+        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile)
+        {
+            return;
+        }
+
+        if (!AppImage.IsRunningFromAppImage() || AppImage.DoesDesktopFileExist(App.AppId))
         {
             return;
         }
@@ -107,32 +118,68 @@ public partial class MainWindow : RestorableWindow
             await Task.Delay(TimeSpan.FromMilliseconds(100));
             _service?.SkipDesktopFile();
             return;
-        };
+        }
 
         _service?.CreateDesktopFile();
         await Task.Delay(TimeSpan.FromMilliseconds(100));
     }
 
-    private async Task ShowNewReleaseWindow(string updateUrl)
+    private async Task ShowNewReleaseWindow(string releaseUrl, string? downloadUrl)
     {
+        downloadUrl ??= "";
+        var hasDownloadUrl = !string.IsNullOrEmpty(downloadUrl);
+        
         var messageWindow = new MessageWindow(new MessageWindowRequest
         {
-            Message = "A new version has been released and is available on Github. Would you like to go to the release page?",
+            Message = "A new version has been released and is available on Github.",
             Title = "New Version",
-            Buttons = MessageWindowButtons.YesNo,
-            CheckBoxText = "Do not check for updates (can be updated in Settings)"
+            LinkText = "View release on GitHub",
+            LinkUrl = releaseUrl,
+            Icon = MessageWindowIcon.Info,
+            Buttons = hasDownloadUrl ? MessageWindowButtons.YesNo : MessageWindowButtons.OK,
+            CheckBoxText = "Do not check for updates",
+            PrimaryButtonText = hasDownloadUrl ? "Download Update" : "OK",
+            SecondaryButtonText = "Close"
         });
-
+        
         await messageWindow.ShowDialog(this);
 
-        if (messageWindow.DialogResult?.CheckedBox == true)
+        if (messageWindow.DialogResult == null)
+        {
+            return;
+        }
+        
+        if (messageWindow.DialogResult.CheckedBox)
         {
             _service?.IgnoreFutureUpdates();
         }
 
-        if (messageWindow.DialogResult?.PressedAcceptButton == true)
+        if (messageWindow.DialogResult.PressedAcceptButton)
         {
-            CrossPlatformTools.OpenUrl(updateUrl);
+            if (OperatingSystem.IsLinux())
+            {
+                var downloadResult = await AppImage.DownloadAsync(new DownloadAppImageRequest
+                {
+                    Url = downloadUrl
+                });
+                
+                if (downloadResult.Success)
+                {
+                    Close();
+                }
+                else if (downloadResult.DownloadedSuccessfully)
+                {
+                    await MessageWindow.ShowErrorDialog("AppImage was downloaded, but it could not be launched.");
+                }
+                else
+                {
+                    await MessageWindow.ShowErrorDialog("Failed downloading AppImage");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("Not supported on Windows");
+            }
         }
     }
     

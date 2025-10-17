@@ -2,13 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using System.Runtime.Versioning;
 // ReSharper disable once RedundantUsingDirective
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AppImageDesktopFileCreator;
 using Avalonia.Threading;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
@@ -162,15 +159,6 @@ class Program
                 await Task.Delay(500);
             }
         });
-    }
-
-    [SupportedOSPlatform("linux")]
-    internal static CreateDesktopFileResponse BuildLinuxDesktopFile()
-    {
-        return new DesktopFileBuilder("org.mattequalscoder.msuscripter", "MSU Scripter")
-            .AddUninstallAction(Directories.BaseFolder)
-            .WithMimeType("application/x-msu-scripter-project", "MSU Scripter Project", "*.msup", true)
-            .Build();
     }
 
 #if DEBUG
