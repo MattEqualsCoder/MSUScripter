@@ -10,11 +10,11 @@ xmlns:controls="using:AvaloniaControls.Controls"
         Height="768"
         x:Class="MSUScripter.Views.CopyProjectWindow"
         Icon="/Assets/MSUScripterIcon.ico"
-        Title="Clone Project"
+        Title="{Binding Title}"
         x:DataType="viewModels:CopyProjectWindowViewModel">
     <LayoutTransformControl Name="MainLayout">
         <DockPanel>
-
+            <TextBlock DockPanel.Dock="Top" Margin="5" Text="{Binding TopText}" />
 			<controls:HeaderFooter DockPanel.Dock="Bottom">
                 <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center" Margin="5">
                     <Button 

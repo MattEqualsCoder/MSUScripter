@@ -36,6 +36,9 @@ public class CopyProjectWindowService(ConverterService converterService, ILogger
 
         _model.IsCopy = isCopy;
         _model.ButtonText = isCopy ? "Copy Project" : "Open Project";
+        
+        var title = string.IsNullOrEmpty(project.BasicInfo.PackName) ? "Project" : project.BasicInfo.PackName;
+        _model.Title = isCopy ? $"Copy {title}" : $"Update {title}";
 
         var paths = new List<CopyProjectViewModel>();
 

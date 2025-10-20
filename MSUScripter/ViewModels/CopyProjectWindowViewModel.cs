@@ -20,6 +20,13 @@ public class CopyProjectWindowViewModel : TranslatedViewModelBase
     
     [Reactive] public string ButtonText { get; set; } = "Update Project";
     
+    [Reactive] public string Title { get; set; } = "Update Project";
+
+    public string TopText =>
+        IsCopy
+            ? "Update the paths below as desired for the new project."
+            : "One or more input files are missing. Update them below or continue opening the project.";
+    
     public bool IsCopy { get; set; }
     
     public override ViewModelBase DesignerExample()
@@ -48,9 +55,8 @@ public class CopyProjectViewModel : ViewModelBase
         NewPath = path ?? "";
         if (!string.IsNullOrEmpty(PreviousPath))
         {
-            var file = new FileInfo(PreviousPath);
-            BaseFileName = file.Name;
-            Extension = file.Extension;
+            BaseFileName = GetFileNameFromAnyPath(PreviousPath);
+            Extension = Path.GetExtension(PreviousPath);
         }
     }
 
@@ -72,5 +78,22 @@ public class CopyProjectViewModel : ViewModelBase
     public override ViewModelBase DesignerExample()
     {
         return this;
+    }
+    
+    static string GetFileNameFromAnyPath(string path)
+    {
+        if (string.IsNullOrEmpty(path))
+            return string.Empty;
+
+        // Normalize to system-independent form
+        path = path.Replace('\\', '/');
+
+        // Extract after last '/'
+        int lastSlash = path.LastIndexOf('/');
+        if (lastSlash >= 0 && lastSlash < path.Length - 1)
+            return path.Substring(lastSlash + 1);
+
+        // Fall back to entire string if no slash
+        return path;
     }
 }
