@@ -63,7 +63,7 @@ public class MsuSongPanelService(
     public MsuSongMsuPcmInfo? DuplicateMsuPcmInfo(MsuSongMsuPcmInfo info)
     {
         MsuSongMsuPcmInfo output = new();
-        return !converterService.CloneModel(info, output) ? null : info;
+        return !converterService.CloneModel(info, output) ? null : output;
     }
 
     public AudioMetadata GetAudioMetadata(string filename)
