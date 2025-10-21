@@ -94,6 +94,10 @@
                                     Header="Generate as _Primary PCM File"
                                     Click="GeneratePrimaryPcmMenuItem_OnClick"
                                 ></MenuItem>
+                                <MenuItem 
+                                    Header="Generate MsuPcm++ Json File"
+                                    Click="GenerateTracksJsonMenuItem_OnClick"
+                                ></MenuItem>
                             </MenuFlyout>
                         </SplitButton.Flyout>
                     </SplitButton>

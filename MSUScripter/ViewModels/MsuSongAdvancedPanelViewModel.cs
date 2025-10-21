@@ -63,9 +63,12 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     
     [Reactive, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public string? Input { get; set; }
     
-    [Reactive, SkipLastModified] public bool DisplaySampleRateWarning { get; set; }
-    [Reactive, SkipLastModified] public bool DisplayMultipleTracksWarning { get; set; }
-    [Reactive, SkipLastModified] public bool DisplayDualTrackTypeWarning { get; set; }
+    [Reactive, SkipLastModified] public bool DisplayWarning { get; set; }
+    [Reactive, SkipLastModified] public string WarningText { get; set; } = string.Empty;
+    [Reactive, SkipLastModified] public string WarningToolTip { get; set; } = string.Empty;
+    [Reactive, SkipLastModified] public bool DisplayError { get; set; }
+    [Reactive, SkipLastModified] public string ErrorText { get; set; } = string.Empty;
+    [Reactive, SkipLastModified] public string ErrorToolTip { get; set; } = string.Empty;
     
     [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
     [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
@@ -87,7 +90,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public event EventHandler? ViewModelUpdated;
     public event EventHandler? FileDragDropped;
     
-    private MsuTrackInfo? _currentTrackInfo;
     public MsuSongInfo? CurrentSongInfo { get; private set; }
     private MsuSongMsuPcmInfo? _currentSongMsuPcmInfo;
     private MsuProjectWindowViewModelTreeData? _treeData;
@@ -122,7 +124,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         Project = project;
         _currentSongMsuPcmInfo = null;
         _updatingModel = true;
-        _currentTrackInfo = trackInfo;
         CurrentSongInfo = songInfo;
         _treeData = treeData;
         
@@ -173,7 +174,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = level,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = currentIndex,
             MsuPcmInfo = msuPcmInfo,
             ParentIndex = parentSortIndex,
@@ -202,7 +202,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = level + 1,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = currentIndex,
             ParentIndex = sortIndex,
             ParentTreeData = mainTreeData,
@@ -225,7 +224,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = level + 1,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = currentIndex,
             ParentIndex = sortIndex,
             ParentTreeData = mainTreeData,
@@ -286,7 +284,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             ShowDither = false;
         }
         Input = treeData.MsuPcmInfo.File;
-        DisplayOutputPcmFile = treeData.ShowOutput && !IsScratchPad;;
+        DisplayOutputPcmFile = treeData.ShowOutput && !IsScratchPad;
         CanUpdateOutputPcmFile = treeData.SongInfo?.IsAlt == true;
         _currentSongMsuPcmInfo = treeData.MsuPcmInfo;
         CurrentTreeItem = treeData;
@@ -570,7 +568,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public MsuSongAdvancedPanelViewModelModelTreeData AddMsuPcmInfo(MsuSongAdvancedPanelViewModelModelTreeData to)
     {
         var parentTreeData = to.MsuPcmInfo == null ? to : to.ParentTreeData;
-        var parent = parentTreeData?.ParentTreeData?.MsuPcmInfo;
         var destinationIndex = to.MsuPcmInfo == null ? 0 : to.ParentTreeData?.ChildrenTreeData.IndexOf(to) + 1;
 
         if (parentTreeData == null || destinationIndex == null)
@@ -586,7 +583,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = parentTreeData.Level + 1,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = parentTreeData.SortIndex + destinationIndex.Value,
             MsuPcmInfo = newMsuPcmInfo,
             ParentIndex = parentTreeData.SortIndex,
@@ -603,7 +599,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = parentTreeData.Level + 2,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = parentTreeData.SortIndex + destinationIndex.Value + 1,
             ParentIndex = parentTreeData.SortIndex + destinationIndex.Value,
             ParentTreeData = newData,
@@ -616,7 +611,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
             Level = parentTreeData.Level + 2,
             IsVisible = true,
             ChevronIcon = MaterialIconKind.ChevronDown,
-            Icon = MaterialIconKind.Note,
             SortIndex = parentTreeData.SortIndex + destinationIndex.Value + 1,
             ParentIndex = parentTreeData.SortIndex + destinationIndex.Value,
             ParentTreeData = newData,
@@ -645,17 +639,58 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         return newData;
     }
     
-    public void UpdateTrackWarnings(bool sampleRateWarning, bool multiWarning, bool dualTypes)
+    public void UpdateTrackWarnings(bool sampleRateWarning, bool multiWarning, bool dualTypes, bool soloSubChannel, bool hasSameParentChildType, bool hasIgnoredFile)
     {
-        DisplaySampleRateWarning = sampleRateWarning;
-        DisplayMultipleTracksWarning = multiWarning;
-        DisplayDualTrackTypeWarning = dualTypes;
+        List<(string, string)> warnings = [];
+        List<(string, string)> errors = [];
+
+        if (sampleRateWarning)
+        {
+            warnings.Add(("Non-44100Hz File", "This is a non-44100Hz file. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."));
+        }
+
+        if (multiWarning)
+        {
+            warnings.Add(("Multiple Input Files", "When there are multiple input files via sub tracks or sub channels, combined audio operations are in a 44100Hz sample rate."));
+        }
+
+        if (hasIgnoredFile)
+        {
+            warnings.Add(("Ignored File Found", "When a level has sub tracks or sub channels, that level's file is ignored."));
+        }
+
+        if (dualTypes)
+        {
+            errors.Add(("Simultaneous Sub Channel and Sub Track", "There is at least one sub channel and subtrack on the same level."));
+        }
+
+        if (soloSubChannel)
+        {
+            errors.Add(("Solo Sub Channel", "When using sub channels, you must have at least two of them."));
+        }
+        
+        if (hasSameParentChildType)
+        {
+            errors.Add(("Same Parent/Child Types", "You must alternate between sub channel and sub tracks when having multiple levels."));
+        }
+
+        DisplayWarning = warnings.Count > 0;
+        WarningText = warnings.Count == 1 ? warnings[0].Item1 : $"{warnings.Count} Warnings";
+        WarningToolTip = string.Join("\n", warnings.Select(w => $"{w.Item1} - {w.Item2}"));
+        
+        DisplayError = errors.Count > 0;
+        ErrorText = errors.Count == 1 ? errors[0].Item1 : $"{errors.Count} Errors";
+        ErrorToolTip = string.Join("\n", errors.Select(w => $"{w.Item1} - {w.Item2}"));
     }
 
     public override ViewModelBase DesignerExample()
     {
         return new MsuSongAdvancedPanelViewModel()
         {
+            DisplayWarning = true,
+            DisplayError = true,
+            WarningText = "2 Warnings",
+            ErrorText = "2 Errors",
             TreeItems =
             [
                 new MsuSongAdvancedPanelViewModelModelTreeData()
@@ -664,7 +699,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 0,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Note
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -672,7 +706,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 1,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.DotsHorizontal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -680,7 +713,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 2,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Bullet
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -688,7 +720,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.DotsHorizontal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -696,7 +727,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Equal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -704,7 +734,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 2,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Bullet
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -712,7 +741,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.DotsHorizontal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -720,7 +748,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Equal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -728,7 +755,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 1,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Equal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -736,7 +762,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 2,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Bullet
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -744,7 +769,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.DotsHorizontal
                 },
                 new MsuSongAdvancedPanelViewModelModelTreeData()
                 {
@@ -752,7 +776,6 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
                     Level = 3,
                     IsVisible = true,
                     ChevronIcon = MaterialIconKind.ChevronDown,
-                    Icon = MaterialIconKind.Equal
                 },
             ]
         };
@@ -765,7 +788,6 @@ public class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBas
     public static IBrush HighlightColor { get; set; } = Brushes.SlateGray;
     
     [Reactive] public required MaterialIconKind ChevronIcon { get; set; }
-    [Reactive] public required MaterialIconKind Icon { get; set; }
     
     [Reactive] public required string Name { get; set; }
     
@@ -797,7 +819,7 @@ public class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBas
     
     public override ViewModelBase DesignerExample()
     {
-        throw new System.NotImplementedException();
+        return new MsuSongAdvancedPanelViewModel();
     }
 
     public void ToggleCollapsed(bool? newVal = null)

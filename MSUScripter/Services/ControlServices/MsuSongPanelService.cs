@@ -104,6 +104,9 @@ public class MsuSongPanelService(
         var song = model.CurrentSongInfo;
 
         var hasBothSubTracksAndSubChannels = false;
+        var hasSoloSubChannel = false;
+        var hasSameParentChildType = false;
+        var hasIgnoredFile = false;
         
         List<string> files = [];
         foreach (var treeItem in model.TreeItems.Where(x => x.MsuPcmInfo != null))
@@ -116,15 +119,32 @@ public class MsuSongPanelService(
             var subTracks = treeItem.ChildrenTreeData.FirstOrDefault();
             var subChannels = treeItem.ChildrenTreeData.LastOrDefault();
 
-            if (subChannels != null && subTracks != null && subTracks != subChannels && subTracks.ChildrenTreeData.Count > 0 && subChannels.ChildrenTreeData.Count > 0)
+            if (subChannels != null && subTracks != null && subTracks != subChannels &&
+                subTracks.ChildrenTreeData.Count > 0 && subChannels.ChildrenTreeData.Count > 0)
             {
                 hasBothSubTracksAndSubChannels = true;
+                
+                if (subChannels.ChildrenTreeData.Count == 1)
+                {
+                    hasSoloSubChannel = true;
+                }
+            }
+
+            if (treeItem is { IsSubChannel: true, ParentTreeData.ParentTreeData.IsSubChannel: true } or { IsSubTrack: true, ParentTreeData.ParentTreeData.IsSubTrack: true })
+            {
+                hasSameParentChildType = true;
+            }
+
+            if (!string.IsNullOrEmpty(treeItem.MsuPcmInfo.File) &&
+                (subTracks?.ChildrenTreeData.Count > 0 || subChannels?.ChildrenTreeData.Count > 0))
+            {
+                hasIgnoredFile = true;
             }
         }
 
         if (files.Count == 0)
         {
-            model.UpdateTrackWarnings(false, false, false);
+            model.UpdateTrackWarnings(false, false, false, false, false, false);
             return;
         }
 
@@ -132,7 +152,7 @@ public class MsuSongPanelService(
 
         if (files.Count > 1)
         {
-            model.UpdateTrackWarnings(false, true, hasBothSubTracksAndSubChannels);
+            model.UpdateTrackWarnings(false, true, hasBothSubTracksAndSubChannels, hasSoloSubChannel, hasSameParentChildType, hasIgnoredFile);
             return;
         }
         
@@ -142,7 +162,7 @@ public class MsuSongPanelService(
             var sampleRate = GetSavedSampleInfo(project, path) ?? await GetSampleRateAsync(project, path);
             if (model.CurrentSongInfo == song)
             {
-                model.UpdateTrackWarnings(sampleRate != 44100, false, hasBothSubTracksAndSubChannels);
+                model.UpdateTrackWarnings(sampleRate != 44100, false, hasBothSubTracksAndSubChannels, hasSoloSubChannel, hasSameParentChildType, hasIgnoredFile);
             }
         });
     }
@@ -216,6 +236,11 @@ public class MsuSongPanelService(
             return msuPcmService.CreateEmptyPcm(song);
         }
         return await msuPcmService.CreatePcm(project, song, asPrimary, false, true);
+    }
+
+    public MsuPcmJsonInfo GenerateSongTracksFile(MsuProject project, MsuSongInfo song, string path)
+    {
+        return msuPcmService.ExportMsuPcmTracksJson(project, song, path, song.OutputPath);
     }
     
     public async Task<AnalysisDataOutput?> AnalyzeAudio(MsuProject project, MsuSongInfo song)

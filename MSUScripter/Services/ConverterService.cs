@@ -186,7 +186,15 @@ public class ConverterService
         if (!isSubTrack && !isSubChannel && output is Track track)
         {
             if (trackBase.SubChannels.Any())
-                track.Sub_channels = trackBase.SubChannels.Select(x => ConvertMsuPcmTrackInfo(x, false, true)).Cast<Sub_channel>().ToList();
+            {
+                if (string.IsNullOrEmpty(track.File))
+                {
+                    track.File = trackBase.GetFiles().FirstOrDefault();
+                }
+                track.Sub_channels = trackBase.SubChannels.Select(x => ConvertMsuPcmTrackInfo(x, false, true))
+                    .Cast<Sub_channel>().ToList();
+            }
+
             if (trackBase.SubTracks.Any())
                 track.Sub_tracks = trackBase.SubTracks.Select(x => ConvertMsuPcmTrackInfo(x, true, false)).Cast<Sub_track>().ToList();
         }
@@ -196,6 +204,10 @@ public class ConverterService
         }
         else if (isSubTrack && output is Sub_track subTrack && trackBase.SubChannels.Any())
         {
+            if (string.IsNullOrEmpty(subTrack.File))
+            {
+                subTrack.File = trackBase.GetFiles().FirstOrDefault();
+            }
             subTrack.Sub_channels = trackBase.SubChannels.Select(x => ConvertMsuPcmTrackInfo(x, false, true)).Cast<Sub_channel>().ToList();
         }
         

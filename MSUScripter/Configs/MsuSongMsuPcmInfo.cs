@@ -81,6 +81,11 @@ public class MsuSongMsuPcmInfo
 
     public List<string> GetFiles()
     {
+        if (!string.IsNullOrEmpty(Output))
+        {
+            var outputFile = Output;
+        }
+        
         List<string> files = new List<string>();
 
         if (!string.IsNullOrEmpty(File))
@@ -102,6 +107,26 @@ public class MsuSongMsuPcmInfo
             return (SubTracks.Count > 0 && SubChannels.Count > 0) ||
                    SubChannels.Any(x => x.HasBothSubTracksAndSubChannels) ||
                    SubTracks.Any(x => x.HasBothSubTracksAndSubChannels);
+        }
+    }
+
+    [YamlIgnore]
+    public bool HasValidSubChannelCount
+    {
+        get
+        {
+            return SubChannels.Count != 1 && SubChannels.All(x => x.HasValidSubChannelCount) &&
+                   SubTracks.All(x => x.HasValidSubChannelCount);
+        }
+    }
+    
+    [YamlIgnore]
+    public bool HasValidChildTypes
+    {
+        get
+        {
+            return SubChannels.All(x => x.SubChannels.Count == 0 && x.HasValidChildTypes) &&
+                SubTracks.All(x => x.SubTracks.Count == 0 && x.HasValidChildTypes);
         }
     }
 

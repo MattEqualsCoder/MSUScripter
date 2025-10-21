@@ -17,6 +17,7 @@ public partial class MsuSongOuterPanel : UserControl
 {
     private MsuSongOuterPanelViewModel? _viewModel;
     private readonly MsuSongPanelService? _service;
+    private string? _previousTracksJsonPath;
     
     public MsuSongOuterPanel()
     {
@@ -159,7 +160,6 @@ public partial class MsuSongOuterPanel : UserControl
                 return;
             }
             
-            
             _viewModel.SaveChanges();
             var response = await _service.GeneratePcm(_viewModel.Project, _viewModel.SongInfo, false, false);
             await HandleMsuPcmResponse(response);
@@ -254,6 +254,37 @@ public partial class MsuSongOuterPanel : UserControl
         catch (Exception ex)
         {
             _service?.LogError(ex, "Error testing audio levels");
+            await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
+        }
+    }
+
+    private async void GenerateTracksJsonMenuItem_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_viewModel?.Project == null || _viewModel?.SongInfo == null || _service == null)
+            {
+                return;
+            }
+            
+            _viewModel.SaveChanges();
+            var path = await CrossPlatformTools.OpenFileDialogAsync(this.GetTopLevelWindow(), FileInputControlType.SaveFile,
+                "JSON File:*.json", _previousTracksJsonPath ?? _viewModel.Project.GetTracksJsonPath());
+
+            if (path?.Path.LocalPath is { } stringPath)
+            {
+                _previousTracksJsonPath = stringPath;
+                var response = _service.GenerateSongTracksFile(_viewModel.Project, _viewModel.SongInfo, stringPath);
+                if (!string.IsNullOrEmpty(response.ErrorMessage))
+                {
+                    await MessageWindow.ShowErrorDialog(response.ErrorMessage, _viewModel.Text.GenericErrorTitle,
+                        this.GetTopLevelWindow());
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error generating PCM file");
             await MessageWindow.ShowErrorDialog(_viewModel!.Text.GenericError, _viewModel.Text.GenericErrorTitle, this.GetTopLevelWindow());
         }
     }

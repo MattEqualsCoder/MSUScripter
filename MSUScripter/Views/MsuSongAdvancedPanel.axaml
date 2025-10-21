@@ -127,36 +127,21 @@
                 <StackPanel Orientation="Horizontal">
                     <StackPanel 
                         Orientation="Horizontal"
-                        Margin="0 0 5 0"
-                        IsVisible="{Binding DisplayDualTrackTypeWarning}"
-                        ToolTip.Tip="There is at least one sub channel and sub track on the same level, which is not supported by msupcm++."
+                        Margin="10 0 5 0"
+                        IsVisible="{Binding DisplayWarning}"
+                        ToolTip.Tip="{Binding WarningToolTip}"
                     >
-                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 0 0"></avalonia:MaterialIcon>
-                        <TextBlock VerticalAlignment="Center">
-                            Simultaneous Sub Channel and Sub Track
-                        </TextBlock>
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 2 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding WarningText}" />
                     </StackPanel>
                     <StackPanel 
                         Orientation="Horizontal"
                         Margin="10 0 5 0"
-                        IsVisible="{Binding DisplayMultipleTracksWarning}"
-                        ToolTip.Tip="When there are multiple input files via sub tracks or sub channels, combined audio operations are in a 44100Hz sample rate."
+                        IsVisible="{Binding DisplayError}"
+                        ToolTip.Tip="{Binding ErrorToolTip}"
                     >
-                        <avalonia:MaterialIcon Kind="Info" Margin="10 0 0  0"></avalonia:MaterialIcon>
-                        <TextBlock VerticalAlignment="Center">
-                            Multiple Input Files
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel 
-                        Orientation="Horizontal"
-                        Margin="10 0 5 0"
-                        IsVisible="{Binding DisplaySampleRateWarning}"
-                        ToolTip.Tip="This is a non-44100Hz file. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
-                    >
-                        <avalonia:MaterialIcon Kind="Info" Margin="10 0 0 0"></avalonia:MaterialIcon>
-                        <TextBlock VerticalAlignment="Center">
-                            Non-44100Hz File
-                        </TextBlock>
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 2 0" Foreground="IndianRed" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding ErrorText}"  />
                     </StackPanel>
                 </StackPanel>
             </controls:CardControl.HeaderButtons>

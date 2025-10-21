@@ -77,31 +77,21 @@ public class MsuTrackInfo
     public void MoveSong(MsuProject project, MsuSongInfo song, int index)
     {
         var oldTrack = project.Tracks.First(x => x.TrackNumber == song.TrackNumber);
-        var currentIndex = oldTrack.Songs.IndexOf(song);
-        var newIndex = index;
-        
-        for (var i = oldTrack.Songs.Count - 1; i >= currentIndex + 1; i--)
-        {
-            oldTrack.Songs[i].OutputPath = oldTrack.Songs[i - 1].OutputPath;
-            oldTrack.Songs[i].MsuPcmInfo.Output = oldTrack.Songs[i - 1].MsuPcmInfo.Output;
-            oldTrack.Songs[i].IsAlt = oldTrack.Songs[i - 1].IsAlt;
-        }
 
         oldTrack.Songs.Remove(song);
-        Songs.Insert(newIndex, song);
-
-        var lastIndex = Songs.Count - 1;
-        for (var i = newIndex; i < lastIndex; i++)
+        for (var i = 0; i < oldTrack.Songs.Count; i++)
         {
-            Songs[i].OutputPath = Songs[i + 1].OutputPath;
-            Songs[i].MsuPcmInfo.Output = Songs[i + 1].MsuPcmInfo.Output;
-            Songs[i].IsAlt = Songs[i + 1].IsAlt;
+            UpdateSongPath(project, oldTrack.Songs[i], i);
+        }
+        
+        Songs.Insert(index, song);
+        for (var i = 0; i < Songs.Count; i++)
+        {
+            UpdateSongPath(project, Songs[i], i);
         }
 
         song.TrackName = TrackName;
         song.TrackNumber = TrackNumber;
-        
-        UpdateSongPath(project, Songs[lastIndex], lastIndex);
     }
 
     private void UpdateSongPath(MsuProject project, MsuSongInfo song, int? index = null)
