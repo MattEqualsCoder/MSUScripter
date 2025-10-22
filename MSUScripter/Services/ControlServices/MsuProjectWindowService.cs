@@ -286,7 +286,7 @@ public class MsuProjectWindowService(
     {
         var hasFilterToggle = _viewModel.FilterOnlyTracksMissingSongs || _viewModel.FilterOnlyIncomplete ||
                               _viewModel.FilterOnlyMissingAudio || _viewModel.FilterOnlyCopyrightUntested;
-        _viewModel.FilterEyeIcon = hasFilterToggle ? MaterialIconKind.EyeCheck : MaterialIconKind.Eye;
+        _viewModel.FilterEyeIcon = hasFilterToggle ? MaterialIconKind.FilterCheck : MaterialIconKind.Filter;
         List<MsuProjectWindowViewModelTreeData> parentTreeItems = [];
         var filterText = string.IsNullOrEmpty(_viewModel.FilterText) ? null : _viewModel.FilterText.ToLower();
         foreach (var treeData in _viewModel.TreeItems)

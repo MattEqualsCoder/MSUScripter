@@ -330,16 +330,20 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     public bool IsDraggingItem { get; set; }
 
     public bool IsViewingSongData => MsuSongViewModel.IsEnabled;
-    [Reactive] public bool DisplayHasSongIcon { get; set; }
-    [Reactive] public bool DisplayCheckCopyrightIcon { get; set; }
-    [Reactive] public bool DisplayCopyrightSafeIcon { get; set; }
-    [Reactive] public bool DisplayIsCompleteIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(HasSongButtonOpacity))] public bool DisplayHasSongIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightButtonOpacity))] public bool DisplayCheckCopyrightIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CopyrightSafeButtonOpacity))] public bool DisplayCopyrightSafeIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(IsCompleteButtonOpacity))] public bool DisplayIsCompleteIcon { get; set; }
+    public double IsCompleteButtonOpacity => DisplayIsCompleteIcon ? 1 : 0.5;
+    public double HasSongButtonOpacity => DisplayHasSongIcon ? 1 : 0.5;
+    public double CheckCopyrightButtonOpacity => DisplayCheckCopyrightIcon ? 1 : 0.5;
+    public double CopyrightSafeButtonOpacity => DisplayCopyrightSafeIcon ? 1 : 0.5;
     [Reactive] public MsuProjectWindowViewModelTreeData? SelectedTreeItem { get; set; }
     [Reactive] public bool FilterOnlyTracksMissingSongs { get; set; }
     [Reactive] public bool FilterOnlyIncomplete { get; set; }
     [Reactive] public bool FilterOnlyMissingAudio { get; set; }
     [Reactive] public bool FilterOnlyCopyrightUntested { get; set; }
-    [Reactive] public MaterialIconKind FilterEyeIcon { get; set; } = MaterialIconKind.Eye;
+    [Reactive] public MaterialIconKind FilterEyeIcon { get; set; } = MaterialIconKind.Filter;
     [Reactive] public string StatusBarText { get; set; } = "Loaded Project";
     [Reactive] public string WindowTitle { get; set; } = "MSU Scripter";
     
