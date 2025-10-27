@@ -54,7 +54,7 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-22.04
-
+    if: ${{ github.event_name != 'pull_request' }}
     needs: [build-windows]
 
     permissions:
@@ -93,8 +93,8 @@ jobs:
 
   package:
     runs-on: ubuntu-22.04
-
     needs: [build-windows, build-linux]
+    if: ${{ github.event_name != 'pull_request' }}
 
     permissions:
       contents: write
