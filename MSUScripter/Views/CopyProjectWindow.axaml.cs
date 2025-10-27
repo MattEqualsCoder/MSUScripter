@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
@@ -30,37 +31,46 @@ public partial class CopyProjectWindow : ScalableWindow
         }
     }
 
-    public async Task<MsuProject?> ShowDialog(Window parentWindow, MsuProject project)
+    public async Task<MsuProject?> ShowDialog(Window parentWindow, MsuProject project, bool isCopy)
     {
-        _service?.SetProject(project);
+        _service?.SetProject(project, isCopy);
         await ShowDialog(parentWindow);
-        return _model.NewProject;
+        return _model.SavedProject;
     }
 
     private async void UpdatePathButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (sender is not Button { Tag: CopyProjectViewModel viewModel })
+        try
         {
-            return;
-        }
+            if (sender is not Button { Tag: CopyProjectViewModel viewModel })
+            {
+                return;
+            }
         
-        var file = await CrossPlatformTools.OpenFileDialogAsync(
-            parentWindow: this,
-            type: viewModel.IsSongFile ? FileInputControlType.OpenFile : FileInputControlType.SaveFile,
-            filter: $"{viewModel.Extension} File:*{viewModel.Extension}",
-            path: viewModel.PreviousPath,
-            title: $"Select Replacement File for {viewModel.BaseFileName}");
+            var file = await CrossPlatformTools.OpenFileDialogAsync(
+                parentWindow: this,
+                type: viewModel.IsSongFile ? FileInputControlType.OpenFile : FileInputControlType.SaveFile,
+                filter: $"{viewModel.Extension} File:*{viewModel.Extension}",
+                path: viewModel.PreviousPath,
+                title: $"Select Replacement File for {viewModel.BaseFileName}");
         
-        if (string.IsNullOrEmpty(file?.Path.LocalPath))
-        {
-            return;
-        }
+            if (string.IsNullOrEmpty(file?.Path.LocalPath))
+            {
+                return;
+            }
 
-        _service?.UpdatePath(viewModel, file);
+            _service?.UpdatePath(viewModel, file);
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error updating path");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
     }
 
     private void CloseButton_OnClick(object? sender, RoutedEventArgs e)
     {
+        _model.NewProject = null;
         Close();
     }
 

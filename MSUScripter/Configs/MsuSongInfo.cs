@@ -7,8 +7,9 @@ namespace MSUScripter.Configs;
 [Description("Details about a song for YAML and PCM generation")]
 public class MsuSongInfo
 {
-    [JsonSchemaIgnore]
-    public int TrackNumber { get; set; }
+    [JsonSchemaIgnore] public string Id { get; set; } = "";
+    
+    [JsonSchemaIgnore] public int TrackNumber { get; set; }
     
     [JsonSchemaIgnore]
     public string? TrackName { get; set; }
@@ -42,15 +43,20 @@ public class MsuSongInfo
     
     [JsonSchemaIgnore]
     public bool IsComplete { get; set; }
-    
-    [JsonSchemaIgnore]
-    public bool ShowPanel { get; set; } = true;
-    
+
     [JsonSchemaIgnore]
     public DateTime LastModifiedDate { get; set; }
     
     [JsonSchemaIgnore]
     public DateTime LastGeneratedDate { get; set; }
-
     
+    [JsonSchemaIgnore]
+    public bool? DisplayAdvancedMode { get; set; }
+        
+    public bool HasAudioFiles() => MsuPcmInfo.HasFiles();
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        return MsuPcmInfo.HasChangesSince(time) || LastModifiedDate > time;
+    }
 }

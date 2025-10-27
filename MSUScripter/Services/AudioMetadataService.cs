@@ -9,15 +9,8 @@ using UrlLinkFrame = TagLib.Id3v2.UrlLinkFrame;
 
 namespace MSUScripter.Services;
 
-public class AudioMetadataService
+public class AudioMetadataService(ILogger<AudioMetadataService> logger)
 {
-    private readonly ILogger<AudioMetadataService> _logger;
-
-    public AudioMetadataService(ILogger<AudioMetadataService> logger)
-    {
-        _logger = logger;
-    }
-    
     public AudioMetadata GetAudioMetadata(string file)
     {
         if (!File.Exists(file))
@@ -27,7 +20,7 @@ public class AudioMetadataService
 
         try
         {
-            var toReturn = new AudioMetadata()
+            var toReturn = new AudioMetadata
             {
                 SongName = Path.GetFileNameWithoutExtension(file),
                 Artist = "",
@@ -84,7 +77,7 @@ public class AudioMetadataService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Unable to retrieve metadata for {File}", file);
+            logger.LogError(e, "Unable to retrieve metadata for {File}", file);
             return new AudioMetadata();
         }
     }

@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AvaloniaControls.Models;
+using MSUScripter.Configs;
+using ReactiveUI;
 using ReactiveUI.Fody.Helpers;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisViewModel : ViewModelBase
+public class AudioAnalysisViewModel : TranslatedViewModelBase
 {
-    public MsuProjectViewModel? Project { get; set; }
-    
-    [Reactive] public int SongsCompleted { get; set; }
+    public MsuProject? Project { get; set; }
+
+    public int SongsCompleted => Rows.Count(x => x.HasLoaded);
 
     [Reactive] public string BottomBar { get; set; } = "";
     
@@ -17,16 +19,19 @@ public class AudioAnalysisViewModel : ViewModelBase
     public List<AudioAnalysisSongViewModel> Rows { get; set; } = [];
 
     [Reactive] public bool CompareEnabled { get; set; } = true;
-
-
+    
     public double Duration { get; set; }
     public int TotalSongs => Rows.Count;
     public string? LoadError { get; set; }
     public bool ShowCompareButton { get; set; } = true;
     
+    public void UpdateSongsCompleted()
+    {
+        this.RaisePropertyChanged(nameof(SongsCompleted));
+    }
+    
     public override ViewModelBase DesignerExample()
     {
-        SongsCompleted = 2;
         BottomBar = "Test Message";
         Rows =
         [

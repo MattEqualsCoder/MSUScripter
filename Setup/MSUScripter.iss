@@ -28,13 +28,17 @@ OutputBaseFilename=MSUScripterSetupWin_{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+ChangesAssociations=yes
 
+[Setup]
+ArchitecturesInstallIn64BitMode=x64
 
 [Code]
 function InitializeSetup: Boolean;
 begin
   Dependency_AddDotNet90Desktop;
   Dependency_AddDotNet90Asp;
+  Dependency_AddVC2015To2022;
   Result := True;
 end;
 
@@ -59,3 +63,12 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+[UninstallDelete]
+Type: filesandordirs; Name: "{localappdata}\MSUScripter"
+
+[Registry]
+Root: HKA; Subkey: "Software\Classes\.msup\OpenWithProgids"; ValueType: string; ValueName: "MsuScripterProject.msup"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup"; ValueType: string; ValueName: ""; ValueData: "MSU Scripter Project"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKA; Subkey: "Software\Classes\MsuScripterProject.msup\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".msup"; ValueData: "" 

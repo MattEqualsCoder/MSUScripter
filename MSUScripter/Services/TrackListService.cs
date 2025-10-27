@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,8 +15,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 {
     public void WriteTrackListFile(MsuProject project)
     {
-        var msuFileInfo = new FileInfo(project.MsuPath);
-        var tracklistPath = Path.Combine(msuFileInfo.DirectoryName!, "Track List.txt");
+        var tracklistPath = project.GetTracksTextPath();
         var sb = new StringBuilder();
 
         var title = $"{project.BasicInfo.PackName}";
@@ -59,31 +59,31 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
                 !(t.TrackNumber >= metroidTrackRange.Item1 && t.TrackNumber <= metroidTrackRange.Item2) &&
                 t.Songs.Count != 0);
 
-            if (project.BasicInfo.TrackList == TrackListType.List)
+            if (project.BasicInfo.TrackListType is TrackList.ListAlbumFirst or TrackList.ListSongFirst)
             {
                 sb.AppendLine("Zelda Tracks:");
                 sb.AppendLine();
-                AppendTrackList(zeldaTracks, sb, zeldaTrackModifier);
+                AppendTrackList(zeldaTracks, sb, zeldaTrackModifier, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
 
                 sb.AppendLine("--------------------------------------------------");
                 sb.AppendLine();
 
                 sb.AppendLine("Metroid Tracks:");
                 sb.AppendLine();
-                AppendTrackList(metroidTracks, sb, metroidTrackModifier);
+                AppendTrackList(metroidTracks, sb, metroidTrackModifier, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
 
                 sb.AppendLine("--------------------------------------------------");
                 sb.AppendLine();
 
                 sb.AppendLine("SMZ3 Tracks:");
                 sb.AppendLine();
-                AppendTrackList(smz3Tracks, sb, 0);
+                AppendTrackList(smz3Tracks, sb, 0, project.BasicInfo.TrackListType == TrackList.ListSongFirst);
             }
             else
             {
                 var songs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
-                var trackLength = project.Tracks.Where(x => !x.IsScratchPad).Max(x => x.TrackName.Length) + 4;
+                var trackLength = project.Tracks.Where(x => !x.IsScratchPad).Max(x => new StringInfo(x.TrackName).LengthInTextElements) + 4;
                 var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 4);
                 var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.CleanString().Length + 4);
                 var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.CleanString().Length + 4);
@@ -109,18 +109,18 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         {
             var allTracks = project.Tracks.Where(t => !t.IsScratchPad && t.Songs.Count != 0);
             
-            if (project.BasicInfo.TrackList == TrackListType.List)
+            if (project.BasicInfo.TrackListType is TrackList.ListAlbumFirst or TrackList.ListSongFirst)
             {
-                AppendTrackList(allTracks, sb, 0);    
+                AppendTrackList(allTracks, sb, 0, project.BasicInfo.TrackListType == TrackList.ListSongFirst);    
             }
             else
             {
                 var songs = project.Tracks.SelectMany(x => x.Songs).ToList();
                 var numberLength = songs.Any(x => x.IsAlt) ? 12 : 6;
-                var trackLength = project.Tracks.Max(x => x.TrackName.Length) + 3;
-                var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.CleanString().Length + 3);
-                var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.CleanString().Length + 3);
-                var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.CleanString().Length + 3);
+                var trackLength = project.Tracks.Max(x => x.TrackName.GetUnicodeLength()) + 3;
+                var albumLength = songs.Max(x => string.IsNullOrEmpty(x.Album) ? 0 : x.Album.GetUnicodeLength() + 3);
+                var songLength = songs.Max(x => string.IsNullOrEmpty(x.SongName) ? 0 : x.SongName.GetUnicodeLength() + 3);
+                var artistLength = songs.Max(x => string.IsNullOrEmpty(x.Artist) ? 0 : x.Artist.GetUnicodeLength() + 3);
                 AppendTrackTable(allTracks, sb, 0, numberLength, trackLength, albumLength, songLength, artistLength);   
             }
         }
@@ -137,7 +137,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         }
     }
 
-    private void AppendTrackList(IEnumerable<MsuTrackInfo> tracks, StringBuilder sb, int trackModifier)
+    private void AppendTrackList(IEnumerable<MsuTrackInfo> tracks, StringBuilder sb, int trackModifier, bool isVariant)
     {
         foreach (var track in tracks.Where(x => !x.IsScratchPad).OrderBy(x => x.TrackNumber))
         {
@@ -145,7 +145,7 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
 
             foreach (var song in track.Songs.OrderBy(x => x.IsAlt))
             {
-                sb.AppendLine(GetTrackListSongInfo(song));
+                sb.AppendLine(isVariant ? GetTrackListSongInfoVariant(song) : GetTrackListSongInfo(song));
             }
 
             sb.AppendLine();
@@ -166,6 +166,30 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
         if (!string.IsNullOrEmpty(song.Artist))
         {
             songInfo += $" ({song.Artist?.CleanString()})";
+        }
+
+        if (song.IsAlt)
+        {
+            songInfo += " (Alt)";
+        }
+
+        return songInfo;
+    }
+    
+    private string GetTrackListSongInfoVariant(MsuSongInfo song)
+    {
+        var songInfo = "";
+        
+        songInfo += song.SongName?.CleanString();
+
+        if (!string.IsNullOrEmpty(song.Artist))
+        {
+            songInfo += $" by {song.Artist?.CleanString()}";
+        }
+        
+        if (!string.IsNullOrEmpty(song.Album))
+        {
+            songInfo += $" ({song.Album?.CleanString()})";
         }
 
         if (song.IsAlt)
@@ -208,17 +232,23 @@ public class TrackListService(ILogger<TrackListService> logger, IMsuTypeService 
             
         if (albumLength > 0)
         {
-            songInfo += (song.Album?.CleanString() ?? "").PadRight(albumLength);
+            var item = song.Album?.CleanString() ?? "";
+            var spaces = new string(' ', albumLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
 
         if (songLength > 0)
         {
-            songInfo += (song.SongName?.CleanString() ?? "").PadRight(songLength);
+            var item = song.SongName?.CleanString() ?? "";
+            var spaces = new string(' ', songLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
         
         if (artistLength > 0)
         {
-            songInfo += (song.Artist?.CleanString() ?? "").PadRight(artistLength);
+            var item = song.Artist?.CleanString() ?? "";
+            var spaces = new string(' ', artistLength - item.GetUnicodeLength());
+            songInfo += item + spaces;
         }
 
         return songInfo;

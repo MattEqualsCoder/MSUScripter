@@ -9,34 +9,49 @@ using MSUScripter.Configs;
 using MSUScripter.Models;
 using MSUScripter.ViewModels;
 using NAudio.Wave;
+using SoundFlow.Interfaces;
+using SoundFlow.Providers;
 using File = System.IO.File;
 
 namespace MSUScripter.Services;
+
+public class AudioSampleRateResponse
+{
+    public int SampleRate { get; set; } = 44100;
+    public bool Successful { get; set; }
+}
 
 public class AudioAnalysisService(
     IAudioPlayerService audioPlayerService,
     MsuPcmService msuPcmService,
     StatusBarService statusBarService,
-    ConverterService converterService,
+    PythonCompanionService pythonCompanionService,
     ILogger<AudioAnalysisService> logger)
 {
     public async Task AnalyzePcmFiles(AudioAnalysisViewModel audioAnalysis, CancellationToken ct = new())
     {
-        var project = audioAnalysis.Project == null ? null : converterService.ConvertProject(audioAnalysis.Project);
+        var project = audioAnalysis.Project;
         
         await Parallel.ForEachAsync(audioAnalysis.Rows,
             new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct },
-            async (song, token) =>
+            async (song, _) =>
             {
-                await AnalyzePcmFile(project, song);
-                audioAnalysis.SongsCompleted++;
-            }); 
-    }
+                try
+                {
+                    await AnalyzePcmFile(project, song);
+                }
+                catch (Exception e)
+                {
+                    logger.LogError(e, "Error analyzing pcm file");
+                }
 
-    public async Task AnalyzePcmFile(MsuProjectViewModel projectViewModel, AudioAnalysisSongViewModel song)
-    {
-        var project = converterService.ConvertProject(projectViewModel);
-        await AnalyzePcmFile(project, song);
+                audioAnalysis.UpdateSongsCompleted();
+            });
+
+        if (project?.BasicInfo.IsMsuPcmProject == true)
+        {
+            msuPcmService.SaveGenerationCache(project);    
+        }
     }
     
     public async Task AnalyzePcmFile(MsuProject? project, AudioAnalysisSongViewModel song)
@@ -51,19 +66,21 @@ public class AudioAnalysisService(
             song.WarningMessage = "PCM file missing";
             return;
         }
-        else if (project?.BasicInfo.IsMsuPcmProject == true && song.OriginalViewModel?.HasFiles() != true && !File.Exists(song.Path))
+        else if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo == null)
         {
-            song.WarningMessage = "No input files specified for PCM file";
+            song.WarningMessage = "Song information missing";
             return;
         }
         
         // Regenerate the pcm file if it has updates that have been made to it
-        if (project?.BasicInfo.IsMsuPcmProject == true && song.OriginalViewModel != null && song.OriginalViewModel.HasFiles() && (song.OriginalViewModel.HasChangesSince(song.OriginalViewModel.LastGeneratedDate) || !File.Exists(song.Path)))
+        if (project?.BasicInfo.IsMsuPcmProject == true && song.MsuSongInfo != null)
         {
-            logger.LogInformation("PCM file {File} out of date, regenerating", song.Path);
-            if (!await GeneratePcmFile(project, song.OriginalViewModel))
+            var response = await msuPcmService.CreatePcm(project, song.MsuSongInfo, false, true, true);
+            if (!response.Successful)
             {
-                song.WarningMessage = "Could not generate new PCM file";
+                song.WarningMessage = File.Exists(song.Path)
+                    ? "Could not generate new PCM file"
+                    : "PCM file missing and could not be generated";
             }
         }
             
@@ -71,76 +88,92 @@ public class AudioAnalysisService(
         song.ApplyAudioAnalysis(data);
         logger.LogInformation("Analysis for pcm file {File} complete", song.Path);
     }
-    
-    private async Task<bool> GeneratePcmFile(MsuProject project, MsuSongInfoViewModel songModel)
-    {
-        var song = new MsuSongInfo();
-        converterService.ConvertViewModel(songModel, song);
-        converterService.ConvertViewModel(songModel.MsuPcmInfo, song.MsuPcmInfo);
-        var response = await msuPcmService.CreatePcm(false, project, song);
-        if (!response.GeneratedPcmFile)
-        {
-            logger.LogInformation("PCM file {File} failed to regenerate: {Error}", song.OutputPath, response.Message);
-        }
-        else
-        {
-            songModel.LastGeneratedDate = DateTime.Now;
-            logger.LogInformation("PCM file {File} regenerated successfully", song.OutputPath);
-        }
 
-        return response.GeneratedPcmFile;
-    }
-
-    public int GetAudioSampleRate(string? path)
+    public async Task<AudioSampleRateResponse> GetAudioSampleRateAsync(string? path)
     {
-        if (!OperatingSystem.IsWindows() || string.IsNullOrEmpty(path) || !File.Exists(path))
+        if (string.IsNullOrEmpty(path) || !File.Exists(path))
         {
-            return 44100;
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
         }
 
         List<string> incompatibleFileTypes = [".ogg"];
 
         if (incompatibleFileTypes.Contains(new FileInfo(path).Extension.ToLower()))
         {
-            logger.LogInformation("AudioSampleRate Incompatible file {File}", path);
-            return 44100;
+            logger.LogInformation("AudioSampleRate Incompatible file {File}. Assuming 44100.", path);
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
+        }
+
+        if (OperatingSystem.IsLinux())
+        {
+            var response = await pythonCompanionService.GetSampleRateAsync(new GetSampleRateRequest()
+            {
+                File = path
+            });
+            
+            if (response.Successful)
+            {
+                logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", response.SampleRate, path);
+            }
+            else
+            {
+                logger.LogError("Failed to retrieve sample rate for {File}. Assuming 44100.", path);
+            }
+            
+            return new AudioSampleRateResponse
+            {
+                Successful = response.Successful,
+                SampleRate = response.Successful ? response.SampleRate : 44100,
+            };
         }
         
         try
         {
             var mp3 = new AudioFileReader(path);
-            return mp3.WaveFormat.SampleRate;
+            logger.LogInformation("Successfully retrieved sample rate of {Rate} for {File}", mp3.WaveFormat.SampleRate, path);
+            return new AudioSampleRateResponse
+            {
+                Successful = true,
+                SampleRate = mp3.WaveFormat.SampleRate
+            };
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Unable to retrieve audio sample rate");
-            return 44100;
+            logger.LogError(e, "Failed to retrieve sample rate for {File}. Assuming 44100.", path);
+            return new AudioSampleRateResponse
+            {
+                Successful = false,
+            };
         }
         
     }
 
     public int GetAudioStartingSample(string path)
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw new InvalidOperationException("This is only supported on Windows");
-        }
-
         logger.LogInformation("GetAudioStartingSample");
         try
         {
+            using var reader = new AudioReader(path);
+            
             var totalSampleCount = 0;
-            var samples = 0;
+            int samples;
             var readBuffer = new float[10000];
             var quit = false;
-            var mp3 = new AudioFileReader(path);
+
+            var threshold = .0003;
             do
             {
-                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+                samples = reader.Read(readBuffer);
             
                 for (var i = 0; i < samples; i++)
                 {
-                    if (Math.Abs(readBuffer[i]) > .0003)
+                    if (Math.Abs(readBuffer[i]) > threshold)
                     {
                         totalSampleCount += i;
                         quit = true;
@@ -156,53 +189,49 @@ public class AudioAnalysisService(
             } while (!quit && samples == readBuffer.Length);
 
             statusBarService.UpdateStatusBar("Retrieved Starting Samples");
-            return totalSampleCount / mp3.WaveFormat.Channels;
+            return totalSampleCount / reader.Divider;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get audio samples for file");
-            throw;
+            return -1;
         }
-        
     }
 
     public int GetAudioEndingSample(string path)
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            throw new InvalidOperationException("This is only supported on Windows");
-        }
-
         logger.LogInformation("GetAudioEndingSample");
         try
         {
-            var samples = 0;
+            using var reader = new AudioReader(path);
+            
+            int samples;
             var readBuffer = new float[10000];
-            var mp3 = new AudioFileReader(path);
-            int lastLoudSample = 0;
+            var lastLoudSample = 0;
+            
+            var threshold = .0003;
             do
             {
-                samples = mp3.Read(readBuffer, 0, readBuffer.Length);
+                samples = reader.Read(readBuffer);
 
                 for (var i = 0; i < samples; i++)
                 {
-                    if (Math.Abs(readBuffer[i]) > .0003)
+                    if (Math.Abs(readBuffer[i]) > threshold)
                     {
                         lastLoudSample++;
                     }
                 }
-
+                
             } while (samples == readBuffer.Length);
 
             statusBarService.UpdateStatusBar("Retrieved Ending Samples");
-            return lastLoudSample / mp3.WaveFormat.Channels;
+            return lastLoudSample / reader.Divider;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to get audio samples for file");
-            throw;
+            return -1;
         }
-
     }
 
     public async Task<AnalysisDataOutput> AnalyzeAudio(string path)
@@ -237,7 +266,7 @@ public class AudioAnalysisService(
         double sum = 0;
         var totalSampleCount = 0;
 
-        var samples = 0;
+        int samples;
         do
         {
             samples = sampleProvider.Read(readBuffer, 0, readBuffer.Length);
@@ -255,13 +284,58 @@ public class AudioAnalysisService(
         };
     }
 
-    public double ConvertToDecibel(float value)
+    private double ConvertToDecibel(float value)
     {
         return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
     }
-    
-    public double ConvertToDecibel(double value)
+
+    private double ConvertToDecibel(double value)
     {
         return Math.Round(20 * Math.Log10(Math.Abs(value)), 4);
+    }
+}
+
+public class AudioReader : IDisposable
+{
+    private readonly AudioFileReader? _windowsReader;
+    private readonly ISoundDataProvider? _linuxReader;
+
+    public AudioReader(string file)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            _windowsReader = new AudioFileReader(file);
+            Channels = _windowsReader.WaveFormat.Channels;
+            BytesPerSample = _windowsReader.WaveFormat.BitsPerSample / 8;
+            Divider = Channels;
+        }
+        else
+        {
+            _linuxReader = new StreamDataProvider(File.OpenRead(file));
+            Divider = 1;
+        }
+    }
+
+    public int Read(float[] buffer)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return _windowsReader!.Read(buffer, 0, buffer.Length);
+        }
+        else
+        {
+            return _linuxReader!.ReadBytes(buffer);
+        }
+    }
+    
+    public int Channels { get; init; }
+    public int BytesPerSample { get; init; }
+    public int BytesPerFrame => BytesPerSample * Channels;
+    public int Divider { get; init; }
+
+    public void Dispose()
+    {
+        _windowsReader?.Dispose();
+        _linuxReader?.Dispose();
     }
 }

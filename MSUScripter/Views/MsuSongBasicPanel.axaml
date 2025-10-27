@@ -1,0 +1,265 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:MsuSongBasicPanelViewModel"
+             x:Class="MSUScripter.Views.MsuSongBasicPanel">
+    <StackPanel Orientation="Vertical">
+        <controls:CardControl HeaderText="{Binding Text.SongPanelBasicHeader}" DisplayHeaderButtons="True">
+            <controls:CardControl.HeaderButtons>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Margin="10 0 10 0"
+                        IsVisible="{Binding DisplaySampleRateWarning}"
+                        ToolTip.Tip="This is a non-44100Hz file. If using Audacity or another editor, make sure the project sample rate matches the audio source rate."
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 3 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center">
+                            Non-44100Hz File
+                        </TextBlock>
+                    </StackPanel>
+                    <controls:IconCheckbox
+                        Text="Advanced View"
+                        Value="{Binding IsAdvancedMode}"
+                        IsVisible="{Binding EnableMsuPcm}"
+                        ToolTip.Tip="{Binding Text.SongPanelAdvancedModeToolTip}"
+                        OnChecked="AdvancedModeCheckbox_OnOnChecked"
+                    ></controls:IconCheckbox>
+                </StackPanel>
+            </controls:CardControl.HeaderButtons>
+            <Grid ColumnDefinitions="* * * *" RowDefinitions="* * * * * * *" Margin="5">
+                
+                <!-- Input File -->
+                <views:FormLabel 
+                    Grid.Column="0" 
+                    Grid.Row="0" 
+                    Grid.ColumnSpan="{Binding InputColumnSpan}" 
+                    LabelText="{Binding Text.InputAudioFileLabel}" 
+                    ToolTipText="{Binding Text.InputAudioFileToolTip}"
+                    IsVisible="{Binding DisplayInputFile}"
+                />
+                <controls:FileControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="{Binding InputColumnSpan}"
+                                       Name="InputFileControl"
+                                       Filter="{Binding Text.InputAudioFileFilter}"
+                                       Margin="0 0 3 0"
+                                       FilePath="{Binding InputFilePath, Mode=TwoWay}"
+                                       IsEnabled="{Binding !PyMusicLooperRunning}"
+                                       IsVisible="{Binding DisplayInputFile}"
+                                       OnUpdated="InputFileControl_OnOnUpdated"
+                                       CaseSensitiveFilter="False"
+                ></controls:FileControl>
+                
+                <!-- Output File -->
+                <views:FormLabel 
+                    Grid.Column="{Binding OutputColumn}"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="{Binding OutputColumnSpan}"
+                    Margin="3 0 0 2"
+                    LabelText="{Binding Text.OutputAudioFileLabel}" 
+                    ToolTipText="{Binding Text.OutputAudioFileToolTip}"
+                    IsVisible="{Binding DisplayOutputFile}"
+                />
+                <controls:FileControl Grid.Row="1" Grid.Column="{Binding OutputColumn}" Grid.ColumnSpan="{Binding OutputColumnSpan}"
+                                      Name="OutputFileControl"
+                                      Filter="{Binding Text.OutputAudioFileFilter}"
+                                      Margin="3 0 0 0"
+                                      FilePath="{Binding OutputFilePath, Mode=TwoWay}"
+                                      CaseSensitiveFilter="False"
+                                      ShowClearButton="False"
+                                      FileInputType="SaveFile"
+                                      IsVisible="{Binding DisplayOutputFile}"
+                                      IsEnabled="{Binding CanUpdatePcmFile}"
+                ></controls:FileControl>
+                
+                <!-- Song Name -->
+                <views:FormLabel 
+                    Grid.Column="0"
+                    Grid.Row="2" 
+                    Margin="0 8 3 2"
+                    LabelText="{Binding Text.MetadataSongNameLabel}" 
+                    ToolTipText="{Binding Text.MetadataSongNameToolTip}"
+                />
+                <TextBox 
+                    Grid.Row="3" 
+                    Grid.Column="0"
+                        Margin="0 0 3 0"
+                        Text="{Binding SongName}"
+                />
+                
+                <!-- Artist Name -->
+                <views:FormLabel 
+                    Grid.Column="1"
+                    Grid.Row="2" 
+                    Margin="3 8 3 2"
+                    LabelText="{Binding Text.MetadataArtistNameLabel}" 
+                    ToolTipText="{Binding Text.MetadataArtistNameToolTip}"
+                />
+                <TextBox Grid.Row="3" Grid.Column="1"
+                         Margin="3 0 3 0"
+                         Text="{Binding ArtistName}"
+                />
+                
+                <!-- Album Name -->
+                <views:FormLabel 
+                    Grid.Column="2"
+                    Grid.Row="2" 
+                    Margin="3 8 3 2"
+                    LabelText="{Binding Text.MetadataAlbumNameLabel}" 
+                    ToolTipText="{Binding Text.MetadataAlbumNameToolTip}"
+                />
+                <TextBox Grid.Row="3" Grid.Column="2"
+                         Margin="3 0 3 0"
+                         Text="{Binding Album}"
+                />
+                
+                <!-- Album Name -->
+                <views:FormLabel 
+                    Grid.Column="3"
+                    Grid.Row="2" 
+                    Margin="3 8 0 2"
+                    LabelText="{Binding Text.MetadataUrlLabel}" 
+                    ToolTipText="{Binding Text.MetadataUrlToolTip}"
+                />
+                <TextBox Grid.Row="3" Grid.Column="3"
+                         Margin="3 0 0 0"
+                         Text="{Binding Url}"
+                />
+                
+                <!-- Trim Start -->
+                <Grid Grid.Column="0" Grid.Row="4" ColumnDefinitions="*, Auto" IsVisible="{Binding EnableMsuPcm}"> 
+                    <views:FormLabel
+                        Grid.Column="0"
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmTrimStartLabel}" 
+                        ToolTipText="{Binding Text.MsuPcmTrimStartToolTip}"
+                    />
+                    <controls:LinkControl 
+                        Grid.Column="1" 
+                        Margin="0 6 3 2"
+                        Click="DetectStartingSamplesButton_OnClick"
+                    >
+                        Auto Detect
+                    </controls:LinkControl>
+                </Grid>
+                <controls:NumericUpDownNoScroll 
+                    Grid.Row="5" 
+                    Grid.Column="0"
+                    Margin="0 0 3 0"
+                    Value="{Binding TrimStart}"
+                    ValueChanged="TrimStartNumericUpDown_OnValueChanged"
+                    IsVisible="{Binding EnableMsuPcm}"
+                />
+                
+                <!-- Trim End -->
+                <Grid Grid.Column="1" Grid.Row="4" ColumnDefinitions="*, Auto" IsVisible="{Binding EnableMsuPcm}"> 
+                    <views:FormLabel
+                        Grid.Column="0"
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmTrimEndLabel}" 
+                        ToolTipText="{Binding Text.MsuPcmTrimEndToolTip}"
+                    />
+                    <controls:LinkControl 
+                        Grid.Column="1" 
+                        Margin="0 6 3 2"
+                        Click="DetectEndingSamplesButton_OnClick"
+                    >
+                        Auto Detect
+                    </controls:LinkControl>
+                </Grid>
+                <controls:NumericUpDownNoScroll
+                    Grid.Row="5"
+                    Grid.Column="1"
+                    Margin="3 0 3 0"
+                    Value="{Binding TrimEnd}"
+                    IsEnabled="{Binding !PyMusicLooperRunning}"
+                    IsVisible="{Binding EnableMsuPcm}"
+                />
+                
+                <!-- Loop Point  -->
+                <views:FormLabel 
+                    Grid.Column="2"
+                    Grid.Row="4"
+                    Margin="3 8 3 2"
+                    IsVisible="{Binding EnableMsuPcm}"
+                    LabelText="{Binding Text.MsuPcmLoopLabel}" 
+                    ToolTipText="{Binding Text.MsuPcmLoopToolTip}"
+                />
+                <controls:NumericUpDownNoScroll 
+                    Grid.Row="5" 
+                    Grid.Column="2"
+                    Margin="3 0 3 0"
+                    Value="{Binding LoopPoint}"
+                    IsEnabled="{Binding !PyMusicLooperRunning}"
+                    IsVisible="{Binding EnableMsuPcm}"
+                />
+                
+                <!-- Normalization -->
+                <views:FormLabel 
+                    Grid.Column="3"
+                    Grid.Row="4"
+                    Margin="3 8 0 2"
+                    IsVisible="{Binding EnableMsuPcm}"
+                    LabelText="{Binding Text.MsuPcmNormalizationLabel}" 
+                    ToolTipText="{Binding Text.MsuPcmNormalizationToolTip}"
+                />
+                <controls:NumericUpDownNoScroll 
+                    Grid.Row="5" 
+                    Grid.Column="3"
+                    Margin="3 0 0 0"
+                    Value="{Binding Normalization}"
+                    IsVisible="{Binding EnableMsuPcm}"
+                />
+                
+                <controls:IconCheckbox
+                    Grid.Column="0"
+                    Grid.Row="6"
+                    Grid.ColumnSpan="2"
+                    Margin="0 10 3 0"
+                    CheckedIconKind="Video"
+                    CheckedBrush="LimeGreen"
+                    UncheckedIconKind="VideoOutline"
+                    UncheckedBrush="IndianRed"
+                    ToolTip.Tip="{Binding Text.CheckCopyrightToolTipText}"
+                    CheckedText="{Binding Text.CheckCopyrightCheckedText}"
+                    UncheckedText="{Binding Text.CheckCopyrightUncheckedText}"
+                    Value="{Binding CheckCopyright}"
+                ></controls:IconCheckbox>
+                <controls:IconCheckbox
+                    Grid.Column="2"
+                    Grid.Row="6"
+                    Grid.ColumnSpan="2"
+                    Margin="3 10 0 0"
+                    ToolTip.Tip="{Binding Text.IsCopyrightSafeToolTipText}"
+                    CheckedText="{Binding Text.IsCopyrightSafeCheckedText}"
+                    CheckedIconKind="Copyright"
+                    CheckedBrush="LimeGreen"
+                    UncheckedText="{Binding Text.IsCopyrightSafeUncheckedText}"
+                    UncheckedIconKind="CloseCircleOutline"
+                    UncheckedBrush="IndianRed"
+                    NullText="{Binding Text.IsCopyrightSafeNullText}"
+                    NullIconKind="QuestionMarkCircleOutline"
+                    NullBrush="Goldenrod"
+                    AllowNulls="True"
+                    Value="{Binding IsCopyrightSafe}"
+                ></controls:IconCheckbox>
+            </Grid>
+        </controls:CardControl>
+        <controls:CardControl
+            HeaderText="{Binding Text.PyMusicLooperHeader}"
+            Margin="0 4 0 10"
+            IsVisible="{Binding DisplayPyMusicLooperPanel}"
+        >
+            <views:PyMusicLooperPanel 
+                x:Name="PyMusicLooperPanel" 
+                OnUpdated="PyMusicLooperPanel_OnOnUpdated" 
+                RunningUpdated="PyMusicLooperPanel_OnRunningUpdated" 
+            />
+        </controls:CardControl>
+    </StackPanel>
+</UserControl>

@@ -4,18 +4,31 @@ using System.Linq;
 using System.Threading;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Services;
+using MSUScripter.Configs;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisService, IMsuLookupService msuLookupService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class AudioAnalysisWindowService(
+    AudioAnalysisService audioAnalysisService,
+    IMsuLookupService msuLookupService,
+    MsuPcmService msuPcmService,
+    ILogger<AudioAnalysisWindowService> logger) : ControlService
 {
     private readonly AudioAnalysisViewModel _model = new();
     private readonly CancellationTokenSource _cts = new();
 
-    public AudioAnalysisViewModel InitializeModel(MsuProjectViewModel project)
+    public AudioAnalysisViewModel InitializeModel(MsuProject project)
     {
+        if (msuPcmService.IsGeneratingPcm)
+        {
+            _model.LoadError = "Another PCM file is currently being generated";
+            return _model;
+        }
+        
         _model.Project = project;
         
         var msuDirectory = new FileInfo(project.MsuPath).DirectoryName;
@@ -31,10 +44,10 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
             .Select(x => new AudioAnalysisSongViewModel()
             {
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.OutputPath!).FullName),
-                TrackName = x.TrackName,
+                TrackName = x.TrackName ?? $"Track {x.TrackNumber}",
                 TrackNumber = x.TrackNumber,
                 Path = x.OutputPath ?? "",
-                OriginalViewModel = x,
+                MsuSongInfo = x,
             })
             .ToList();
 
@@ -45,6 +58,12 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
     public AudioAnalysisViewModel InitializeModel(string msuPath)
     {
         _model.ShowCompareButton = false;
+
+        if (msuPcmService.IsGeneratingPcm)
+        {
+            _model.LoadError = "Another PCM file is currently being generated";
+            return _model;
+        }
 
         var msuDirectory = new FileInfo(msuPath).DirectoryName;
         if (string.IsNullOrEmpty(msuDirectory))
@@ -63,13 +82,13 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
         var songs = msu.Tracks
             .OrderBy(x => x.Number)
-            .Select(x => new AudioAnalysisSongViewModel()
+            .Select(x => new AudioAnalysisSongViewModel
             {
                 SongName = Path.GetRelativePath(msuDirectory, new FileInfo(x.Path).FullName),
                 TrackName = x.TrackName,
                 TrackNumber = x.Number,
-                Path = x.Path ?? "",
-                OriginalViewModel = null,
+                Path = x.Path,
+                MsuSongInfo = null,
                 CanRefresh = false
             })
             .ToList();
@@ -114,7 +133,7 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
 
         _ = ITaskService.Run(async () =>
         {
-            await audioAnalysisService!.AnalyzePcmFile(_model.Project!, song);
+            await audioAnalysisService.AnalyzePcmFile(_model.Project, song);
             CheckSongWarnings(song, GetAverageRms(), GetAveragePeak());
             UpdateBottomMessage();
         }, _cts.Token);
@@ -123,6 +142,11 @@ public class AudioAnalysisWindowService(AudioAnalysisService audioAnalysisServic
     public void Stop()
     {
         _cts.Cancel();
+    }
+
+    public void LogError(Exception e, string message)
+    {
+        logger.LogError(e, "{Message}", message);
     }
 
     public event EventHandler? Completed;

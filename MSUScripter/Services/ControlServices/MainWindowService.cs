@@ -1,23 +1,37 @@
+using System;
 using System.IO;
+using System.Linq;
+using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using AvaloniaControls;
 using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
+using Microsoft.Extensions.Logging;
+using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
+using MSUScripter.Models;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
-public class MainWindowService(Settings settings, SettingsService settingsService, MsuPcmService msuPcmService, PyMusicLooperService pyMusicLooperService, ProjectService projectService, IGitHubReleaseCheckerService gitHubReleaseCheckerService) : ControlService
+// ReSharper disable once ClassNeverInstantiated.Global
+public class MainWindowService(
+    Settings settings,
+    SettingsService settingsService,
+    MsuPcmService msuPcmService,
+    ProjectService projectService,
+    IGitHubReleaseCheckerService gitHubReleaseCheckerService,
+    PythonCompanionService pythonCompanionService,
+    IMsuTypeService msuTypeService,
+    ILogger<MainWindowService> logger) : ControlService
 {
     private readonly MainWindowViewModel _model = new();
 
     public MainWindowViewModel InitializeModel()
     {
-        _ = CheckForNewRelease();
         _ = CleanUpFolders();
-        OpenCommandlineArgsProject();
+        
+        _model.InitProject = Program.StartingProject;
         _model.AppVersion = $" v{App.Version}";
         
         if (!settings.HasDoneFirstTimeSetup && !string.IsNullOrEmpty(settings.MsuPcmPath))
@@ -26,61 +40,105 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
             settingsService.SaveSettings();
         }
         
-        _model.HasDoneFirstTimeSetup = settings.HasDoneFirstTimeSetup;
+        _model.Settings.LoadSettings(settings);
+        
+        _model.MsuTypes = msuTypeService.MsuTypes
+            .OrderBy(x => x.DisplayName)
+            .ToList();
+        _model.RecentProjects = settings.RecentProjects.ToList();
+
+        if (_model.RecentProjects.Count != 0)
+        {
+            _model.DisplayNewProjectPage = false;
+            _model.DisplayOpenProjectPage = true;
+        }
+        else
+        {
+            _model.DisplayNewProjectPage = true;
+            _model.DisplayOpenProjectPage = false;
+        }
         
         UpdateTitle();
         return _model;
     }
-    
-    public void OpenEditProjectPanel(MsuProject project)
-    {
-        _model.CurrentMsuProject = project;
-        UpdateTitle();
-    }
 
-    public void CloseEditProjectPanel()
+    public (MsuProject? mainProject, MsuProject? backupProject, string? error) LoadProject(string? path = null)
     {
-        _model.CurrentMsuProject = null;
-        UpdateTitle();
-    }
+        path ??= _model.SelectedRecentProject?.ProjectPath;
 
-    public void OpenGitHubReleasePage()
-    {
-        if (string.IsNullOrEmpty(_model.GitHubReleaseUrl)) return;
-        CrossPlatformTools.OpenUrl(_model.GitHubReleaseUrl);
-    }
-
-    public void CloseNewReleaseBanner(bool permanently)
-    {
-        if (permanently)
+        if (string.IsNullOrEmpty(path))
         {
-            settings.PromptOnUpdate = false;
-            settingsService.SaveSettings();
+            return (null, null, "Invalid project path");
         }
+        
+        try
+        {
+            var project = projectService.LoadMsuProject(path, false);
+            MsuProject? backupProject = null;
 
-        _model.GitHubReleaseUrl = "";
-    }
-    
-    public bool ValidateMsuPcm(string msupcmPath)
-    {
-        return msuPcmService.ValidateMsuPcmPath(msupcmPath, out _);
+            if (project == null)
+            {
+                return (null, null, "Project not found");
+            }
+            
+            if (!string.IsNullOrEmpty(project.BackupFilePath))
+            {
+                var potentialBackupProject = projectService.LoadMsuProject(project.BackupFilePath, true);
+                if (potentialBackupProject != null && potentialBackupProject.LastSaveTime > project.LastSaveTime)
+                {
+                    backupProject = potentialBackupProject;
+                }
+            }
+
+            return (project, backupProject, null);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error opening project");
+            return (null, null, "Error opening project. Please contact MattEqualsCoder or post an issue on GitHub");
+        }
     }
 
-    public void UpdateHasDoneFirstTimeSetup(string? msupcmPath)
+    public bool ValidateProjectPaths(MsuProject project)
     {
-        settings.HasDoneFirstTimeSetup = true;
-        settings.MsuPcmPath = msupcmPath;
-        settingsService.SaveSettings();
+        return project.Tracks.SelectMany(x => x.Songs).All(x => x.MsuPcmInfo.AreFilesValid());
+    }
+
+    public void UpdateLegacySmz3Project(MsuProject project)
+    {
+        projectService.ConvertLegacySmz3Project(project);
+        projectService.SaveMsuProject(project, false);
+    }
+
+    public bool IsLegacySmz3Project(MsuProject project)
+    {
+        return project.MsuType.DisplayName == "SMZ3 Classic (Metroid First)";
+    }
+
+    public void RefreshRecentProjects()
+    {
+        _model.RecentProjects = settings.RecentProjects.Where(x => File.Exists(x.ProjectPath)).ToList();
+        settingsService.TrySaveSettings();
+    }
+
+    public async Task<bool> ValidateDependencies()
+    {
+        var isMsuPcmServiceValid = await msuPcmService.VerifyInstalledAsync();
+        var isCompanionServiceValid = await pythonCompanionService.VerifyInstalledAsync();
+        if (settings.IgnoreMissingDependencies)
+        {
+            return true;
+        }
+        return isMsuPcmServiceValid.Successful && isCompanionServiceValid;
     }
     
     public void Shutdown()
     {
         settingsService.SaveSettings();
-        msuPcmService.DeleteTempPcms();
-        msuPcmService.DeleteTempJsonFiles();
+        CleanDirectory(Directories.TempFolder);
     }
 
-    public void UpdateTitle()
+    private void UpdateTitle()
     {
         if (_model.CurrentMsuProject == null)
         {
@@ -94,49 +152,156 @@ public class MainWindowService(Settings settings, SettingsService settingsServic
         }
     }
 
-    public bool IsEditPanelDisplayed => _model.DisplayEditPage;
-
-    private void OpenCommandlineArgsProject()
+    public MsuProject? CreateNewProject()
     {
-        if (string.IsNullOrEmpty(Program.StartingProject)) return;
-        
-        _model.InitProject = projectService.LoadMsuProject(Program.StartingProject, false);
+        var name = _model.MsuProjectName;
+        var creator = _model.MsuCreatorName;
+        var msuPath = _model.MsuPath;
+        var projectPath = _model.MsuProjectPath;
+        var msuType = _model.SelectedMsuType;
+        var msuPcmJson = _model.MsuPcmJsonPath;
+        var msuPcmWorkingDir = _model.MsuPcmWorkingPath;
 
-        if (_model.InitProject == null)
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(creator) || string.IsNullOrEmpty(msuPath) ||
+            string.IsNullOrEmpty(projectPath) || msuType == null)
         {
-            _model.InitProjectError = true;
-            return;
+            return null;
         }
-
-        if (!string.IsNullOrEmpty(_model.InitProject.BackupFilePath))
+        
+        try
         {
-            _model.InitBackupProject = projectService.LoadMsuProject(_model.InitProject.BackupFilePath, true);
+            logger.LogInformation("Creating new MSU Project");
+            return projectService.NewMsuProject(projectPath, msuType, msuPath, msuPcmJson, msuPcmWorkingDir, name, creator);
+        }
+        catch (Exception)
+        {
+            return null;
         }
     }
-    
-    private async Task CheckForNewRelease()
+
+    public void SaveSettings()
     {
-        if (settings.PromptOnUpdate == false) return;
+        if (!_model.DisplaySettingsPage)
+        {
+            return;
+        }
+        
+        _model.Settings.SaveChanges();
+        settingsService.SaveSettings();
+    }
+
+    public void LogError(Exception ex, string message)
+    {
+        logger.LogError(ex, "{Message}", message);
+    }
+
+    private bool CleanDirectory(string path, TimeSpan? timeout = null)
+    {
+        timeout ??= TimeSpan.Zero;
+        var currentDateTime = DateTime.UtcNow;
+        var isEmpty = true;
+        foreach (var file in Directory.EnumerateFiles(path))
+        {
+            var fileInfo = new FileInfo(file);
+            if (currentDateTime - fileInfo.LastWriteTimeUtc > timeout)
+            {
+                try
+                {
+                    fileInfo.Delete();
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+            else
+            {
+                isEmpty = false;
+            }
+        }
+
+        foreach (var folder in Directory.EnumerateDirectories(path))
+        {
+            if (CleanDirectory(folder, timeout))
+            {
+                try
+                {
+                    Directory.Delete(folder);
+                }
+                catch
+                {
+                    // Do nothing
+                }
+            }
+            else
+            {
+                isEmpty = false;
+            }
+        }
+        
+        return isEmpty;
+    }
+    
+    public async Task<(string ReleaseUrl, string? DownloadUrl)?> CheckForNewRelease()
+    {
+        if (!settings.CheckForUpdates)
+        {
+            return null;
+        }
 
         var newerGitHubRelease = await gitHubReleaseCheckerService.GetGitHubReleaseToUpdateToAsync("MattEqualsCoder",
-            "MSUScripter", App.Version, settings.PromptOnPreRelease);
+            "MSUScripter", App.Version, false);
 
         if (newerGitHubRelease != null)
         {
-            _model.GitHubReleaseUrl = newerGitHubRelease.Url;
+            if (OperatingSystem.IsLinux())
+            {
+                return (newerGitHubRelease.Url,
+                    newerGitHubRelease.Asset.FirstOrDefault(x => x.Url.ToLower().EndsWith(".appimage"))?.Url);
+            }
+            return (newerGitHubRelease.Url, null);
         }
+        
+        return null;
+    }
+
+    [SupportedOSPlatform("linux")]
+    public void CreateDesktopFile()
+    {
+        ITaskService.Run(() =>
+        {
+            var response = App.BuildLinuxDesktopFile();
+
+            if (response.Success)
+            {
+                logger.LogInformation("Created desktop file for AppImage");
+            }
+            else
+            {
+                logger.LogError("Error creating desktop fie for AppImage: {Error}",
+                    response.ErrorMessage ?? "Unknown Error");
+            }
+        });
+    }
+
+    public void SkipDesktopFile()
+    {
+        settingsService.Settings.SkipDesktopFile = true;
+        settingsService.TrySaveSettings();
+    }
+
+    public void IgnoreFutureUpdates()
+    {
+        settings.CheckForUpdates = false;
+        settingsService.SaveSettings();
     }
     
     private async Task CleanUpFolders()
     {
         await ITaskService.Run(() =>
         {
-            msuPcmService.DeleteTempPcms();
-            msuPcmService.DeleteTempJsonFiles();
-            msuPcmService.ClearCache();
-            pyMusicLooperService.ClearCache();
+            CleanDirectory(Directories.CacheFolder, TimeSpan.FromDays(30));
+            CleanDirectory(Directories.TempFolder);
         });
     }
-    
-    
 }

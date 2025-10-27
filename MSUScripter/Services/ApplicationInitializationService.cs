@@ -11,14 +11,14 @@ namespace MSUScripter.Services;
 
 public class ApplicationInitializationService(ILogger<ApplicationInitializationService> logger)
 {
-    public void Initialize(string[] args)
+    public void Initialize()
     {
         logger.LogInformation("Assembly Location: {Location}", Assembly.GetExecutingAssembly().Location);
-        logger.LogInformation("Starting MSU Scripter {Version}", GetAppVersion());
+        logger.LogInformation("Starting MSU Scripter {Version}", App.Version);
         
         var msuInitializationRequest = new MsuRandomizerInitializationRequest
         {
-            MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.msu-randomizer-settings.yaml"),
+            MsuAppSettingsStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("MSUScripter.Assets.msu-randomizer-settings.yaml"),
             UserOptionsPath = Path.Combine(Directories.BaseFolder, "msu-user-settings.yml")
         };
 
@@ -28,11 +28,5 @@ public class ApplicationInitializationService(ILogger<ApplicationInitializationS
         
         Program.MainHost.Services.GetRequiredService<IMsuRandomizerInitializationService>().Initialize(msuInitializationRequest);
 
-    }
-    
-    private static string GetAppVersion()
-    {
-        var version = FileVersionInfo.GetVersionInfo(Assembly.GetEntryAssembly()!.Location); 
-        return (version.ProductVersion ?? "").Split("+")[0];
     }
 }

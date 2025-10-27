@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using AvaloniaControls.Controls;
+using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
 
 namespace MSUScripter.Views;
@@ -16,15 +17,20 @@ public partial class PyMusicLooperWindow : ScalableWindow
 
     private PyMusicLooperResultViewModel? Result { get; set; }
 
-    public void SetDetails(MsuProjectViewModel project, MsuSongInfoViewModel song, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
+    public void UpdateDetails(PyMusicLooperDetails request)
     {
         Result = null;
-        this.Find<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.UpdateModel(project, song, msuSongMsuPcmInfoViewModel);
+        this.Find<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.UpdateDetails(request);
     }
     
     public async Task<PyMusicLooperResultViewModel?> ShowDialog()
     {
         return await ShowDialog(App.MainWindow);
+    }
+    
+    public async Task<PyMusicLooperResultViewModel?> ShowPyMusicLooperWindowDialog(Window? parentWindow = null)
+    {
+        return await ShowDialog(parentWindow ?? App.MainWindow);
     }
 
     private new async Task<PyMusicLooperResultViewModel?> ShowDialog(Window window)
@@ -47,6 +53,7 @@ public partial class PyMusicLooperWindow : ScalableWindow
 
     private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
+        this.FindControl<PyMusicLooperPanel>(nameof(PyMusicLooperPanel))?.Stop();
         _ = this.FindControl<AudioControl>(nameof(AudioControl))?.StopAsync();
     }
 }

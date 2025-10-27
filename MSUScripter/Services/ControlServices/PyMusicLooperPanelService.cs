@@ -12,9 +12,19 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+public class PyMusicLooperDetails
+{
+    public required MsuProject Project { get; init; }
+    public required string? FilePath { get; init; }
+    public required int? FilterStart { get; init; }
+    public double? Normalization { get; init; }
+    public bool AllowRunByDefault { get; init; }
+    public bool ForceRun { get; init; }
+}
+
+// ReSharper disable once ClassNeverInstantiated.Global
 public class PyMusicLooperPanelService(
-    PyMusicLooperService pyMusicLooperService,
-    ConverterService converterService,
+    PythonCompanionService pythonCompanionService,
     MsuPcmService msuPcmService,
     IAudioPlayerService audioPlayerService,
     SettingsService settingsService) : ControlService
@@ -23,6 +33,7 @@ public class PyMusicLooperPanelService(
     private CancellationTokenSource? _cts;
     private Settings Settings => settingsService.Settings;
     public event EventHandler<PyMusicLooperPanelUpdatedArgs>? OnUpdated;
+    public event EventHandler<bool>? RunningUpdated;
 
     public PyMusicLooperPanelViewModel InitializeModel()
     {
@@ -33,7 +44,8 @@ public class PyMusicLooperPanelService(
 
             _ = ITaskService.Run(() =>
             {
-                RunMsuPcm(false);
+                var cts = _cts = new CancellationTokenSource();
+                RunMsuPcm(false, cts);
             });
 
         };
@@ -41,17 +53,29 @@ public class PyMusicLooperPanelService(
         return _model;
     }
     
-    public void UpdateModel(MsuProjectViewModel msuProjectViewModel, MsuSongInfoViewModel msuSongInfoViewModel, MsuSongMsuPcmInfoViewModel msuSongMsuPcmInfoViewModel)
+    public void UpdateDetails(PyMusicLooperDetails details)
     {
-        _model.MsuProjectViewModel = msuProjectViewModel;
-        _model.MsuProject = converterService.ConvertProject(_model.MsuProjectViewModel);
-        _model.MsuSongInfoViewModel = msuSongInfoViewModel;
-        _model.MsuSongMsuPcmInfoViewModel = msuSongMsuPcmInfoViewModel;
-        _model.FilterStart = msuSongMsuPcmInfoViewModel.TrimStart;
+        _model.AutoRun = Settings.AutomaticallyRunPyMusicLooper;
+        _model.FilePath = details.FilePath;
+        _model.FilterStart = details.FilterStart;
+        _model.MsuProject = details.Project;
+        _model.Normalization = details.Normalization;
 
-        if (Settings.AutomaticallyRunPyMusicLooper)
+        if (string.IsNullOrEmpty(_model.FilePath))
+        {
+            _model.Message = "No file selected. Please select a file and click run.";
+            _model.CanRun = false;
+            _model.DisplayAutoRun = true;
+        }
+        else if (details.ForceRun || (Settings.AutomaticallyRunPyMusicLooper && details.AllowRunByDefault))
         {
             RunPyMusicLooper();
+        }
+        else
+        {
+            _model.Message = "Click run to execute PyMusicLooper.";
+            _model.CanRun = true;
+            _model.DisplayAutoRun = true;
         }
     }
 
@@ -74,8 +98,8 @@ public class PyMusicLooperPanelService(
 
         _ = ITaskService.Run(() =>
         {
-            RunMsuPcm();
-            _model.Message = null;
+            var cts = _cts = new CancellationTokenSource();
+            RunMsuPcm(true, cts);
         });
     }
 
@@ -103,7 +127,7 @@ public class PyMusicLooperPanelService(
 
             if (playSong && !string.IsNullOrEmpty(songPath))
             {
-                _ = audioPlayerService.PlaySongAsync(songPath, true);    
+                _ = audioPlayerService.PlaySongAsync(songPath, true, true);    
             }
             else
             {
@@ -142,41 +166,40 @@ public class PyMusicLooperPanelService(
         _model.Page = 0;
         _model.LastPage = _model.FilteredResults.Count / _model.NumPerPage;
     }
-    
-    public void TestPyMusicLooper()
+
+    private void TestPyMusicLooper()
     {
-        if (!pyMusicLooperService.TestService(out string message))
+        if (pythonCompanionService.IsValid)
         {
-            _model.Message = message;
-            _model.DisplayGitHubLink = true;
-            OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
             return;
         }
-
-        if (!pyMusicLooperService.CanReturnMultipleResults)
-        {
-            _model.DisplayOldVersionWarning = true;
-        }
+        
+        _model.Message = "Companion PyMsuScripterApp is not detected";
+        _model.DisplayGitHubLink = true;
+        OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
     }
 
     public void RunPyMusicLooper()
     {
+        _model.DisplayAutoRun = false;
+        RunningUpdated?.Invoke(this, true);
+        
         if (!_model.HasTestedPyMusicLooper)
         {
             TestPyMusicLooper();
 
             if (_model.DisplayGitHubLink)
             {
+                RunningUpdated?.Invoke(this, false);
                 return;
             }
-            else if (!_model.DisplayOldVersionWarning)
-            {
-                _model.HasTestedPyMusicLooper = true;
-            }
+            
+            _model.HasTestedPyMusicLooper = true;
         }
         
-        if (string.IsNullOrEmpty(_model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()))
+        if (string.IsNullOrEmpty(_model.FilePath))
         {
+            RunningUpdated?.Invoke(this, false);
             return;
         }
 
@@ -184,70 +207,106 @@ public class PyMusicLooperPanelService(
         {
             _model.Message = "Both approximate loop start and end times must be filled out";
             OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+            RunningUpdated?.Invoke(this, false);
             return;
         }
 
-        _cts = new CancellationTokenSource();
+        var cts = _cts = new CancellationTokenSource();
 
-        ITaskService.Run(() =>
+        ITaskService.Run(async() =>
         {
             _model.IsRunning = true;
+            _model.CanRun = false;
             _model.Message = "Running PyMusicLooper";
             
-            var inputFile = _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!;
-            var loopPoints = pyMusicLooperService.GetLoopPoints(inputFile, out string message,
-                _model.MinDurationMultiplier,
-                _model.MinLoopDuration, _model.MaxLoopDuration,
-                _model.ApproximateStart, _model.ApproximateEnd,
-                _cts.Token);
-
-            if (_cts?.IsCancellationRequested == true)
+            var inputFile = _model.FilePath;
+            
+            var response = await pythonCompanionService.RunPyMusicLooperAsync(new RunPyMusicLooperRequest()
+            {
+                File = inputFile,
+                MinDurationMultiplier = _model.MinDurationMultiplier,
+                MinLoopDuration = _model.MinLoopDuration,
+                MaxLoopDuration = _model.MaxLoopDuration,
+                ApproxLoopStart = _model.ApproximateStart,
+                ApproxLoopEnd = _model.ApproximateEnd,
+            }, cts.Token);
+            
+            if (cts.IsCancellationRequested)
             {
                 _model.Message = "PyMusicLooper canceled";
                 _model.IsRunning = false;
+                _model.CanRun = true;
                 OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+                RunningUpdated?.Invoke(this, false);
                 return;
             }
-            else if (loopPoints?.Any() == true)
+            else if (response is { Successful: true, Pairs.Count: > 0 })
             {
                 _model.PyMusicLooperResults =
-                    loopPoints.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
+                    response.Pairs.Select(x => new PyMusicLooperResultViewModel(x.LoopStart, x.LoopEnd, x.Score)).ToList();
                 FilterResults();
-                _model.SelectedResult = _model.FilteredResults.First();
-                _model.SelectedResult.IsSelected = true;
-                _model.Message = "Generating Preview Files";
-                RunMsuPcm();
-                if (_cts?.IsCancellationRequested == true)
+
+                if (_model.FilteredResults.Count > 0)
                 {
-                    _model.Message = "PyMusicLooper canceled";
-                    _model.IsRunning = false;
-                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
-                    return;
+                    _model.SelectedResult = _model.FilteredResults.First();
+                    _model.SelectedResult.IsSelected = true;
+                    _model.Message = "Generating Preview Files";
+                    RunMsuPcm(true, cts);
+                    if (cts.IsCancellationRequested)
+                    {
+                        _model.Message = "PyMusicLooper canceled";
+                        _model.IsRunning = false;
+                        _model.CanRun = true;
+                        OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        RunningUpdated?.Invoke(this, false);
+                        return;
+                    }
+                    else
+                    {
+                        _model.Message = null;
+                        _model.IsRunning = false;
+                        _model.CanRun = true;
+                        OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                        RunningUpdated?.Invoke(this, false);
+                        return;
+                    }
                 }
                 else
                 {
-                    _model.Message = null;
+                    _model.Message = "No matching results found";
                     _model.IsRunning = false;
-                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
+                    _model.CanRun = true;
+                    OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(null));
+                    RunningUpdated?.Invoke(this, false);
                     return;
                 }
             }
 
             _model.IsRunning = false;
+            _model.CanRun = true;
             OnUpdated?.Invoke(this, new PyMusicLooperPanelUpdatedArgs(_model.SelectedResult));
-            _model.Message = message;
-        }, _cts.Token);
+            RunningUpdated?.Invoke(this, false);
+            _model.Message = response.Error;
+        }, cts.Token);
     }
-
+    
     public void StopPyMusicLooper()
     {
         _cts?.Cancel();
     }
 
-    private void RunMsuPcm(bool fullReload = true)
+    public void SaveAutoRun(bool? value)
     {
-        if (_model.CurrentPageResults.All(x => x.Generated))
+        Settings.AutomaticallyRunPyMusicLooper = value ?? false;
+        settingsService.SaveSettings();
+    }
+
+    private void RunMsuPcm(bool fullReload, CancellationTokenSource cts)
+    {
+        if (_model.CurrentPageResults.All(x => x.Generated && File.Exists(x.TempPath)))
         {
+            _model.Message = null;
+            _model.GeneratingPcms = false;
             return;
         }
 
@@ -262,36 +321,47 @@ public class PyMusicLooperPanelService(
         {
             async void GenerateTempPcm(PyMusicLooperResultViewModel result)
             {
-                result.Status = "Generating Preview .pcm File";
-
-                var response = await CreateTempPcm(result, true);
-
-                if (!response.Successful)
+                try
                 {
-                    if (response.GeneratedPcmFile)
+                    result.Status = "Generating Preview .pcm File";
+
+                    var response = await CreateTempPcm(result, true);
+
+                    if (!response.Successful)
                     {
-                        result.Status = $"Generated with message: {response.Message}";
-                        result.TempPath = response.OutputPath ?? throw new InvalidOperationException("GeneratePcmFileResponse for generated PCM missing output path");
-                        GetLoopDuration(result);
-                        result.Generated = true;
+                        if (response.GeneratedPcmFile)
+                        {
+                            result.Status = $"Generated with message: {response.Message}";
+                            result.TempPath = response.OutputPath ??
+                                              throw new InvalidOperationException(
+                                                  "GeneratePcmFileResponse for generated PCM missing output path");
+                            GetLoopDuration(result);
+                            result.Generated = true;
+                        }
+                        else
+                        {
+                            result.Status = $"Error: {response.Message}";
+                        }
                     }
                     else
                     {
-                        result.Status = $"Error: {response.Message}";
+                        result.Status = "Generated";
+                        result.TempPath = response.OutputPath ??
+                                          throw new InvalidOperationException(
+                                              "GeneratePcmFileResponse for generated PCM missing output path");
+                        GetLoopDuration(result);
+                        result.Generated = true;
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    result.Status = "Generated";
-                    result.TempPath = response.OutputPath ?? throw new InvalidOperationException("GeneratePcmFileResponse for generated PCM missing output path");
-                    GetLoopDuration(result);
-                    result.Generated = true;
+                    result.Status = $"Error: {ex.Message}";
                 }
             }
 
-            Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated), new ParallelOptions()
+            Parallel.ForEach(_model.CurrentPageResults.Where(x => !x.Generated || !File.Exists(x.TempPath)), new ParallelOptions()
                 {
-                    CancellationToken = _cts?.Token ?? CancellationToken.None
+                    CancellationToken = cts.Token
                 },
                 GenerateTempPcm);
         }
@@ -299,15 +369,30 @@ public class PyMusicLooperPanelService(
         {
             // Do nothing
         }
-        
+
+        if (_cts != cts || cts.IsCancellationRequested)
+        {
+            _model.PyMusicLooperResults = [];
+            _model.FilteredResults = [];
+            _model.Message = "Click run to execute PyMusicLooper.";
+            _model.CanRun = true;
+            _model.DisplayAutoRun = true;
+        }
+        else
+        {
+            _model.Message = null;
+        }
         _model.GeneratingPcms = false;
     }
 
     private async Task<GeneratePcmFileResponse> CreateTempPcm(PyMusicLooperResultViewModel result, bool skipCleanup)
     {
-        var normalization = _model.MsuSongMsuPcmInfoViewModel.Normalization ??
-                            _model.MsuProjectViewModel.BasicInfo.Normalization;
-        return await msuPcmService.CreateTempPcm(false, _model.MsuProject, _model.MsuSongMsuPcmInfoViewModel.GetEffectiveFile()!, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
+        if (string.IsNullOrEmpty(_model.FilePath))
+        {
+            throw new InvalidOperationException("Attempted to create a temp PCM without a file path");
+        }
+        var normalization = _model.Normalization ?? _model.MsuProject.BasicInfo.Normalization;
+        return await msuPcmService.CreateTempPcm(_model.MsuProject, _model.FilePath, result.LoopStart, result.LoopEnd, normalization, skipCleanup: skipCleanup);
     }
 
     private void GetLoopDuration(PyMusicLooperResultViewModel song)

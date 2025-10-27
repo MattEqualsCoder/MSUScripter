@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "py-msu-scripter-app"
+version = "0.1.5"
+description = ""
+authors = ["MattEqualsCoder <mattequalscoder@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pymusiclooper = "^3.5.1"
+pydub = "^0.25.1"
+moviepy = "^2.2.1"
+pyyaml = "^6.0.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+py_msu_scripter_app = 'py_msu_scripter_app.__main__:cli'

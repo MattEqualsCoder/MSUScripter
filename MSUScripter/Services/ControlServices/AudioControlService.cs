@@ -8,6 +8,7 @@ using MSUScripter.ViewModels;
 
 namespace MSUScripter.Services.ControlServices;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class AudioControlService(IAudioPlayerService audioService, SettingsService settingsService) : ControlService
 {
     private readonly AudioControlViewModel _model = new();
@@ -44,6 +45,8 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
 
         return _model;
     }
+
+    public EventHandler? OnPlayStarted;
 
     public Task<bool> StopAsync()
     {
@@ -107,6 +110,7 @@ public class AudioControlService(IAudioPlayerService audioService, SettingsServi
 
     private void PlayStarted(object? sender, EventArgs e)
     {
+        OnPlayStarted?.Invoke(this, EventArgs.Empty);
         _model.Icon = MaterialIconKind.Pause;
         _model.CanPlayPause = true;
         StartTimer();

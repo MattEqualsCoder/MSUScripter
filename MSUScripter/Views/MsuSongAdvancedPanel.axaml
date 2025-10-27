@@ -1,0 +1,550 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:views="clr-namespace:MSUScripter.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:DataType="viewModels:MsuSongAdvancedPanelViewModel"
+             x:Class="MSUScripter.Views.MsuSongAdvancedPanel">
+    <DockPanel>
+        <controls:CardControl HeaderText="{Binding Text.SongPanelBasicMetadataHeader}" DisplayHeaderButtons="True" DockPanel.Dock="Top">
+            <controls:CardControl.HeaderButtons>
+                <controls:IconCheckbox 
+                    Text="{Binding Text.SongPanelBasicModeCheckBox}"
+                    Value="{Binding IsAdvancedMode}"
+                    ToolTip.Tip="{Binding Text.SongPanelAdvancedModeToolTip}"
+                    Margin="0 0 5 0"
+                    OnChecked="AdvancedModeIconCheckbox_OnOnChecked"
+                ></controls:IconCheckbox>
+            </controls:CardControl.HeaderButtons>
+            <Grid ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *, *, *, *" Margin="5">
+                
+                <!-- Song Name -->
+                <views:FormLabel 
+                    Grid.Column="0"
+                    Grid.Row="0"
+                    Margin="0 5 3 2"
+                    LabelText="{Binding Text.MetadataSongNameLabel}"
+                    ToolTipText="{Binding Text.MetadataSongNameToolTip}"
+                />
+                <TextBox 
+                    Grid.Row="1" 
+                    Grid.Column="0"
+                     Margin="0 0 3 0"
+                     Text="{Binding SongName}"
+                />   
+                
+                <!-- Artist -->
+                <views:FormLabel 
+                    Grid.Column="1" 
+                    Grid.Row="0"  
+                    Margin="3 5 3 2"
+                    LabelText="{Binding Text.MetadataArtistNameLabel}"
+                    ToolTipText="{Binding Text.MetadataArtistNameToolTip}"
+                />
+                <TextBox 
+                    Grid.Row="1" 
+                    Grid.Column="1"
+                     Margin="3 0 4 0"
+                     Text="{Binding ArtistName}"
+                />
+                
+                <!-- Album -->
+                <views:FormLabel 
+                    Grid.Column="2" 
+                    Grid.Row="0"  
+                    Margin="3 5 3 2"
+                    LabelText="{Binding Text.MetadataAlbumNameLabel}"
+                    ToolTipText="{Binding Text.MetadataAlbumNameToolTip}"
+                />
+                <TextBox 
+                    Grid.Row="1" 
+                    Grid.Column="2"
+                     Margin="3 0 3 0"
+                     Text="{Binding Album}"
+                />
+                
+                <!-- Url -->
+                <views:FormLabel 
+                    Grid.Column="3" 
+                    Grid.Row="0"  
+                    Margin="3 5 0 2"
+                    LabelText="{Binding Text.MetadataUrlLabel}"
+                    ToolTipText="{Binding Text.MetadataUrlToolTip}"
+                />
+                <TextBox 
+                    Grid.Row="1" 
+                    Grid.Column="3"
+                    Margin="3 0 0 0"
+                    Text="{Binding Url}"
+                />
+                
+                <controls:IconCheckbox 
+                    Grid.Column="0" 
+                    Grid.Row="3"
+                    Grid.ColumnSpan="2"
+                    Margin="0 10 3 0"
+                    CheckedIconKind="Video"
+                    CheckedBrush="LimeGreen"
+                    UncheckedIconKind="VideoOutline"
+                    UncheckedBrush="IndianRed"
+                    ToolTip.Tip="{Binding Text.CheckCopyrightToolTipText}"
+                    CheckedText="{Binding Text.CheckCopyrightCheckedText}"
+                    UncheckedText="{Binding Text.CheckCopyrightUncheckedText}"
+                    Value="{Binding CheckCopyright}"
+                ></controls:IconCheckbox>
+                <controls:IconCheckbox 
+                    Grid.Column="2" 
+                    Grid.Row="3"
+                    Grid.ColumnSpan="2"
+                    Margin="3 10 0 0"
+                    ToolTip.Tip="{Binding Text.IsCopyrightSafeToolTipText}"
+                    CheckedText="{Binding Text.IsCopyrightSafeCheckedText}"
+                    CheckedIconKind="Copyright"
+                    CheckedBrush="LimeGreen"
+                    UncheckedText="{Binding Text.IsCopyrightSafeUncheckedText}"
+                    UncheckedIconKind="CloseCircleOutline"
+                    UncheckedBrush="IndianRed"
+                    NullText="{Binding Text.IsCopyrightSafeNullText}"
+                    NullIconKind="QuestionMarkCircleOutline"
+                    NullBrush="Goldenrod"
+                    AllowNulls="True"
+                    Value="{Binding IsCopyrightSafe}"
+                ></controls:IconCheckbox>
+            </Grid>
+        </controls:CardControl>
+        <controls:CardControl 
+            HeaderText="{Binding Text.MsuPcmHeader}" 
+            Margin="0 4 0 0" 
+            VerticalAlignment="Stretch" 
+            VerticalContentAlignment="Stretch"
+            DisplayHeaderButtons="True"
+        >
+            <controls:CardControl.HeaderButtons>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Margin="10 0 5 0"
+                        IsVisible="{Binding DisplayWarning}"
+                        ToolTip.Tip="{Binding WarningToolTip}"
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 2 0"></avalonia:MaterialIcon>
+                        <TextBlock VerticalAlignment="Center" Text="{Binding WarningText}" />
+                    </StackPanel>
+                    <StackPanel 
+                        Orientation="Horizontal"
+                        Margin="10 0 5 0"
+                        IsVisible="{Binding DisplayError}"
+                        ToolTip.Tip="{Binding ErrorToolTip}"
+                    >
+                        <avalonia:MaterialIcon Kind="Info" Margin="0 0 2 0" Foreground="IndianRed" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding ErrorText}"  />
+                    </StackPanel>
+                </StackPanel>
+            </controls:CardControl.HeaderButtons>
+            <Grid RowDefinitions="*, Auto">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="180" MinWidth="31" MaxWidth="400"></ColumnDefinition>
+                    <ColumnDefinition Width="4"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <DockPanel Grid.Row="0" Grid.Column="0" >
+                    <ListBox 
+                         BorderThickness="0"
+                         ItemsSource="{Binding TreeItems}"
+                         SelectedItem="{Binding SelectedTreeItem, Mode=TwoWay}"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Name="TreeListBox"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         SelectionChanged="TreeListBox_OnSelectionChanged"
+                >
+                    <ListBox.Styles> 
+                        <Style Selector="ListBoxItem"> <Setter Property="Padding" Value="0" /> </Style> 
+                    </ListBox.Styles>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border HorizontalAlignment="Stretch"
+                                    Background="{Binding GridBackground}"
+                                    BorderThickness="0 0 0 2"
+                                    BorderBrush="{Binding BorderColor}"
+                                    Tag="{Binding}"
+                                    PointerPressed="TreeInputElement_OnPointerPressed"
+                                    PointerReleased="TreeInputElement_OnPointerReleased"
+                                    PointerEntered="TreeInputElement_OnPointerEntered"
+                                    PointerExited="TreeInputElement_OnPointerExited"
+                                    IsVisible="{Binding IsVisible}">
+                                <Border.ContextMenu>
+                                    <ContextMenu Opened="TreeItemMenuBase_OnOpened" Tag="{Binding}">
+                                        <MenuItem
+                                            Header="{Binding Text.MenuItemCopyToClipboard}"
+                                            Click="CopyMsuPcmInfoMenuItem_OnClick"
+                                            Tag="{Binding}"
+                                            IsEnabled="{Binding EnableMenuItems}"
+                                        >
+                                            <MenuItem.Icon>
+                                                <avalonia:MaterialIcon Kind="ContentCopy"></avalonia:MaterialIcon>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem
+                                            Header="{Binding Text.MenuItemPasteFromClipboard}"
+                                            Tag="{Binding}"
+                                            Click="PasteMsuPcmInfoMenuItem_OnClick"
+                                            IsEnabled="{Binding EnableMenuItems}"
+                                        >
+                                            <MenuItem.Icon>
+                                                <avalonia:MaterialIcon Kind="ContentPaste"></avalonia:MaterialIcon>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem 
+                                            Header="{Binding Text.MenuItemDuplicateMsuPcmDetails}"
+                                            Tag="{Binding}"
+                                            Click="DuplicateMenuItem_OnClick"
+                                            IsEnabled="{Binding EnableMenuItems}"
+                                        >
+                                            <MenuItem.Icon>
+                                                <avalonia:MaterialIcon Kind="ContentDuplicate"></avalonia:MaterialIcon>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem 
+                                            Header="{Binding Text.MenuItemDeleteMsuPcmDetails}"
+                                            Tag="{Binding}"
+                                            Click="DeleteMsuPcmInfoMenuItem_OnClick"
+                                            IsEnabled="{Binding EnableMenuItems}"
+                                        >
+                                            <MenuItem.Icon>
+                                                <avalonia:MaterialIcon Kind="TrashCanOutline"></avalonia:MaterialIcon>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                                <Grid ColumnDefinitions="Auto, Auto, Auto, *, Auto" 
+                                      HorizontalAlignment="Stretch"
+                                      Tag="{Binding}"
+                                >
+                                    <Panel Grid.Column="0" Width="{Binding LeftSpacing}"></Panel>
+                                    <controls:ImageButton Grid.Column="1" Click="TreeMenuItemLeftIcon_OnClick" Tag="{Binding}">
+                                        <avalonia:MaterialIcon Kind="{Binding ChevronIcon}" Width="14" Margin="0 0 0 1">
+                                        </avalonia:MaterialIcon>
+                                    </controls:ImageButton>
+                                    <DockPanel Grid.Column="3">
+                                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                            <controls:ImageButton 
+                                                Tag="{Binding}"
+                                                IsVisible="{Binding ShowAddButton}"
+                                                Click="AddMsuPcmInfoButton_OnClick"
+                                            >
+                                                <avalonia:MaterialIcon 
+                                                    Kind="Plus" 
+                                                    Margin="0 0 0 1"
+                                                    Width="14">
+                                                </avalonia:MaterialIcon>
+                                            </controls:ImageButton>
+                                            <controls:ImageButton 
+                                                IsVisible="{Binding ShowMenuButton}"
+                                                Click="TreeMenuButton_OnClick"
+                                            >
+                                                <avalonia:MaterialIcon 
+                                                    Kind="DotsHorizontal" 
+                                                    Margin="0 0 0 1"
+                                                    Width="14">
+                                                </avalonia:MaterialIcon>
+                                            </controls:ImageButton>
+                                        </StackPanel>
+                                        <TextBlock 
+                                            Text="{Binding Name}" 
+                                            TextTrimming="CharacterEllipsis"
+                                            HorizontalAlignment="Stretch" 
+                                            Background="Transparent"
+                                            Padding="2"
+                                            Tag="{Binding}"
+                                        ></TextBlock>
+                                    </DockPanel>
+                                    
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                </DockPanel>
+                <GridSplitter Grid.Row="0" Grid.Column="1" Background="{DynamicResource CardBorderColor}"/>
+                <Grid 
+                    Grid.Row="0" 
+                    Grid.Column="2" 
+                    ColumnDefinitions="*, *, *, *, *, *" 
+                    RowDefinitions="Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto, Auto" Margin="5"
+                    IsVisible="{Binding ShowMsuPcmInfo}"
+                >
+
+                    <!-- Output File -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="0" 
+                        Grid.ColumnSpan="6" 
+                        Margin="0 0 0 2" 
+                        IsVisible="{Binding DisplayOutputPcmFile}"
+                        LabelText="{Binding Text.OutputAudioFileLabel}"
+                        ToolTipText="{Binding Text.OutputAudioFileToolTip}"
+                    />
+                    <controls:FileControl 
+                        Grid.Column="0" Grid.ColumnSpan="6" Grid.Row="1" 
+                        Filter="{Binding Text.OutputAudioFileFilter}"
+                        Margin="0 0 0 8"
+                        FilePath="{Binding Output, Mode=TwoWay}"
+                        CaseSensitiveFilter="False"
+                        ShowClearButton="False"
+                        FileInputType="SaveFile"
+                        IsVisible="{Binding DisplayOutputPcmFile}"
+                        IsEnabled="{Binding CanUpdateOutputPcmFile}"
+                    ></controls:FileControl>
+                    
+                    <!-- Input File -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="2" 
+                        Margin="0 0 0 2"
+                        LabelText="{Binding Text.InputAudioFileLabel}"
+                        ToolTipText="{Binding Text.InputAudioFileToolTip}"
+                    />
+                    <controls:FileControl 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="6" 
+                        Grid.Row="3"
+                        Filter="{Binding Text.InputAudioFileFilter}"
+                        Margin="0 0 0 0"
+                        FilePath="{Binding Input, Mode=TwoWay}"
+                        CaseSensitiveFilter="False"
+                        OnUpdated="InputFileControl_OnOnUpdated"
+                    ></controls:FileControl>
+                    
+                    <!-- Trim Start -->
+                    <Grid Grid.Column="0" Grid.Row="4" ColumnSpan="3" ColumnDefinitions="*, Auto"> 
+                        <views:FormLabel
+                            Grid.Column="0"
+                            Margin="0 8 3 2"
+                            LabelText="{Binding Text.MsuPcmTrimStartLabel}" 
+                            ToolTipText="{Binding Text.MsuPcmTrimStartToolTip}"
+                        />
+                        <controls:LinkControl 
+                            Grid.Column="1" 
+                            Margin="0 6 3 2"
+                            Click="DetectStartingSamplesButton_OnClick"
+                        >
+                            Auto Detect
+                        </controls:LinkControl>
+                    </Grid>
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="5" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="3"
+                        Margin="0 0 3 0"
+                        Value="{Binding TrimStart}"
+                    />  
+                    
+                    <!-- Trim End -->
+                    <Grid Grid.Column="3" Grid.Row="4" ColumnSpan="3" ColumnDefinitions="*, Auto"> 
+                        <views:FormLabel
+                            Grid.Column="0"
+                            Margin="0 8 3 2"
+                            LabelText="{Binding Text.MsuPcmTrimEndLabel}" 
+                            ToolTipText="{Binding Text.MsuPcmTrimEndToolTip}"
+                        />
+                        <controls:LinkControl 
+                            Grid.Column="1" 
+                            Margin="0 6 3 2"
+                            Click="DetectEndingSamplesButton_OnClick"
+                        >
+                            Auto Detect
+                        </controls:LinkControl>
+                    </Grid>
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="5" 
+                        Grid.Column="3" 
+                        Grid.ColumnSpan="3"
+                        Margin="3 0 0 0"
+                        Value="{Binding TrimEnd}"
+                    />
+                    
+                    <!-- Loop Point -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="6" 
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmLoopLabel}"
+                        ToolTipText="{Binding Text.MsuPcmLoopToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="7" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="4"
+                        Margin="0 0 3 0"
+                        Value="{Binding Loop}"
+                    />
+                    
+                    <Button 
+                        Grid.Row="7" 
+                        Grid.Column="4" 
+                        Grid.ColumnSpan="2" 
+                        Margin="3 0 0 0"
+                        Click="OpenPyMusicLooperWindowButton_OnClick"
+                        IsEnabled="{Binding CanPressPyMusicLooperButton}"
+                        Content="{Binding Text.PyMusicLooperOpenWindowButton}"    
+                    />
+                    
+                    <!-- Fade In -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="8" 
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmFadeInLabel}"
+                        ToolTipText="{Binding Text.MsuPcmFadeInToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="9" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="2"
+                        Margin="0 0 3 0"
+                        Value="{Binding FadeIn}"
+                    />
+                    
+                    <!-- Fade Out -->
+                    <views:FormLabel 
+                        Grid.Column="2" 
+                        Grid.Row="8" 
+                        Margin="3 8 3 2"
+                        LabelText="{Binding Text.MsuPcmFadeOutLabel}"
+                        ToolTipText="{Binding Text.MsuPcmFadeOutToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="9" 
+                        Grid.Column="2" 
+                        Grid.ColumnSpan="2"
+                        Margin="3 0 3 0"
+                        Value="{Binding FadeOut}"
+                    />
+                    
+                    <!-- Cross Fade -->
+                    <views:FormLabel 
+                        Grid.Column="4" 
+                        Grid.Row="8" 
+                        Margin="3 8 0 2"
+                        LabelText="{Binding Text.MsuPcmCrossFadeLabel}"
+                        ToolTipText="{Binding Text.MsuPcmCrossFadeToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="9" 
+                        Grid.Column="4" 
+                        Grid.ColumnSpan="2"
+                        Margin="3 0 0 0"
+                        Value="{Binding CrossFade}"
+                    />
+                    
+                    <!-- Padding Start -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="10" 
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmPaddingStartLabel}"
+                        ToolTipText="{Binding Text.MsuPcmPaddingStartToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="11" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="3"
+                        Margin="0 0 3 0"
+                        Value="{Binding PadStart}"
+                    />  
+                    
+                    <!-- Padding End -->
+                    <views:FormLabel 
+                        Grid.Column="3" 
+                        Grid.Row="10" 
+                        Margin="3 8 0 2"
+                        LabelText="{Binding Text.MsuPcmPaddingEndLabel}"
+                        ToolTipText="{Binding Text.MsuPcmPaddingEndToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="11" 
+                        Grid.Column="3" 
+                        Grid.ColumnSpan="3"
+                        Margin="3 0 0 0"
+                        Value="{Binding PadEnd}"
+                    />
+
+                    <!-- Normalization -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="12" 
+                        Margin="0 8 3 2"
+                        LabelText="{Binding Text.MsuPcmNormalizationLabel}"
+                        ToolTipText="{Binding Text.MsuPcmNormalizationToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="13" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="2"
+                        Margin="0 0 3 0"
+                        Value="{Binding Normalization}"
+                    />
+                    
+                    <!-- Tempo -->
+                    <views:FormLabel 
+                        Grid.Column="2"
+                        Grid.Row="12"
+                        Margin="3 8 3 2"
+                        LabelText="{Binding Text.MsuPcmTempoLabel}"
+                        ToolTipText="{Binding Text.MsuPcmTempoToolTip}"
+                    />
+                    <controls:NumericUpDownNoScroll 
+                        Grid.Row="13" 
+                        Grid.Column="2" 
+                        Grid.ColumnSpan="2"
+                        Margin="3 0 3 0"
+                        Value="{Binding Tempo}"
+                        Increment="0.005" 
+                    />
+                    
+                    <!-- Compression -->
+                    <views:FormLabel 
+                        Grid.Column="4" 
+                        Grid.Row="12" 
+                        Margin="3 8 0 2"
+                        LabelText="{Binding Text.MsuPcmCompressionLabel}"
+                        ToolTipText="{Binding Text.MsuPcmCompressionToolTip}"
+                    />
+                    <controls:BoolComboBox 
+                        Grid.Row="13" 
+                        Grid.Column="4" 
+                        Grid.ColumnSpan="2"
+                        Margin="3 0 0 0"
+                        Value="{Binding Compression, Mode=TwoWay}"
+                        AllowNulls="True"
+                    ></controls:BoolComboBox>
+                    
+                    <!-- Compression -->
+                    <views:FormLabel 
+                        Grid.Column="0" 
+                        Grid.Row="14" 
+                        Margin="0 8 3 2"
+                        IsVisible="{Binding ShowDither}"
+                        LabelText="{Binding Text.MsuPcmDitherLabel}"
+                        ToolTipText="{Binding Text.MsuPcmDitherToolTip}"
+                    />
+                    <controls:BoolComboBox 
+                        Grid.Row="15" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="3"
+                        Margin="0 0 3 0"
+                        IsVisible="{Binding ShowDither}"
+                        Value="{Binding Dither, Mode=TwoWay}"
+                        AllowNulls="True"
+                    ></controls:BoolComboBox>
+                    
+                </Grid>
+            </Grid>
+        </controls:CardControl>
+    </DockPanel>
+</UserControl>

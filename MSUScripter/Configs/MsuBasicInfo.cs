@@ -14,13 +14,17 @@ public class MsuBasicInfo
     public string? Url { get; set; }
     public double? Normalization { get; set; }
     public bool? Dither { get; set; }
+    public DitherType DitherType { get; set; } = DitherType.Default;
+    public bool HasSeenDitherWarning { get; set; }
     public bool IsMsuPcmProject { get; set; } = true;
     public bool CreateAltSwapperScript { get; set; } = true;
     public bool CreateSplitSmz3Script { get; set; }
-    public string TrackList { get; set; } = TrackListType.List;
+    public string TrackList { get; } = TrackListTypeDeprecated.List;
+    public TrackList TrackListType { get; set; } = Configs.TrackList.ListAlbumFirst;
     public bool WriteYamlFile { get; set; } = true;
     public string? ZeldaMsuPath { get; set; }
     public string? MetroidMsuPath { get; set; }
     public bool IsSmz3Project { get; set; }
+    public bool? IncludeJson { get; set; }
     public DateTime LastModifiedDate { get; set; }
 }

@@ -52,6 +52,9 @@ public class MsuSongMsuPcmInfo
     [Description("The file to be used as the input for this track/sub-track/sub-channel")]
     public string? File { get; set; }
     
+    [Description("Whether or not to apply audio dither to the final output.")]
+    public bool? Dither { get; set; }
+    
     [JsonSchemaIgnore]
     public bool ShowPanel { get; set; } = true;
     
@@ -71,8 +74,18 @@ public class MsuSongMsuPcmInfo
         }
     }
 
+    public bool AreFilesValid()
+    {
+        return GetFiles().All(System.IO.File.Exists);
+    }
+
     public List<string> GetFiles()
     {
+        if (!string.IsNullOrEmpty(Output))
+        {
+            var outputFile = Output;
+        }
+        
         List<string> files = new List<string>();
 
         if (!string.IsNullOrEmpty(File))
@@ -95,5 +108,80 @@ public class MsuSongMsuPcmInfo
                    SubChannels.Any(x => x.HasBothSubTracksAndSubChannels) ||
                    SubTracks.Any(x => x.HasBothSubTracksAndSubChannels);
         }
+    }
+
+    [YamlIgnore]
+    public bool HasValidSubChannelCount
+    {
+        get
+        {
+            return SubChannels.Count != 1 && SubChannels.All(x => x.HasValidSubChannelCount) &&
+                   SubTracks.All(x => x.HasValidSubChannelCount);
+        }
+    }
+    
+    [YamlIgnore]
+    public bool HasValidChildTypes
+    {
+        get
+        {
+            return SubChannels.All(x => x.SubChannels.Count == 0 && x.HasValidChildTypes) &&
+                SubTracks.All(x => x.SubTracks.Count == 0 && x.HasValidChildTypes);
+        }
+    }
+
+    public bool HasData()
+    {
+        return Loop > 0 || TrimStart > 0 || TrimEnd > 0 || FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 ||
+               PadEnd > 0 || (Tempo.HasValue && Tempo != 0) || (Normalization.HasValue && Normalization != 0) ||
+               !string.IsNullOrEmpty(File) || SubChannels.Count > 0 || SubTracks.Count > 0;
+    }
+
+    public bool HasAdvancedData()
+    {
+        return FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 || PadEnd > 0 ||
+               (Tempo.HasValue && Tempo != 0) || SubChannels.Count > 0 || SubTracks.Count > 0;
+    }
+
+    public bool HasFiles()
+    {
+        return GetFiles().Count > 0;
+    }
+
+    public int MoveSubInfo(MsuSongMsuPcmInfo info, bool toSubTrack, int index, MsuSongMsuPcmInfo? previousParent)
+    {
+        var destination = toSubTrack ? SubTracks : SubChannels;
+
+        if (destination.Contains(info))
+        {
+            var currentIndex = destination.IndexOf(info);
+            if (index > currentIndex)
+            {
+                index--;
+            }
+        }
+        
+        previousParent?.SubTracks.Remove(info);
+        previousParent?.SubChannels.Remove(info);
+        
+        if (index > destination.Count)
+        {
+            destination.Add(info);
+        }
+        else
+        {
+            destination.Insert(index, info);
+        }
+
+        return index;
+    }
+    
+    public bool HasChangesSince(DateTime time)
+    {
+        if (SubTracks.Any(x => x.HasChangesSince(time)))
+            return true;
+        if (SubChannels.Any(x => x.HasChangesSince(time)))
+            return true;
+        return LastModifiedDate > time;
     }
 }

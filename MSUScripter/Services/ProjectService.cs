@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using DynamicData;
 using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary.Configs;
 using MSURandomizerLibrary.Services;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.ViewModels;
 using Newtonsoft.Json;
 
 namespace MSUScripter.Services;
@@ -27,6 +25,8 @@ public class ProjectService(
 {
     public void SaveMsuProject(MsuProject project, bool isBackup)
     {
+        var previousLastSaveTime = project.LastSaveTime;
+        
         project.LastSaveTime = DateTime.Now;
         
         if (!isBackup)
@@ -34,6 +34,7 @@ public class ProjectService(
             project.BackupFilePath = GetProjectBackupFilePath(project.ProjectFilePath);
             settingsService.AddRecentProject(project);
             SaveMsuProject(project, true);
+            project.LastSaveTime = DateTime.Now;
         }
         
         var yaml = yamlService.ToYaml(project, YamlType.Pascal);
@@ -77,7 +78,13 @@ public class ProjectService(
         if (!isBackup)
         {
             logger.LogInformation("Saved project");
-            statusBarService?.UpdateStatusBar("Project Saved");
+            statusBarService.UpdateStatusBar("Project Saved");
+        }
+        else
+        {
+            project.LastSaveTime = previousLastSaveTime;
+            logger.LogInformation("Saved project backup");
+            statusBarService.UpdateStatusBar("Backup Created");
         }
     }
 
@@ -99,7 +106,12 @@ public class ProjectService(
             project.ProjectFilePath = path;
             project.BackupFilePath = GetProjectBackupFilePath(path);
         }
-        
+
+        if (string.IsNullOrEmpty(project.Id))
+        {
+            project.Id = Guid.NewGuid().ToString("N");
+        }
+
         project.MsuType = msuTypeService.GetMsuType(project.MsuTypeName) ?? throw new InvalidOperationException();
         
         // Whoops, I screwed up. Fix up broken tracks.
@@ -126,9 +138,17 @@ public class ProjectService(
                         duplicate.IsAlt = true;
                     }
                 }
+
+                song.DisplayAdvancedMode ??= song.MsuPcmInfo.HasAdvancedData();
+
+                if (string.IsNullOrEmpty(song.Id))
+                {
+                    song.Id = Guid.NewGuid().ToString("N");
+                }
             }
         }
 
+        // Add the scratch pad if one doesn't exist already
         if (!project.Tracks.Any(x => x.IsScratchPad))
         {
             project.Tracks.Add(new MsuTrackInfo()
@@ -139,43 +159,77 @@ public class ProjectService(
             });
         }
 
+        // Save whether it's an SMZ3 MSU
         if (project.MsuType == msuTypeService.GetSMZ3LegacyMSUType() || project.MsuType == msuTypeService.GetSMZ3MsuType())
         {
             project.BasicInfo.IsSmz3Project = true;
+        }
+        
+        // Convert track list
+        if (!string.IsNullOrEmpty(project.BasicInfo.TrackList))
+        {
+            if (project.BasicInfo.TrackList == TrackListTypeDeprecated.List)
+            {
+                project.BasicInfo.TrackListType = TrackList.ListAlbumFirst;
+            }
+            else if (project.BasicInfo.TrackList == TrackListTypeDeprecated.Table)
+            {
+                project.BasicInfo.TrackListType = TrackList.Table;
+            }
+        }
+
+        if (project.BasicInfo.Dither != null)
+        {
+            project.BasicInfo.DitherType = project.BasicInfo.Dither == true ? DitherType.All : DitherType.None;
+            project.BasicInfo.Dither = null;
         }
 
         if (!isBackup)
         {
             settingsService.AddRecentProject(project);    
         }
+
+        var generationCacheFile = project.GetMsuGenerationCacheFilePath();
+        var cacheFolder = Path.Combine(Directories.CacheFolder, "Generation");
+        logger.LogInformation("Attempting to load PCM cache from {Path}", generationCacheFile);
+        if (File.Exists(generationCacheFile))
+        {
+            var cacheYaml = File.ReadAllText(generationCacheFile);
+            if (yamlService.FromYaml<MsuProjectGenerationCache>(cacheYaml, YamlType.Pascal, out var cacheObject, out _) && cacheObject != null)
+            {
+                project.GenerationCache = cacheObject;
+            }
+        }
+        else if (!Directory.Exists(cacheFolder))
+        {
+            Directory.CreateDirectory(cacheFolder);
+        }
+        
         
         statusBarService.UpdateStatusBar("Project Loaded");
         
         return project;
     }
 
-    public MsuProject NewMsuProject(string projectPath, string msuTypeName, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
-    {
-        var msuType = msuTypeService.GetMsuType(msuTypeName) ?? throw new InvalidOperationException("Invalid MSU Type");
-
-        return NewMsuProject(projectPath, msuType, msuPath, msuPcmTracksJsonPath, msuPcmWorkingDirectory);
-    }
-    
-    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory)
+    public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory, string? projectName, string? creatorName)
     {
         var project = new MsuProject()
         {
+            Id = Guid.NewGuid().ToString("N"),
             ProjectFilePath = projectPath,
             BackupFilePath = GetProjectBackupFilePath(projectPath),
             MsuType = msuType,
             MsuTypeName = msuType.DisplayName,
             MsuPath = msuPath,
             IsNewProject = true,
+            BasicInfo = new MsuBasicInfo
+            {
+                PackName = projectName,
+                PackCreator = creatorName,
+                PackVersion = "",
+            }
         };
 
-        project.BasicInfo.MsuType = project.MsuType.Name;
-        project.BasicInfo.Game = project.MsuType.Name;
-        
         foreach (var track in project.MsuType.Tracks.OrderBy(x => x.Number))
         {
             project.Tracks.Add(new MsuTrackInfo()
@@ -232,17 +286,26 @@ public class ProjectService(
         return project;
     }
 
-    public void ImportMsu(MsuProject project, string msuPath)
+    public void ConvertLegacySmz3Project(MsuProject msuProject)
+    {
+        try
+        {
+            var legacyMsuType =
+                msuTypeService.MsuTypes.First(x => x.DisplayName == "SMZ3 Combo Randomizer (Zelda First)");
+            ConvertProjectMsuType(msuProject, legacyMsuType, true);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error updating legacy SMZ3 project");
+        }
+    }
+
+    private void ImportMsu(MsuProject project, string msuPath)
     {
         var msu = msuLookupService.LoadMsu(msuPath, project.MsuType);
 
         if (msu == null)
             return;
-
-        if (msu.MsuType != project.MsuType && msu.MsuType != null)
-        {
-            ConvertProjectMsuType(project, msu.MsuType);
-        }
 
         project.BasicInfo.PackName = msu.Name;
         project.BasicInfo.PackCreator = msu.Creator;
@@ -269,25 +332,24 @@ public class ProjectService(
             var projectTrack = project.Tracks.FirstOrDefault(x => x.TrackNumber == track.Number);
             if (projectTrack == null) continue;
             var song = projectTrack.Songs.FirstOrDefault(x => x.OutputPath == track.Path);
-            if (song == null)
+            if (song != null) continue;
+            song = new MsuSongInfo()
             {
-                song = new MsuSongInfo()
-                {
-                    TrackNumber = track.Number,
-                    TrackName = track.TrackName,
-                    SongName = track.SongName,
-                    Artist = track.Artist,
-                    Album = track.Album,
-                    Url = track.Url,
-                    OutputPath = track.Path,
-                    IsAlt = track.IsAlt
-                };
-                projectTrack.Songs.Add(song);
-            }
+                TrackNumber = track.Number,
+                TrackName = track.TrackName,
+                SongName = track.SongName,
+                Artist = track.Artist,
+                Album = track.Album,
+                Url = track.Url,
+                OutputPath = track.Path,
+                IsAlt = track.IsAlt,
+                Id = Guid.NewGuid().ToString("N")
+            };
+            projectTrack.Songs.Add(song);
         }
     }
 
-    public void ConvertProjectMsuType(MsuProject project, MsuType newMsuType, bool swapPcmFiles = false)
+    private void ConvertProjectMsuType(MsuProject project, MsuType newMsuType, bool swapPcmFiles = false)
     {
         if (!project.MsuType.IsCompatibleWith(newMsuType) && project.MsuType != newMsuType)
             return;
@@ -303,7 +365,7 @@ public class ProjectService(
         var msu = new FileInfo(project.MsuPath);
         var baseName = msu.Name.Replace(msu.Extension, "");
 
-        HashSet<string> swappedFiles = new HashSet<string>();
+        HashSet<string> swappedFiles = [];
         var newTracks = new List<MsuTrackInfo>();
         foreach (var oldTrack in project.Tracks)
         {
@@ -352,7 +414,8 @@ public class ProjectService(
                     Url = oldSong.Url,
                     OutputPath = Path.Combine(songDirectory, newSongName),
                     IsAlt = oldSong.IsAlt,
-                    MsuPcmInfo = oldSong.MsuPcmInfo
+                    MsuPcmInfo = oldSong.MsuPcmInfo,
+                    Id = Guid.NewGuid().ToString("N")
                 };
                 
                 newSongs.Add(newSong);
@@ -388,7 +451,7 @@ public class ProjectService(
         project.Tracks = newTracks;
     }
 
-    public ICollection<MsuProject> GetSmz3SplitMsuProjects(MsuProject project, out Dictionary<string, string> convertedPaths, out string? error)
+    private ICollection<MsuProject> GetSmz3SplitMsuProjects(MsuProject project, out Dictionary<string, string> convertedPaths, out string? error)
     {
         var toReturn = new List<MsuProject>();
         convertedPaths = new Dictionary<string, string>();
@@ -428,7 +491,7 @@ public class ProjectService(
     private MsuProject InternalGetSmz3MsuProject(MsuProject project, MsuType msuType, string newMsuPath, Dictionary<string, string> convertedPaths)
     {
         var basicInfo = new MsuBasicInfo();
-        converterService.ConvertViewModel(project.BasicInfo, basicInfo);
+        converterService.CloneModel(project.BasicInfo, basicInfo);
 
         var conversion = msuType.Conversions[project.MsuType];
 
@@ -461,7 +524,7 @@ public class ProjectService(
             foreach (var song in project.Tracks.First(x => x.TrackNumber == oldTrackNumber).Songs)
             {
                 var newSong = new MsuSongInfo();
-                converterService.ConvertViewModel(song, newSong);
+                converterService.CloneModel(song, newSong);
                 newSong.TrackNumber = newTrackNumber;
                 newSong.TrackName = trackName;
                 newSong.OutputPath =
@@ -490,8 +553,10 @@ public class ProjectService(
         };
     }
 
-    public bool CreateSmz3SplitScript(MsuProject smz3Project, Dictionary<string, string> convertedPaths)
+    public bool CreateSmz3SplitScript(MsuProject smz3Project)
     {
+        GetSmz3SplitMsuProjects(smz3Project, out var convertedPaths, out _);
+        
         var testTrack = smz3Project.Tracks.FirstOrDefault(x => x.TrackNumber > 100 && x.Songs.Any())?.TrackNumber;
 
         if (testTrack == null)
@@ -525,14 +590,14 @@ public class ProjectService(
         sbTotal.Append(sbIsSplit);
         sbTotal.Append(")");
         
-        File.WriteAllText(Path.Combine(folder, "!Split_Or_Combine_SMZ3_ALttP_SM_MSUs.bat"), sbTotal.ToString());
+        File.WriteAllText(smz3Project.GetSmz3SwapperPath(), sbTotal.ToString());
 
         statusBarService.UpdateStatusBar("SMZ3 Split Script Created");
         
         return true;
     }
 
-    public void ImportMsuPcmTracksJson(MsuProject project, string jsonPath, string? msuPcmWorkingDirectory)
+    private void ImportMsuPcmTracksJson(MsuProject project, string jsonPath, string? msuPcmWorkingDirectory)
     {
         var data = File.ReadAllText(jsonPath);
         var msuPcmData = JsonConvert.DeserializeObject<MsuPcmPlusPlusConfig>(data);
@@ -551,7 +616,15 @@ public class ProjectService(
         project.BasicInfo.Artist = msuPcmData.Artist;
         project.BasicInfo.Game = msuPcmData.Game;
         project.BasicInfo.Normalization = msuPcmData.Normalization;
-        project.BasicInfo.Dither = msuPcmData.Dither;
+
+        if (msuPcmData.Dither == true)
+        {
+            project.BasicInfo.DitherType = DitherType.All;
+        }
+        else if (msuPcmData.Dither == false)
+        {
+            project.BasicInfo.DitherType = DitherType.None;
+        }
 
         var msuFileInfo = new FileInfo(project.MsuPath);
         var msuDirectory = msuFileInfo.DirectoryName!;
@@ -637,13 +710,19 @@ public class ProjectService(
         }
     }
 
-    public bool CreateSmz3SplitRandomizerYaml(MsuProject project, out string? error)
+    public bool CreateSmz3SplitRandomizerYaml(MsuProject project, bool metroidOnly, bool zeldaOnly, out string? error)
     {
-        var data = new List<(MsuType?, string?)>()
+        var data = new List<(MsuType?, string?)>();
+
+        if (!metroidOnly)
         {
-            (msuTypeService.GetMsuType("Super Metroid"), project.BasicInfo.MetroidMsuPath),
-            (msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past"), project.BasicInfo.ZeldaMsuPath)
-        };
+            data.Add((msuTypeService.GetMsuType("The Legend of Zelda: A Link to the Past"), project.BasicInfo.ZeldaMsuPath));
+        }
+
+        if (!zeldaOnly)
+        {
+            data.Add((msuTypeService.GetMsuType("Super Metroid"), project.BasicInfo.MetroidMsuPath));
+        }
 
         var msu = new FileInfo(project.MsuPath);
         var yamlPath = msu.FullName.Replace(msu.Extension, ".yml");
@@ -718,6 +797,8 @@ public class ProjectService(
         var msuFile = new FileInfo(project.MsuPath);
         var msuDirectory = msuFile.Directory!;
 
+        CreateMsuFiles(project);
+
         var tracks = new List<MSURandomizerLibrary.Configs.Track>();
 
         foreach (var projectTrack in project.Tracks.Where(x => !x.IsScratchPad))
@@ -762,25 +843,27 @@ public class ProjectService(
             statusBarService.UpdateStatusBar("YAML File Write Failed");
         }
 
-        if (project.BasicInfo.CreateSplitSmz3Script)
-        {
-            if (CreateSmz3SplitRandomizerYaml(project, out error))
-            {
-                statusBarService.UpdateStatusBar("YAML File Written");    
-            }
-            else
-            {
-                statusBarService.UpdateStatusBar("YAML File Write Failed");
-            }
-        }
-        else
-        {
-            statusBarService.UpdateStatusBar("YAML File Written");
-        }
+        statusBarService.UpdateStatusBar("YAML File Written");
+        // TODO: See if this works?
+        // if (project.BasicInfo.CreateSplitSmz3Script)
+        // {
+        //     if (CreateSmz3SplitRandomizerYaml(project, out error))
+        //     {
+        //         statusBarService.UpdateStatusBar("YAML File Written");    
+        //     }
+        //     else
+        //     {
+        //         statusBarService.UpdateStatusBar("YAML File Write Failed");
+        //     }
+        // }
+        // else
+        // {
+        //     statusBarService.UpdateStatusBar("YAML File Written");
+        // }
         
     }
 
-    public bool CreateMsuFiles(MsuProject project)
+    private void CreateMsuFiles(MsuProject project)
     {
         try
         {
@@ -810,20 +893,28 @@ public class ProjectService(
                 {
                 }
             }
-
-            return true;
         }
         catch (Exception e)
         {
             logger.LogError(e, "Unable to create msu file");
-            return false;
         }
         
     }
 
-    public bool CreateAltSwapperFile(MsuProject project, ICollection<MsuProject>? otherProjects)
+    public bool CreateAltSwapperFile(MsuProject project)
     {
         if (project.Tracks.All(x => x.Songs.Count <= 1)) return true;
+        
+        ICollection<MsuProject> otherProjects = new List<MsuProject>();
+
+        if (project.BasicInfo.CreateSplitSmz3Script)
+        {
+            otherProjects = GetSmz3SplitMsuProjects(project, out _, out var error).ToList();
+            if (!string.IsNullOrEmpty(error))
+            {
+                return false;
+            }
+        }
         
         var msuPath = new FileInfo(project.MsuPath).DirectoryName;
 
@@ -836,13 +927,10 @@ public class ProjectService(
             var trackCombos = project.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
                 .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
 
-            if (otherProjects != null)
+            foreach (var otherProject in otherProjects)
             {
-                foreach (var otherProject in otherProjects)
-                {
-                    trackCombos.AddRange(otherProject.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
-                        .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
-                }
+                trackCombos.AddRange(otherProject.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
+                    .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
             }
 
             foreach (var combo in trackCombos)
@@ -863,7 +951,7 @@ public class ProjectService(
             }
 
             var text = sb.ToString();
-            File.WriteAllText(Path.Combine(msuPath, "!Swap_Alt_Tracks.bat"), text);
+            File.WriteAllText(project.GetAltSwapperPath(), text);
             return true;
         }
         catch (Exception e)
@@ -872,21 +960,22 @@ public class ProjectService(
             return false;
         }
     }
-
-    public bool ValidateProject(MsuProjectViewModel project, out string message)
+    
+    public bool ValidateProject(MsuProject project, out string message)
     {
         var msuPath = project.MsuPath;
         var msu = msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
-
+    
         if (msu == null)
         {
             message = "Could not load MSU.";
+            logger.LogWarning("Project validation failed: {Error}", message);
             statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
         
         var projectSongs = project.Tracks.Where(x => !x.IsScratchPad).SelectMany(x => x.Songs).ToList();
-
+    
         var projectTrackNumbers = projectSongs.Select(x => x.TrackNumber).Order().ToList();
         var msuTrackNumbers = msu.Tracks.Where(x => !x.IsCopied).Select(x => x.Number).Order().ToList();
         if (!projectTrackNumbers.SequenceEqual(msuTrackNumbers))
@@ -897,49 +986,55 @@ public class ProjectService(
                     .Select(x => x.OutputPath)
                     .ToList();
                 var msuPaths = msu.Tracks.Where(x => x.Number == trackNumber).Select(x => x.Path).ToList();
-
-                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).ToList();
+    
+                var missingMsuPaths = projPaths.Where(x => !msuPaths.Contains(x ?? "")).Select(Path.GetFileName).ToList();
                 if (missingMsuPaths.Any())
                 {
-                    message = $"{string.Join(", ", missingMsuPaths)} found in the project but not the generated MSU YAML file";
+                    message = $"{string.Join(", ", missingMsuPaths)} found in the project settings, but appears to be missing or not loading successfully.";
+                    logger.LogWarning("Project validation failed: {Error}", message);
                     statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
                 
-                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x ?? "")).ToList();
+                var missingProjPaths = msuPaths.Where(x => !projPaths.Contains(x)).Select(Path.GetFileName).ToList();
                 if (missingProjPaths.Any())
                 {
                     message = $"{string.Join(", ", missingProjPaths)} found in the generated MSU YAML file but not the project";
+                    logger.LogWarning("Project validation failed: {Error}", message);
                     statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
                 }
             }
             message = "Could not load all tracks from the YAML file.";
+            logger.LogWarning("Project validation failed: {Error}", message);
             statusBarService.UpdateStatusBar("YAML File Validation Failed");
             return false;
         }
-
+    
         foreach (var projectSong in projectSongs)
         {
             var filename = new FileInfo(projectSong.OutputPath!).Name;
             var msuTrack = msu.Tracks.FirstOrDefault(x => x.Path.EndsWith(filename));
-
+    
             if (msuTrack == null)
             {
                 message = $"Could not find track for song {projectSong.SongName} in the YAML file.";
+                logger.LogWarning("Project validation failed: {Error}", message);
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
-            else if ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
-                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? ""))
+            else if (project.BasicInfo.WriteYamlFile && ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
+                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? "")))
             {
                 message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
+                logger.LogWarning("Project validation failed: {Error}", message);
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
         }
             
         message = "";
+        logger.LogInformation("Project validated successfully");
         statusBarService.UpdateStatusBar("YAML File Validated Successfully");
         return true;
     }
@@ -947,11 +1042,11 @@ public class ProjectService(
     private string GetProjectBackupFilePath(string projectFilePath)
     {
         var file = new FileInfo(projectFilePath);
-        byte[] inputBytes = Encoding.ASCII.GetBytes(file.FullName);
-        byte[] hashBytes = System.Security.Cryptography.MD5.HashData(inputBytes);
+        var inputBytes = Encoding.ASCII.GetBytes(file.FullName);
+        var hashBytes = System.Security.Cryptography.MD5.HashData(inputBytes);
         return Path.Combine(GetBackupDirectory(), $"{Convert.ToHexString(hashBytes)}_{file.Name}");
     }
-
+    
     private string GetBackupDirectory()
     {
         return Path.Combine(Directories.BaseFolder, "backups");

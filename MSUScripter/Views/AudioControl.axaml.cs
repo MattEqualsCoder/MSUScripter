@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using AvaloniaControls.Extensions;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.ViewModels;
@@ -24,15 +25,28 @@ public partial class AudioControl : UserControl
         else
         {
             _service = this.GetControlService<AudioControlService>();
+
+            if (_service != null)
+            {
+                _service.OnPlayStarted += async void (_, _) =>
+                {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(0.1));
+                        Dispatcher.UIThread.Post(() =>
+                        {
+                            this.GetControl<Button>(nameof(PlayPauseButton)).Focus();
+                        });
+                    }
+                    catch
+                    {
+                        // Do nothing
+                    }
+                };
+            }
             DataContext = _model = _service?.InitializeModel() ?? new AudioControlViewModel();
         }
 
-        CanPopoutProperty.Changed.Subscribe(x =>
-        {
-            if (x.Sender != this) return;
-            _model.CanPopout = OperatingSystem.IsWindows() && x.NewValue is { HasValue: true, Value: true };
-        });
-        
         CanSetTimeSecondsProperty.Changed.Subscribe(x =>
         {
             if (x.Sender != this) return;
@@ -45,15 +59,6 @@ public partial class AudioControl : UserControl
     public Task<bool> StopAsync()
     {
         return _service?.StopAsync() ?? Task.FromResult(true);
-    }
-    
-    public static readonly StyledProperty<bool> CanPopoutProperty = AvaloniaProperty.Register<AudioControl, bool>(
-        nameof(CanPopout));
-
-    public bool CanPopout
-    {
-        get => GetValue(CanPopoutProperty);
-        set => SetValue(CanPopoutProperty, value);
     }
     
     public static readonly StyledProperty<bool> CanSetTimeSecondsProperty = AvaloniaProperty.Register<AudioControl, bool>(
@@ -84,17 +89,6 @@ public partial class AudioControl : UserControl
     private void JumpToSecondsButton_OnClick(object? sender, RoutedEventArgs e)
     {
         _service?.SetSeconds();
-    }
-
-    private void PopoutButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        var audioPlayerWindow = new AudioPlayerWindow();
-        _model.CanPressPopoutButton = false;
-        audioPlayerWindow.Closed += (o, args) =>
-        {
-            _model.CanPressPopoutButton = true;
-        };
-        audioPlayerWindow.Show(App.MainWindow);
     }
 
     private void VolumeSlider_OnLoaded(object? sender, RoutedEventArgs e)

@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+        xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="250"
+        Width="600"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        x:Class="MSUScripter.Views.SongPanelPromptWindow"
+        x:DataType="viewModels:SongPanelPromptWindowViewModel"
+        Loaded="Control_OnLoaded"
+        Title="SongPanelPromptWindow">
+    <DockPanel>
+        <controls:HeaderFooter DockPanel.Dock="Bottom">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button
+                    Margin="5 5"
+                    Padding="8 5"
+                    Click="AddSongButton_OnClick"
+                >
+                    Add New Song
+                </Button>
+                <Button
+                    Margin="5 5"
+                    Padding="8 5"
+                    Click="CancelButton_OnClick"
+                >
+                    Cancel
+                </Button>
+            </StackPanel>
+        </controls:HeaderFooter>
+        <TextBlock DockPanel.Dock="Top" Margin="10">
+            What view would you like to use for this song?
+        </TextBlock>
+        <StackPanel Orientation="Vertical">
+            <RadioButton 
+                VerticalContentAlignment="Top" 
+                VerticalAlignment="Top" 
+                Margin="10"
+                IsChecked="{Binding Basic}"
+            >
+                <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                    <TextBlock FontWeight="Bold">Basic</TextBlock>
+                    <TextBlock TextWrapping="Wrap">Simple view with just the most basic common settings with a built in PyMusicLooper panel for automatically getting loop points.</TextBlock>
+                </StackPanel>
+            </RadioButton>
+            <RadioButton 
+                VerticalContentAlignment="Top" 
+                VerticalAlignment="Top" 
+                Margin="10"
+                IsChecked="{Binding Advanced}"
+            >
+                <StackPanel Orientation="Vertical" VerticalAlignment="Top">
+                    <TextBlock FontWeight="Bold">Advanced</TextBlock>
+                    <TextBlock TextWrapping="Wrap">Detailed view with all MsuPcm++ settings, including sub-tracks and sub-channels. PyMusicLooper can be ran via a popup window.</TextBlock>
+                </StackPanel>
+            </RadioButton>
+            <controls:IconCheckbox
+                Margin="5"
+                HorizontalAlignment="Right"
+                Text="Don't ask again (this can be changed in the settings)"
+                CheckedText="Don't ask again (this can be changed in the settings)"
+                UncheckedText="Don't ask again (this can be changed in the settings)"
+                NullText="Don't ask again (this can be changed in the settings)"
+                AllowNulls="False"
+                Value="{Binding DontAskAgain}"
+            />
+        </StackPanel>
+    </DockPanel>
+</Window>

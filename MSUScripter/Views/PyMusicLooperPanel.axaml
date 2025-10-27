@@ -5,6 +5,7 @@
              xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls1="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             xmlns:views="clr-namespace:MSUScripter.Views"
              mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="450"
              x:Class="MSUScripter.Views.PyMusicLooperPanel"
              x:DataType="viewModels:PyMusicLooperPanelViewModel">
@@ -19,52 +20,160 @@
             </controls1:LinkControl>
         </StackPanel>
         
-        <Grid ColumnDefinitions="Auto * * * Auto" RowDefinitions="Auto Auto" Margin="2">
-            <TextBlock Grid.Row="0" Grid.Column="0" Margin="2 2 5 2">Min Duration Multiplier</TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="1" Margin="2 2 5 2">Duration Limit in Seconds</TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="2" Margin="2 2 5 2">Approximate Loop Time in Seconds</TextBlock>
-            <TextBlock Grid.Row="0" Grid.Column="3" Margin="2 2 5 2">Filter Samples</TextBlock>
-            <controls1:NumericUpDownNoScroll Grid.Row="1" Grid.Column="0" Margin="2 2 5 2" Value="{Binding MinDurationMultiplier}"></controls1:NumericUpDownNoScroll>
-            <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding MinLoopDuration}" Watermark="Min Time" MinWidth="100"></controls1:NumericUpDownTime>
-                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding MaxLoopDuration}" Watermark="Max Time" MinWidth="100"></controls1:NumericUpDownTime>
-            </Grid>
-            <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding ApproximateStart}" Watermark="Start" MinWidth="100"></controls1:NumericUpDownTime>
-                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding ApproximateEnd}" Watermark="End" MinWidth="100"></controls1:NumericUpDownTime>
-            </Grid>
-            <Grid Grid.Row="1" Grid.Column="3" ColumnDefinitions="* Auto *" RowDefinitions="Auto Auto" Margin="2 2 5 2">
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="0" Value="{Binding FilterStart}" Watermark="Start" MinWidth="100"></controls1:NumericUpDownTime>
-                <TextBlock Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="3">to</TextBlock>
-                <controls1:NumericUpDownTime Grid.Row="0" Grid.Column="2" Value="{Binding FilterEnd}" Watermark="End" MinWidth="100"></controls1:NumericUpDownTime>
-            </Grid>
-            <Button Grid.Row="1" Grid.Column="4" 
-                    HorizontalAlignment="Right" 
-                    Margin="2"
-                    Name="RunPyMusicLooperButton"
-                    Click="RunPyMusicLooperButton_OnClick"
-                    >Run PyMusicLooper</Button>
+        <Grid ColumnDefinitions="* * Auto * * Auto * * Auto * Auto" RowDefinitions="Auto Auto" Margin="2">
+            
+            <!-- Min Duration Multiplier -->
+            <views:FormLabel
+                Grid.Row="0"
+                Grid.Column="0"
+                Margin="2 2 5 2"
+                LabelText="{Binding Text.PyMusicLooperMinDurationMultiplierLabel}"
+                ToolTipText="{Binding Text.PyMusicLooperMinDurationMultiplierToolTip}"
+            />
+            <controls1:NumericUpDownNoScroll 
+                Grid.Row="1" 
+                Grid.Column="0" 
+                Margin="2 2 5 2" 
+                Value="{Binding MinDurationMultiplier}"
+            ></controls1:NumericUpDownNoScroll>
+            
+            <!-- Duration Limit -->
+            <views:FormLabel
+                Grid.Row="0" 
+                Grid.Column="1" 
+                Grid.ColumnSpan="3"
+                Margin="2 2 5 2" 
+                LabelText="{Binding Text.PyMusicLooperDurationLimitInSecondsLabel}"
+                ToolTipText="{Binding Text.PyMusicLooperDurationLimitInSecondsToolTip}"
+            />
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="1" 
+                Margin="2 2 5 2" 
+                Value="{Binding MinLoopDuration}" 
+                Watermark="Min"
+            ></controls1:NumericUpDownTime>
+            <TextBlock 
+                Grid.Row="1" 
+                Grid.Column="2" 
+                VerticalAlignment="Center" 
+                Margin="0 0 3 0"
+            >
+                to
+            </TextBlock>
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="3" 
+                Margin="2 2 5 2" 
+                Value="{Binding MaxLoopDuration}" 
+                Watermark="Max">
+            </controls1:NumericUpDownTime>
+            
+            <!-- Approximate Loop Time -->
+            <views:FormLabel
+                Grid.Row="0" 
+                Grid.Column="4" 
+                Grid.ColumnSpan="3"
+                Margin="2 2 5 2" 
+                LabelText="{Binding Text.PyMusicLooperApproximateTimesLabel}"
+                ToolTipText="{Binding Text.PyMusicLooperApproximateTimesToolTip}"
+            />
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="4" 
+                Margin="2 2 5 2" 
+                Value="{Binding ApproximateStart}" 
+                Watermark="Start"
+            ></controls1:NumericUpDownTime>
+            <TextBlock 
+                Grid.Row="1" 
+                Grid.Column="5" 
+                VerticalAlignment="Center" 
+                Margin="0 0 3 0">
+                to
+            </TextBlock>
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="6" 
+                Margin="2 2 5 2" 
+                Value="{Binding ApproximateEnd}" 
+                Watermark="End"
+            ></controls1:NumericUpDownTime>
+            
+            <!-- Filter Samples -->
+            <views:FormLabel
+                Grid.Row="0" 
+                Grid.Column="7" 
+                Grid.ColumnSpan="3"
+                Margin="2 2 5 2" 
+                LabelText="{Binding Text.PyMusicLooperFilterSamplesLabel}"
+                ToolTipText="{Binding Text.PyMusicLooperFilterSamplesToolTip}"
+            />
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="7" 
+                Margin="2 2 5 2" 
+                Value="{Binding FilterStart}" 
+                Watermark="Start"
+            ></controls1:NumericUpDownTime>
+            <TextBlock 
+                Grid.Row="1" 
+                Grid.Column="8" 
+                VerticalAlignment="Center" 
+                Margin="0 0 3 0"
+            >
+                to
+            </TextBlock>
+            <controls1:NumericUpDownTime 
+                Grid.Row="1" 
+                Grid.Column="9" 
+                Margin="2 2 5 2" 
+                Value="{Binding FilterEnd}" 
+                Watermark="End"
+            ></controls1:NumericUpDownTime>
+ 
+            <Button 
+                Grid.Row="1" 
+                Grid.Column="10" 
+                HorizontalAlignment="Right" 
+                Margin="2"
+                Name="RunPyMusicLooperButton"
+                IsEnabled="{Binding CanRun}"
+                Click="RunPyMusicLooperButton_OnClick"
+                Content="{Binding Text.PyMusicLooperRunButton}"
+            />
         </Grid>
         
-        <TextBlock Text="{Binding Message}" 
-                   IsVisible="{Binding DisplayMessage}"
-                   HorizontalAlignment="Center"
-                   Margin="10">
+        <TextBlock 
+            Text="{Binding Message}" 
+            IsVisible="{Binding DisplayMessage}"
+            HorizontalAlignment="Center"
+            Margin="10">
         </TextBlock>
         
-        <controls1:LinkControl Name="GitHubLink" 
-                              IsVisible="{Binding DisplayGitHubLink}" 
-                              HorizontalAlignment="Center"
-                              Click="GitHubLink_OnClick">
+        <controls1:IconCheckbox 
+            IsVisible="{Binding DisplayAutoRun}" 
+            Text="{Binding Text.PyMusicLooperAutoRunCheckBox}"
+            Value="{Binding AutoRun}"
+            OnChecked="AutoRunIconCheckbox_OnOnChecked"
+            HorizontalAlignment="Center"
+            Margin="0 0 0 5"
+        ></controls1:IconCheckbox>
+        
+        <controls1:LinkControl 
+            Name="GitHubLink"
+            IsVisible="{Binding DisplayGitHubLink}" 
+            HorizontalAlignment="Center"
+            Click="GitHubLink_OnClick"
+        >
             Visit PyMusicLooper GitHub to download.
         </controls1:LinkControl>
         
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 10 0 5" IsVisible="{Binding IsRunning}">
-            <Button Click="StopPyMusicLooperButton_OnClick">
-                Stop PyMusicLooper
-            </Button>
+            <Button 
+                Click="StopPyMusicLooperButton_OnClick"
+                Content="{Binding Text.PyMusicLooperStopButton}"
+            /> 
         </StackPanel>
         
         <DataGrid Name="AudioDataGrid" 
@@ -108,16 +217,45 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 
-                <DataGridTextColumn Header="Loop Start Sample" Binding="{Binding LoopStart}"/>
-                <DataGridTextColumn Header="Loop End Sample" Binding="{Binding LoopEnd}"/>
-                <DataGridTextColumn Header="Score" Binding="{Binding Score}"/>
-                <DataGridTextColumn Header="Loop Duration" Binding="{Binding Duration}"/>
-                <DataGridTextColumn Header="Status" Binding="{Binding Status}"/>
+                <DataGridTextColumn 
+                    Header="{Binding Text.PyMusicLooperGridLoopStartHeader}" 
+                    Binding="{Binding LoopStart}"
+                />
+                <DataGridTextColumn 
+                    Header="{Binding Text.PyMusicLooperGridLoopEndHeader}" 
+                    Binding="{Binding LoopEnd}"
+                />
+                <DataGridTextColumn 
+                    Header="{Binding Text.PyMusicLooperGridScoreHeader}" 
+                    Binding="{Binding Score}"
+                />
+                <DataGridTextColumn 
+                    Header="{Binding Text.PyMusicLooperGridLoopDurationHeader}" 
+                    Binding="{Binding Duration}"
+                />
+                <DataGridTextColumn 
+                    Header="{Binding Text.PyMusicLooperGridStatusHeader}" 
+                    Binding="{Binding Status}"
+                />
             </DataGrid.Columns>
         </DataGrid>
         <Grid ColumnDefinitions="*,*" IsVisible="{Binding DisplayResultsTable}" Margin="4">
-            <Button Grid.Column="0" HorizontalAlignment="Left" Name="PrevPageButton" Click="PrevPageButton_OnClick" IsEnabled="{Binding CanClickOnPrev}">Previous Page</Button>
-            <Button Grid.Column="1" HorizontalAlignment="Right" Name="NextPageButton" Click="NextPageButton_OnClick" IsEnabled="{Binding CanClickOnNext}">Next Page</Button>
+            <Button 
+                Grid.Column="0" 
+                HorizontalAlignment="Left" 
+                Name="PrevPageButton" 
+                Click="PrevPageButton_OnClick" 
+                IsEnabled="{Binding CanClickOnPrev}"
+                Content="{Binding Text.PyMusicLooperPrevButton}"
+            />
+            <Button 
+                Grid.Column="1" 
+                HorizontalAlignment="Right" 
+                Name="NextPageButton" 
+                Click="NextPageButton_OnClick" 
+                IsEnabled="{Binding CanClickOnNext}"
+                Content="{Binding Text.PyMusicLooperNextButton}"
+            />
         </Grid>
     </StackPanel>
 </UserControl>

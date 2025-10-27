@@ -1,6 +1,8 @@
-﻿namespace MSUScripter.Configs;
+﻿using System.ComponentModel;
 
-public static class TrackListType
+namespace MSUScripter.Configs;
+
+public static class TrackListTypeDeprecated
 {
     public const string List = "List";
     public const string Table = "Table";
@@ -12,4 +14,14 @@ public static class TrackListType
         Table,
         Disabled
     ];
+}
+
+public enum TrackList
+{
+    [Description("List: album - song (artist)")]
+    ListAlbumFirst,
+    [Description("List: song by artist (album)")]
+    ListSongFirst,
+    Table,
+    Disabled
 }

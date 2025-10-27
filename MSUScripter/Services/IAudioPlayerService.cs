@@ -5,10 +5,6 @@ namespace MSUScripter.Services;
 
 public interface IAudioPlayerService
 {
-    public static bool CanPlaySongs { get; protected set; }
-    
-    public string CurrentPlayingFile { get; protected set; }
-
     public void Pause();
 
     public void PlayPause();
@@ -33,7 +29,7 @@ public interface IAudioPlayerService
 
     public bool IsStopped { get; }
 
-    public Task<bool> PlaySongAsync(string path, bool fromEnd);
+    public Task<bool> PlaySongAsync(string path, bool fromEnd, bool isLoopingSong);
 
     public Task<bool> StopSongAsync(string? newSongPath = null, bool waitForFile = false);
     

@@ -31,6 +31,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+[Dd]eploy/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -396,5 +397,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+.idea/**/workspace.xml
 
-Setup/output/*
+[Ss]etup/[Oo]utput/*

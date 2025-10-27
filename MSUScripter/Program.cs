@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+// ReSharper disable once RedundantUsingDirective
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,8 +16,6 @@ using Microsoft.Extensions.Hosting;
 using MSURandomizerLibrary;
 using MSUScripter.Models;
 using MSUScripter.Services;
-using MSUScripter.Services.ControlServices;
-using MSUScripter.Views;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
 
@@ -62,7 +61,7 @@ class Program
         {
             StartingProject = args[0];
         }
-        
+
         MainHost = Host.CreateDefaultBuilder(args)
             .UseSerilog()
             .ConfigureLogging(logging =>
@@ -75,7 +74,7 @@ class Program
             })
             .Build();
 
-        InitializeServices(args);
+        InitializeServices();
 
         ExceptionWindow.GitHubUrl = "https://github.com/MattEqualsCoder/MSUScripter/issues";
         ExceptionWindow.LogPath = Directories.LogFolder;
@@ -89,14 +88,14 @@ class Program
         }
         catch (Exception e)
         {
-            ShowExceptionPopup(e).ContinueWith(t => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
+            ShowExceptionPopup(e).ContinueWith(_ => source.Cancel(), TaskScheduler.FromCurrentSynchronizationContext());
             Dispatcher.UIThread.MainLoop(source.Token);
         }
         
     }
     
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
+    private static AppBuilder BuildAvaloniaApp()
     {
         return AppBuilder.Configure<App>()
             .UsePlatformDetect()
@@ -118,28 +117,26 @@ class Program
             .AddSingleton<ConverterService>()
             .AddSingleton<AudioAnalysisService>()
             .AddSingleton<ProjectService>()
-            .AddSingleton<PyMusicLooperService>()
             .AddSingleton<TrackListService>()
             .AddSingleton<StatusBarService>()
-            .AddTransient<PythonCommandRunnerService>()
-            .AddTransient<VideoCreatorWindowService>()
-            .AddTransient<SharedPcmService>()
+            .AddSingleton<PythonCompanionService>()
+            .AddSingleton<DependencyInstallerService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
 
         if (OperatingSystem.IsWindows())
         {
-            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceWindows>();
+            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceNAudio>();
         }
         else
         {
-            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceLinux>();    
+            collection.AddSingleton<IAudioPlayerService, AudioPlayerServiceSoundFlow>();
         }
 
         return collection;
     }
 
-    private static void InitializeServices(string[] args)
+    private static void InitializeServices()
     {
         var services = MainHost.Services;
         services.GetRequiredService<SettingsService>();
@@ -147,7 +144,7 @@ class Program
         services.GetRequiredService<IControlServiceFactory>();
         services.GetRequiredService<ConverterService>();
         services.GetRequiredService<YamlService>();
-        services.GetRequiredService<ApplicationInitializationService>().Initialize(args);
+        services.GetRequiredService<ApplicationInitializationService>().Initialize();
     }
     
     private static async Task ShowExceptionPopup(Exception e)

@@ -1,13 +1,17 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AppImageManager;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
 using AvaloniaControls;
 using AvaloniaControls.Controls;
 using AvaloniaControls.Extensions;
+using AvaloniaControls.Models;
 using MSUScripter.Configs;
-using MSUScripter.Events;
 using MSUScripter.Models;
 using MSUScripter.Services.ControlServices;
 using MSUScripter.Tools;
@@ -19,9 +23,6 @@ namespace MSUScripter.Views;
 public partial class MainWindow : RestorableWindow
 {
     private readonly MainWindowService? _service;
-    private NewProjectPanel? _newProjectPanel;
-    private EditProjectPanel? _editProjectPanel;
-    private bool _forceClose;
     private readonly MainWindowViewModel _model;
     
     public MainWindow()
@@ -39,112 +40,369 @@ public partial class MainWindow : RestorableWindow
         }
     }
 
-    private async void Control_OnLoaded(object? sender, RoutedEventArgs e)
+    private void Control_OnLoaded(object? sender, RoutedEventArgs e)
     {
-        if (_model.InitProjectError)
+        try
         {
-            await MessageWindow.ShowErrorDialog("There was an error in loading the requested project");
-        }
-        else if (_model.InitProject != null)
-        {
-            await GetNewProjectPanel().LoadProject(_model.InitProject, _model.InitBackupProject);
-        }
+            _model.ActiveTabBackground = this.Find<Border>(nameof(SelectedTabBorder))?.Background ?? Brushes.Transparent;
+            _model.NewProjectBackground = _model.ActiveTabBackground;
 
-        if (_model.HasDoneFirstTimeSetup) return;
-        await SetupMsuPcm();
+            if (_model.RecentProjects.Count == 0)
+            {
+                _model.NewProjectBackground = _model.ActiveTabBackground;
+                _model.OpenProjectBackground = Brushes.Transparent;
+                _model.DisplayNewProjectPage = true;
+                _model.DisplayOpenProjectPage = false;
+            }
+            else
+            {
+                _model.NewProjectBackground = Brushes.Transparent;
+                _model.OpenProjectBackground = _model.ActiveTabBackground;
+                _model.DisplayNewProjectPage = false;
+                _model.DisplayOpenProjectPage = true;
+            }
+
+            _ = Dispatcher.UIThread.InvokeAsync(ShowStartupWindows);
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error loading main window");
+        }
     }
 
-    private async Task SetupMsuPcm()
+    private async Task ShowStartupWindows()
     {
         if (_service == null) return;
+        await Task.Delay(TimeSpan.FromSeconds(0.5));
         
-        var result = await MessageWindow.ShowYesNoDialog(
-            "If you want to use msupcm++, you'll need to point the MSU Scripter to its location. Would you like to set the msupcm++ path now? You can always set it later in the settings if needed.",
-            "Setup msupcm++", this);
-        if (!result)
+        await ShowDesktopFileWindow();
+
+        var updateUrl = await _service.CheckForNewRelease();
+        if (!string.IsNullOrEmpty(updateUrl?.ReleaseUrl))
         {
-            _service.UpdateHasDoneFirstTimeSetup(null);
+            await ShowNewReleaseWindow(updateUrl.Value.ReleaseUrl, updateUrl.Value.DownloadUrl);
         }
-
-        var documentsFolderPath = await this.GetDocumentsFolderPath();
-        var filter = OperatingSystem.IsWindows()
-            ? "msupcm Executable:msupcm.exe;All Files:*.*"
-            : "msupcm Executable:msupcm;All Files:*";
-        var msuPcmPath = await CrossPlatformTools.OpenFileDialogAsync(this, FileInputControlType.OpenFile, filter, documentsFolderPath);
-
-        if (msuPcmPath == null)
-        {
-            _service.UpdateHasDoneFirstTimeSetup(null);
-            return;
-        }
-
-        _service.UpdateHasDoneFirstTimeSetup(msuPcmPath.Path.LocalPath);
         
-        if (!_service.ValidateMsuPcm(msuPcmPath.Path.LocalPath))
+        if (!await _service.ValidateDependencies())
         {
-            await MessageWindow.ShowErrorDialog(
-                "msupcm++ failed to run successfully. Make sure you can run msupcm -v in the commandline.",
-                "msupcm++ Error", this);
+            var dependencyWindow = new InstallDependenciesWindow();
+            _model.ValidatedDependencies = true;
+            await dependencyWindow.ShowDialog(this);
         }
         else
         {
-            await MessageWindow.ShowInfoDialog("msupcm++ setup successful.", "Success", this);
+            _model.ValidatedDependencies = true;
+        }
+            
+        if (_model.InitProject != null)
+        {
+            _ = LoadProject(_model.InitProject);
         }
     }
 
-    private async void Window_OnClosing(object? sender, WindowClosingEventArgs e)
+    private async Task ShowDesktopFileWindow()
+    {
+        if (!OperatingSystem.IsLinux() || _model.Settings.Settings.SkipDesktopFile)
+        {
+            return;
+        }
+
+        if (!AppImage.IsRunningFromAppImage() || AppImage.DoesDesktopFileExist(App.AppId))
+        {
+            return;
+        }
+
+        if (await MessageWindow.ShowYesNoDialog("Would you like to add the MSU Scripter to your menu by creating a desktop file?",
+            "MSU Scripter", this) == false)
+        {
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+            _service?.SkipDesktopFile();
+            return;
+        }
+
+        _service?.CreateDesktopFile();
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
+    }
+
+    private async Task ShowNewReleaseWindow(string releaseUrl, string? downloadUrl)
+    {
+        downloadUrl ??= "";
+        var hasDownloadUrl = !string.IsNullOrEmpty(downloadUrl);
+        
+        var messageWindow = new MessageWindow(new MessageWindowRequest
+        {
+            Message = "A new version has been released and is available on Github.",
+            Title = "New Version",
+            LinkText = "View release on GitHub",
+            LinkUrl = releaseUrl,
+            Icon = MessageWindowIcon.Info,
+            Buttons = hasDownloadUrl ? MessageWindowButtons.YesNo : MessageWindowButtons.OK,
+            CheckBoxText = "Do not check for updates",
+            PrimaryButtonText = hasDownloadUrl ? "Download Update" : "OK",
+            SecondaryButtonText = "Close"
+        });
+        
+        await messageWindow.ShowDialog(this);
+
+        if (messageWindow.DialogResult == null)
+        {
+            return;
+        }
+        
+        if (messageWindow.DialogResult.CheckedBox)
+        {
+            _service?.IgnoreFutureUpdates();
+        }
+
+        if (messageWindow.DialogResult.PressedAcceptButton)
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                var downloadResult = await AppImage.DownloadAsync(new DownloadAppImageRequest
+                {
+                    Url = downloadUrl
+                });
+                
+                if (downloadResult.Success)
+                {
+                    Close();
+                }
+                else if (downloadResult.DownloadedSuccessfully)
+                {
+                    await MessageWindow.ShowErrorDialog("AppImage was downloaded, but it could not be launched.");
+                }
+                else
+                {
+                    await MessageWindow.ShowErrorDialog("Failed downloading AppImage");
+                }
+            }
+            else
+            {
+                throw new InvalidOperationException("Not supported on Windows");
+            }
+        }
+    }
+    
+    private void Window_OnClosing(object? sender, WindowClosingEventArgs e)
     {
         _service?.Shutdown();
-        
-        if (_forceClose || _service?.IsEditPanelDisplayed != true || !GetEditProjectPanel().HasPendingChanges) return;
-        
-        e.Cancel = true;
-        await GetEditProjectPanel().DisplayPendingChangesWindow();
-        _forceClose = true;
-        Close();
     }
 
     protected override string RestoreFilePath => Path.Combine(Directories.BaseFolder, "Windows", "main-window.json");
     protected override int DefaultWidth => 1024;
     protected override int DefaultHeight => 768;
+
+    public void RefreshRecentProjects()
+    {
+        _service?.RefreshRecentProjects();
+    }
+   
+    private void InputElement_OnDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        _ = LoadProject();
+    }
+
+    private async Task LoadProject(string? path = null)
+    {
+        if (_service == null) return;
+        
+        var response = _service.LoadProject(path);
+
+        if (!string.IsNullOrEmpty(response.error))
+        {
+            await MessageWindow.ShowErrorDialog(response.error, null, this);
+            return;
+        }
+        
+        OpenProject(response.mainProject!, response.backupProject);
+    }
+
+    private void NewProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.SaveSettings();
+        _model.NewProjectBackground = _model.ActiveTabBackground;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = true;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = false;
+    }
     
-    private NewProjectPanel GetNewProjectPanel()
+    private void OpenProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        if (_newProjectPanel != null) return _newProjectPanel;
-        _newProjectPanel ??= this.FindControl<NewProjectPanel>(nameof(NewProjectPanel))!;
-        return _newProjectPanel;
+        _service?.SaveSettings();
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = _model.ActiveTabBackground;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = true;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = false;
+    }
+
+    private void SettingsButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _model.Settings.LoadSettings();
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = _model.ActiveTabBackground;
+        _model.AboutBackground = Brushes.Transparent;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = true;
+        _model.DisplayAboutPage = false;
+    }
+
+    private void AboutButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        _service?.SaveSettings();
+        _model.NewProjectBackground = Brushes.Transparent;
+        _model.OpenProjectBackground = Brushes.Transparent;
+        _model.SettingsBackground = Brushes.Transparent;
+        _model.AboutBackground = _model.ActiveTabBackground;
+        _model.DisplayNewProjectPage = false;
+        _model.DisplayOpenProjectPage = false;
+        _model.DisplaySettingsPage = false;
+        _model.DisplayAboutPage = true;
+    }
+
+    private void CreateProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        var project = _service?.CreateNewProject();
+        if (project == null)
+        {
+            // show error
+            return;
+        }
+
+        OpenProject(project, null);
+    }
+
+    private async void OpenProject(MsuProject project, MsuProject? backupProject)
+    {
+        try
+        {
+            if (_service == null)
+            {
+                return;
+            }
+            
+            if (backupProject != null && await MessageWindow.ShowYesNoDialog(
+                    "A backup with unsaved changes was detected. Would you like to load from the backup instead?",
+                    "Load Backup?", this))
+            {
+                project = backupProject;
+            }
+
+            if (_service.IsLegacySmz3Project(project) && await MessageWindow.ShowYesNoDialog(
+                    "This MSU is in the legacy format that is not supported by the mainline SMZ3. Do you want to update it to the modern SMZ3 format?",
+                    "Update MSU Type?", this))
+            {
+                _service.UpdateLegacySmz3Project(project);
+            }
+
+            if (_service.ValidateProjectPaths(project) == false)
+            {
+                var window = new CopyProjectWindow();
+                var updatedProject = await window.ShowDialog(this, project, false);
+                if (updatedProject == null) return;
+            }
+        
+            var msuProjectWindow = new MsuProjectWindow(project, this);
+            msuProjectWindow.Show();
+            msuProjectWindow.Closed += (sender, args) =>
+            {
+                _model.MsuProjectName = "";
+                _model.MsuCreatorName = "";
+                _model.SelectedMsuType = null;
+                _model.MsuPath = "";
+                _model.MsuProjectPath = "";
+                _model.MsuPcmJsonPath = "";
+                _model.MsuPcmWorkingPath = "";
+                if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.ExitApplication)
+                {
+                    Close();
+                }
+                else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.OpenProject)
+                {
+                    _ = LoadProject(msuProjectWindow.OpenProjectPath);
+                }
+                else if (msuProjectWindow.CloseReason == MsuProjectWindowCloseReason.NewProject)
+                {
+                    _model.NewProjectBackground = _model.ActiveTabBackground;
+                    _model.OpenProjectBackground = Brushes.Transparent;
+                    _model.SettingsBackground = Brushes.Transparent;
+                    _model.AboutBackground = Brushes.Transparent;
+                    _model.DisplayNewProjectPage = true;
+                    _model.DisplayOpenProjectPage = false;
+                    _model.DisplaySettingsPage = false;
+                    _model.DisplayAboutPage = false;
+                }
+            
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            };
+        }
+        catch (Exception e)
+        {
+            _service?.LogError(e, "Error opening project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
+    }
+
+    private async void BrowseProjectButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var path = await OpenMsuProjectFilePicker(false);
+            if (string.IsNullOrEmpty(path)) return;
+            await LoadProject(path);
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error opening project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
     }
     
-    private EditProjectPanel GetEditProjectPanel()
+    private async Task<string?> OpenMsuProjectFilePicker(bool isSave)
     {
-        if (_editProjectPanel != null) return _editProjectPanel;
-        _editProjectPanel ??= this.FindControl<EditProjectPanel>(nameof(EditProjectPanel))!;
-        return _editProjectPanel;
-    }
-    
-    private void EditProjectPanel_OnOnCloseProject(object? sender, EventArgs e)
-    {
-        GetNewProjectPanel().ResetModel();
-        _service?.CloseEditProjectPanel();
+        var folder = string.IsNullOrEmpty(_model.MsuPath)
+            ? await this.GetDocumentsFolderPath()
+            : Path.GetDirectoryName(_model.MsuPath);
+        var path = await CrossPlatformTools.OpenFileDialogAsync(this, isSave ? FileInputControlType.SaveFile : FileInputControlType.OpenFile,
+            "MSU Scripter Project File:*.msup", folder);
+        return path?.Path.LocalPath;
     }
 
-    private void NewProjectPanel_OnOnProjectSelected(object? sender, ValueEventArgs<MsuProject> e)
+    private async void CloneProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        _service?.OpenEditProjectPanel(e.Data);
-    }
-
-    private void GitHubUrlLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.OpenGitHubReleasePage();
-    }
-
-    private void CloseUpdateButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.CloseNewReleaseBanner(false);
-    }
-
-    private void DisableUpdatesLink_OnClick(object? sender, RoutedEventArgs e)
-    {
-        _service?.CloseNewReleaseBanner(true);
+        try
+        {
+            var path = await OpenMsuProjectFilePicker(false);
+            if (string.IsNullOrEmpty(path) || _service == null) return;
+        
+            var response = _service.LoadProject(path);
+            if (!string.IsNullOrEmpty(response.error))
+            {
+                await MessageWindow.ShowErrorDialog(response.error, null, this);
+                return;
+            }
+        
+            var window = new CopyProjectWindow();
+            var project = await window.ShowDialog(this, response.mainProject!, true);
+            if (project != null)
+            {
+                OpenProject(project, null);
+            }
+        }
+        catch (Exception ex)
+        {
+            _service?.LogError(ex, "Error cloning project");
+            await MessageWindow.ShowErrorDialog(_model.Text.GenericError, _model.Text.GenericErrorTitle, this);
+        }
     }
 }

@@ -9,12 +9,12 @@ public static class ControlExtensions
     public static async Task<string?> GetDocumentsFolderPath(this Control control)
     {
         var topLevel = TopLevel.GetTopLevel(control) ?? App.MainWindow;
-        if (topLevel == null)
-        {
-            return null;
-        }
-
         var location = await topLevel.StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents);
         return location?.Path.LocalPath;
+    }
+
+    public static Window GetTopLevelWindow(this Control control)
+    {
+        return TopLevel.GetTopLevel(control) as Window ?? App.MainWindow;
     }
 }

@@ -6,66 +6,328 @@
         xmlns:viewModels="clr-namespace:MSUScripter.ViewModels"
         xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="500"
         x:Class="MSUScripter.Views.MainWindow"
         Icon="/Assets/MSUScripterIcon.ico"
-        MinWidth="1024"
-        MinHeight="768"
-        Width="1024"
-        Height="768"
+        MinWidth="600"
+        MinHeight="500"
+        Width="600"
+        Height="500"
         Loaded="Control_OnLoaded"
         Closing="Window_OnClosing"
         x:DataType="viewModels:MainWindowViewModel"
         Title="{Binding Title}">
     <LayoutTransformControl Name="MainLayout">
-        
-        <Grid RowDefinitions="Auto, *">
-            <controls:HeaderFooter BorderSize="0 0 0 2" Grid.Row="0" IsVisible="{Binding DisplayNewVersionBanner}">
+        <Grid>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding !ValidatedDependencies}" VerticalAlignment="Center" Margin="50">
+                <TextBlock>Checking Dependencies...</TextBlock>
+                <ProgressBar IsIndeterminate="True"></ProgressBar>
+            </StackPanel>
+            <Grid ColumnDefinitions="210, *" IsVisible="{Binding ValidatedDependencies}">
+                <Border 
+                    Grid.Column="0"
+                    Background="{DynamicResource CardBackgroundColor}"
+                    BorderThickness="0 0 2 0"
+                    BorderBrush="{DynamicResource CardBorderColor}"
+                >
+                    <StackPanel
+                        Margin="10"
+                    >
+                        <Grid ColumnDefinitions="Auto, *">
+                            <Image 
+                                Source="/Assets/MSUScripterIcon.ico"
+                                Grid.Column="0"
+                                Width="48"
+                                Height="48"
+                                Margin="0,0,7,0" 
+                            />
+                            <StackPanel
+                                Grid.Column="1"
+                                Margin="0 5 0 0"
+                            >
+                                <TextBlock 
+                                    FontSize="20" 
+                                    Text="{Binding Text.MainWindowApplicationName}" 
+                                />
+                                <TextBlock 
+                                    Opacity="0.4"
+                                    Text="{Binding AppVersion}"
+                                />
+                            </StackPanel>
+                        </Grid>
+                        
+                        <Panel Height="20"></Panel>
+                        <Button 
+                            Margin="0 0 0 10"
+                            Padding="15 10"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0"
+                            Background="{Binding NewProjectBackground}"
+                            Click="NewProjectButton_OnClick"
+                        >
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource ThemeControlVeryHighBrush}"></Setter>
+                                </Style>
+                            </Button.Styles>
+                            <StackPanel 
+                                Orientation="Horizontal"
+                            >
+                                <avalonia:MaterialIcon Kind="InvoiceNew"  Margin="0 0 5 0"/>
+                                <TextBlock
+                                    Text="{Binding Text.MainWindowNewProject}"
+                                />
+                            </StackPanel>
+                        </Button>
+                        <Button 
+                            Margin="0 0 0 10"
+                            Padding="15 10"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0"
+                            Background="{Binding OpenProjectBackground}"
+                            Click="OpenProjectButton_OnClick"
+                        >
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource ThemeControlVeryHighBrush}"></Setter>
+                                </Style>
+                            </Button.Styles>
+                            <StackPanel 
+                                Orientation="Horizontal"
+                            >
+                                <avalonia:MaterialIcon Kind="FolderOpen"  Margin="0 0 5 0"/>
+                                <TextBlock
+                                    Text="{Binding Text.MainWindowOpenProject}"
+                                />
+                            </StackPanel>
+                        </Button>
+                        <Button 
+                            Margin="0 0 0 10"
+                            Padding="15 10"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0"
+                            Background="{Binding SettingsBackground}"
+                            Click="SettingsButton_OnClick"
+                        >
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource ThemeControlVeryHighBrush}"></Setter>
+                                </Style>
+                            </Button.Styles>
+                            <StackPanel 
+                                Orientation="Horizontal"
+                            >
+                                <avalonia:MaterialIcon Kind="Settings"  Margin="0 0 5 0"/>
+                                <TextBlock
+                                    Text="{Binding Text.MainWindowSettings}"
+                                />
+                            </StackPanel>
+                        </Button>
+                        <Button 
+                            Margin="0 0 0 10"
+                            Padding="15 10"
+                            HorizontalContentAlignment="Left"
+                            BorderThickness="0"
+                            Background="{Binding AboutBackground}"
+                            Click="AboutButton_OnClick"
+                        >
+                            <Button.Styles>
+                                <Style Selector="Button:pointerover /template/ ContentPresenter">
+                                    <Setter Property="Background" Value="{StaticResource ThemeControlVeryHighBrush}"></Setter>
+                                </Style>
+                            </Button.Styles>
+                            <StackPanel 
+                                Orientation="Horizontal"
+                            >
+                                <avalonia:MaterialIcon Kind="About"  Margin="0 0 5 0"/>
+                                <TextBlock
+                                    Text="{Binding Text.MainWindowAbout}"
+                                />
+                            </StackPanel>
+                        </Button>
+                        <Border 
+                            Background="{DynamicResource ThemeAccentBrush4}"
+                            x:Name="SelectedTabBorder"
+                        />
+                    </StackPanel>
+                </Border>
                 
-                <Grid ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, Auto">
+                <StackPanel 
+                    Grid.Column="1"
+                    IsVisible="{Binding DisplayNewProjectPage}"
+                    Margin="15"
+                >
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoPackNameLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoPackNameToolTip}"
+                    />
+                    <TextBox
+                        Text="{Binding MsuProjectName}"
+                    />
                     
-                    <avalonia:MaterialIcon Grid.Row="0" 
-                                           Grid.Column="0" 
-                                           Grid.RowSpan="2" 
-                                           Kind="Update"
-                                           Width="30"
-                                           Height="30"
-                                           Margin="5 0 0 0"
-                    ></avalonia:MaterialIcon>
+                    <Panel Height="10"/>
                     
-                    <StackPanel Grid.Row="" Grid.Column="1" Orientation="Horizontal" Margin="5">
-                        <TextBlock>A new version of the MSU Scripter is now available!</TextBlock>
-                        <controls:LinkControl Margin="5 0 0 0" Name="GitHubUrlLink" Click="GitHubUrlLink_OnClick">Click here to go to the download page.</controls:LinkControl>
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoPackCreatorLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoPackCreatorToolTip}"
+                    />
+                    <TextBox
+                        Text="{Binding MsuCreatorName}"
+                    />
+                    
+                    <Panel Height="10"/>
+                    
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoMsuTypeLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoMsuTypeToolTip}"
+                    />
+                    <ComboBox 
+                        HorizontalContentAlignment="Stretch" 
+                        HorizontalAlignment="Stretch"
+                        ItemsSource="{Binding MsuTypes}"
+                        DisplayMemberBinding="{Binding DisplayName}"
+                        SelectedItem="{Binding SelectedMsuType, Mode=TwoWay}"
+                    />
+                    
+                    <Panel Height="10"/>
+                    
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoMsuPathLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoMsuPathToolTip}"
+                    />
+                    <controls:FileControl 
+                        FileInputType="SaveFile" 
+                        Filter="MSU Files:*.msu" 
+                        WarnOnOverwrite="False" 
+                        ForceExtension="msu"
+                        FilePath="{Binding MsuPath, Mode=TwoWay}"
+                    />
+                    
+                    <Panel Height="10"/>
+                    
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoMsuProjectPathLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoMsuProjectPathToolTip}"
+                    />
+                    <controls:FileControl 
+                        FileInputType="SaveFile" 
+                        Filter="MSU Project Files:*.msup" 
+                        WarnOnOverwrite="False" 
+                        ForceExtension="msup"
+                        FilePath="{Binding MsuProjectPath, Mode=TwoWay}"
+                    />
+                    
+                    <Panel Height="10"/>
+                    
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoImportJsonLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoImportJsonToolTip}"
+                    />
+                    <controls:FileControl 
+                        FileInputType="OpenFile" 
+                        Filter="msupcm++ Json Files:*.json" 
+                        Name="MsuPcmJsonFile"
+                        FilePath="{Binding MsuPcmJsonPath, Mode=TwoWay}"
+                    />
+                    
+                    <Panel Height="10"/>
+                    
+                    <views:FormLabel
+                        LabelText="{Binding Text.MsuBasicInfoImportWorkingDirectoryLabel}"
+                        ToolTipText="{Binding Text.MsuBasicInfoImportWorkingDirectoryToolTip}"
+                    />
+                    <controls:FileControl 
+                        FileInputType="Folder" 
+                        Name="MsuPcmWorkingDirectory"
+                        FilePath="{Binding MsuPcmWorkingPath, Mode=TwoWay}"
+                        IsEnabled="{Binding CanSetMsuPcmWorkingPath}"
+                    />
+                    
+                    <Panel Height="15"/>
+                    
+                    <Button
+                        HorizontalAlignment="Center"
+                        Padding="10 5"
+                        Click="CreateProjectButton_OnClick"
+                        IsEnabled="{Binding CanCreateProject}"
+                    >
+                        Create Project
+                    </Button>
+                        
+                </StackPanel>
+                <Grid 
+                    Grid.Column="1" 
+                    RowDefinitions="Auto, Auto, *"
+                    IsVisible="{Binding DisplayOpenProjectPage}"
+                    HorizontalAlignment="Stretch"
+                >
+                    <StackPanel
+                        Grid.Row="0"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="5"
+                    >
+                        <Button
+                            Content="Browse..."
+                            Margin="0 3 5 5"
+                            Padding="10 5"
+                            Click="BrowseProjectButton_OnClick"
+                        />
+                        <Button
+                            Margin="0 3 0 5"
+                            Padding="10 5"
+                            Content="Clone Project..."
+                            Click="CloneProjectButton_OnClick"
+                        />
                     </StackPanel>
-
-                    <controls:ImageButton Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Top" Name="CloseUpdateButton" Click="CloseUpdateButton_OnClick" Margin="0 3 3 0">
-                        <avalonia:MaterialIcon Kind="Close" Width="12" Height="12" Background="Transparent"></avalonia:MaterialIcon>
-                    </controls:ImageButton>
-                    
-                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 3 3">
-                        <controls:LinkControl FontSize="10" Margin="5 0 0 0" Name="DisableUpdatesLink" Click="DisableUpdatesLink_OnClick">Don't Check for Updates</controls:LinkControl>
-                    </StackPanel>
+                    <Separator Grid.Row="1" Margin="4 0"></Separator>
+                    <ListBox 
+                        Grid.Row="2" 
+                        BorderThickness="0"
+                        ItemsSource="{Binding RecentProjects}"
+                        SelectedItem="{Binding SelectedRecentProject}"
+                        DoubleTapped="InputElement_OnDoubleTapped"
+                        HorizontalAlignment="Stretch"
+                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    >
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel 
+                                    Orientation="Vertical" 
+                                    Margin="10"
+                                >
+                                    <TextBlock 
+                                        Text="{Binding ProjectName}"
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTip.Tip="{Binding ProjectName}"
+                                    />
+                                    <TextBlock 
+                                        Text="{Binding ProjectPath}"
+                                        Opacity="0.4"
+                                        HorizontalAlignment="Stretch"
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTip.Tip="{Binding ProjectPath}"
+                                    />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
-
-            </controls:HeaderFooter>
-            
-            <Grid Grid.Row="1" Name="MainGrid" RowDefinitions="Auto,*" IsSharedSizeScope="True">
-                
-                <DockPanel Grid.Row="1" IsVisible="{Binding DisplayNewPage}">
-                    <views:NewProjectPanel 
-                        Name="NewProjectPanel" 
-                        OnProjectSelected="NewProjectPanel_OnOnProjectSelected"
-                    ></views:NewProjectPanel>
-                </DockPanel>
-                
-                <DockPanel Grid.Row="1" IsVisible="{Binding DisplayEditPage}">
-                    <views:EditProjectPanel 
-                        Name="EditProjectPanel"
-                        OnCloseProject="EditProjectPanel_OnOnCloseProject"
-                        DataContext="{Binding NullValue}" 
-                        ParentDataContext="{Binding $parent.DataContext}"
-                    ></views:EditProjectPanel>
-                </DockPanel>
+                <StackPanel 
+                    Orientation="Vertical" 
+                    Grid.Column="1"
+                    Margin="15"
+                    IsVisible="{Binding DisplaySettingsPage}"
+                >
+                    <views:SettingsPanel
+                        DataContext="{Binding Settings}"
+                    />
+                </StackPanel>
+                <views:AboutPanel
+                    Grid.Column="1"
+                    Margin="15"
+                    IsVisible="{Binding DisplayAboutPage}"
+                ></views:AboutPanel>
             </Grid>
         </Grid>
     </LayoutTransformControl>

@@ -1,0 +1,4 @@
+Mode: create_video
+OutputVideo: /home/matt/Source/PyMsuScripterApp/out/create_video_out.mp4
+Files:
+  - /home/matt/Documents/MSUProjects/When The Fates Cry/Output/WhenTheFatesCry_SMZ3-2.pcm

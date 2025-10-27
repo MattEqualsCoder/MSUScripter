@@ -1,0 +1,125 @@
+name: .NET Build + Publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+
+    permissions:
+      contents: write
+
+    outputs:
+      version-number: ${{ steps.version.outputs.number}}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -p:PostBuildEvent=
+      - name: Publish Windows 64bit
+        if: ${{ github.event_name != 'pull_request' }}
+        run: dotnet publish --os win --arch x64 -c Release --self-contained false  MSUScripter/MSUScripter.csproj
+      - name: Publish Windows 32bit
+        if: ${{ github.event_name != 'pull_request' }}
+        run: dotnet publish --os win --arch x86 -c Release --self-contained false MSUScripter/MSUScripter.csproj
+      - name: Get version number
+        if: ${{ github.event_name != 'pull_request' }}
+        id: version
+        run: |
+          $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
+          $version = $version.Split("+")[0]
+          Write-Host $version
+          Write-Output "number=$version" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+      - name: Building the Windows installer
+        if: ${{ github.event_name != 'pull_request' }}
+        run: '"%programfiles(x86)%/Inno Setup 6/iscc.exe" "Setup/MSUScripter.iss"'
+        shell: cmd
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          path: "setup/Output/*"
+          name: MSUScripterWindows
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: [build-windows]
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+      - name: Update VersionOverride in source file
+        run: |
+          pwd
+          VERSION="${{ needs.build-windows.outputs.version-number }}"
+          BASE_VERSION="${VERSION%%-*}"
+          FILE="MSUScripter/App.axaml.cs"
+          sed -i -E "s|^[[:space:]]*private static readonly string\?[[:space:]]+VersionOverride[[:space:]]*=[[:space:]]*null;|private static readonly string? VersionOverride = \"${VERSION}\";|" "$FILE"
+          sed -i "s/^AppVersionRelease *= *.*/AppVersionRelease = ${BASE_VERSION}/" Setup/AppImage.pupnet.conf
+          echo "Updated VersionOverride to: ${VERSION}"
+      - name: Install PupNet
+        run: dotnet tool install -g KuiperZone.PupNet
+      - name: Download AppImageTool
+        run: |
+          wget -P "$HOME/.local/bin" "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+          chmod +x "$HOME/.local/bin/appimagetool-x86_64.AppImage"
+          appimagetool-x86_64.AppImage --version
+      - name: Run PupNet
+        run: pupnet Setup/AppImage.pupnet.conf --kind appimage -y
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          path: "Setup/Output/MSUScripter*"
+          name: MSUScripterLinux
+
+  package:
+    runs-on: ubuntu-22.04
+    needs: [build-windows, build-linux]
+    if: ${{ github.event_name != 'pull_request' }}
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          name: MSUScripterWindows
+          path: out
+      - uses: actions/download-artifact@v5
+        with:
+          name: MSUScripterLinux
+          path: out
+      - name: Extract some files
+        run: |
+          ls -alR
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          path: "out/*"
+          name: MSUScripter_${{ needs.build-windows.outputs.version-number }}
+      - name: Delete old artifacts
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: |
+            MSUScripterWindows
+            MSUScripterLinux

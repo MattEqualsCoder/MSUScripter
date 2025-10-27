@@ -1,0 +1,166 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="clr-namespace:AvaloniaControls.Controls;assembly=AvaloniaControls"
+             mc:Ignorable="d" d:DesignWidth="350" d:DesignHeight="478"
+             x:Class="MSUScripter.Views.AboutPanel">
+    <StackPanel Orientation="Vertical">
+        <TextBlock Margin="0 5 0 0" FontWeight="Bold">
+            Created by MattEqualsCoder
+        </TextBlock>
+        
+        <TextBlock Margin="0 15 0 0" FontSize="16">
+            Need Assistance?
+        </TextBlock>
+        
+        <TextBlock Margin="0 5 0 0" TextWrapping="Wrap">
+            Creating an
+            <InlineUIContainer>
+                <controls:LinkControl Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/MattEqualsCoder/MSUScripter/issues">
+                    issue on GitHub
+                </controls:LinkControl>
+            </InlineUIContainer>
+            is the preferred way of reporting an issue, but you can also reach out on Discord on the ALttPR and SMZ3 randomizer Discord servers.
+            If you had a crash, please provide the 
+            <InlineUIContainer>
+                <controls:LinkControl Click="LinkControlButton_OnClick">
+                    log file
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for troubleshooting.
+        </TextBlock>
+        
+        <TextBlock Margin="0 15 0 0" FontSize="16">
+            Special Thanks:
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://linktr.ee/qwertymodo">
+                    qwertymodo
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for creating 
+            <InlineUIContainer>
+                <controls:LinkControl Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/qwertymodo/msupcmplusplus">
+                    msupcm++
+                </controls:LinkControl>
+            </InlineUIContainer>,
+            the original tool that this application is built around utilizing for creating PCM files.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/arkrow">
+                    arkrow
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for creating 
+            <InlineUIContainer>
+                <controls:LinkControl Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/arkrow/PyMusicLooper">
+                    PyMusicLooper
+                </controls:LinkControl>
+            </InlineUIContainer>,
+            which is used for automatically detecting loop points for songs.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://www.twitch.tv/structuralmike">
+                    StructuralMike
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for creating the original Python script for creating videos to test for Copyright strikes on YouTube.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://vivelin.net/">
+                    Vivelin
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for contributions and for creating the 
+            <InlineUIContainer>
+                <controls:LinkControl Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/Vivelin/SMZ3Randomizer">
+                    SMZ3 Cas' Randomizer
+                </controls:LinkControl>
+            </InlineUIContainer>, that started me working on this.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/miketrethewey">
+                    Minnie Trethewey
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for the files for the MSU types of different randomizers and rom hacks.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/astral-sh">
+                    Astral
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for the standalone Python package to make it easier to provide PyMusicLooper and other Python apps.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/Vo1dTear">
+                    Vo1dTear
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for the AppImage version of msupcm++ to make it easier to install for Linux users.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://www.twitch.tv/pinkkittyrose">
+                    PinkKittyRose
+                </controls:LinkControl>
+            </InlineUIContainer>,
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">Phiggle</TextBlock>
+            </InlineUIContainer>, and 
+            <InlineUIContainer>
+                <controls:LinkControl FontWeight="Bold" Click="LinkControlButton_OnClick" ToolTip.Tip="https://github.com/codemann8">
+                    codemann8
+                </controls:LinkControl>
+            </InlineUIContainer>
+            for testing and providing suggestions.
+        </TextBlock>
+        
+        <TextBlock Margin="3 5 0 0" TextWrapping="Wrap">
+            <InlineUIContainer>
+                <TextBlock FontWeight="Bold">• </TextBlock>
+            </InlineUIContainer>
+            All of the MSU creators for making it worth creating this!
+        </TextBlock>
+    </StackPanel>
+</UserControl>
