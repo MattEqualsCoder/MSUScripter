@@ -1091,6 +1091,7 @@ public class MsuProjectWindowService(
             return null;
         }
     
+        output.Id = null!;
         output.TrackNumber = 0;
         output.TrackName = null;
         output.OutputPath = null;
@@ -1098,6 +1099,9 @@ public class MsuProjectWindowService(
         output.IsComplete = false;
         output.MsuPcmInfo.ClearFieldsForYaml();
         output.IsAlt = false;
+        output.LastGeneratedDate = new DateTime();
+        output.DisplayAdvancedMode = null;
+        output.MsuPcmInfo.Output = null;
         var yamlText = yamlService.ToYaml(output, YamlType.PascalIgnoreDefaults);
     
         return
