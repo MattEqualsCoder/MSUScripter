@@ -15,7 +15,7 @@ namespace MSUScripter.Services;
 public class PythonCompanionService(ILogger<PythonCompanionService> logger, YamlService yamlService, DependencyInstallerService dependencyInstallerService)
 {
     private const string BaseCommand = "py_msu_scripter_app";
-    private const string MinVersion = "v0.1.6";
+    private const string MinVersion = "v0.1.9";
     private RunMethod _runMethod = RunMethod.Unknown;
     private string? _pythonExecutablePath;
     private string? _ffmpegPath;
