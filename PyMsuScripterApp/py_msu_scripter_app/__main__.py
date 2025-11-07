@@ -38,7 +38,7 @@ def cli():
             print("Error: the input YAML file was not found")
             exit(1)
 
-        with open(args.input, "r") as stream:
+        with open(args.input, "r", encoding="utf-8") as stream:
             try:
                 yaml_file = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
