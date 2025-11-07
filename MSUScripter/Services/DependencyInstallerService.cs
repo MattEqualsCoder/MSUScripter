@@ -32,63 +32,73 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
         {
             response.Invoke("Setting up directories");
             var destination = Path.Combine(Directories.Dependencies, "python");
-
-            if (Directory.Exists(destination))
-            {
-                logger.LogInformation("Deleting prior Python installation");
-                try
-                {
-                    await ITaskService.Run(() =>
-                    {
-                        Directory.Delete(destination, true);
-                    });
-                }
-                catch (TaskCanceledException)
-                {
-                    // Do Nothing
-                }
-            }
-
-            EnsureFolders(destination);
-
-            var tempFile = Path.Combine(Directories.TempFolder, "python.tar.gz");
-            var url = OperatingSystem.IsWindows() ? PythonWindowsDownloadUrl : PythonLinuxDownloadUrl;
-
-            response.Invoke("Downloading Python");
-            if (!await DownloadFileAsync(url, tempFile))
-            {
-                return false;
-            }
-
-            response.Invoke("Extracting Python files");
-            if (!await ExtractTarGzFile(tempFile, Directories.Dependencies))
-            {
-                return false;
-            }
-
+            
             var pythonPath = OperatingSystem.IsWindows()
                 ? Path.Combine(destination, "python.exe")
                 : Path.Combine(destination, "bin", "python3.13");
+            var doesHavePython = false;
 
-            if (OperatingSystem.IsLinux())
+            if (File.Exists(pythonPath))
             {
-                File.SetUnixFileMode(pythonPath,
-                    UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                var checkPyVersionResult = await runPyFunc(pythonPath, "--version");
+                doesHavePython = checkPyVersionResult.Success && checkPyVersionResult.Result.StartsWith("Python 3.13");
             }
 
-            response.Invoke("Verifying Python version");
-
-            var runPyResult = await runPyFunc(pythonPath, "--version");
-            if (!runPyResult.Success || !runPyResult.Result.StartsWith("Python 3"))
+            if (!doesHavePython)
             {
-                logger.LogError("Python version response incorrect: {Response} | {Error}", runPyResult.Result,
-                    runPyResult.Error);
-                return false;
+                if (Directory.Exists(destination))
+                {
+                    logger.LogInformation("Deleting prior Python installation");
+                    try
+                    {
+                        await ITaskService.Run(() =>
+                        {
+                            Directory.Delete(destination, true);
+                        });
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        // Do Nothing
+                    }
+                }
+
+                EnsureFolders(destination);
+
+                var tempFile = Path.Combine(Directories.TempFolder, "python.tar.gz");
+                var url = OperatingSystem.IsWindows() ? PythonWindowsDownloadUrl : PythonLinuxDownloadUrl;
+
+                response.Invoke("Downloading Python");
+                if (!await DownloadFileAsync(url, tempFile))
+                {
+                    return false;
+                }
+
+                response.Invoke("Extracting Python files");
+                if (!await ExtractTarGzFile(tempFile, Directories.Dependencies))
+                {
+                    return false;
+                }
+
+                if (OperatingSystem.IsLinux())
+                {
+                    File.SetUnixFileMode(pythonPath,
+                        UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+                }
+
+                response.Invoke("Verifying Python version");
+
+                var verifyPythonInstallResult = await runPyFunc(pythonPath, "--version");
+                if (!verifyPythonInstallResult.Success || !verifyPythonInstallResult.Result.StartsWith("Python 3.13"))
+                {
+                    logger.LogError("Python version response incorrect: {Response} | {Error}", verifyPythonInstallResult.Result,
+                        verifyPythonInstallResult.Error);
+                    return false;
+                }
             }
-            
+
             response.Invoke("Installing companion app");
 
-            runPyResult = await runPyFunc(pythonPath, "-m pip install py-msu-scripter-app");
+            var runPyResult = await runPyFunc(pythonPath, "-m pip install --upgrade py-msu-scripter-app");
             if (!runPyResult.Success && !runPyResult.Error.StartsWith("[notice]"))
             {
                 logger.LogError("Failed to install Python companion app: {Error}", runPyResult.Error);

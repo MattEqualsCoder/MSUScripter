@@ -53,7 +53,7 @@ class VideoCreator:
                 return self.print_yaml(False, f"Track file {track_file} does not exist. Exiting.")
 
         stop_event = threading.Event()
-        t = threading.Thread(target=self.writer_thread, args=(self.progress_file, stop_event))
+        t = threading.Thread(target=self.writer_thread, args=(self.progress_file, stop_event), daemon=True)
 
         try:
             t.start()
@@ -72,10 +72,10 @@ class VideoCreator:
 
             logger = MyBarLogger(self)
 
-            audio_clip = AudioFileClip(output_wav)
-            video_clip = ColorClip(size=(720, 576), color=(0, 0, 0), duration=audio_clip.duration)
-            video_clip = video_clip.with_audio(audio_clip)
-            video_clip.write_videofile(output_mp4, fps=24, logger=logger)
+            with AudioFileClip(output_wav) as audio_clip:
+                with ColorClip(size=(720, 576), color=(0, 0, 0), duration=audio_clip.duration) as video_clip:
+                    video_clip = video_clip.with_audio(audio_clip)
+                    video_clip.write_videofile(output_mp4, fps=24, logger=logger)
 
             return self.print_yaml(True, "")
         except Exception as e:
@@ -83,8 +83,12 @@ class VideoCreator:
             return self.print_yaml(False, f"Error creating wav or mp4 file {str(e)}")
         finally:
             stop_event.set()
-            t.join()
-
+            t.join(timeout=2)
+            try:
+                audio_clip.close()
+                video_clip.close()
+            except Exception:
+                pass
 
     def print_yaml(self, successful: bool, error: str) -> bool:
         data = dict(
@@ -102,11 +106,14 @@ class VideoCreator:
 
     def writer_thread(self, filename, stop_event):
         while not stop_event.is_set():
-            with open(filename, "w") as f:
-                print(f"writer thread {self.phase} {self.phase_progress}/100")
-                f.write(f"{self.phase}|{self.phase_progress}\n")
-                f.flush()  # ensure immediate write
-                time.sleep(0.5)  # 500 ms
+            try:
+                with open(filename, "w") as f:
+                    print(f"writer thread {self.phase} {self.phase_progress}/100")
+                    f.write(f"{self.phase}|{self.phase_progress}\n")
+                    f.flush()  # ensure immediate write
+            except Exception:
+                pass
+            time.sleep(0.5)  # 500 ms
 
 
 class MyBarLogger(ProgressBarLogger):

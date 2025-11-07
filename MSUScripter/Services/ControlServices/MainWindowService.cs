@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
 using AvaloniaControls.ControlServices;
@@ -254,12 +256,10 @@ public class MainWindowService(
 
         if (newerGitHubRelease != null)
         {
-            if (OperatingSystem.IsLinux())
-            {
-                return (newerGitHubRelease.Url,
-                    newerGitHubRelease.Asset.FirstOrDefault(x => x.Url.ToLower().EndsWith(".appimage"))?.Url);
-            }
-            return (newerGitHubRelease.Url, null);
+            var downloadUrl = OperatingSystem.IsLinux() 
+                ? newerGitHubRelease.Asset.FirstOrDefault(x => x.Url.ToLower().EndsWith(".appimage"))?.Url
+                : newerGitHubRelease.Asset.FirstOrDefault(x => x.Url.ToLower().EndsWith(".exe"))?.Url;
+            return (newerGitHubRelease.Url, downloadUrl);
         }
         
         return null;
@@ -294,6 +294,72 @@ public class MainWindowService(
     {
         settings.CheckForUpdates = false;
         settingsService.SaveSettings();
+    }
+    
+     public async Task<string?> InstallWindowsUpdate(string url)
+    {
+        var filename = Path.GetFileName(new Uri(url).AbsolutePath);
+        var localPath = Path.Combine(Path.GetTempPath(), filename);
+
+        logger.LogInformation("Downloading {Url} to {LocalPath}", url, localPath);
+
+        var response = await DownloadFileAsyncAttempt(url, localPath);
+
+        if (!response.Item1)
+        {
+            logger.LogInformation("Download failed: {Error}", response.Item2);
+            return response.Item2;
+        }
+
+        try
+        {
+            logger.LogInformation("Launching setup file");
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = localPath,
+                UseShellExecute = true,
+                RedirectStandardOutput = false,
+                RedirectStandardError = false,
+                RedirectStandardInput = false,
+                CreateNoWindow = true
+            };
+
+            Process.Start(psi);
+            return null;
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Failed to start setup file");
+            return "Failed to start setup file";
+        }
+    }
+
+    private async Task<(bool, string?)> DownloadFileAsyncAttempt(string url, string target, int attemptNumber = 0, int totalAttempts = 3)
+    {
+
+        using var httpClient = new HttpClient();
+
+        try
+        {
+            await using var downloadStream = await httpClient.GetStreamAsync(url);
+            await using var fileStream = new FileStream(target, FileMode.Create);
+            await downloadStream.CopyToAsync(fileStream);
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Download failed");
+            if (attemptNumber < totalAttempts)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(attemptNumber));
+                return await DownloadFileAsyncAttempt(url, target, attemptNumber + 1, totalAttempts);
+            }
+            else
+            {
+                return (false, $"Download failed: {ex.Message}");
+            }
+        }
     }
     
     private async Task CleanUpFolders()
