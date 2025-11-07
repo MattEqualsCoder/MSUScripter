@@ -156,6 +156,13 @@
           ],
           "description": "The file to be used as the input for this track/sub-track/sub-channel"
         },
+        "Dither": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Whether or not to apply audio dither to the final output."
+        },
         "SubTracks": {
           "type": "array",
           "description": "Files which will be concatenated together to form the input to the parent track",
@@ -169,9 +176,6 @@
           "items": {
             "$ref": "#/definitions/MsuSongMsuPcmInfo"
           }
-        },
-        "HasBothSubTracksAndSubChannels": {
-          "type": "boolean"
         }
       }
     }

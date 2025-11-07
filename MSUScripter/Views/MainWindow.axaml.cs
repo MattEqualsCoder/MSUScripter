@@ -126,6 +126,11 @@ public partial class MainWindow : RestorableWindow
 
     private async Task ShowNewReleaseWindow(string releaseUrl, string? downloadUrl)
     {
+        if (_service == null)
+        {
+            return;
+        }
+        
         downloadUrl ??= "";
         var hasDownloadUrl = !string.IsNullOrEmpty(downloadUrl);
         
@@ -151,7 +156,7 @@ public partial class MainWindow : RestorableWindow
         
         if (messageWindow.DialogResult.CheckedBox)
         {
-            _service?.IgnoreFutureUpdates();
+            _service.IgnoreFutureUpdates();
         }
 
         if (messageWindow.DialogResult.PressedAcceptButton)
@@ -178,7 +183,15 @@ public partial class MainWindow : RestorableWindow
             }
             else
             {
-                throw new InvalidOperationException("Not supported on Windows");
+                var result = await _service.InstallWindowsUpdate(downloadUrl);
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await MessageWindow.ShowErrorDialog(result);
+                }
+                else
+                {
+                    Close();;
+                }
             }
         }
     }

@@ -99,7 +99,7 @@ public class MsuSongMsuPcmInfo
         return files;
     }
 
-    [YamlIgnore]
+    [YamlIgnore, JsonSchemaIgnore]
     public bool HasBothSubTracksAndSubChannels
     {
         get
@@ -110,7 +110,7 @@ public class MsuSongMsuPcmInfo
         }
     }
 
-    [YamlIgnore]
+    [YamlIgnore, JsonSchemaIgnore]
     public bool HasValidSubChannelCount
     {
         get
@@ -120,7 +120,7 @@ public class MsuSongMsuPcmInfo
         }
     }
     
-    [YamlIgnore]
+    [YamlIgnore, JsonSchemaIgnore]
     public bool HasValidChildTypes
     {
         get
