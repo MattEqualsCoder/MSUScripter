@@ -8,13 +8,14 @@ using System.Threading.Tasks;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Models;
+using MSUScripter.Tools;
 
 namespace MSUScripter.Services;
 
 public class PythonCompanionService(ILogger<PythonCompanionService> logger, YamlService yamlService, DependencyInstallerService dependencyInstallerService)
 {
     private const string BaseCommand = "py_msu_scripter_app";
-    private const string MinVersion = "v0.1.5";
+    private const string MinVersion = "v0.1.6";
     private RunMethod _runMethod = RunMethod.Unknown;
     private string? _pythonExecutablePath;
     private string? _ffmpegPath;
@@ -34,7 +35,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         _pythonExecutablePath = null;
         var response = await RunCommandAsync("--version");
 
-        IsValid = response.Success && response.Result.EndsWith(MinVersion) &&
+        IsValid = response.Success && VerifyVersionNumber(response.Result) &&
                   !response.Error.Contains("Couldn't find ffmpeg");
 
         if (IsValid)
@@ -47,6 +48,13 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         }
         
         return IsValid;
+    }
+
+    private bool VerifyVersionNumber(string versionString)
+    {
+        var minVersion = MinVersion.VersionStringToDecimal();
+        var currentVersion = versionString.Substring(versionString.IndexOf('v')).VersionStringToDecimal();
+        return currentVersion >= minVersion;
     }
 
     public async Task<bool> VerifyFfMpegAsync()
@@ -603,7 +611,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
             await process.WaitForExitAsync(cancellationToken ??  CancellationToken.None);
 
             var resultText = "";
-            var errorText = "";
+            string errorText;
 
             if (isPipInstall)
             {
