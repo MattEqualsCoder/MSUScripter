@@ -120,31 +120,32 @@ public class ProjectService(
         {
             foreach (var song in track.Songs)
             {
-                foreach (var duplicate in project.Tracks.SelectMany(x => x.Songs).Where(x => x != song && x.OutputPath == song.OutputPath))
-                {
-                    var duplicateTrack = project.Tracks.First(x => x.Songs.Contains(duplicate));
-                    duplicate.TrackNumber = duplicateTrack.TrackNumber;
-                    duplicate.TrackName = duplicateTrack.TrackName;
-                    var index = duplicateTrack.Songs.IndexOf(duplicate);
-                    if (index == 0)
-                    {
-                        duplicate.OutputPath = $"{msuBasePath}-{duplicateTrack.TrackNumber}.pcm";
-                        duplicate.IsAlt = false;
-                    }
-                    else
-                    {
-                        var altSuffix = index == 1 ? "alt" : $"alt{index}";
-                        duplicate.OutputPath = $"{msuBasePath}-{duplicateTrack.TrackNumber}_{altSuffix}.pcm";
-                        duplicate.IsAlt = true;
-                    }
-                }
-
-                song.DisplayAdvancedMode ??= song.MsuPcmInfo.HasAdvancedData();
-
                 if (string.IsNullOrEmpty(song.Id))
                 {
                     song.Id = Guid.NewGuid().ToString("N");
                 }
+                
+                // Each song should have a unique output path. If it doesn't, we need to correct it and all duplicates
+                var hasDuplicate = false;
+                foreach (var duplicate in project.Tracks.SelectMany(x => x.Songs).Where(x => x != song && x.OutputPath == song.OutputPath))
+                {
+                    hasDuplicate = true;
+                    var duplicateTrack = project.Tracks.First(x => x.Songs.Contains(duplicate));
+                    duplicate.TrackNumber = duplicateTrack.TrackNumber;
+                    duplicate.TrackName = duplicateTrack.TrackName;
+                    FixSongPath(project, track, song, msuBasePath);
+                }
+
+                // Fix tracks that have "temp.pcm" instead of the proper pcm file path and tracks where the msupcm++
+                // output path does not match the song output path
+                var isInvalidTempPath = !track.IsScratchPad && song.OutputPath?.EndsWith("temp.pcm") == true;
+                var isOutputMismatch = song.OutputPath != song.MsuPcmInfo.Output;
+                if (isInvalidTempPath || isOutputMismatch || hasDuplicate)
+                {
+                    FixSongPath(project, track, song, msuBasePath);
+                }
+
+                song.DisplayAdvancedMode ??= song.MsuPcmInfo.HasAdvancedData();
             }
         }
 
@@ -209,6 +210,33 @@ public class ProjectService(
         statusBarService.UpdateStatusBar("Project Loaded");
         
         return project;
+    }
+
+    private void FixSongPath(MsuProject project, MsuTrackInfo track, MsuSongInfo song, string msuBasePath)
+    {
+        if (track.IsScratchPad)
+        {
+            var tempFolderPath = project.GetMsuGenerationTempFilePath(song);
+            song.OutputPath = Path.Combine(tempFolderPath, "temp.pcm");
+            song.MsuPcmInfo.Output = song.OutputPath;
+        }
+        else
+        {
+            var index = track.Songs.IndexOf(song);
+            if (index == 0)
+            {
+                song.OutputPath = $"{msuBasePath}-{track.TrackNumber}.pcm";
+                song.MsuPcmInfo.Output = song.OutputPath;
+                song.IsAlt = false;
+            }
+            else
+            {
+                var altSuffix = index == 1 ? "alt" : $"alt{index}";
+                song.OutputPath = $"{msuBasePath}-{track.TrackNumber}_{altSuffix}.pcm";
+                song.MsuPcmInfo.Output = song.OutputPath;
+                song.IsAlt = true;
+            }
+        }
     }
 
     public MsuProject NewMsuProject(string projectPath, MsuType msuType, string msuPath, string? msuPcmTracksJsonPath, string? msuPcmWorkingDirectory, string? projectName, string? creatorName)

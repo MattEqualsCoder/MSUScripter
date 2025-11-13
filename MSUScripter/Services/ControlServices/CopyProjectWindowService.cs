@@ -148,6 +148,7 @@ public class CopyProjectWindowService(ConverterService converterService, ILogger
     private void UpdateSongPaths(MsuSongInfo song, CopyProjectViewModel update, string oldMsuPath, string newMsuPath)
     {
         song.OutputPath = song.OutputPath?.Replace(oldMsuPath, newMsuPath);
+        song.MsuPcmInfo.Output = song.OutputPath;
         if (song.MsuPcmInfo.HasFiles())
         {
             UpdateMsuPcmInfo(song.MsuPcmInfo, update);    

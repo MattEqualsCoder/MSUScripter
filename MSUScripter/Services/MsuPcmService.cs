@@ -197,9 +197,10 @@ public class MsuPcmService(
         {
             outputPath = project.Tracks.First(x => x.TrackNumber == song.TrackNumber).Songs.First(x => !x.IsAlt).OutputPath;
         }
-        else if (song.TrackNumber is >= 1000 or < 0)
+        else if (song.TrackNumber is >= 999 or < 0)
         {
             song.OutputPath = tempPcmPath;
+            song.MsuPcmInfo.Output = tempPcmPath;
             outputPath = tempPcmPath;
         }
         

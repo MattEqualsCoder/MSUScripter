@@ -84,14 +84,14 @@ public class MsuTrackInfo
             UpdateSongPath(project, oldTrack.Songs[i], i);
         }
         
+        song.TrackName = TrackName;
+        song.TrackNumber = TrackNumber;
+        
         Songs.Insert(index, song);
         for (var i = 0; i < Songs.Count; i++)
         {
             UpdateSongPath(project, Songs[i], i);
         }
-
-        song.TrackName = TrackName;
-        song.TrackNumber = TrackNumber;
     }
 
     private void UpdateSongPath(MsuProject project, MsuSongInfo song, int? index = null)
@@ -107,12 +107,12 @@ public class MsuTrackInfo
         }
         else if (!song.IsAlt)
         {
-            song.OutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}.pcm");
+            song.OutputPath = msu.FullName.Replace(msu.Extension, $"-{song.TrackNumber}.pcm");
         }
         else
         {
             var altSuffix = index == 1 ? "alt" : $"alt{index}";
-            song.OutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}_{altSuffix}.pcm");
+            song.OutputPath = msu.FullName.Replace(msu.Extension, $"-{song.TrackNumber}_{altSuffix}.pcm");
         }
 
         song.MsuPcmInfo.Output = song.OutputPath;

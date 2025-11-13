@@ -316,7 +316,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
         if (_isTopLevelMsuPcmInfo)
         {
-            CurrentSongInfo.OutputPath = CurrentSongInfo.OutputPath;
+            CurrentSongInfo.OutputPath = Output;
             _currentSongMsuPcmInfo.Output = CurrentSongInfo.OutputPath;
         }
         

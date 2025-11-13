@@ -160,6 +160,7 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
         _currentSongInfo.MsuPcmInfo.TrimEnd = TrimEnd;
         _currentSongInfo.MsuPcmInfo.Loop = LoopPoint;
         _currentSongInfo.MsuPcmInfo.Normalization = Normalization;
+        _currentSongInfo.MsuPcmInfo.Output = OutputFilePath;
         HasBeenModified = false;
     }
 
