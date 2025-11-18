@@ -36,7 +36,7 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
         var response = await RunCommandAsync("--version");
 
         IsValid = response.Success && VerifyVersionNumber(response.Result) &&
-                  !response.Error.Contains("Couldn't find ffmpeg");
+                  !response.Error.Contains("ffmpeg");
 
         if (IsValid)
         {
@@ -52,8 +52,12 @@ public class PythonCompanionService(ILogger<PythonCompanionService> logger, Yaml
 
     private bool VerifyVersionNumber(string versionString)
     {
+        if (versionString.IndexOf('v') <= 0)
+        {
+            return false;
+        }
         var minVersion = MinVersion.VersionStringToDecimal();
-        var currentVersion = versionString.Substring(versionString.IndexOf('v')).VersionStringToDecimal();
+        var currentVersion = versionString[versionString.IndexOf('v')..].VersionStringToDecimal();
         return currentVersion >= minVersion;
     }
 
