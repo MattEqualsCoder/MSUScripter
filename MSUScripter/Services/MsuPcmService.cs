@@ -43,7 +43,8 @@ public class MsuPcmService(
     ConverterService converterService,
     YamlService yamlService,
     IAudioPlayerService audioPlayerService,
-    DependencyInstallerService dependencyInstallerService)
+    DependencyInstallerService dependencyInstallerService,
+    PcmModifierService pcmModifierService)
 {
     private string _cacheFolder2 = "";
     private string _msuPcmPath = string.Empty;
@@ -212,7 +213,7 @@ public class MsuPcmService(
         }
         
         project.GenerationCache.Songs.TryGetValue(song.Id, out var previousCache);
-        var currentCache = cacheResults ? GetSongCacheData(jsonResponse.JsonText, outputPath) : null;
+        var currentCache = cacheResults ? GetSongCacheData(jsonResponse.JsonText, outputPath, song) : null;
 
         if (MsuProjectSongCache.IsValid(previousCache, currentCache))
         {
@@ -272,8 +273,17 @@ public class MsuPcmService(
                     Directory.CreateDirectory(directory);
                 }
 
-                logger.LogInformation("Moving generated PCM to {Path}", outputPath);
-                File.Move(tempPcmPath, outputPath);
+                if (song.MsuPcmInfo.PostGenerateVolumeModifier is >= .01f or <= -.01f)
+                {
+                    logger.LogInformation("Modifying PCM file and copying to {Path}", outputPath);
+                    pcmModifierService.UpdatePcmFile(tempPcmPath, outputPath, song);
+                }
+                else
+                {
+                    logger.LogInformation("Moving generated PCM to {Path}", outputPath);
+                    File.Move(tempPcmPath, outputPath);
+                }
+                
             }
             catch (Exception ex)
             {
@@ -287,7 +297,7 @@ public class MsuPcmService(
         // Move to the cache
         if (cacheResults)
         {
-            currentCache = GetSongCacheData(jsonResponse.JsonText, outputPath);
+            currentCache = GetSongCacheData(jsonResponse.JsonText, outputPath, song);
 
             if (currentCache != null)
             {
@@ -337,7 +347,7 @@ public class MsuPcmService(
         }
     }
 
-    private MsuProjectSongCache? GetSongCacheData(string json, string outputPath)
+    private MsuProjectSongCache? GetSongCacheData(string json, string outputPath, MsuSongInfo song)
     {
         if (!File.Exists(outputPath))
         {
@@ -353,6 +363,9 @@ public class MsuPcmService(
             JsonLength = json.Length,
             FileGenerationTime = fileInfo.LastWriteTime,
             FileLength = fileInfo.Length,
+            CacheVersion = MsuProjectSongCache.CurrentCacheVersion,
+            PostGenerateVolumeModifier = song.MsuPcmInfo.PostGenerateVolumeModifier ?? 0,
+            IsPostGenerateVolumeDecibels = song.MsuPcmInfo.IsPostGenerateVolumeDecibels,
         };
     }
   

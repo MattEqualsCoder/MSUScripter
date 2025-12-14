@@ -55,6 +55,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     [Reactive] public double? Normalization { get; set; }
 
     [Reactive] public bool? Compression { get; set; }
+    [Reactive] public float? PostGenerateVolumeModifier { get; set; }
+    [Reactive] public bool IsPostGenerateVolumeDecibels { get; set; }
     
     [Reactive] public bool? Dither { get; set; }
     [Reactive] public bool ShowDither { get; set; }
@@ -272,6 +274,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         Tempo = treeData.MsuPcmInfo.Tempo;
         Normalization = treeData.MsuPcmInfo.Normalization;
         Compression = treeData.MsuPcmInfo.Compression;
+        PostGenerateVolumeModifier = treeData.MsuPcmInfo.PostGenerateVolumeModifier;
+        IsPostGenerateVolumeDecibels = treeData.MsuPcmInfo.IsPostGenerateVolumeDecibels;
         _isTopLevelMsuPcmInfo = treeData.ParentIndex < 0;
         if (_isTopLevelMsuPcmInfo)
         {
@@ -312,6 +316,8 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         _currentSongMsuPcmInfo.Tempo = Tempo;
         _currentSongMsuPcmInfo.Normalization = Normalization;
         _currentSongMsuPcmInfo.Compression = Compression;
+        _currentSongMsuPcmInfo.PostGenerateVolumeModifier = PostGenerateVolumeModifier;
+        _currentSongMsuPcmInfo.IsPostGenerateVolumeDecibels = IsPostGenerateVolumeDecibels;
         _currentSongMsuPcmInfo.Dither = Dither;
 
         if (_isTopLevelMsuPcmInfo)

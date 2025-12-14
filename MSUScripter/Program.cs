@@ -121,6 +121,7 @@ class Program
             .AddSingleton<StatusBarService>()
             .AddSingleton<PythonCompanionService>()
             .AddSingleton<DependencyInstallerService>()
+            .AddSingleton<PcmModifierService>()
             .AddAvaloniaControlServices<Program>()
             .AddTransient<ApplicationInitializationService>();
 
