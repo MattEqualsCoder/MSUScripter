@@ -29,5 +29,10 @@ public class Settings
     public bool ProjectTreeDisplayCheckCopyrightIcon { get; set; }
     public bool ProjectTreeDisplayCopyrightSafeIcon { get; set; }
     public bool SkipDesktopFile { get; set; }
+    public bool TrackOverviewShowIsCompleteIcon { get; set; } = true;
+    public bool TrackOverviewShowHasSongIcon { get; set; }
+    public bool TrackOverviewShowCheckCopyrightIcon { get; set; }
+    public bool TrackOverviewShowCopyrightSafeIcon { get; set; }
+    
     public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Prompt;
 }

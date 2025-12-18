@@ -44,6 +44,7 @@ public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
     public int ParentIndex { get; init; }
 
     public bool MsuDetails { get; set; }
+    public bool TrackOverview { get; set; }
     public bool Track { get; set; }
     public bool Song => SongInfo != null;
     public bool IsSongOrTrack => TrackInfo != null;
@@ -351,6 +352,7 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
     public MsuProject? MsuProject { get; set; }
     public MsuSongOuterPanelViewModel MsuSongViewModel { get; set; } = new();
     public MsuBasicInfoViewModel BasicInfoViewModel { get; set; } = new();
+    public TrackOverviewPanelViewModel TrackOverviewPanelViewModel { get; set; } = new();
     [Reactive] public bool IsBusy { get; set; } = false;
     public List<RecentProject> RecentProjects { get; set; } = [];
     public DefaultSongPanel DefaultSongPanel { get; set; }
@@ -368,6 +370,15 @@ public class MsuProjectWindowViewModel : TranslatedViewModelBase
                 Name = "MSU Details",
                 LeftSpacing = 0,
                 ShowCheckbox = false,
+                MsuDetails = true
+            },
+            new MsuProjectWindowViewModelTreeData
+            {
+                CollapseIcon = MaterialIconKind.ListBox,
+                Name = "Track Overview",
+                LeftSpacing = 0,
+                ShowCheckbox = false,
+                TrackOverview = true,
             },
             new MsuProjectWindowViewModelTreeData
             {
