@@ -2,25 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class CopyProjectWindowViewModel : TranslatedViewModelBase
+public partial class CopyProjectWindowViewModel : TranslatedViewModelBase
 {
-    [Reactive] public MsuProject? OriginalProject { get; set; }
+    [Reactive] public partial MsuProject? OriginalProject { get; set; }
 
-    [Reactive] public MsuProject? NewProject { get; set; }
+    [Reactive] public partial MsuProject? NewProject { get; set; }
     
-    [Reactive] public MsuProject? SavedProject { get; set; }
+    [Reactive] public partial MsuProject? SavedProject { get; set; }
     
-    [Reactive] public List<CopyProjectViewModel> Paths { get; set; } = [];
+    [Reactive] public partial List<CopyProjectViewModel> Paths { get; set; }
 
-    [Reactive] public bool IsValid { get; set; }
+    [Reactive] public partial bool IsValid { get; set; }
     
-    [Reactive] public string ButtonText { get; set; } = "Update Project";
+    [Reactive] public partial string ButtonText { get; set; }
     
-    [Reactive] public string Title { get; set; } = "Update Project";
+    [Reactive] public partial string Title { get; set; }
 
     public string TopText =>
         IsCopy
@@ -28,6 +28,13 @@ public class CopyProjectWindowViewModel : TranslatedViewModelBase
             : "One or more input files are missing. Update them below or continue opening the project.";
     
     public bool IsCopy { get; set; }
+
+    public CopyProjectWindowViewModel()
+    {
+        Paths = [];
+        ButtonText = "Update Project";
+        Title = "Update Project";
+    }
     
     public override ViewModelBase DesignerExample()
     {
@@ -47,7 +54,7 @@ public class CopyProjectWindowViewModel : TranslatedViewModelBase
     }
 }
 
-public class CopyProjectViewModel : ViewModelBase
+public partial class CopyProjectViewModel : ViewModelBase
 {
     public CopyProjectViewModel(string? path)
     {
@@ -58,19 +65,26 @@ public class CopyProjectViewModel : ViewModelBase
             BaseFileName = GetFileNameFromAnyPath(PreviousPath);
             Extension = Path.GetExtension(PreviousPath);
         }
+        else
+        {
+            BaseFileName = string.Empty;
+            Extension = string.Empty;
+        }
+
+        Message = string.Empty;
     }
 
-    [Reactive] public string PreviousPath { get; set; }
+    [Reactive] public partial string PreviousPath { get; set; }
 
-    [Reactive] public string NewPath { get; set; }
+    [Reactive] public partial string NewPath { get; set; }
 
-    [Reactive] public string Extension { get; set; } = "";
+    [Reactive] public partial string Extension { get; set; }
 
-    [Reactive] public string BaseFileName { get; set; } = "";
+    [Reactive] public partial string BaseFileName { get; set; }
 
-    [Reactive] public bool IsValid { get; set; }
+    [Reactive] public partial bool IsValid { get; set; }
 
-    [Reactive] public string Message { get; set; } = "";
+    [Reactive] public partial string Message { get; set; }
 
     public bool IsSongFile => !Extension.Equals(".msup", StringComparison.OrdinalIgnoreCase) &&
                               !Extension.Equals(".msu", StringComparison.OrdinalIgnoreCase);

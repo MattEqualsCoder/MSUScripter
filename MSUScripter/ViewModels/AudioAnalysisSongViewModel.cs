@@ -1,33 +1,42 @@
 ﻿using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisSongViewModel : ViewModelBase
+public partial class AudioAnalysisSongViewModel : ViewModelBase
 {
     public MsuSongInfo? MsuSongInfo { get; init; }
         
-    [Reactive] public string SongName { get; set; } = "";
+    [Reactive] public partial string SongName { get; set; }
     
-    [Reactive] public int TrackNumber { get; set; }
+    [Reactive] public partial int TrackNumber { get; set; }
 
-    [Reactive] public string TrackName { get; set; } = "";
+    [Reactive] public partial string TrackName { get; set; }
 
-    [Reactive] public string Path { get; init; } = "";
+    [Reactive] public partial string Path { get; set; }
     
-    [Reactive] public double? AvgDecibels { get; set; }
+    [Reactive] public partial double? AvgDecibels { get; set; }
     
-    [Reactive] public double? MaxDecibels { get; set; }
+    [Reactive] public partial double? MaxDecibels { get; set; }
 
-    [Reactive] public bool HasLoaded { get; set; }
+    [Reactive] public partial bool HasLoaded { get; set; }
 
     [Reactive, ReactiveLinkedProperties(nameof(HasWarning))]
-    public string WarningMessage { get; set; } = "";
+    public partial string WarningMessage { get; set; }
 
     public bool CanRefresh { get; set; } = true;
     public bool HasWarning => !string.IsNullOrEmpty(WarningMessage);
+
+    public AudioAnalysisSongViewModel()
+    {
+        MsuSongInfo = new();
+        SongName = string.Empty;
+        TrackName = string.Empty;
+        Path = string.Empty;
+        WarningMessage = string.Empty;
+    }
 
     public void ApplyAudioAnalysis(AnalysisDataOutput data)
     {

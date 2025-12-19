@@ -1,7 +1,9 @@
 ﻿using Avalonia;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 // ReSharper disable once RedundantUsingDirective
 using System.Linq;
 using System.Threading;
@@ -13,9 +15,13 @@ using AvaloniaControls.Services;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MSURandomizerLibrary;
 using MSUScripter.Models;
 using MSUScripter.Services;
+using MSUScripter.ViewModels;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Serilog;
 using Win32RenderingMode = Avalonia.Win32RenderingMode;
 
@@ -32,7 +38,6 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-            
         var loggerConfiguration = new LoggerConfiguration();
         
 #if DEBUG
@@ -57,6 +62,10 @@ class Program
 #endif
             .CreateLogger();
 
+#if DEBUG
+        CheckReactiveProperties();
+#endif
+        
         if (args.Length == 1 && args[0].EndsWith(".msup", StringComparison.OrdinalIgnoreCase) && File.Exists(args[0]))
         {
             StartingProject = args[0];
@@ -167,5 +176,46 @@ class Program
 #else
     private static string LogPath => Path.Combine(Directories.LogFolder, "msu-scripter_.log");
 #endif
+    
+    private static void CheckReactiveProperties()
+    {
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+        foreach (var asm in assemblies)
+        {
+            foreach (var type in asm.GetTypes())
+            {
+                if (!InheritsFromType<ReactiveObject>(type))
+                {
+                    continue;
+                }
+
+                var props = type.GetProperties(
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                    .Select(x => (Property: x, Attributes: x.GetCustomAttributes(true)))
+                    .Where(x => x.Attributes.Any(a => a is ReactiveAttribute) && !x.Attributes.Any(a => a is GeneratedCodeAttribute))
+                    .ToList();
+
+                foreach (var prop in props)
+                {
+                    Log.Logger.Warning("Class {Class} property {Property} has ReactiveAttribute but is missing partial", type.FullName, prop.Property.Name);
+                }
+            }
+        }
+    }
+    
+    static bool InheritsFromType<T>(Type type)
+    {
+        var checkType = type;
+        while (checkType != null && checkType != typeof(object))
+        {
+            if (checkType == typeof(T))
+                return true;
+
+            checkType = checkType.BaseType;
+        }
+
+        return false;
+    }
 
 }

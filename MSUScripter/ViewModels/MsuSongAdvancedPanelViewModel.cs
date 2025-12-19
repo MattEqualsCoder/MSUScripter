@@ -10,72 +10,72 @@ using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
+public partial class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 {
-    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsScratchPad { get; set; }
     
-    [Reactive] public string? SongName { get; set; }
+    [Reactive] public partial string? SongName { get; set; }
 
-    [Reactive] public string? ArtistName { get; set; }
+    [Reactive] public partial string? ArtistName { get; set; }
 
-    [Reactive] public string? Album { get; set; }
+    [Reactive] public partial string? Album { get; set; }
 
-    [Reactive] public string? Url { get; set; }
+    [Reactive] public partial string? Url { get; set; }
 
-    [Reactive] public bool IsAlt { get; set; }
-    [Reactive] public bool? CheckCopyright { get; set; }
+    [Reactive] public partial bool IsAlt { get; set; }
+    [Reactive] public partial bool? CheckCopyright { get; set; }
     
-    [Reactive] public bool? IsCopyrightSafe { get; set; }
+    [Reactive] public partial bool? IsCopyrightSafe { get; set; }
     
-    [Reactive, SkipLastModified] public bool IsEnabled { get; set; }
-    [Reactive, SkipLastModified] public bool IsAdvancedMode { get; set; } = true;
+    [Reactive, SkipLastModified] public partial bool IsEnabled { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsAdvancedMode { get; set; }
     
-    [Reactive] public int? Loop { get; set; }
+    [Reactive] public partial int? Loop { get; set; }
 
-    [Reactive] public int? TrimStart { get; set; }
+    [Reactive] public partial int? TrimStart { get; set; }
 
-    [Reactive] public int? TrimEnd { get; set; }
+    [Reactive] public partial int? TrimEnd { get; set; }
 
-    [Reactive] public int? FadeIn { get; set; }
+    [Reactive] public partial int? FadeIn { get; set; }
 
-    [Reactive] public int? FadeOut { get; set; }
+    [Reactive] public partial int? FadeOut { get; set; }
 
-    [Reactive] public int? CrossFade { get; set; }
+    [Reactive] public partial int? CrossFade { get; set; }
 
-    [Reactive] public int? PadStart { get; set; }
+    [Reactive] public partial int? PadStart { get; set; }
 
-    [Reactive] public int? PadEnd { get; set; }
+    [Reactive] public partial int? PadEnd { get; set; }
 
-    [Reactive] public double? Tempo { get; set; }
+    [Reactive] public partial double? Tempo { get; set; }
 
-    [Reactive] public double? Normalization { get; set; }
+    [Reactive] public partial double? Normalization { get; set; }
 
-    [Reactive] public bool? Compression { get; set; }
-    [Reactive] public float? PostGenerateVolumeModifier { get; set; }
-    [Reactive] public bool IsPostGenerateVolumeDecibels { get; set; }
+    [Reactive] public partial bool? Compression { get; set; }
+    [Reactive] public partial float? PostGenerateVolumeModifier { get; set; }
+    [Reactive] public partial bool IsPostGenerateVolumeDecibels { get; set; }
     
-    [Reactive] public bool? Dither { get; set; }
-    [Reactive] public bool ShowDither { get; set; }
+    [Reactive] public partial bool? Dither { get; set; }
+    [Reactive] public partial bool ShowDither { get; set; }
 
-    [Reactive] public string? Output { get; set; }
+    [Reactive] public partial string? Output { get; set; }
     
-    [Reactive, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public string? Input { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public partial string? Input { get; set; }
     
-    [Reactive, SkipLastModified] public bool DisplayWarning { get; set; }
-    [Reactive, SkipLastModified] public string WarningText { get; set; } = string.Empty;
-    [Reactive, SkipLastModified] public string WarningToolTip { get; set; } = string.Empty;
-    [Reactive, SkipLastModified] public bool DisplayError { get; set; }
-    [Reactive, SkipLastModified] public string ErrorText { get; set; } = string.Empty;
-    [Reactive, SkipLastModified] public string ErrorToolTip { get; set; } = string.Empty;
+    [Reactive, SkipLastModified] public partial bool DisplayWarning { get; set; }
+    [Reactive, SkipLastModified] public partial string WarningText { get; set; }
+    [Reactive, SkipLastModified] public partial string WarningToolTip { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplayError { get; set; }
+    [Reactive, SkipLastModified] public partial string ErrorText { get; set; }
+    [Reactive, SkipLastModified] public partial string ErrorToolTip { get; set; }
     
-    [Reactive, SkipLastModified] public bool DisplayOutputPcmFile { get; set; }
-    [Reactive, SkipLastModified] public bool CanUpdateOutputPcmFile { get; set; }
-    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public bool IsGeneratingPcmFile { get; set; }
-    [Reactive, SkipLastModified] public bool ShowMsuPcmInfo { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplayOutputPcmFile { get; set; }
+    [Reactive, SkipLastModified] public partial bool CanUpdateOutputPcmFile { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(CanPressPyMusicLooperButton))] public partial bool IsGeneratingPcmFile { get; set; }
+    [Reactive, SkipLastModified] public partial bool ShowMsuPcmInfo { get; set; }
     public MsuProject Project { get; set; } = null!;
 
     public MsuSongAdvancedPanelViewModelModelTreeData CurrentTreeItem { get; set; } = null!;
@@ -84,7 +84,7 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public bool IsDraggingItem => _draggedItem != null;
     
     public ObservableCollection<MsuSongAdvancedPanelViewModelModelTreeData> TreeItems { get; set; } = [];
-    [Reactive, SkipLastModified] public MsuSongAdvancedPanelViewModelModelTreeData? SelectedTreeItem { get; set; }
+    [Reactive, SkipLastModified] public partial MsuSongAdvancedPanelViewModelModelTreeData? SelectedTreeItem { get; set; }
     public bool CanPressPyMusicLooperButton => !string.IsNullOrEmpty(Input) && !IsGeneratingPcmFile;
     
     public ContextMenu? CurrentContextMenu { get; set; }
@@ -102,6 +102,11 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 
     public MsuSongAdvancedPanelViewModel()
     {
+        IsAdvancedMode = true;
+        WarningText = string.Empty;
+        WarningToolTip = string.Empty;
+        ErrorText = string.Empty;
+        ErrorToolTip = string.Empty;
         PropertyChanged += OnPropertyChanged;
         return;
 
@@ -789,23 +794,23 @@ public class MsuSongAdvancedPanelViewModel : SavableViewModelBase
 }
 
 [SkipLastModified]
-public class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBase
+public partial class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBase
 {
     public static IBrush HighlightColor { get; set; } = Brushes.SlateGray;
     
-    [Reactive] public required MaterialIconKind ChevronIcon { get; set; }
+    [Reactive] public partial MaterialIconKind ChevronIcon { get; set; }
     
-    [Reactive] public required string Name { get; set; }
+    [Reactive] public partial string Name { get; set; }
     
-    [ReactiveLinkedProperties(nameof(LeftSpacing))]
-    public required int Level { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(LeftSpacing))]
+    public partial int Level { get; set; }
     
-    [Reactive] public IBrush GridBackground { get; set; } = Brushes.Transparent;
-    [Reactive] public IBrush BorderColor { get; set; } = Brushes.Transparent;
-    [Reactive] public bool IsVisible { get; set; } = true;
-    [Reactive] public bool ShowAddButton { get; set; }
-    [Reactive] public bool ShowMenuButton { get; set; }
-    [Reactive] public bool EnableMenuItems { get; set; }
+    [Reactive] public partial IBrush GridBackground { get; set; }
+    [Reactive] public partial IBrush BorderColor { get; set; }
+    [Reactive] public partial bool IsVisible { get; set; }
+    [Reactive] public partial bool ShowAddButton { get; set; }
+    [Reactive] public partial bool ShowMenuButton { get; set; }
+    [Reactive] public partial bool EnableMenuItems { get; set; }
     public int LeftSpacing => Level * 12;
     public int SortIndex { get; set; }
     public int ParentIndex { get; set; }
@@ -822,6 +827,14 @@ public class MsuSongAdvancedPanelViewModelModelTreeData : TranslatedViewModelBas
     
     public MsuSongAdvancedPanelViewModelModelTreeData? ParentTreeData { get; set; }
     public List<MsuSongAdvancedPanelViewModelModelTreeData> ChildrenTreeData { get; set; } = [];
+
+    public MsuSongAdvancedPanelViewModelModelTreeData()
+    {
+        Name = string.Empty;
+        GridBackground = Brushes.Transparent;
+        BorderColor = Brushes.Transparent;
+        IsVisible = true;
+    }
     
     public override ViewModelBase DesignerExample()
     {

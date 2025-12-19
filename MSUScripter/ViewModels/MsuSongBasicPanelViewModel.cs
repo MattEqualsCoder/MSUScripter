@@ -1,54 +1,52 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using MSUScripter.Text;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuSongBasicPanelViewModel : SavableViewModelBase
+public partial class MsuSongBasicPanelViewModel : SavableViewModelBase
 {
-    [Reactive, SkipLastModified] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsScratchPad { get; set; }
     
-    [Reactive] public string? SongName { get; set; }
+    [Reactive] public partial string? SongName { get; set; }
 
-    [Reactive] public string? ArtistName { get; set; }
+    [Reactive] public partial string? ArtistName { get; set; }
 
-    [Reactive] public string? Album { get; set; }
+    [Reactive] public partial string? Album { get; set; }
 
-    [Reactive] public string? Url { get; set; }
+    [Reactive] public partial string? Url { get; set; }
 
-    [Reactive] public string? OutputFilePath { get; set; }
+    [Reactive] public partial string? OutputFilePath { get; set; }
 
-    [Reactive] public bool IsAlt { get; set; }
+    [Reactive] public partial bool IsAlt { get; set; }
     
-    [Reactive, ReactiveLinkedProperties(nameof(HasSelectedInputFile))] public string? InputFilePath { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(HasSelectedInputFile))] public partial string? InputFilePath { get; set; }
 
-    [Reactive, SkipLastModified] public bool PyMusicLooperRunning { get; set; }
-    [Reactive, SkipLastModified] public bool CanUpdatePcmFile { get; set; }
-    [Reactive] public int? TrimStart { get; set; }
-    [Reactive] public int? TrimEnd { get; set; }
-    [Reactive] public int? LoopPoint { get; set; }
-    [Reactive] public double? Normalization { get; set; }
+    [Reactive, SkipLastModified] public partial bool PyMusicLooperRunning { get; set; }
+    [Reactive, SkipLastModified] public partial bool CanUpdatePcmFile { get; set; }
+    [Reactive] public partial int? TrimStart { get; set; }
+    [Reactive] public partial int? TrimEnd { get; set; }
+    [Reactive] public partial int? LoopPoint { get; set; }
+    [Reactive] public partial double? Normalization { get; set; }
     
-    [Reactive] public bool? CheckCopyright { get; set; }
+    [Reactive] public partial bool? CheckCopyright { get; set; }
     
-    [Reactive] public bool? IsCopyrightSafe { get; set; }
-    [Reactive, SkipLastModified] public bool DisplayOutputFile { get; set; } = true;
-    [Reactive, SkipLastModified] public bool DisplayInputFile { get; set; } = true;
-    [Reactive, SkipLastModified] public bool IsEnabled { get; set; } = true;
-    [Reactive, SkipLastModified] public bool IsAdvancedMode { get; set; }
-    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public bool EnableMsuPcm { get; set; } = true;
-    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public bool PyMusicLooperEnabled { get; set; } = true;
-    [Reactive, SkipLastModified] public int InputColumnSpan { get; set; } = 2;
-    [Reactive, SkipLastModified] public int OutputColumn { get; set; } = 2;
-    [Reactive, SkipLastModified] public int OutputColumnSpan { get; set; } = 2;
-    [Reactive, SkipLastModified] public bool DisplaySampleRateWarning { get; set; }
+    [Reactive] public partial bool? IsCopyrightSafe { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplayOutputFile { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplayInputFile { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsEnabled { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsAdvancedMode { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public partial bool EnableMsuPcm { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(DisplayPyMusicLooperPanel))] public partial bool PyMusicLooperEnabled { get; set; }
+    [Reactive, SkipLastModified] public partial int InputColumnSpan { get; set; }
+    [Reactive, SkipLastModified] public partial int OutputColumn { get; set; }
+    [Reactive, SkipLastModified] public partial int OutputColumnSpan { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplaySampleRateWarning { get; set; }
     public bool DisplayPyMusicLooperPanel => EnableMsuPcm && PyMusicLooperEnabled;
-    public MsuProject? Project { get; set; }
+    public MsuProject? Project { get; private set; }
     public bool HasSelectedInputFile => !string.IsNullOrEmpty(InputFilePath);
 
     private MsuSongInfo? _currentSongInfo;
@@ -58,8 +56,16 @@ public class MsuSongBasicPanelViewModel : SavableViewModelBase
     public event EventHandler? ViewModelUpdated;
     public event EventHandler? FileDragDropped;
 
-    public MsuSongBasicPanelViewModel() : base()
+    public MsuSongBasicPanelViewModel()
     {
+        DisplayOutputFile = true;
+        DisplayInputFile = true;
+        IsEnabled = true;
+        EnableMsuPcm = true;
+        PyMusicLooperEnabled = true;
+        InputColumnSpan = 2;
+        OutputColumn = 2;
+        OutputColumnSpan = 2;
         PropertyChanged += OnPropertyChanged;
         return;
 

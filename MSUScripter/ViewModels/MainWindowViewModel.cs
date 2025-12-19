@@ -4,7 +4,8 @@ using Avalonia.Media;
 using AvaloniaControls.Models;
 using MSURandomizerLibrary.Configs;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
+
 #pragma warning disable CS0067 // Event is never used
 
 namespace MSUScripter.ViewModels;
@@ -15,12 +16,12 @@ public class MsuTypeDropdownOption
     public required MsuType MsuType { get; init; }
 }
 
-public class MainWindowViewModel : TranslatedViewModelBase
+public partial class MainWindowViewModel : TranslatedViewModelBase
 {
-    [Reactive] public string Title { get; set; } = "MSU Scripter";
+    [Reactive] public partial string Title { get; set; }
     
     [Reactive, ReactiveLinkedEvent(nameof(CurrentMsuProjectChanged))]
-    public MsuProject? CurrentMsuProject { get; set; }
+    public partial MsuProject? CurrentMsuProject { get; set; }
     
     public string? InitProject { get; set; }
     public bool InitProjectError { get; set; }
@@ -28,35 +29,52 @@ public class MainWindowViewModel : TranslatedViewModelBase
     public event EventHandler? CurrentMsuProjectChanged;
 
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
-    public string MsuProjectName { get; set; } = string.Empty;
+    public partial string MsuProjectName { get; set; }
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
-    public string MsuCreatorName { get; set; } = string.Empty;
+    public partial string MsuCreatorName { get; set; }
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
-    public string MsuPath { get; set; } = string.Empty;
+    public partial string MsuPath { get; set; }
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
-    public string MsuProjectPath { get; set; } = string.Empty;
+    public partial string MsuProjectPath { get; set; }
     [Reactive, ReactiveLinkedProperties(nameof(CanSetMsuPcmWorkingPath))]
-    public string MsuPcmJsonPath { get; set; } = string.Empty;
-    [Reactive] public string MsuPcmWorkingPath { get; set; } = string.Empty;
+    public partial string MsuPcmJsonPath { get; set; }
+    [Reactive] public partial string MsuPcmWorkingPath { get; set; }
     public bool CanSetMsuPcmWorkingPath => !string.IsNullOrEmpty(MsuPcmJsonPath);
     public bool CanCreateProject => !string.IsNullOrEmpty(MsuProjectName) && !string.IsNullOrEmpty(MsuCreatorName) && !string.IsNullOrEmpty(MsuPath) && !string.IsNullOrEmpty(MsuProjectPath) && SelectedMsuType != null;
-    [Reactive] public List<MsuType> MsuTypes { get; set; } = [];
+    [Reactive] public partial List<MsuType> MsuTypes { get; set; }
     [Reactive, ReactiveLinkedProperties(nameof(CanCreateProject))]
-    public MsuType? SelectedMsuType { get; set; } 
-    [Reactive] public bool DisplayNewProjectPage { get; set; } = false;
-    [Reactive] public bool DisplayOpenProjectPage { get; set; } = true;
-    [Reactive] public bool DisplaySettingsPage { get; set; }
-    [Reactive] public bool DisplayAboutPage { get; set; }
-    [Reactive] public bool ValidatedDependencies { get; set; }
-    [Reactive] public List<RecentProject> RecentProjects { get; set; } = [];
-    [Reactive] public RecentProject? SelectedRecentProject { get; set; }
-    [Reactive] public IBrush NewProjectBackground { get; set; } = Brushes.Transparent;
-    [Reactive] public IBrush OpenProjectBackground { get; set; } = Brushes.Transparent;
-    [Reactive] public IBrush SettingsBackground { get; set; } = Brushes.Transparent;
-    [Reactive] public IBrush AboutBackground { get; set; } = Brushes.Transparent;
+    public partial MsuType? SelectedMsuType { get; set; } 
+    [Reactive] public partial bool DisplayNewProjectPage { get; set; }
+    [Reactive] public partial bool DisplayOpenProjectPage { get; set; }
+    [Reactive] public partial bool DisplaySettingsPage { get; set; }
+    [Reactive] public partial bool DisplayAboutPage { get; set; }
+    [Reactive] public partial bool ValidatedDependencies { get; set; }
+    [Reactive] public partial List<RecentProject> RecentProjects { get; set; }
+    [Reactive] public partial RecentProject? SelectedRecentProject { get; set; }
+    [Reactive] public partial IBrush NewProjectBackground { get; set; }
+    [Reactive] public partial IBrush OpenProjectBackground { get; set; }
+    [Reactive] public partial IBrush SettingsBackground { get; set; }
+    [Reactive] public partial IBrush AboutBackground { get; set; }
     public SettingsPanelViewModel Settings { get; set; } = new();
-
     public IBrush ActiveTabBackground = Brushes.Transparent;
+
+    public MainWindowViewModel()
+    {
+        Title = "MSU Scripter";
+        MsuProjectName = string.Empty;
+        MsuCreatorName = string.Empty;
+        MsuPath = string.Empty;
+        MsuProjectPath = string.Empty;
+        MsuPcmJsonPath = string.Empty;
+        MsuPcmWorkingPath = string.Empty;
+        MsuTypes = [];
+        RecentProjects = [];
+        DisplayOpenProjectPage = true;
+        NewProjectBackground = Brushes.Transparent;
+        OpenProjectBackground = Brushes.Transparent;
+        SettingsBackground = Brushes.Transparent;
+        AboutBackground = Brushes.Transparent;
+    }
     
     public override ViewModelBase DesignerExample()
     {

@@ -3,27 +3,35 @@ using System.Linq;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class AudioAnalysisViewModel : TranslatedViewModelBase
+public partial class AudioAnalysisViewModel : TranslatedViewModelBase
 {
     public MsuProject? Project { get; set; }
 
     public int SongsCompleted => Rows.Count(x => x.HasLoaded);
 
-    [Reactive] public string BottomBar { get; set; } = "";
-    
-    [Reactive, ReactiveLinkedProperties(nameof(TotalSongs))]
-    public List<AudioAnalysisSongViewModel> Rows { get; set; } = [];
+    [Reactive] public partial string BottomBar { get; set; }
 
-    [Reactive] public bool CompareEnabled { get; set; } = true;
+    [Reactive, ReactiveLinkedProperties(nameof(TotalSongs))]
+    public partial List<AudioAnalysisSongViewModel> Rows { get; set; }
+
+    [Reactive] public partial bool CompareEnabled { get; set; }
     
     public double Duration { get; set; }
     public int TotalSongs => Rows.Count;
     public string? LoadError { get; set; }
     public bool ShowCompareButton { get; set; } = true;
+
+    public AudioAnalysisViewModel()
+    {
+        Project = new MsuProject();
+        BottomBar = string.Empty;
+        Rows = [];
+        CompareEnabled = true;
+    }
     
     public void UpdateSongsCompleted()
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Timers;
-using AvaloniaControls.ControlServices;
+using AvaloniaControls.Services;
 using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.ViewModels;

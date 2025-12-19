@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -7,37 +6,37 @@ using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
 [SkipLastModified]
-public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
+public partial class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
 {
     public static IBrush HighlightColor { get; set; } = Brushes.SlateGray;
 
-    [Reactive, SkipLastModified] public required MaterialIconKind CollapseIcon { get; set; }
-    [Reactive, SkipLastModified] public double CollapseIconOpacity { get; set; } = 1;
-    [Reactive, SkipLastModified] public MaterialIconKind CompletedIconKind { get; set; } = MaterialIconKind.FlagOutline;
-    [Reactive, SkipLastModified] public IBrush CompletedIconColor { get; set; } = Brushes.DimGray;
-    [Reactive, SkipLastModified] public MaterialIconKind HasSongIconKind { get; set; } = MaterialIconKind.VolumeSource;
-    [Reactive, SkipLastModified] public IBrush HasSongIconColor { get; set; } = Brushes.DimGray;
-    [Reactive, SkipLastModified] public MaterialIconKind CheckCopyrightIconKind { get; set; } = MaterialIconKind.Video;
-    [Reactive, SkipLastModified] public IBrush CheckCopyrightIconColor { get; set; } = Brushes.DimGray;
-    [Reactive, SkipLastModified] public MaterialIconKind CopyrightSafeIconKind { get; set; } = MaterialIconKind.Copyright;
-    [Reactive, SkipLastModified] public IBrush CopyrightSafeIconColor { get; set; } = Brushes.DimGray;
+    [Reactive, SkipLastModified] public partial MaterialIconKind CollapseIcon { get; set; }
+    [Reactive, SkipLastModified] public partial double CollapseIconOpacity { get; set; }
+    [Reactive, SkipLastModified] public partial MaterialIconKind CompletedIconKind { get; set; }
+    [Reactive, SkipLastModified] public partial IBrush CompletedIconColor { get; set; }
+    [Reactive, SkipLastModified] public partial MaterialIconKind HasSongIconKind { get; set; }
+    [Reactive, SkipLastModified] public partial IBrush HasSongIconColor { get; set; }
+    [Reactive, SkipLastModified] public partial MaterialIconKind CheckCopyrightIconKind { get; set; }
+    [Reactive, SkipLastModified] public partial IBrush CheckCopyrightIconColor { get; set; }
+    [Reactive, SkipLastModified] public partial MaterialIconKind CopyrightSafeIconKind { get; set; }
+    [Reactive, SkipLastModified] public partial IBrush CopyrightSafeIconColor { get; set; }
 
-    [Reactive] public required string Name { get; set; }
+    [Reactive] public partial string Name { get; set; }
     public required int LeftSpacing { get; init; }
     public required bool ShowCheckbox { get; init; }
-    [Reactive, SkipLastModified] public IBrush GridBackground { get; set; } = Brushes.Transparent;
-    [Reactive, SkipLastModified] public IBrush BorderColor { get; set; } = Brushes.Transparent;
+    [Reactive, SkipLastModified] public partial IBrush GridBackground { get; set; }
+    [Reactive, SkipLastModified] public partial IBrush BorderColor { get; set; }
 
     [Reactive, ReactiveLinkedProperties(nameof(IsVisible)), SkipLastModified]
-    public bool IsCollapsed { get; set; }
+    public partial bool IsCollapsed { get; set; }
 
     [Reactive, ReactiveLinkedProperties(nameof(IsVisible)), SkipLastModified]
-    public bool IsFilteredOut { get; set; }
+    public partial bool IsFilteredOut { get; set; }
 
     public bool IsVisible => !IsCollapsed && !IsFilteredOut;
     public int SortIndex { get; set; }
@@ -49,25 +48,41 @@ public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
     public bool Song => SongInfo != null;
     public bool IsSongOrTrack => TrackInfo != null;
 
-    [Reactive] public bool DisplayHasSongIcon { get; set; }
-    [Reactive] public bool DisplayCheckCopyrightIcon { get; set; }
-    [Reactive] public bool DisplayCopyrightSafeIcon { get; set; }
-    [Reactive] public bool DisplayIsCompleteIcon { get; set; }
-    [Reactive] public bool CanDelete { get; set; }
+    [Reactive] public partial bool DisplayHasSongIcon { get; set; }
+    [Reactive] public partial bool DisplayCheckCopyrightIcon { get; set; }
+    [Reactive] public partial bool DisplayCopyrightSafeIcon { get; set; }
+    [Reactive] public partial bool DisplayIsCompleteIcon { get; set; }
+    [Reactive] public partial bool CanDelete { get; set; }
 
-    [Reactive] public bool ShowAddButton { get; set; }
-    [Reactive] public bool ShowMenuButton { get; set; }
-    [Reactive] public bool IsComplete { get; set; }
-    [Reactive] public bool IsInTestVideo { get; set; }
-    [Reactive] public bool IsNotCopyrightTested { get; set; }
-    [Reactive] public bool IsNotCopyrightSafe { get; set; }
-    [Reactive] public bool IsCopyrightSafe { get; set; }
+    [Reactive] public partial bool ShowAddButton { get; set; }
+    [Reactive] public partial bool ShowMenuButton { get; set; }
+    [Reactive] public partial bool IsComplete { get; set; }
+    [Reactive] public partial bool IsInTestVideo { get; set; }
+    [Reactive] public partial bool IsNotCopyrightTested { get; set; }
+    [Reactive] public partial bool IsNotCopyrightSafe { get; set; }
+    [Reactive] public partial bool IsCopyrightSafe { get; set; }
 
     public MsuTrackInfo? TrackInfo { get; set; }
     public MsuSongInfo? SongInfo { get; set; }
     public MsuProjectWindowViewModelTreeData? ParentTreeData { get; set; }
     public List<MsuProjectWindowViewModelTreeData> ChildTreeData { get; set; } = [];
 
+    public MsuProjectWindowViewModelTreeData()
+    {
+        CollapseIconOpacity = 1;
+        CompletedIconKind = MaterialIconKind.FlagOutline;
+        CompletedIconColor = Brushes.DimGray;
+        HasSongIconKind = MaterialIconKind.VolumeSource;
+        HasSongIconColor = Brushes.DimGray;
+        CheckCopyrightIconKind = MaterialIconKind.Video;
+        CheckCopyrightIconColor = Brushes.DimGray;
+        CopyrightSafeIconKind = MaterialIconKind.Copyright;
+        CopyrightSafeIconColor = Brushes.DimGray;
+        Name = string.Empty;
+        GridBackground = Brushes.Transparent;
+        BorderColor = Brushes.Transparent;
+    }
+    
     public override ViewModelBase DesignerExample()
     {
         throw new System.NotImplementedException();
@@ -321,42 +336,51 @@ public class MsuProjectWindowViewModelTreeData : TranslatedViewModelBase
 }
 
 [SkipLastModified]
-public class MsuProjectWindowViewModel : TranslatedViewModelBase
+public partial class MsuProjectWindowViewModel : TranslatedViewModelBase
 {
     public ObservableCollection<MsuProjectWindowViewModelTreeData> TreeItems { get; set; } = [];
     
-    [Reactive] public string SongSummary { get; set; } = "";
-    [Reactive] public string TrackSummary { get; set; } = "";
+    [Reactive] public partial string SongSummary { get; set; }
+    [Reactive] public partial string TrackSummary { get; set; }
     public string FilterText { get; set; } = "";
     public bool IsDraggingItem { get; set; }
 
     public bool IsViewingSongData => MsuSongViewModel.IsEnabled;
-    [Reactive, ReactiveLinkedProperties(nameof(HasSongButtonOpacity))] public bool DisplayHasSongIcon { get; set; }
-    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightButtonOpacity))] public bool DisplayCheckCopyrightIcon { get; set; }
-    [Reactive, ReactiveLinkedProperties(nameof(CopyrightSafeButtonOpacity))] public bool DisplayCopyrightSafeIcon { get; set; }
-    [Reactive, ReactiveLinkedProperties(nameof(IsCompleteButtonOpacity))] public bool DisplayIsCompleteIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(HasSongButtonOpacity))] public partial bool DisplayHasSongIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CheckCopyrightButtonOpacity))] public partial bool DisplayCheckCopyrightIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(CopyrightSafeButtonOpacity))] public partial bool DisplayCopyrightSafeIcon { get; set; }
+    [Reactive, ReactiveLinkedProperties(nameof(IsCompleteButtonOpacity))] public partial bool DisplayIsCompleteIcon { get; set; }
     public double IsCompleteButtonOpacity => DisplayIsCompleteIcon ? 1 : 0.5;
     public double HasSongButtonOpacity => DisplayHasSongIcon ? 1 : 0.5;
     public double CheckCopyrightButtonOpacity => DisplayCheckCopyrightIcon ? 1 : 0.5;
     public double CopyrightSafeButtonOpacity => DisplayCopyrightSafeIcon ? 1 : 0.5;
-    [Reactive] public MsuProjectWindowViewModelTreeData? SelectedTreeItem { get; set; }
-    [Reactive] public bool FilterOnlyTracksMissingSongs { get; set; }
-    [Reactive] public bool FilterOnlyIncomplete { get; set; }
-    [Reactive] public bool FilterOnlyMissingAudio { get; set; }
-    [Reactive] public bool FilterOnlyCopyrightUntested { get; set; }
-    [Reactive] public MaterialIconKind FilterEyeIcon { get; set; } = MaterialIconKind.Filter;
-    [Reactive] public string StatusBarText { get; set; } = "Loaded Project";
-    [Reactive] public string WindowTitle { get; set; } = "MSU Scripter";
+    [Reactive] public partial MsuProjectWindowViewModelTreeData? SelectedTreeItem { get; set; }
+    [Reactive] public partial bool FilterOnlyTracksMissingSongs { get; set; }
+    [Reactive] public partial bool FilterOnlyIncomplete { get; set; }
+    [Reactive] public partial bool FilterOnlyMissingAudio { get; set; }
+    [Reactive] public partial bool FilterOnlyCopyrightUntested { get; set; }
+    [Reactive] public partial MaterialIconKind FilterEyeIcon { get; set; }
+    [Reactive] public partial string StatusBarText { get; set; }
+    [Reactive] public partial string WindowTitle { get; set; }
     
     public MsuProjectWindowViewModelTreeData? CurrentTreeItem { get; set; }
     public MsuProject? MsuProject { get; set; }
     public MsuSongOuterPanelViewModel MsuSongViewModel { get; set; } = new();
     public MsuBasicInfoViewModel BasicInfoViewModel { get; set; } = new();
     public TrackOverviewPanelViewModel TrackOverviewPanelViewModel { get; set; } = new();
-    [Reactive] public bool IsBusy { get; set; } = false;
+    [Reactive] public partial bool IsBusy { get; set; }
     public List<RecentProject> RecentProjects { get; set; } = [];
     public DefaultSongPanel DefaultSongPanel { get; set; }
     public string? PreviousVideoPath { get; set; }
+
+    public MsuProjectWindowViewModel()
+    {
+        SongSummary = string.Empty;
+        TrackSummary = string.Empty;
+        FilterEyeIcon = MaterialIconKind.Filter;
+        StatusBarText = "Loaded Project";
+        WindowTitle = "MSU Scripter";
+    }
     
     public override ViewModelBase DesignerExample()
     {

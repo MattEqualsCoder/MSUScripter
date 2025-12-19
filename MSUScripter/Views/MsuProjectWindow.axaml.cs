@@ -67,7 +67,7 @@ public partial class MsuProjectWindow : RestorableWindow
 
     private void DropFile(object? sender, DragEventArgs e)
     {
-        var file = e.Data.GetFiles()?.FirstOrDefault();
+        var file = e.DataTransfer.TryGetFiles()?.FirstOrDefault();
         if (file == null || _viewModel?.CurrentTreeItem?.TrackInfo == null || _service == null)
         {
             return;

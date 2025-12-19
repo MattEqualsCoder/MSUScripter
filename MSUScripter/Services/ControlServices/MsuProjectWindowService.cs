@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Threading;
 using AvaloniaControls.Controls;
-using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using DynamicData;
 using Material.Icons;
@@ -157,9 +156,10 @@ public class MsuProjectWindowService(
             SongSummary = $"{completedSongs}/{totalSongs} Songs Completed",
             TrackSummary = $"{completedTracks}/{totalTracks} Tracks With Songs Added",
             WindowTitle = windowTitle,
-            PreviousVideoPath = settingsService.Settings.PreviousVideoPath
+            PreviousVideoPath = settingsService.Settings.PreviousVideoPath,
         };
-        
+
+        _viewModel.BasicInfoViewModel.IsVisible = true;
         _viewModel.BasicInfoViewModel.UpdateModel(project);
 
         _viewModel.TreeItems.AddRange(sidebarItems.OrderBy(x => x.SortIndex));

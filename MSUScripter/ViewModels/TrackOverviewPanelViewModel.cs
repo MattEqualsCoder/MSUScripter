@@ -1,24 +1,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Media;
-using AvaloniaControls.Models;
 using Material.Icons;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class TrackOverviewPanelViewModel : ViewModelBase
+public partial class TrackOverviewPanelViewModel : ViewModelBase
 {
-    [Reactive] public List<TrackOverviewRow> Rows { get; set; } = [];
-    [Reactive] public bool IsVisible { get; set; }
-    [Reactive] public int SelectedIndex { get; set; }
-    [Reactive] public bool ShowCompleteColumn { get; set; } = true;
-    [Reactive] public bool ShowCopyrightSafeColumn { get; set; } = false;
-    [Reactive] public bool ShowCheckCopyrightColumn { get; set; } = false;
-    [Reactive] public bool ShowHasAudioColumn { get; set; } = false;
-    public Settings Settings { get; private set; }
+    [Reactive] public partial List<TrackOverviewRow> Rows { get; set; }
+    [Reactive] public partial bool IsVisible { get; set; }
+    [Reactive] public partial int SelectedIndex { get; set; }
+    [Reactive] public partial bool ShowCompleteColumn { get; set; }
+    [Reactive] public partial bool ShowCopyrightSafeColumn { get; set; }
+    [Reactive] public partial bool ShowCheckCopyrightColumn { get; set; }
+    [Reactive] public partial bool ShowHasAudioColumn { get; set; }
+    public Settings Settings { get; private set; } = new();
 
+    public TrackOverviewPanelViewModel()
+    {
+        ShowCompleteColumn = true;
+        Rows = [];
+    }
+    
     public void UpdateModel(MsuProject project, Settings settings)
     {
         List<TrackOverviewRow> newRows = [];
@@ -45,10 +50,14 @@ public class TrackOverviewPanelViewModel : ViewModelBase
         Rows = newRows;
     }
 
-    public class TrackOverviewRow : ViewModelBase
+    public partial class TrackOverviewRow : ViewModelBase
     {
         public TrackOverviewRow(MsuTrackInfo track, MsuSongInfo? song = null)
         {
+            CompletedIconColor = Brushes.DimGray;
+            HasSongIconColor = Brushes.DimGray;
+            CheckCopyrightIconColor = Brushes.DimGray;
+            CopyrightSafeIconColor = Brushes.DimGray;
             Track = track;
             SongInfo = song;
             UpdateIcons();
@@ -62,17 +71,16 @@ public class TrackOverviewPanelViewModel : ViewModelBase
         public string Name => SongInfo?.SongName ?? "";
         public string Artist => SongInfo?.Artist ?? "";
         public string Album => SongInfo?.Album ?? "";
-
-
-        [Reactive] public MaterialIconKind CompletedIconKind { get; set; } = MaterialIconKind.FlagOutline;
-        [Reactive] public IBrush CompletedIconColor { get; set; } = Brushes.DimGray;
-        [Reactive] public MaterialIconKind HasSongIconKind { get; set; } = MaterialIconKind.VolumeSource;
-        [Reactive] public IBrush HasSongIconColor { get; set; } = Brushes.DimGray;
-        [Reactive] public MaterialIconKind CheckCopyrightIconKind { get; set; } = MaterialIconKind.Video;
-        [Reactive] public IBrush CheckCopyrightIconColor { get; set; } = Brushes.DimGray;
-        [Reactive] public MaterialIconKind CopyrightSafeIconKind { get; set; } = MaterialIconKind.Copyright;
-        [Reactive] public IBrush CopyrightSafeIconColor { get; set; } = Brushes.DimGray;
-
+        
+        [Reactive] public partial MaterialIconKind CompletedIconKind { get; set; }
+        [Reactive] public partial IBrush CompletedIconColor { get; set; }
+        [Reactive] public partial MaterialIconKind HasSongIconKind { get; set; }
+        [Reactive] public partial IBrush HasSongIconColor { get; set; }
+        [Reactive] public partial MaterialIconKind CheckCopyrightIconKind { get; set; }
+        [Reactive] public partial IBrush CheckCopyrightIconColor { get; set; }
+        [Reactive] public partial MaterialIconKind CopyrightSafeIconKind { get; set; }
+        [Reactive] public partial IBrush CopyrightSafeIconColor { get; set; }
+        
         public string File =>
             SongInfo == null
                 ? ""
