@@ -142,6 +142,18 @@
           "description": "Normalize the current track to the specified RMS level, overrides the global normalization value",
           "format": "double"
         },
+        "PostGenerateVolumeModifier": {
+          "type": [
+            "null",
+            "number"
+          ],
+          "description": "Alter the volume after msupcm++ has generated the PCM file",
+          "format": "float"
+        },
+        "IsPostGenerateVolumeDecibels": {
+          "type": "boolean",
+          "description": "If the volume modifier after msupcm++ generation should be in decibels instead of percent"
+        },
         "Compression": {
           "type": [
             "boolean",
