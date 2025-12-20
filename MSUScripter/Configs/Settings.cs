@@ -33,6 +33,7 @@ public class Settings
     public bool TrackOverviewShowHasSongIcon { get; set; }
     public bool TrackOverviewShowCheckCopyrightIcon { get; set; }
     public bool TrackOverviewShowCopyrightSafeIcon { get; set; }
+    public bool HasShownVolumeModifierWarning { get; set; }
     
     public DefaultSongPanel DefaultSongPanel { get; set; } = DefaultSongPanel.Prompt;
 }

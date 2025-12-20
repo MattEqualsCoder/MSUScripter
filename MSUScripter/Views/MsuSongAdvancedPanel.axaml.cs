@@ -60,6 +60,7 @@ public partial class MsuSongAdvancedPanel : UserControl
             }
             
         };
+        _viewModel.HasShownVolumeModifierWarning = Service?.HasShownVolumeModifierWarning() ?? false;
     }
     
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -499,6 +500,27 @@ public partial class MsuSongAdvancedPanel : UserControl
             }
         }
         catch
+        {
+            // Do nothing
+        }
+    }
+
+    private async void VolumeModifierInputElement_OnLostFocus(object? sender, RoutedEventArgs e)
+    {
+        try
+        {
+            if (_viewModel is not { HasShownVolumeModifierWarning: false } || (_viewModel.PostGenerateVolumeModifier ?? 0) == 0)
+            {
+                return;
+            }
+
+            await MessageWindow.ShowInfoDialog(
+                "Modifying the volume here instead of the normalization option is done via the MSU Scripter rather than MsuPcm+. This means if you share the tracks.json file with others for them to generate the MSU, the volume will not match.", "Warning", TopLevel.GetTopLevel(this) as Window);
+
+            _viewModel.HasShownVolumeModifierWarning = true;
+            Service?.UpdateShownVolumeModifierWarning();
+        }
+        catch (Exception)
         {
             // Do nothing
         }

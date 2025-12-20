@@ -93,6 +93,8 @@ public partial class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     public event EventHandler? FileDragDropped;
     
     public MsuSongInfo? CurrentSongInfo { get; private set; }
+    public bool HasShownVolumeModifierWarning { get; set; }
+    
     private MsuSongMsuPcmInfo? _currentSongMsuPcmInfo;
     private MsuProjectWindowViewModelTreeData? _treeData;
     private MsuSongAdvancedPanelViewModelModelTreeData? _hoveredItem;

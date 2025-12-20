@@ -510,6 +510,7 @@
                             Grid.Column="0"
                             Margin="3 0 3 0"
                             Value="{Binding PostGenerateVolumeModifier}"
+                            LostFocus="VolumeModifierInputElement_OnLostFocus"
                         />
                         <controls:BoolComboBox 
                             Grid.Column="1" 
