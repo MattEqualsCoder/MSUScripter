@@ -700,7 +700,6 @@ public partial class MsuProjectWindow : RestorableWindow
             _service?.SaveProject();
         }
 
-        CloseReason = MsuProjectWindowCloseReason.CloseProject;
         _forceClose = true;
         Close();
     }

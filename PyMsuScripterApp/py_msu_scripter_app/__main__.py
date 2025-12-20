@@ -1,10 +1,7 @@
 import logging
-import sys
 import argparse
 import yaml
 import os.path
-
-from pymusiclooper.audio import MLAudio
 
 from py_msu_scripter_app.py_music_looper_runner import PyMusicLooperRunner
 from py_msu_scripter_app.sample_rate_analyzer import SampleRateAnalyzer

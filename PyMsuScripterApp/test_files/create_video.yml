@@ -1,4 +1,5 @@
 Mode: create_video
-OutputVideo: /home/matt/Source/PyMsuScripterApp/out/create_video_out.mp4
+OutputVideo: /home/matt/Source/MSUScripter/PyMsuScripterApp/out/create_video_out.mp4
+ProgressFile: /home/matt/Source/MSUScripter/PyMsuScripterApp/out/create_video_progress.txt
 Files:
-  - /home/matt/Documents/MSUProjects/When The Fates Cry/Output/WhenTheFatesCry_SMZ3-2.pcm
+  - /home/matt/Games/smz3/MSUs/LARK-SMZ3-MSU-4.pcm
