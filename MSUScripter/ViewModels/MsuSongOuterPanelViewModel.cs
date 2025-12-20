@@ -3,36 +3,36 @@ using System.Linq;
 using AvaloniaControls.Models;
 using MSUScripter.Configs;
 using MSUScripter.Models;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuSongOuterPanelViewModel : SavableViewModelBase
+public partial class MsuSongOuterPanelViewModel : SavableViewModelBase
 {
-    [Reactive, SkipLastModified] public string TrackTitleText { get; set; } = "";
+    [Reactive, SkipLastModified] public partial string TrackTitleText { get; set; }
     
-    [Reactive, SkipLastModified] public string? TrackDescriptionText { get; set; }
+    [Reactive, SkipLastModified] public partial string? TrackDescriptionText { get; set; }
     
-    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public bool IsScratchPad { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public partial bool IsScratchPad { get; set; }
     
-    [Reactive, SkipLastModified] public bool DisplayAddSong { get; set; }
-    [Reactive, SkipLastModified] public string AddSongButtonHeaderText { get; set; } = string.Empty;
+    [Reactive, SkipLastModified] public partial bool DisplayAddSong { get; set; }
+    [Reactive, SkipLastModified] public partial string AddSongButtonHeaderText { get; set; }
     
     public MsuProject? Project { get; set; }
     public MsuTrackInfo? TrackInfo { get; set; }
     public MsuSongInfo? SongInfo { get; set; }
     
-    [Reactive, SkipLastModified] public bool HasTrackDescription { get; set; }
+    [Reactive, SkipLastModified] public partial bool HasTrackDescription { get; set; }
     
-    [Reactive, SkipLastModified] public bool IsEnabled { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsEnabled { get; set; }
     
-    [Reactive] public bool IsComplete { get; set; }
-    [Reactive, SkipLastModified] public bool DisplayCompleteCheckbox { get; set; }
-    [Reactive, SkipLastModified] public string AverageAudioLevel { get; set; } = "";
-    [Reactive, SkipLastModified] public string PeakAudioLevel { get; set; } = "";
-    [Reactive, SkipLastModified] public bool DisplaySecondAudioLine { get; set; }
-    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public bool CanGeneratePcmFiles { get; set; } = true;
-    [Reactive, SkipLastModified] public bool IsGeneratingPcmFiles { get; set; }
+    [Reactive] public partial bool IsComplete { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplayCompleteCheckbox { get; set; }
+    [Reactive, SkipLastModified] public partial string AverageAudioLevel { get; set; }
+    [Reactive, SkipLastModified] public partial string PeakAudioLevel { get; set; }
+    [Reactive, SkipLastModified] public partial bool DisplaySecondAudioLine { get; set; }
+    [Reactive, SkipLastModified, ReactiveLinkedProperties(nameof(ShowNonSplitButton), nameof(ShowSplitButton))] public partial bool CanGeneratePcmFiles { get; set; }
+    [Reactive, SkipLastModified] public partial bool IsGeneratingPcmFiles { get; set; }
     [SkipLastModified] public bool ShowSplitButton => CanGeneratePcmFiles && !IsScratchPad;
     [SkipLastModified] public bool ShowNonSplitButton => CanGeneratePcmFiles && IsScratchPad;
     
@@ -44,6 +44,11 @@ public class MsuSongOuterPanelViewModel : SavableViewModelBase
     
     public MsuSongOuterPanelViewModel()
     {
+        TrackTitleText = string.Empty;
+        AddSongButtonHeaderText = string.Empty;
+        AverageAudioLevel = string.Empty;
+        PeakAudioLevel = string.Empty;
+        CanGeneratePcmFiles = true;
         PropertyChanged += OnPropertyChanged;
         return;
 

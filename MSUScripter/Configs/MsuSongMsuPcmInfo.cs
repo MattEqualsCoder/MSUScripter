@@ -40,6 +40,12 @@ public class MsuSongMsuPcmInfo
     [Description("Normalize the current track to the specified RMS level, overrides the global normalization value")]
     public double? Normalization { get; set; }
     
+    [Description("Alter the volume after msupcm++ has generated the PCM file")]
+    public float? PostGenerateVolumeModifier { get; set; }
+    
+    [Description("If the volume modifier after msupcm++ generation should be in decibels instead of percent")]
+    public bool IsPostGenerateVolumeDecibels { get; set; }
+    
     [Description("Apply dynamic range compression to the current track")]
     public bool? Compression { get; set; }
     
@@ -59,10 +65,10 @@ public class MsuSongMsuPcmInfo
     public bool ShowPanel { get; set; } = true;
     
     [Description("Files which will be concatenated together to form the input to the parent track")]
-    public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = new();
+    public List<MsuSongMsuPcmInfo> SubTracks { get; set; } = [];
     
     [Description("Files which will be mixed together to form the input to the parent track")]
-    public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = new();
+    public List<MsuSongMsuPcmInfo> SubChannels { get; set; } = [];
 
     public void ClearFieldsForYaml()
     {
@@ -81,12 +87,7 @@ public class MsuSongMsuPcmInfo
 
     public List<string> GetFiles()
     {
-        if (!string.IsNullOrEmpty(Output))
-        {
-            var outputFile = Output;
-        }
-        
-        List<string> files = new List<string>();
+        List<string> files = [];
 
         if (!string.IsNullOrEmpty(File))
         {

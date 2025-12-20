@@ -1,24 +1,30 @@
 using Material.Icons;
 using MSUScripter.Models;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
 [SkipLastModified]
-public class AudioControlViewModel : ViewModelBase
+public partial class AudioControlViewModel : ViewModelBase
 {
-    [Reactive] public MaterialIconKind Icon { get; set; } = MaterialIconKind.Stop;
-    [Reactive] public double Position { get; set; }
-    [Reactive] public double Volume { get; set; }
-    [Reactive] public string Timestamp { get; set; } = "0:00/0:00";
-    [Reactive] public bool CanPlayMusic { get; set; }
-    [Reactive] public bool CanChangePosition { get; set; }
-    [Reactive] public bool CanPlayPause { get; set; }
-    [Reactive] public bool CanChangeVolume { get; set; }
-    [Reactive] public int? JumpToSeconds { get; set; }
-    [Reactive] public bool CanSetTimeSeconds { get; set; }
+    [Reactive] public partial MaterialIconKind Icon { get; set; }
+    [Reactive] public partial double Position { get; set; }
+    [Reactive] public partial double Volume { get; set; }
+    [Reactive] public partial string Timestamp { get; set; }
+    [Reactive] public partial bool CanPlayMusic { get; set; }
+    [Reactive] public partial bool CanChangePosition { get; set; }
+    [Reactive] public partial bool CanPlayPause { get; set; }
+    [Reactive] public partial bool CanChangeVolume { get; set; }
+    [Reactive] public partial int? JumpToSeconds { get; set; }
+    [Reactive] public partial bool CanSetTimeSeconds { get; set; }
     public double PreviousPosition { get; set; }
     public int IconSize => 16;
+
+    public AudioControlViewModel()
+    {
+        Icon = MaterialIconKind.Stop;
+        Timestamp = "0:00/0:00";
+    }
     
     public override ViewModelBase DesignerExample()
     {

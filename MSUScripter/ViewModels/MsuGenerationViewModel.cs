@@ -1,22 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuGenerationViewModel : TranslatedViewModelBase
+public partial class MsuGenerationViewModel : TranslatedViewModelBase
 {
-    [Reactive] public MsuProject MsuProject { get; set; } = new();
-    [Reactive] public List<MsuGenerationRowViewModel> Rows { get; set; } = [];
-    [Reactive] public int TotalSongs { get; set; }
-    [Reactive] public int SongsCompleted { get; set; }
-    [Reactive] public string ButtonText { get; set; } = "Cancel";
-    [Reactive] public bool IsFinished { get; set; }
-    [Reactive] public int NumErrors { get; set; }
-    [Reactive] public List<string> GenerationErrors { get; set; } = [];
+    [Reactive] public partial MsuProject MsuProject { get; set; }
+    [Reactive] public partial List<MsuGenerationRowViewModel> Rows { get; set; }
+    [Reactive] public partial int TotalSongs { get; set; }
+    [Reactive] public partial int SongsCompleted { get; set; }
+    [Reactive] public partial string ButtonText { get; set; }
+    [Reactive] public partial bool IsFinished { get; set; }
+    [Reactive] public partial int NumErrors { get; set; }
+    [Reactive] public partial List<string> GenerationErrors { get; set; }
     public double GenerationSeconds { get; set; }
     public string? ZipPath { get; set; }
+
+    public MsuGenerationViewModel()
+    {
+        MsuProject = new MsuProject();
+        Rows = [];
+        ButtonText = "Cancel";
+        GenerationErrors = [];
+    }
     
     public override ViewModelBase DesignerExample()
     {
@@ -40,22 +48,22 @@ public enum MsuGenerationRowType
     Compress
 }
 
-public class MsuGenerationRowViewModel : ViewModelBase
+public partial class MsuGenerationRowViewModel : ViewModelBase
 {
-    [Reactive] public string Title { get; set; }
+    [Reactive] public partial string Title { get; set; }
     
-    [Reactive] public MsuSongInfo? SongInfo { get; set; }
+    [Reactive] public partial MsuSongInfo? SongInfo { get; set; }
 
-    [Reactive] public string Path { get; set; }
-    [Reactive] public string PathDisplay { get; set; } = "";
+    [Reactive] public partial string Path { get; set; }
+    [Reactive] public partial string PathDisplay { get; set; } 
     
-    [Reactive] public bool HasLoaded { get; set; }
+    [Reactive] public partial bool HasLoaded { get; set; }
     
-    [Reactive] public bool HasWarning { get; set; }
+    [Reactive] public partial bool HasWarning { get; set; }
 
-    [Reactive] public string Message { get; set; }
+    [Reactive] public partial string Message { get; set; }
 
-    [Reactive] public bool CanParallelize { get; set; } = true;
+    [Reactive] public partial bool CanParallelize { get; set; }
 
     public MsuGenerationRowType Type { get; }
     
@@ -66,6 +74,8 @@ public class MsuGenerationRowViewModel : ViewModelBase
         Title = $"Track #{songInfo.TrackNumber} - {System.IO.Path.GetFileName(songInfo.OutputPath)}";
         Path = songInfo.OutputPath ?? "";
         Message = "Waiting";
+        CanParallelize = true;
+        PathDisplay = string.Empty;
         SetPathDisplay();
     }
 
@@ -108,9 +118,14 @@ public class MsuGenerationRowViewModel : ViewModelBase
         {
             CanParallelize = false;
         }
+        else
+        {
+            CanParallelize = true;
+        }
 
         Message = "Waiting";
-        
+
+        PathDisplay = string.Empty;
         SetPathDisplay();
     }
 

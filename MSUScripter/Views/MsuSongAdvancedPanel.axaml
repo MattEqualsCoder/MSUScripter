@@ -478,6 +478,7 @@
                     <views:FormLabel 
                         Grid.Column="0" 
                         Grid.Row="12" 
+                        Grid.ColumnSpan="3"
                         Margin="0 8 3 2"
                         LabelText="{Binding Text.MsuPcmNormalizationLabel}"
                         ToolTipText="{Binding Text.MsuPcmNormalizationToolTip}"
@@ -485,22 +486,53 @@
                     <controls:NumericUpDownNoScroll 
                         Grid.Row="13" 
                         Grid.Column="0" 
-                        Grid.ColumnSpan="2"
+                        Grid.ColumnSpan="3"
                         Margin="0 0 3 0"
                         Value="{Binding Normalization}"
                     />
                     
+                    <!-- Post Generation Volume -->
+                    <views:FormLabel 
+                        Grid.Column="3" 
+                        Grid.Row="12" 
+                        Grid.ColumnSpan="3"
+                        Margin="3 8 0 2"
+                        LabelText="{Binding Text.PostGenerationVolumeLabel}"
+                        ToolTipText="{Binding Text.PostGenerationVolumeToolTip}"
+                    />
+                    <Grid 
+                        Grid.Row="13" 
+                        Grid.Column="3" 
+                        Grid.ColumnSpan="3" 
+                        ColumnDefinitions="*, Auto"
+                    >
+                        <controls:NumericUpDownNoScroll 
+                            Grid.Column="0"
+                            Margin="3 0 3 0"
+                            Value="{Binding PostGenerateVolumeModifier}"
+                            LostFocus="VolumeModifierInputElement_OnLostFocus"
+                        />
+                        <controls:BoolComboBox 
+                            Grid.Column="1" 
+                            TrueDisplayText="Db"
+                            FalseDisplayText="%"
+                            Value="{Binding IsPostGenerateVolumeDecibels}"
+                            Width="50"
+                        />
+                    </Grid>
+                    
                     <!-- Tempo -->
                     <views:FormLabel 
-                        Grid.Column="2"
-                        Grid.Row="12"
+                        Grid.Column="0"
+                        Grid.Row="14"
+                        Grid.ColumnSpan="2"
                         Margin="3 8 3 2"
                         LabelText="{Binding Text.MsuPcmTempoLabel}"
                         ToolTipText="{Binding Text.MsuPcmTempoToolTip}"
                     />
                     <controls:NumericUpDownNoScroll 
-                        Grid.Row="13" 
-                        Grid.Column="2" 
+                        Grid.Row="15" 
+                        Grid.Column="0" 
                         Grid.ColumnSpan="2"
                         Margin="3 0 3 0"
                         Value="{Binding Tempo}"
@@ -509,36 +541,37 @@
                     
                     <!-- Compression -->
                     <views:FormLabel 
-                        Grid.Column="4" 
-                        Grid.Row="12" 
-                        Margin="3 8 0 2"
+                        Grid.Column="2" 
+                        Grid.Row="14"
+                        Grid.ColumnSpan="2"
+                        Margin="3 8 3 2"
                         LabelText="{Binding Text.MsuPcmCompressionLabel}"
                         ToolTipText="{Binding Text.MsuPcmCompressionToolTip}"
                     />
                     <controls:BoolComboBox 
-                        Grid.Row="13" 
-                        Grid.Column="4" 
+                        Grid.Row="15" 
+                        Grid.Column="2" 
                         Grid.ColumnSpan="2"
-                        Margin="3 0 0 0"
+                        Margin="3 0 3 0"
                         Value="{Binding Compression, Mode=TwoWay}"
                         AllowNulls="True"
                     ></controls:BoolComboBox>
                     
-                    <!-- Compression -->
+                    <!-- Dither -->
                     <views:FormLabel 
-                        Grid.Column="0" 
+                        Grid.Column="4" 
                         Grid.Row="14" 
-                        Margin="0 8 3 2"
-                        IsVisible="{Binding ShowDither}"
+                        Grid.ColumnSpan="2"
+                        Margin="3 8 0 2"
                         LabelText="{Binding Text.MsuPcmDitherLabel}"
                         ToolTipText="{Binding Text.MsuPcmDitherToolTip}"
                     />
                     <controls:BoolComboBox 
                         Grid.Row="15" 
-                        Grid.Column="0" 
-                        Grid.ColumnSpan="3"
-                        Margin="0 0 3 0"
-                        IsVisible="{Binding ShowDither}"
+                        Grid.Column="4" 
+                        Grid.ColumnSpan="2"
+                        Margin="3 0 0 0"
+                        IsEnabled="{Binding ShowDither}"
                         Value="{Binding Dither, Mode=TwoWay}"
                         AllowNulls="True"
                     ></controls:BoolComboBox>

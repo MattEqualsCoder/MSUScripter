@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using Microsoft.Extensions.Logging;
 using MSUScripter.Configs;
@@ -21,6 +20,7 @@ public class MsuSongPanelService(
     IAudioPlayerService audioPlayerService,
     AudioAnalysisService audioAnalysisService,
     PythonCompanionService pythonCompanionService,
+    SettingsService settingsService,
     ILogger<MsuSongPanelService> logger) : ControlService
 {
     public string? GetMsuPcmInfoCopyText(MsuSongMsuPcmInfo msuPcmInfo)
@@ -289,5 +289,16 @@ public class MsuSongPanelService(
     public bool CanRunPyMusicLooper()
     {
         return pythonCompanionService.IsValid;
+    }
+
+    public bool HasShownVolumeModifierWarning()
+    {
+        return settingsService.Settings.HasShownVolumeModifierWarning;
+    }
+
+    public void UpdateShownVolumeModifierWarning()
+    {
+        settingsService.Settings.HasShownVolumeModifierWarning = true;
+        settingsService.TrySaveSettings();
     }
 }

@@ -445,6 +445,19 @@
                             IsVisible="{Binding IsVisible}"
                         />
                     </Border>
+                    <Border>
+                        <views:TrackOverviewPanel
+                            x:Name="TrackOverviewPanel"
+                            DataContext="{Binding TrackOverviewPanelViewModel}"
+                            IsVisible="{Binding IsVisible}"
+                            ClickedSong="TrackOverviewPanel_OnClickedSong"
+                            AddSong="TrackOverviewPanel_OnAddSong"
+                            ToggleComplete="TrackOverviewPanel_OnToggleComplete"
+                            ToggleCopyrightSafe="TrackOverviewPanel_OnToggleCopyrightSafe"
+                            ToggleCheckCopyright="TrackOverviewPanel_OnToggleCheckCopyright"
+                            UpdatedSettings="TrackOverviewPanel_OnUpdatedSettings"
+                        />
+                    </Border>
                 </Grid>
                 <controls:HeaderFooter Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <TextBlock

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Threading;
 using AvaloniaControls.Controls;
-using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using DynamicData;
 using Material.Icons;
@@ -64,6 +63,15 @@ public class MsuProjectWindowService(
                 ShowCheckbox = false,
                 SortIndex = -10000,
                 MsuDetails = true
+            },
+            new()
+            {
+                Name = "Track Overview",
+                CollapseIcon = MaterialIconKind.ListBox,
+                LeftSpacing = 0,
+                ShowCheckbox = false,
+                SortIndex = -9999,
+                TrackOverview = true
             }
         };
 
@@ -148,9 +156,10 @@ public class MsuProjectWindowService(
             SongSummary = $"{completedSongs}/{totalSongs} Songs Completed",
             TrackSummary = $"{completedTracks}/{totalTracks} Tracks With Songs Added",
             WindowTitle = windowTitle,
-            PreviousVideoPath = settingsService.Settings.PreviousVideoPath
+            PreviousVideoPath = settingsService.Settings.PreviousVideoPath,
         };
-        
+
+        _viewModel.BasicInfoViewModel.IsVisible = true;
         _viewModel.BasicInfoViewModel.UpdateModel(project);
 
         _viewModel.TreeItems.AddRange(sidebarItems.OrderBy(x => x.SortIndex));
@@ -333,6 +342,7 @@ public class MsuProjectWindowService(
                 SaveCurrentPanel();
                 _viewModel.CurrentTreeItem = treeData;
                 _viewModel.BasicInfoViewModel.IsVisible = false;
+                _viewModel.TrackOverviewPanelViewModel.IsVisible = false;
                 _viewModel.MsuSongViewModel.BasicPanelViewModel.PyMusicLooperEnabled = pythonCompanionService.IsValid;
                 _viewModel.MsuSongViewModel.UpdateViewModel(_project, treeData.TrackInfo!, null, treeData);
             }
@@ -342,6 +352,7 @@ public class MsuProjectWindowService(
             SaveCurrentPanel();
             _viewModel.CurrentTreeItem = treeData;
             _viewModel.BasicInfoViewModel.IsVisible = false;
+            _viewModel.TrackOverviewPanelViewModel.IsVisible = false;
             _viewModel.MsuSongViewModel.BasicPanelViewModel.PyMusicLooperEnabled = pythonCompanionService.IsValid;
             _viewModel.MsuSongViewModel.UpdateViewModel(_project, treeData.TrackInfo!, treeData.SongInfo, treeData);
         }
@@ -355,6 +366,19 @@ public class MsuProjectWindowService(
             _viewModel.CurrentTreeItem = treeData;
             _viewModel.BasicInfoViewModel.UpdateModel(_project);
             _viewModel.BasicInfoViewModel.IsVisible = true;
+            _viewModel.TrackOverviewPanelViewModel.IsVisible = false;
+        }
+        else if (treeData.TrackOverview)
+        {
+            if (_viewModel.MsuSongViewModel.IsEnabled)
+            {
+                _viewModel.MsuSongViewModel.SaveChanges();
+                _viewModel.MsuSongViewModel.IsEnabled = false;
+            }
+            _viewModel.CurrentTreeItem = treeData;
+            _viewModel.TrackOverviewPanelViewModel.UpdateModel(_project, Settings);
+            _viewModel.BasicInfoViewModel.IsVisible = false;
+            _viewModel.TrackOverviewPanelViewModel.IsVisible = true;
         }
     }
 
@@ -797,6 +821,11 @@ public class MsuProjectWindowService(
             settingsService.TrySaveSettings();
 
         }, cancellationToken);
+    }
+
+    public void SaveSettings()
+    {
+        settingsService.TrySaveSettings();
     }
 
     private void HandleDragged(MsuProjectWindowViewModelTreeData from, MsuProjectWindowViewModelTreeData to)

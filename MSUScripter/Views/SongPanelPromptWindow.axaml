@@ -11,7 +11,7 @@
         x:Class="MSUScripter.Views.SongPanelPromptWindow"
         x:DataType="viewModels:SongPanelPromptWindowViewModel"
         Loaded="Control_OnLoaded"
-        Title="SongPanelPromptWindow">
+        Title="New Song View">
     <DockPanel>
         <controls:HeaderFooter DockPanel.Dock="Bottom">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

@@ -67,7 +67,7 @@ public partial class MsuProjectWindow : RestorableWindow
 
     private void DropFile(object? sender, DragEventArgs e)
     {
-        var file = e.Data.GetFiles()?.FirstOrDefault();
+        var file = e.DataTransfer.TryGetFiles()?.FirstOrDefault();
         if (file == null || _viewModel?.CurrentTreeItem?.TrackInfo == null || _service == null)
         {
             return;
@@ -404,6 +404,11 @@ public partial class MsuProjectWindow : RestorableWindow
         }
 
         _service?.UpdateCompletedFlag(treeData);
+
+        if (_viewModel?.TrackOverviewPanelViewModel.IsVisible == true && treeData.SongInfo != null)
+        {
+            TrackOverviewPanel.UpdateIconsForSong(treeData.SongInfo);
+        }
         
         e.Handled = true;
     }
@@ -417,6 +422,11 @@ public partial class MsuProjectWindow : RestorableWindow
 
         _service?.UpdateCheckCopyright(treeData);
         
+        if (_viewModel?.TrackOverviewPanelViewModel.IsVisible == true && treeData.SongInfo != null)
+        {
+            TrackOverviewPanel.UpdateIconsForSong(treeData.SongInfo);
+        }
+        
         e.Handled = true;
     }
 
@@ -428,6 +438,11 @@ public partial class MsuProjectWindow : RestorableWindow
         }
 
         _service?.UpdateCopyrightSafe(treeData);
+        
+        if (_viewModel?.TrackOverviewPanelViewModel.IsVisible == true && treeData.SongInfo != null)
+        {
+            TrackOverviewPanel.UpdateIconsForSong(treeData.SongInfo);
+        }
         
         e.Handled = true;
     }
@@ -685,7 +700,6 @@ public partial class MsuProjectWindow : RestorableWindow
             _service?.SaveProject();
         }
 
-        CloseReason = MsuProjectWindowCloseReason.CloseProject;
         _forceClose = true;
         Close();
     }
@@ -793,6 +807,62 @@ public partial class MsuProjectWindow : RestorableWindow
         {
             _ = ShowError(errorMessage);
         }
+    }
+
+    private void TrackOverviewPanel_OnAddSong(object? sender, (MsuTrackInfo Track, MsuSongInfo? Song) e)
+    {
+        var treeItem = _viewModel?.TreeItems.FirstOrDefault(x => x.TrackInfo == e.Track && x.SongInfo == e.Song);
+        if (treeItem == null)
+        {
+            return;
+        }
+        AddNewSong(treeItem);
+    }
+
+    private void TrackOverviewPanel_OnClickedSong(object? sender, (MsuTrackInfo Track, MsuSongInfo? Song) e)
+    {
+        var treeItem = _viewModel?.TreeItems.FirstOrDefault(x => x.TrackInfo == e.Track && x.SongInfo == e.Song);
+        if (treeItem == null)
+        {
+            return;
+        }
+        _service?.SelectedTreeItem(treeItem, false);
+        _viewModel!.SelectedTreeItem = treeItem;
+    }
+
+    private void TrackOverviewPanel_OnToggleComplete(object? sender, (MsuTrackInfo Track, MsuSongInfo? Song) e)
+    {
+        var treeItem = _viewModel?.TreeItems.FirstOrDefault(x => x.TrackInfo == e.Track && x.SongInfo == e.Song);
+        if (treeItem == null)
+        {
+            return;
+        }
+        _service?.UpdateCompletedFlag(treeItem);
+    }
+
+    private void TrackOverviewPanel_OnToggleCopyrightSafe(object? sender, (MsuTrackInfo Track, MsuSongInfo? Song) e)
+    {
+        var treeItem = _viewModel?.TreeItems.FirstOrDefault(x => x.TrackInfo == e.Track && x.SongInfo == e.Song);
+        if (treeItem == null)
+        {
+            return;
+        }
+        _service?.UpdateCopyrightSafe(treeItem);
+    }
+
+    private void TrackOverviewPanel_OnToggleCheckCopyright(object? sender, (MsuTrackInfo Track, MsuSongInfo? Song) e)
+    {
+        var treeItem = _viewModel?.TreeItems.FirstOrDefault(x => x.TrackInfo == e.Track && x.SongInfo == e.Song);
+        if (treeItem == null)
+        {
+            return;
+        }
+        _service?.UpdateCheckCopyright(treeItem);
+    }
+
+    private void TrackOverviewPanel_OnUpdatedSettings(object? sender, EventArgs e)
+    {
+        _service?.SaveSettings();
     }
 }
 

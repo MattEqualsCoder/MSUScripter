@@ -1,17 +1,18 @@
 using MSUScripter.Text;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public abstract class TranslatedViewModelBase : ViewModelBase
+public abstract partial class TranslatedViewModelBase : ViewModelBase
 {
     public TranslatedViewModelBase()
     {
+        Text = ApplicationText.CurrentLanguageText;;
         ApplicationText.LanguageChanged += (_, text) =>
         {
             Text = text;
         };
     }
     
-    [Reactive] public ApplicationText Text { get; set; } = ApplicationText.CurrentLanguageText;
+    [Reactive] public partial ApplicationText Text { get; set; }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.Versioning;
 using System.Threading.Tasks;
-using AvaloniaControls.ControlServices;
 using AvaloniaControls.Services;
 using GitHubReleaseChecker;
 using Microsoft.Extensions.Logging;

@@ -5,11 +5,11 @@ using AvaloniaControls.Extensions;
 using MSUScripter.Models;
 using MSUScripter.Tools;
 using ReactiveUI;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public abstract class ViewModelBase : ReactiveObject
+public abstract partial class ViewModelBase : ReactiveObject
 {
     protected ViewModelBase()
     {
@@ -39,8 +39,8 @@ public abstract class ViewModelBase : ReactiveObject
 
     public abstract ViewModelBase DesignerExample();
     
-    [Reactive, SkipConvert, SkipLastModified] public DateTime LastModifiedDate { get; set; }
-    [Reactive, SkipConvert, SkipLastModified] public bool HasBeenModified { get; set; }
+    [Reactive, SkipConvert, SkipLastModified] public partial DateTime LastModifiedDate { get; set; }
+    [Reactive, SkipConvert, SkipLastModified] public partial bool HasBeenModified { get; set; }
     private HashSet<string> SkipLastModifiedProperties { get; }
 
 

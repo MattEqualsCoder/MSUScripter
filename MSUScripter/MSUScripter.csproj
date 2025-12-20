@@ -8,38 +8,41 @@
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <ApplicationIcon>MSUScripterIcon.ico</ApplicationIcon>
     <PackageIcon>MSUScripterIcon.ico</PackageIcon>
-    <Version>5.0.3</Version>
+    <Version>5.1.0</Version>
     <RuntimeFrameworkVersion>9.0.0</RuntimeFrameworkVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-    <LangVersion>12</LangVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.2" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.10" />
     <PackageReference Include="Deadpikle.AvaloniaProgressRing" Version="0.10.10" />
     <PackageReference Include="K4os.Hash.xxHash" Version="1.0.8" />
     <PackageReference Include="MattEqualsCoder.AppImageManager" Version="0.1.3" />
     <!--Condition
     below is needed to remove Avalonia.Diagnostics package from build output in Release
     configuration.-->
-    <PackageReference Include="MattEqualsCoder.AvaloniaControls" Version="1.9.1" />
-    <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.1.3" />
-    <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="3.2.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+    <PackageReference Include="MattEqualsCoder.AvaloniaControls" Version="2.0.0" />
+    <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.1.4" />
+    <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="3.2.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
-    <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="11.5.1" />
-    <PackageReference Include="ReactiveUI.Fody" Version="19.5.41" />
+    <PackageReference Include="NJsonSchema.CodeGeneration.CSharp" Version="11.5.2" />
+    <PackageReference Include="ReactiveUI.SourceGenerators" Version="2.5.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Serilog" Version="4.3.0" />
-    <PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
-    <PackageReference Include="SoundFlow" Version="1.1.1" />
-    <PackageReference Include="System.Management" Version="9.0.9" />
+    <PackageReference Include="SoundFlow" Version="1.1.2" />
+    <PackageReference Include="System.Management" Version="10.0.1" />
     <PackageReference Include="TagLibSharp" Version="2.3.0" />
   </ItemGroup>
 

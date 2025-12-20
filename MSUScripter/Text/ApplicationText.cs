@@ -123,6 +123,8 @@ public class ApplicationText
     public string MsuPcmTempoToolTip { get; } = "Alter the tempo of the current track by a specified ratio.";
     public string MsuPcmCompressionLabel { get; } = "Compression";
     public string MsuPcmCompressionToolTip { get; } = "Apply dynamic range compression to the current track. Helps to minimize very loud and very quiet portions of the track.";
+    public string PostGenerationVolumeLabel { get; } = "Post Generation Volume Modifier";
+    public string PostGenerationVolumeToolTip { get; } = "Alter the volume after MsuPcm++ has generated the PCM file. If set, anyone generating the PCM themselves with MsuPcm++ via the tracks json file will not see these changes.";
     public string MsuPcmDitherLabel { get; } = "Dither";
     public string MsuPcmDitherToolTip { get; } = "Whether or not to apply audio dither to the final output. If set, overrides the default value.";
 

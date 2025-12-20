@@ -1,6 +1,6 @@
 using System;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
@@ -11,23 +11,29 @@ public enum DefaultSongPanel
     Advanced,
 }
 
-public class SettingsPanelViewModel : SavableViewModelBase
+public partial class SettingsPanelViewModel : SavableViewModelBase
 {
-    [Reactive] public bool CheckForUpdates { get; set; }
+    [Reactive] public partial bool CheckForUpdates { get; set; }
     
-    [Reactive] public DefaultSongPanel DefaultSongPanel { get; set; }
+    [Reactive] public partial DefaultSongPanel DefaultSongPanel { get; set; }
     
-    [Reactive] public int LoopDuration { get; set; } = 5;
-    [Reactive] public decimal UiScaling { get; set; } = 1;
-    [Reactive] public bool HideSubTracksSubChannelsWarning { get; set; }
+    [Reactive] public partial int LoopDuration { get; set; }
+    [Reactive] public partial decimal UiScaling { get; set; }
+    [Reactive] public partial bool HideSubTracksSubChannelsWarning { get; private set; }
     
-    [Reactive] public bool AutomaticallyRunPyMusicLooper { get; set; }
+    [Reactive] public partial bool AutomaticallyRunPyMusicLooper { get; set; }
     
-    [Reactive] public bool RunMsuPcmWithKeepTemps { get; set; }
+    [Reactive] public partial bool RunMsuPcmWithKeepTemps { get; set; }
     public bool ShowDesktopFileButton => OperatingSystem.IsLinux();
 
-    public Settings Settings { get; set; } = new();
-     
+    public Settings Settings { get; private set; } = new();
+
+    public SettingsPanelViewModel()
+    {
+        LoopDuration = 5;
+        UiScaling = 1;
+    }
+    
     public override ViewModelBase DesignerExample()
     {
         return new SettingsPanelViewModel();

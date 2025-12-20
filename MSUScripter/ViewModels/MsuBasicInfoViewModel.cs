@@ -1,35 +1,46 @@
 ﻿using System;
 using MSUScripter.Configs;
-using ReactiveUI.Fody.Helpers;
+using ReactiveUI.SourceGenerators;
 
 namespace MSUScripter.ViewModels;
 
-public class MsuBasicInfoViewModel : SavableViewModelBase
+public partial class MsuBasicInfoViewModel : SavableViewModelBase
 {
     public MsuProject? Project { get; set; }
-    [Reactive] public string MsuType { get; set; } = "";
-    [Reactive] public string PackName { get; set; } = "";
-    [Reactive] public string PackCreator { get; set; } = "";
-    [Reactive] public string PackVersion { get; set; } = "";
-    [Reactive] public string Artist { get; set; } = "";
-    [Reactive] public string Album { get; set; } = "";
-    [Reactive] public string Url { get; set; } = ""; 
+    [Reactive] public partial string MsuType { get; set; }
+    [Reactive] public partial string PackName { get; set; }
+    [Reactive] public partial string PackCreator { get; set; }
+    [Reactive] public partial string PackVersion { get; set; }
+    [Reactive] public partial string Artist { get; set; }
+    [Reactive] public partial string Album { get; set; }
+    [Reactive] public partial string Url { get; set; }
     
-    [Reactive] public bool IsMsuPcmProject { get; set; }
-    [Reactive] public double? Normalization { get; set; }
-    [Reactive] public DitherType DitherType { get; set; }
+    [Reactive] public partial bool IsMsuPcmProject { get; set; }
+    [Reactive] public partial double? Normalization { get; set; }
+    [Reactive] public partial DitherType DitherType { get; set; }
     public bool HasSeenDitherWarning { get; set; }
-    [Reactive] public bool IncludeJson { get; set; }
+    [Reactive] public partial bool IncludeJson { get; set; }
     
-    [Reactive] public TrackList TrackList { get; set; }
-    [Reactive] public bool WriteYamlFile { get; set; }
-    [Reactive] public bool CreateAltSwapperScript { get; set; }
+    [Reactive] public partial TrackList TrackList { get; set; }
+    [Reactive] public partial bool WriteYamlFile { get; set; }
+    [Reactive] public partial bool CreateAltSwapperScript { get; set; }
     
-    [Reactive] public bool IsSmz3Project { get; set; }
-    [Reactive] public bool CreateSplitSmz3Script { get; set; }
-    [Reactive] public string? ZeldaMsuPath { get; set; }
-    [Reactive] public string? MetroidMsuPath { get; set; }
-    [Reactive] public bool IsVisible { get; set; } = true;
+    [Reactive] public partial bool IsSmz3Project { get; set; }
+    [Reactive] public partial bool CreateSplitSmz3Script { get; set; }
+    [Reactive] public partial string? ZeldaMsuPath { get; set; }
+    [Reactive] public partial string? MetroidMsuPath { get; set; }
+    [Reactive] public partial bool IsVisible { get; set; }
+
+    public MsuBasicInfoViewModel()
+    {
+        MsuType = string.Empty;
+        PackName = string.Empty;
+        PackCreator = string.Empty;
+        PackVersion = string.Empty;
+        Artist = string.Empty;
+        Album = string.Empty;
+        Url = string.Empty;
+    }
     
     public void UpdateModel(MsuProject project)
     {
