@@ -34,12 +34,12 @@ public partial class TrackOverviewPanel : UserControl
 
     private void TrackDataGrid_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not TrackOverviewPanelViewModel model || model.SelectedIndex < 0 || model.SelectedIndex >= model.Rows.Count)
+        if (DataContext is not TrackOverviewPanelViewModel model || model.SelectedRow == null)
         {
             return;
         }
 
-        var row = model.Rows[model.SelectedIndex];
+        var row = model.SelectedRow;
         ClickedSong?.Invoke(this, (row.Track, row.SongInfo));
     }
 

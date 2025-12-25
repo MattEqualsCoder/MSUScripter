@@ -514,7 +514,7 @@
                         />
                         <controls:BoolComboBox 
                             Grid.Column="1" 
-                            TrueDisplayText="Db"
+                            TrueDisplayText="dB"
                             FalseDisplayText="%"
                             Value="{Binding IsPostGenerateVolumeDecibels}"
                             Width="50"

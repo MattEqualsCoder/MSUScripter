@@ -18,7 +18,7 @@
                   IsReadOnly="True"
                   RowBackground="{DynamicResource CardBackground}"
                   SelectionMode="Single"
-                  SelectedIndex="{Binding SelectedIndex}"
+                  SelectedItem="{Binding SelectedRow}"
                   DoubleTapped="TrackDataGrid_OnDoubleTapped"
                   DragDrop.AllowDrop="True"
         >

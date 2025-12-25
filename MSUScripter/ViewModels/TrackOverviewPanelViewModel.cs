@@ -11,11 +11,11 @@ public partial class TrackOverviewPanelViewModel : ViewModelBase
 {
     [Reactive] public partial List<TrackOverviewRow> Rows { get; set; }
     [Reactive] public partial bool IsVisible { get; set; }
-    [Reactive] public partial int SelectedIndex { get; set; }
     [Reactive] public partial bool ShowCompleteColumn { get; set; }
     [Reactive] public partial bool ShowCopyrightSafeColumn { get; set; }
     [Reactive] public partial bool ShowCheckCopyrightColumn { get; set; }
     [Reactive] public partial bool ShowHasAudioColumn { get; set; }
+    [Reactive] public partial TrackOverviewRow? SelectedRow { get; set; }
     public Settings Settings { get; private set; } = new();
 
     public TrackOverviewPanelViewModel()
@@ -46,7 +46,7 @@ public partial class TrackOverviewPanelViewModel : ViewModelBase
         ShowCheckCopyrightColumn = settings.TrackOverviewShowCheckCopyrightIcon;
         ShowHasAudioColumn = settings.TrackOverviewShowHasSongIcon;
 
-        SelectedIndex = 0;
+        SelectedRow = null;
         Rows = newRows;
     }
 
