@@ -21,7 +21,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
@@ -36,7 +36,7 @@ jobs:
         if: ${{ github.event_name != 'pull_request' }}
         id: version
         run: |
-          $version = (Get-Item "MSUScripter\bin\Release\net9.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
+          $version = (Get-Item "MSUScripter\bin\Release\net10.0\win-x86\publish\MSUScripter.exe").VersionInfo.ProductVersion
           $version = $version.Split("+")[0]
           Write-Host $version
           Write-Output "number=$version" >> $env:GITHUB_OUTPUT
@@ -65,7 +65,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
       - name: Update VersionOverride in source file
         run: |
           pwd
