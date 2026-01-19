@@ -1166,6 +1166,8 @@ public class MsuProjectWindowService(
                 songInfo.TrackNumber = treeData.TrackInfo!.TrackNumber;
                 treeData.TrackInfo.Songs.Add(songInfo);
             }
+
+            songInfo.DisplayAdvancedMode |= songInfo.MsuPcmInfo.HasAdvancedData();
             
             if (treeData.ParentTreeData != null && !string.IsNullOrEmpty(treeData.SongInfo?.SongName))
             {

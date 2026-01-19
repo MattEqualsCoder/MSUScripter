@@ -140,7 +140,8 @@ public class MsuSongMsuPcmInfo
 
     public bool HasAdvancedData()
     {
-        return FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 || PadEnd > 0 ||
+        return FadeIn > 0 || FadeOut > 0 || CrossFade > 0 || PadStart > 0 || PadEnd > 0 || Dither != null || 
+               (PostGenerateVolumeModifier.HasValue && PostGenerateVolumeModifier != 0) || Compression != null ||
                (Tempo.HasValue && Tempo != 0) || SubChannels.Count > 0 || SubTracks.Count > 0;
     }
 
