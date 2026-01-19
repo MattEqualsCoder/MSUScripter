@@ -14,10 +14,16 @@ public partial class MsuSongBasicPanelViewModel : SavableViewModelBase
     [Reactive] public partial string? SongName { get; set; }
 
     [Reactive] public partial string? ArtistName { get; set; }
+    
+    [Reactive] public partial string? DefaultArtistName { get; set; }
 
     [Reactive] public partial string? Album { get; set; }
+    
+    [Reactive] public partial string? DefaultAlbumName { get; set; }
 
     [Reactive] public partial string? Url { get; set; }
+    
+    [Reactive] public partial string? DefaultUrl { get; set; }
 
     [Reactive] public partial string? OutputFilePath { get; set; }
 
@@ -95,8 +101,12 @@ public partial class MsuSongBasicPanelViewModel : SavableViewModelBase
         
         SongName = songInfo.SongName;
         ArtistName = songInfo.Artist;
+        DefaultArtistName = project.BasicInfo.Artist;
         Album = songInfo.Album;
+        DefaultAlbumName = project.BasicInfo.Album;
         Url = songInfo.Url;
+        DefaultUrl = project.BasicInfo.Url;
+        
         InputFilePath = songInfo.MsuPcmInfo.File;
         OutputFilePath = songInfo.OutputPath;
         IsScratchPad = trackInfo.IsScratchPad;

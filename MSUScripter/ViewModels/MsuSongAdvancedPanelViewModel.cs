@@ -21,10 +21,16 @@ public partial class MsuSongAdvancedPanelViewModel : SavableViewModelBase
     [Reactive] public partial string? SongName { get; set; }
 
     [Reactive] public partial string? ArtistName { get; set; }
+    
+    [Reactive] public partial string? DefaultArtistName { get; set; }
 
     [Reactive] public partial string? Album { get; set; }
+    
+    [Reactive] public partial string? DefaultAlbumName { get; set; }
 
     [Reactive] public partial string? Url { get; set; }
+    
+    [Reactive] public partial string? DefaultUrl { get; set; }
 
     [Reactive] public partial bool IsAlt { get; set; }
     [Reactive] public partial bool? CheckCopyright { get; set; }
@@ -138,8 +144,11 @@ public partial class MsuSongAdvancedPanelViewModel : SavableViewModelBase
         
         SongName = songInfo.SongName;
         ArtistName = songInfo.Artist;
+        DefaultArtistName = project.BasicInfo.Artist;
         Album = songInfo.Album;
+        DefaultAlbumName = project.BasicInfo.Album;
         Url = songInfo.Url;
+        DefaultUrl = project.BasicInfo.Url;
         CheckCopyright = songInfo.CheckCopyright;
         IsCopyrightSafe = songInfo.IsCopyrightSafe;
         IsScratchPad = trackInfo.IsScratchPad;

@@ -48,8 +48,9 @@
                 <TextBox 
                     Grid.Row="1" 
                     Grid.Column="1"
-                     Margin="3 0 4 0"
-                     Text="{Binding ArtistName}"
+                    Margin="3 0 4 0"
+                    Text="{Binding ArtistName}"
+                    Watermark="{Binding DefaultArtistName}"
                 />
                 
                 <!-- Album -->
@@ -63,8 +64,9 @@
                 <TextBox 
                     Grid.Row="1" 
                     Grid.Column="2"
-                     Margin="3 0 3 0"
-                     Text="{Binding Album}"
+                    Margin="3 0 3 0"
+                    Text="{Binding Album}"
+                    Watermark="{Binding DefaultAlbumName}"
                 />
                 
                 <!-- Url -->
@@ -80,6 +82,7 @@
                     Grid.Column="3"
                     Margin="3 0 0 0"
                     Text="{Binding Url}"
+                    Watermark="{Binding DefaultUrl}"
                 />
                 
                 <controls:IconCheckbox 

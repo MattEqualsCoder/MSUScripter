@@ -72,7 +72,7 @@ public class ApplicationText
     public string MsuBasicInfoWriteTrackListLabel { get; } = "Track List Text File Type";
     public string MsuBasicInfoWriteTrackListToolTip { get; } = "Structure of the text file that lists basic information about the tracks and artists.";
     public string MsuBasicInfoIncludeJsonLabel { get; } = "Bundle MsuPcm++ tracks.json File";
-    public string MsuBasicInfoIncludeJsonToolTip { get; } = "General a full tracks.json file that can be used by others to re-generate the MSU provided they have the correct input files.";
+    public string MsuBasicInfoIncludeJsonToolTip { get; } = "Generate a full tracks.json file that can be used by others to re-generate the MSU provided they have the correct input files.";
     public string MsuBasicInfoWriteAltSwapperLabel { get; } = "Create Alt Track Swapper Script";
     public string MsuBasicInfoWriteAltSwapperToolTip { get; } = "Generate a PowerShell script to swap between primary and the first alt tracks, if any alt tracks are available.";
     public string MsuBasicInfoCreateSplitSmz3MsuCheckbox { get; } = "";

@@ -103,6 +103,7 @@
                 <TextBox Grid.Row="3" Grid.Column="1"
                          Margin="3 0 3 0"
                          Text="{Binding ArtistName}"
+                         Watermark="{Binding DefaultArtistName}"
                 />
                 
                 <!-- Album Name -->
@@ -116,6 +117,7 @@
                 <TextBox Grid.Row="3" Grid.Column="2"
                          Margin="3 0 3 0"
                          Text="{Binding Album}"
+                         Watermark="{Binding DefaultAlbumName}"
                 />
                 
                 <!-- Album Name -->
@@ -129,6 +131,7 @@
                 <TextBox Grid.Row="3" Grid.Column="3"
                          Margin="3 0 0 0"
                          Text="{Binding Url}"
+                         Watermark="{Binding DefaultUrl}"
                 />
                 
                 <!-- Trim Start -->
