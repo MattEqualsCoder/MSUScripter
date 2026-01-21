@@ -38,6 +38,7 @@ public partial class MsuProjectWindow : RestorableWindow
     private MsuProjectWindowViewModelTreeData? _hoverValue;
     private MsuProjectWindowViewModelTreeData? _previousHoverTreeItem;
     private bool _forceClose;
+    private AudioAnalysisWindow? _currentAudioAnalysisWindow;
     
     // ReSharper disable once UnusedMember.Global
     public MsuProjectWindow()
@@ -511,7 +512,17 @@ public partial class MsuProjectWindow : RestorableWindow
     private void OpenAnalyzeProjectButton_OnClick(object? sender, RoutedEventArgs e)
     {
         if (_viewModel?.MsuProject == null) return;
-        _ = OpenDialog(new AudioAnalysisWindow(_viewModel.MsuProject));
+
+        if (_currentAudioAnalysisWindow != null)
+        {
+            _currentAudioAnalysisWindow.Activate();
+        }
+        else
+        {
+            _currentAudioAnalysisWindow = new AudioAnalysisWindow(_viewModel.MsuProject);
+            _currentAudioAnalysisWindow.Closed += (_, _) => _currentAudioAnalysisWindow = null;
+            _currentAudioAnalysisWindow.Show();
+        }
     }
 
     public void SaveMenuItem_OnClick(object? sender, RoutedEventArgs e)
@@ -668,6 +679,8 @@ public partial class MsuProjectWindow : RestorableWindow
             _ = ShowUnsavedChangesWindow();
             return;
         }
+
+        _currentAudioAnalysisWindow?.Close();
         _service?.OnClose();
         _backupTimer.Stop();
         _parentWindow?.RefreshRecentProjects();
