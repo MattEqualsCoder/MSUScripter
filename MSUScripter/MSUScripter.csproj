@@ -25,7 +25,7 @@
     configuration.-->
     <PackageReference Include="MattEqualsCoder.AvaloniaControls" Version="2.0.1" />
     <PackageReference Include="MattEqualsCoder.GitHubReleaseChecker" Version="1.1.4" />
-    <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="3.2.2" />
+    <PackageReference Include="MattEqualsCoder.MSURandomizer.Library" Version="3.2.3" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
     <PackageReference Include="NAudio" Version="2.2.1" />

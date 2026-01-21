@@ -993,6 +993,7 @@ public class ProjectService(
     {
         var msuPath = project.MsuPath;
         var msu = msuLookupService.LoadMsu(msuPath, saveToCache: false, ignoreCache: true, forceLoad: true);
+        message = "";
     
         if (msu == null)
         {
@@ -1051,13 +1052,46 @@ public class ProjectService(
                 statusBarService.UpdateStatusBar("YAML File Validation Failed");
                 return false;
             }
-            else if (project.BasicInfo.WriteYamlFile && ((projectSong.SongName ?? "") != msuTrack.SongName || (projectSong.Album ?? "") != (msuTrack.Album ?? "") ||
-                     (projectSong.Artist ?? "") != (msuTrack.Artist ?? "") || (projectSong.Url ?? "") != (msuTrack.Url ?? "")))
+            else if (project.BasicInfo.WriteYamlFile)
             {
-                message = $"Detail mismatch for song {projectSong.SongName} under track #{projectSong.TrackNumber}.";
-                logger.LogWarning("Project validation failed: {Error}", message);
-                statusBarService.UpdateStatusBar("YAML File Validation Failed");
-                return false;
+                var fileBaseName = Path.GetFileName(msuTrack.Path);
+                var field = string.Empty;
+                var projectVersion = string.Empty;
+                var msuVersion = string.Empty;
+                
+                if ((projectSong.SongName ?? "") != (msuTrack.SongName ?? ""))
+                {
+                    field = "song name";
+                    projectVersion = projectSong.SongName ?? "";
+                    msuVersion = msuTrack.SongName;
+                }
+                else if ((projectSong.Artist ?? "") != (msuTrack.Artist ?? ""))
+                {
+                    field = "artist";
+                    projectVersion = projectSong.Artist ?? "";
+                    msuVersion = msuTrack.Artist;
+                }
+                else if ((projectSong.Album ?? "") != (msuTrack.Album ?? ""))
+                {
+                    field = "album";
+                    projectVersion = projectSong.Album ?? "";
+                    msuVersion = msuTrack.Album;
+                }
+                else if ((projectSong.Url ?? "") != (msuTrack.Url ?? ""))
+                {
+                    field = "url";
+                    projectVersion = projectSong.Url ?? "";
+                    msuVersion = msuTrack.Url;
+                }
+
+                if (!string.IsNullOrEmpty(field))
+                {
+                    message =
+                        $"${fileBaseName} has the ${field} ${projectVersion} but the generated YAML file has the ${field} ${msuVersion}. Try regenerating the YAML file.";
+                    logger.LogWarning("Project validation failed: {Error}", message);
+                    statusBarService.UpdateStatusBar("YAML File Validation Failed");
+                    return false;
+                }
             }
         }
             
