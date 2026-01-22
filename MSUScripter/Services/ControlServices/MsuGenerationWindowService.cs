@@ -168,7 +168,7 @@ public class MsuGenerationWindowService(
             if (_model.NumErrors > 0)
             {
                 var errorString = _model.NumErrors == 1 ? "was 1 error" : $"were {_model.NumErrors} errors";
-                _model.GenerationErrors.Add($" - There were {errorString} when generating the MSU project.");
+                _model.GenerationErrors.Add($" - There were {errorString} when generating the MSU project files.");
             }
 
             await Task.Delay(TimeSpan.FromSeconds(1));

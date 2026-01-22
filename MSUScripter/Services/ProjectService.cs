@@ -800,6 +800,7 @@ public class ProjectService(
             {
                 var newMsu = new FileInfo(msuPath);
                 var newYamlPath = newMsu.FullName.Replace(newMsu.Extension, ".yml");
+                logger.LogInformation("Writing YML file to path {Path}", newYamlPath);
                 var newMsuType = converterService.ConvertMsuDetailsToMsuType(msuDetails, project.MsuType, msuType, project.MsuPath, msuPath);
                 var outYaml = yamlService.ToYaml(newMsuType, YamlType.UnderscoreIgnoreDefaults);
                 statusBarService.UpdateStatusBar("YAML File Written");
@@ -865,6 +866,7 @@ public class ProjectService(
         };
 
         var yamlPath = msuFile.FullName.Replace(msuFile.Extension, ".yml");
+        logger.LogInformation("Writing YAML file to {Path}", yamlPath);
         if (!msuDetailsService.SaveMsuDetails(msu, yamlPath, out error))
         {
             logger.LogError(error);
@@ -872,23 +874,6 @@ public class ProjectService(
         }
 
         statusBarService.UpdateStatusBar("YAML File Written");
-        // TODO: See if this works?
-        // if (project.BasicInfo.CreateSplitSmz3Script)
-        // {
-        //     if (CreateSmz3SplitRandomizerYaml(project, out error))
-        //     {
-        //         statusBarService.UpdateStatusBar("YAML File Written");    
-        //     }
-        //     else
-        //     {
-        //         statusBarService.UpdateStatusBar("YAML File Write Failed");
-        //     }
-        // }
-        // else
-        // {
-        //     statusBarService.UpdateStatusBar("YAML File Written");
-        // }
-        
     }
 
     private void CreateMsuFiles(MsuProject project)

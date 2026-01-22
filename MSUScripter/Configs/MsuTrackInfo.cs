@@ -54,6 +54,7 @@ public class MsuTrackInfo
                 var newOutputPath = msu.FullName.Replace(msu.Extension, $"-{TrackNumber}_{altSuffix}.pcm");
                 Songs[i].OutputPath = newOutputPath;
                 Songs[i].MsuPcmInfo.Output = newOutputPath;
+                Songs[i].IsAlt = true;
             }
         }
 
