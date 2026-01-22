@@ -917,12 +917,12 @@ public class ProjectService(
     public bool CreateAltSwapperFile(MsuProject project)
     {
         if (project.Tracks.All(x => x.Songs.Count <= 1)) return true;
-        
-        ICollection<MsuProject> otherProjects = new List<MsuProject>();
+
+        List<MsuProject> allProjects = [project];
 
         if (project.BasicInfo.CreateSplitSmz3Script)
         {
-            otherProjects = GetSmz3SplitMsuProjects(project, out _, out var error).ToList();
+            allProjects.AddRange(GetSmz3SplitMsuProjects(project, out _, out var error));
             if (!string.IsNullOrEmpty(error))
             {
                 return false;
@@ -937,21 +937,19 @@ public class ProjectService(
         {
             var sb = new StringBuilder();
 
-            var trackCombos = project.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
-                .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))).ToList();
-
-            foreach (var otherProject in otherProjects)
-            {
-                trackCombos.AddRange(otherProject.Tracks.Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
-                    .Select(t => (t.Songs.First(s => !s.IsAlt), t.Songs.First(s => s.IsAlt))));
-            }
+            var trackCombos = allProjects.SelectMany(p => p.Tracks)
+                .Where(t => t is { IsScratchPad: false, Songs.Count: > 1 })
+                .Select(x => x.Songs.OrderBy(s => s.IsAlt).Take(2).ToList());
 
             foreach (var combo in trackCombos)
             {
-                var basePath = Path.GetRelativePath(msuPath, combo.Item1.OutputPath ?? "");
-                var baseAltPath = basePath.Replace($"-{combo.Item1.TrackNumber}.pcm",
-                    $"-{combo.Item1.TrackNumber}_Original.pcm");
-                var altSongPath = Path.GetRelativePath(msuPath, combo.Item2.OutputPath ?? "");
+                var regularTrack = combo[0];
+                var altTrack = combo[1];
+                
+                var basePath = Path.GetRelativePath(msuPath, regularTrack.OutputPath ?? "");
+                var baseAltPath = basePath.Replace($"-{regularTrack.TrackNumber}.pcm",
+                    $"-{regularTrack.TrackNumber}_Original.pcm");
+                var altSongPath = Path.GetRelativePath(msuPath, altTrack.OutputPath ?? "");
 
                 sb.AppendLine($"IF EXIST \"{baseAltPath}\" (");
                 sb.AppendLine($"\tRENAME \"{basePath}\" \"{altSongPath}\"");
