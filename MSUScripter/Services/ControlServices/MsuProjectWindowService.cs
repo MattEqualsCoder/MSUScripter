@@ -492,6 +492,7 @@ public class MsuProjectWindowService(
                 newSong.Id = Guid.NewGuid().ToString("N");
                 newSong.OutputPath = outputPath;
                 newSong.MsuPcmInfo.Output = outputPath;
+                newSong.IsAlt = true;
             }
         }
         
@@ -1152,6 +1153,7 @@ public class MsuProjectWindowService(
             {
                 songInfo.Id = originalSongInfo.Id;
                 songInfo.OutputPath = originalSongInfo.OutputPath;
+                songInfo.IsAlt = originalSongInfo.IsAlt;
                 songInfo.MsuPcmInfo.Output = originalSongInfo.MsuPcmInfo.Output;
                 songInfo.TrackNumber = originalSongInfo.TrackNumber;
                 songInfo.TrackName = originalSongInfo.TrackName;
