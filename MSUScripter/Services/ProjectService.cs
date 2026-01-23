@@ -1041,6 +1041,10 @@ public class ProjectService(
                 var field = string.Empty;
                 var projectVersion = string.Empty;
                 var msuVersion = string.Empty;
+
+                var projectSongDisplayArtist = string.IsNullOrEmpty(projectSong.Artist) ? project.BasicInfo.Artist : projectSong.Artist;
+                var projectSongDisplayAlbum = string.IsNullOrEmpty(projectSong.Album) ? project.BasicInfo.Album : projectSong.Album;
+                var projectSongDisplayUrl = string.IsNullOrEmpty(projectSong.Url) ? project.BasicInfo.Url : projectSong.Url;
                 
                 if ((projectSong.SongName ?? "") != (msuTrack.SongName ?? ""))
                 {
@@ -1048,29 +1052,29 @@ public class ProjectService(
                     projectVersion = projectSong.SongName ?? "";
                     msuVersion = msuTrack.SongName;
                 }
-                else if ((projectSong.Artist ?? "") != (msuTrack.Artist ?? ""))
+                else if ((projectSongDisplayArtist ?? "") != (msuTrack.DisplayArtist ?? ""))
                 {
                     field = "artist";
-                    projectVersion = projectSong.Artist ?? "";
-                    msuVersion = msuTrack.Artist;
+                    projectVersion = projectSongDisplayArtist ?? "";
+                    msuVersion = msuTrack.DisplayArtist;
                 }
-                else if ((projectSong.Album ?? "") != (msuTrack.Album ?? ""))
+                else if ((projectSongDisplayAlbum ?? "") != (msuTrack.DisplayAlbum ?? ""))
                 {
                     field = "album";
-                    projectVersion = projectSong.Album ?? "";
-                    msuVersion = msuTrack.Album;
+                    projectVersion = projectSongDisplayAlbum ?? "";
+                    msuVersion = msuTrack.DisplayAlbum;
                 }
-                else if ((projectSong.Url ?? "") != (msuTrack.Url ?? ""))
+                else if ((projectSongDisplayUrl ?? "") != (msuTrack.DisplayUrl ?? ""))
                 {
                     field = "url";
-                    projectVersion = projectSong.Url ?? "";
-                    msuVersion = msuTrack.Url;
+                    projectVersion = projectSongDisplayUrl ?? "";
+                    msuVersion = msuTrack.DisplayUrl;
                 }
 
                 if (!string.IsNullOrEmpty(field))
                 {
                     message =
-                        $"${fileBaseName} has the ${field} ${projectVersion} but the generated YAML file has the ${field} ${msuVersion}. Try regenerating the YAML file.";
+                        $"{fileBaseName} has the {field} \"{projectVersion}\" in the project but the generated YAML file has the {field} \"{msuVersion}\". Try regenerating the YAML file.";
                     logger.LogWarning("Project validation failed: {Error}", message);
                     statusBarService.UpdateStatusBar("YAML File Validation Failed");
                     return false;
