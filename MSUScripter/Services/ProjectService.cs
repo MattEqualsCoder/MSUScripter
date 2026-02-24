@@ -318,9 +318,9 @@ public class ProjectService(
     {
         try
         {
-            var legacyMsuType =
-                msuTypeService.MsuTypes.First(x => x.DisplayName == "SMZ3 Combo Randomizer (Zelda First)");
-            ConvertProjectMsuType(msuProject, legacyMsuType, true);
+            var newMsuType =
+                msuTypeService.MsuTypes.First(x => x.DisplayName == "SMZ3 Combo Randomizer");
+            ConvertProjectMsuType(msuProject, newMsuType, true);
         }
         catch (Exception e)
         {
@@ -388,7 +388,7 @@ public class ProjectService(
         project.BasicInfo.Game = project.MsuTypeName;
         project.BasicInfo.MsuType = project.MsuTypeName;
 
-        var conversion = project.MsuType.Conversions[oldType];
+        var conversion = oldType.Conversions[newMsuType];
         
         var msu = new FileInfo(project.MsuPath);
         var baseName = msu.Name.Replace(msu.Extension, "");
