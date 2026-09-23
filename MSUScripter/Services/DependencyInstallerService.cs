@@ -20,9 +20,9 @@ public class DependencyInstallerService(ILogger<DependencyInstallerService> logg
     private const string PythonLinuxDownloadUrl = "https://github.com/astral-sh/python-build-standalone/releases/download/20250828/cpython-3.13.7+20250828-x86_64_v3-unknown-linux-gnu-install_only_stripped.tar.gz";
     private const string MsuPcmWindowsDownloadUrl = "https://github.com/qwertymodo/msupcmplusplus/releases/download/v1.0RC3/msupcm.exe";
     private const string MsuPcmLinuxDownloadUrl = "https://github.com/MattEqualsCoder/msupcmplusplus/releases/download/v1.0RC3/msupcm.AppImage";
-    private const string FfmpegWindowsDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip";
+    private const string FfmpegWindowsDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-win64-lgpl-8.1.zip";
     private const string FfmpegWindows32BitDownloadUrl = "https://github.com/defisym/FFmpeg-Builds-Win32/releases/download/latest/ffmpeg-n7.1-latest-win32-gpl-7.1.zip";
-    private const string FfmpegLinuxDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-linux64-lgpl-shared-7.0.tar.xz";
+    private const string FfmpegLinuxDownloadUrl = "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-07-31-14-10/ffmpeg-n7.1.5-12-g1fdbca85aa-linux64-lgpl-shared-7.1.tar.xz";
 
     public async Task<bool> InstallPyApp(Action<string> response, Func<string, string, Task<RunPyResult>> runPyFunc)
     {
