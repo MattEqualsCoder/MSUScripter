@@ -2,7 +2,7 @@ name: .NET Build + Publish
 
 on:
   push:
-    branches: [main]
+    branches: [main, quad-rando]
   pull_request:
     branches: [main]
 
